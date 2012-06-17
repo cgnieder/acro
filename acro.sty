@@ -38,22 +38,46 @@
 \prop_new:N \l_acro_short_prop
 \prop_new:N \l_acro_alt_prop
 \prop_new:N \l_acro_long_prop
+\prop_new:N \l_acro_class_prop
+\prop_new:N \l_acro_replace_plural_prop
+\prop_new:N \l_acro_short_plural_prop
+\prop_new:N \l_acro_long_plural_prop
+\bool_new:N \l_acro_use_plural_bool
+\tl_new:N   \l_acro_short_tl
+\tl_new:N   \l_acro_alt_tl
+\tl_new:N   \l_acro_long_tl
 
-% adding an acronym:
+% adding an acronym, internal command:
 % #1: command
 % #2: id
 % #3: short
 % #4: alt
 % #5: long
-% TODO
-% #6: short plural
-% #7: long plural
-\cs_new:Npn \acro_new:nnnnnnn #1#2#3#4#5#6#7
+% #6: class
+% #7: use/replace plural (boolean)
+% #8: short plural
+% #9: long plural
+\cs_new:Npn \acro_new:nnnnnnnnn #1#2#3#4#5#6#7#8#9
   {
-    \prop_put:Nnn \l_acro_short_prop { #2 } { #3 }
-    \prop_put:Nnn \l_acro_alt_prop { #2 } { #4 }
+    \IfNoValueTF { #3 }
+      { \prop_put:Nnn \l_acro_short_prop { #2 } { #2 } }
+      { \prop_put:Nnn \l_acro_short_prop { #2 } { #3 } }
+    \IfNoValueTF { #4 }
+      { \prop_put:Nnn \l_acro_alt_prop { #2 } { #2 } }
+      { \prop_put:Nnn \l_acro_alt_prop { #2 } { #4 } }
     \prop_put:Nnn \l_acro_long_prop { #2 } { #5 }
-    \bool_new:c { l_acro_#2_used_bool }
+    \IfNoValueF { #6 }
+      { \prop_put:Nnn \l_acro_class_prop { #2 } { #6 } }
+    \IfBooleanTF { #7 }
+      { \prop_put:Nnn \l_acro_replace_plural_prop { #2 } { \c_true_bool } }
+      { \prop_put:Nnn \l_acro_replace_plural_prop { #2 } { \c_false_bool } }
+    \IfNoValueTF { #8 }
+      { \prop_put:Nnn \l_acro_short_plural_prop { #2 } { s } }
+      { \prop_put:Nnn \l_acro_short_plural_prop { #2 } { #8 } }
+    \IfNoValueTF { #9 }
+      { \prop_put:Nnn \l_acro_long_plural_prop { #2 } { s } }
+      { \prop_put:Nnn \l_acro_long_plural_prop { #2 } { #9 } }
+    \bool_new:c { g_acro_#2_used_bool }
     \cs_new:Npn #1
       {
         \bool_if:NTF \l_acro_use_xspace_bool
@@ -117,23 +141,49 @@
 % #1: id
 \cs_new:Npn \acro_use:n #1
   {
-    \prop_get:NnNF \l_acro_short_prop { #1 } \l_tmpa_tl
-      { \msg_error:nnx { acro } { undefined } { #1 } }
-    \bool_if:cTF { l_acro_#1_used_bool }
+    \bool_if:cT { g_acro_#1_used_bool }
+      { \iow_now:Nx \@auxout { \string \acro@used@twice { #1 } } }
+    \acro_get:n { #1 }
+    \acro_set_plural:n { #1 }
+    \bool_if:cTF { g_acro_#1_used_bool }
+      { \acro_write:V \l_acro_short_tl }
       {
-        \iow_now:Nx \@auxout { \string \acro@used@twice { #1 } }
-        \acro_write:V \l_tmpa_tl
-      }
-      {
-        \bool_set_true:c { l_acro_#1_used_bool }
-        \prop_get:NnNF \l_acro_long_prop { #1 } \l_tmpb_tl
-          { \msg_error:nnx { acro } { undefined } { #1 } }
+        \bool_gset_true:c { g_acro_#1_used_bool }
         \bool_if:nTF { !\l_acro_use_single_bool || \cs_if_exist_p:c { acro@#1 } }
           { 
             \UseInstance { acro-first } { \l_acro_first_instance_tl }
-              { \l_tmpa_tl } { \l_tmpb_tl }
+              { \l_acro_short_tl } { \l_acro_long_tl }
           }
-          { \acro_write:V \l_tmpb_tl }
+          { \acro_write:V \l_acro_long_tl }
+      }
+  }
+
+\cs_new:Npn \acro_get:n #1
+  {
+    \prop_get:NnNF \l_acro_short_prop { #1 } \l_acro_short_tl
+      { \msg_error:nnx { acro } { undefined } { #1 } }
+    \prop_get:NnN \l_acro_long_prop { #1 } \l_acro_long_tl
+    \prop_get:NnN \l_acro_alt_prop { #1 } \l_acro_alt_tl
+  }
+
+\cs_new:Npn \acro_set_plural:n #1
+  {
+    \bool_if:NT \l_acro_use_plural_bool
+      {
+        \bool_if:nTF { \prop_get:Nn \l_acro_replace_plural_prop { #1 } }
+          {
+            \prop_get:NnN \l_acro_short_plural_prop { #1 } \l_acro_short_tl
+            \prop_get:NnN \l_acro_short_plural_prop { #1 } \l_acro_alt_tl
+            \prop_get:NnN \l_acro_long_plural_prop { #1 } \l_acro_long_tl
+          }
+          {
+            \tl_put_right:Nn \l_acro_short_tl
+              { \prop_get:Nn \l_acro_short_plural_prop { #1 } }
+            \tl_put_right:Nn \l_acro_alt_tl
+              { \prop_get:Nn \l_acro_short_plural_prop { #1 } }
+            \tl_put_right:Nn \l_acro_long_tl
+              { \prop_get:Nn \l_acro_long_plural_prop { #1 } }
+          }
       }
   }
 
@@ -150,79 +200,158 @@
       }
   }
 
+% get short entry:
 \cs_new:Npn \acro_short:n #1
   {
-    \prop_get:NnNTF \l_acro_short_prop { #1 } \l_tmpa_tl
-      { \acro_write:V \l_tmpa_tl }
-      { \msg_error:nnx { acro } { undefined } { #1 } }
+    \acro_get:n { #1 }
+    \acro_set_plural:n { #1 }
+    \acro_write:V \l_acro_short_tl
   }
 
+% get alternative entry:
 \cs_new:Npn \acro_alt:n #1
   {
-    \prop_get:NnNTF \l_acro_alt_prop { #1 } \l_tmpa_tl
-      { \acro_write:V \l_tmpa_tl }
-      { \msg_error:nnx { acro } { undefined } { #1 } }
+    \acro_get:n { #1 }
+    \acro_set_plural:n { #1 }
+    \acro_write:V \l_acro_alt_tl
   }
 
+% get long entry:
 \cs_new:Npn \acro_long:n #1
   {
-    \prop_get:NnNTF \l_acro_long_prop { #1 } \l_tmpa_tl
-      { \tl_use:N \l_tmpa_tl }
-      { \msg_error:nnx { acro } { undefined } { #1 } }
+    \acro_get:n { #1 }
+    \acro_set_plural:n { #1 }
+    \acro_write:V \l_acro_long_tl
   }
 
+% output like the first time:
 \cs_new:Npn \acro_first:n #1
   {
-    \prop_get:NnN \l_acro_short_prop { #1 } \l_tmpa_tl
-    \prop_get:NnN \l_acro_long_prop { #1 } \l_tmpb_tl
+    \acro_get:n { #1 }
+    \acro_set_plural:n { #1 }
     \UseInstance { acro-first } { \l_acro_first_instance_tl }
-      { \l_tmpa_tl } { \l_tmpb_tl }
+      { \l_acro_short_tl } { \l_acro_long_tl }
   }
 
-\NewDocumentCommand \NewAcronym { mmoomgg }
-  {
-    \IfNoValueTF { #3 }
-      {
-        \IfNoValueTF { #4 }
-         { \acro_new:nnnnnnn { #1 } { #2 } { #2 } { #2 } { #5 } { #6 } { #7 } }
-         { \acro_new:nnnnnnn { #1 } { #2 } { #2 } { #4 } { #5 } { #6 } { #7 } }
-      }
-      {
-        \IfNoValueTF { #4 }
-          { \acro_new:nnnnnnn { #1 } { #2 } { #3 } { #3 } { #5 } { #6 } { #7 } }
-          { \acro_new:nnnnnnn { #1 } { #2 } { #3 } { #4 } { #5 } { #6 } { #7 } }
-      }
-  }
+% --------------------------------------------------------------------------
+% USER COMMANDS
+% adding an acronym, user command:
+% #1: command
+% #2: id
+% #3: short
+% #4: alt
+% #5: long
+% #6: class
+% #7: use/replace plural (boolean)
+% #8: short plural
+% #9: long plural
+\NewDocumentCommand \NewAcronym { mmoomosgg }
+  { \acro_new:nnnnnnnnn { #1 } { #2 } { #3 } { #4 } { #5 } { #6 } { #7 } { #8 } { #9 } }
+\@onlypreamble \NewAcronym
 
 % automatic:
 \NewDocumentCommand \ac { m }
   { \acro_use:n { #1 } }
 
+\NewDocumentCommand \acp { m }
+  {
+    \group_begin:
+      \bool_set_true:N \l_acro_use_plural_bool
+      \acro_use:n { #1 }
+    \group_end:
+  }
+
 % short:
 \NewDocumentCommand \acs { m }
   { \acro_short:n { #1 } }
 
+\NewDocumentCommand \acsp { m }
+  {
+    \group_begin:
+      \bool_set_true:N \l_acro_use_plural_bool
+      \acro_short:n { #1 }
+    \group_end:
+  }
+
 % alt:
-\NewDocumentCommand \Acs { m }
+\NewDocumentCommand \aca { m }
   { \acro_alt:n { #1 } }
+
+\NewDocumentCommand \acap { m }
+  {
+    \group_begin:
+      \bool_set_true:N \l_acro_use_plural_bool
+      \acro_alt:n { #1 }
+    \group_end:
+  }
 
 % long:
 \NewDocumentCommand \acl { m }
   { \acro_long:n { #1 } }
 
-% first
+\NewDocumentCommand \aclp { m }
+  {
+    \group_begin:
+      \bool_set_true:N \l_acro_use_plural_bool
+      \acro_long:n { #1 }
+    \group_end:
+  }
+
+% first:
 \NewDocumentCommand \acf { m }
   { \acro_first:n { #1 } }
 
+\NewDocumentCommand \acfp { m }
+  {
+    \group_begin:
+      \bool_set_true:N \l_acro_use_plural_bool
+      \acro_first:n { #1 }
+    \group_end:
+  }
 
-\NewDocumentCommand \printacronyms {}
+% reset outputs, they'll behave like the first time again (!not like the _only_
+% time!):
+\NewDocumentCommand \acreset {}
+  {
+    \prop_map_inline:Nn \l_acro_short_prop
+      { \bool_gset_false:c { g_acro_##1_used_bool } }
+  }
+
+% typeset the list:
+\NewDocumentCommand \printacronyms { G{} }
   {
     \begin{description}
-     \prop_map_inline:Nn \l_acro_short_prop
-       {
-         \cs_if_exist:cT { acro@##1 }
-           { \item[\acro_write:n{##2}] \prop_get:Nn \l_acro_long_prop { ##1 } }
-       } 
+      \prop_map_inline:Nn \l_acro_short_prop
+        {
+          \bool_if:nT
+            {
+              ( \l_acro_use_single_bool && \cs_if_exist_p:c { acro@##1 } ) ||
+              ! \l_acro_use_single_bool
+            }
+            {
+              \tl_if_blank:nTF { #1 }
+                {
+                  \item[\acro_write:n{##2}]
+                  \prop_get:Nn \l_acro_long_prop { ##1 }
+                }
+                {
+                  \clist_map_inline:nn { #1 }
+                    {
+                      \prop_get:NnNT \l_acro_class_prop { ##1 } \l_tmpa_tl
+                        {
+                          \tl_set:Nn \l_tmpb_tl { ####1 }
+                          \tl_trim_spaces:N \l_tmpa_tl
+                          \tl_trim_spaces:N \l_tmpb_tl
+                          \tl_if_eq:NNT \l_tmpa_tl \l_tmpb_tl
+                            {
+                              \item[\acro_write:n{##2}]
+                              \prop_get:Nn \l_acro_long_prop { ##1 }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     \end{description}
   }
 
@@ -235,4 +364,3 @@
 - kompatibilität mit fnpct herstellen.
 - Support, um in verschiedene Klassen zu unterteilen und \printacronyms
   anpassen
-- reset => setze alle \l_acro_ id _used_bool = false
