@@ -1,0 +1,238 @@
+\RequirePackage{expl3,xparse,l3keys2e,xtemplate,xspace}
+\ProvidesExplPackage
+  {acro}
+  {2012/06/16}
+  {0.01}
+  {Acronyms}
+
+% error messages:
+\msg_new:nnnn { acro } { undefined }
+  { You've~requested~acronym~`#1'~but~it~seems~that~it~was~never~defined! }
+  {
+    You've~requested~acronym~`#1'~\msg_line_context: \c_space_tl but~you~
+    apperantly~haven't~defined~it,~yet!~Maybe~you've~mispelled~it?
+  }
+
+% package options:
+% variables
+\bool_new:N \l_acro_use_xspace_bool
+\bool_new:N \l_acro_use_single_bool
+\tl_new:N   \l_acro_short_format_tl
+\tl_new:N   \l_acro_first_instance_tl
+\tl_set:Nn  \l_acro_first_instance_tl { default }
+
+% options:
+\keys_define:nn { acro }
+  {
+    xspace         .bool_set:N = \l_acro_use_xspace_bool ,
+    format         .tl_set:N   = \l_acro_short_format_tl ,
+    single         .bool_set:N = \l_acro_use_single_bool ,
+    first-instance .tl_set:N   = \l_acro_first_instance_tl
+  }
+
+% setup command:
+\NewDocumentCommand \acsetup { m }
+  { \keys_set:nn { acro } { #1 } }
+
+% variables:
+\prop_new:N \l_acro_short_prop
+\prop_new:N \l_acro_alt_prop
+\prop_new:N \l_acro_long_prop
+
+% adding an acronym:
+% #1: command
+% #2: id
+% #3: short
+% #4: alt
+% #5: long
+% TODO
+% #6: short plural
+% #7: long plural
+\cs_new:Npn \acro_new:nnnnnnn #1#2#3#4#5#6#7
+  {
+    \prop_put:Nnn \l_acro_short_prop { #2 } { #3 }
+    \prop_put:Nnn \l_acro_alt_prop { #2 } { #4 }
+    \prop_put:Nnn \l_acro_long_prop { #2 } { #5 }
+    \bool_new:c { l_acro_#2_used_bool }
+    \cs_new:Npn #1
+      {
+        \bool_if:NTF \l_acro_use_xspace_bool
+          { \acro_use:n { #2 } \xspace }
+          { \acro_use:n { #2 }  }
+      }
+  }
+
+% typeset the shortcut:
+\cs_new:Npn \acro_write:n #1
+  {
+    \group_begin:
+      \tl_use:N \l_acro_short_format_tl
+      #1
+    \group_end:
+  }
+\cs_generate_variant:Nn \acro_write:n { V }
+
+\bool_new:N \l_acro_first_use_brackets_bool
+\tl_new:N   \l_acro_first_brackets_tl
+
+% #1: short
+% #2: long
+\DeclareObjectType { acro-first } { 2 }
+
+\DeclareTemplateInterface { acro-first } { text } { 2 }
+  {
+    brackets      : boolean   = true ,
+    brackets-type : tokenlist = ()
+  }
+\DeclareTemplateCode { acro-first } { text } { 2 }
+  {
+    brackets      = \l_acro_first_use_brackets_bool ,
+    brackets-type = \l_acro_first_brackets_tl
+  }
+  {
+    \AssignTemplateKeys
+    #2
+    \tl_use:N \c_space_tl
+    \bool_if:NT \l_acro_first_use_brackets_bool
+      { \tl_head:N \l_acro_first_brackets_tl }
+    \group_begin:
+      \acro_write:n { #1 }
+    \group_end:
+    \bool_if:NT \l_acro_first_use_brackets_bool
+      { \tl_tail:N \l_acro_first_brackets_tl }
+  }
+
+\DeclareTemplateInterface { acro-first } { footnote } { 2 } { }
+\DeclareTemplateCode { acro-first } { footnote } { 2 } { }
+  {
+    \AssignTemplateKeys
+    \acro_write:n { #1 } \footnote { #2 } 
+  }
+
+\DeclareInstance { acro-first } { default  } { text     } { }
+\DeclareInstance { acro-first } { square   } { text     } { brackets-type = [] }
+\DeclareInstance { acro-first } { footnote } { footnote } { }
+
+% automatic typesetting, the internals of \ac:
+% #1: id
+\cs_new:Npn \acro_use:n #1
+  {
+    \prop_get:NnNF \l_acro_short_prop { #1 } \l_tmpa_tl
+      { \msg_error:nnx { acro } { undefined } { #1 } }
+    \bool_if:cTF { l_acro_#1_used_bool }
+      {
+        \iow_now:Nx \@auxout { \string \acro@used@twice { #1 } }
+        \acro_write:V \l_tmpa_tl
+      }
+      {
+        \bool_set_true:c { l_acro_#1_used_bool }
+        \prop_get:NnNF \l_acro_long_prop { #1 } \l_tmpb_tl
+          { \msg_error:nnx { acro } { undefined } { #1 } }
+        \bool_if:nTF { !\l_acro_use_single_bool || \cs_if_exist_p:c { acro@#1 } }
+          { 
+            \UseInstance { acro-first } { \l_acro_first_instance_tl }
+              { \l_tmpa_tl } { \l_tmpb_tl }
+          }
+          { \acro_write:V \l_tmpb_tl }
+      }
+  }
+
+\cs_new:Npn \acro@used@twice #1
+  { \expandafter\xdef\csname acro@#1 \endcsname { #1 } }
+
+\AtEndDocument
+  {
+    \cs_set:Npn \acro@used@twice #1
+      {
+        \def\reserved@a{#1}%
+        \expandafter\ifx\csname acro@#1\endcsname\reserved@a\else
+        \@tempswatrue\fi
+      }
+  }
+
+\cs_new:Npn \acro_short:n #1
+  {
+    \prop_get:NnNTF \l_acro_short_prop { #1 } \l_tmpa_tl
+      { \acro_write:V \l_tmpa_tl }
+      { \msg_error:nnx { acro } { undefined } { #1 } }
+  }
+
+\cs_new:Npn \acro_alt:n #1
+  {
+    \prop_get:NnNTF \l_acro_alt_prop { #1 } \l_tmpa_tl
+      { \acro_write:V \l_tmpa_tl }
+      { \msg_error:nnx { acro } { undefined } { #1 } }
+  }
+
+\cs_new:Npn \acro_long:n #1
+  {
+    \prop_get:NnNTF \l_acro_long_prop { #1 } \l_tmpa_tl
+      { \tl_use:N \l_tmpa_tl }
+      { \msg_error:nnx { acro } { undefined } { #1 } }
+  }
+
+\cs_new:Npn \acro_first:n #1
+  {
+    \prop_get:NnN \l_acro_short_prop { #1 } \l_tmpa_tl
+    \prop_get:NnN \l_acro_long_prop { #1 } \l_tmpb_tl
+    \UseInstance { acro-first } { \l_acro_first_instance_tl }
+      { \l_tmpa_tl } { \l_tmpb_tl }
+  }
+
+\NewDocumentCommand \NewAcronym { mmoomgg }
+  {
+    \IfNoValueTF { #3 }
+      {
+        \IfNoValueTF { #4 }
+         { \acro_new:nnnnnnn { #1 } { #2 } { #2 } { #2 } { #5 } { #6 } { #7 } }
+         { \acro_new:nnnnnnn { #1 } { #2 } { #2 } { #4 } { #5 } { #6 } { #7 } }
+      }
+      {
+        \IfNoValueTF { #4 }
+          { \acro_new:nnnnnnn { #1 } { #2 } { #3 } { #3 } { #5 } { #6 } { #7 } }
+          { \acro_new:nnnnnnn { #1 } { #2 } { #3 } { #4 } { #5 } { #6 } { #7 } }
+      }
+  }
+
+% automatic:
+\NewDocumentCommand \ac { m }
+  { \acro_use:n { #1 } }
+
+% short:
+\NewDocumentCommand \acs { m }
+  { \acro_short:n { #1 } }
+
+% alt:
+\NewDocumentCommand \Acs { m }
+  { \acro_alt:n { #1 } }
+
+% long:
+\NewDocumentCommand \acl { m }
+  { \acro_long:n { #1 } }
+
+% first
+\NewDocumentCommand \acf { m }
+  { \acro_first:n { #1 } }
+
+
+\NewDocumentCommand \printacronyms {}
+  {
+    \begin{description}
+     \prop_map_inline:Nn \l_acro_short_prop
+       {
+         \cs_if_exist:cT { acro@##1 }
+           { \item[\acro_write:n{##2}] \prop_get:Nn \l_acro_long_prop { ##1 } }
+       } 
+    \end{description}
+  }
+
+\ProcessKeysOptions { acro }
+
+\tex_endinput:D
+% TODO:
+- Support für verschiedene Darstellungen der Acronym-Liste (incl. Sprachsupport)
+  => templates
+- kompatibilität mit fnpct herstellen.
+- Support, um in verschiedene Klassen zu unterteilen und \printacronyms
+  anpassen
+- reset => setze alle \l_acro_ id _used_bool = false
