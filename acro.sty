@@ -18,23 +18,27 @@
 \bool_new:N \l_acro_use_xspace_bool
 \bool_new:N \l_acro_use_single_bool
 \tl_new:N   \l_acro_short_format_tl
+\tl_new:N   \l_acro_long_format_tl
+\tl_new:N   \l_acro_extra_format_tl
 \tl_new:N   \l_acro_first_instance_tl
 \tl_set:Nn  \l_acro_first_instance_tl { default }
-
-% options:
-\keys_define:nn { acro }
-  {
-    xspace         .bool_set:N = \l_acro_use_xspace_bool ,
-    format         .tl_set:N   = \l_acro_short_format_tl ,
-    single         .bool_set:N = \l_acro_use_single_bool ,
-    first-instance .tl_set:N   = \l_acro_first_instance_tl
-  }
-
-% setup command:
-\NewDocumentCommand \acsetup { m }
-  { \keys_set:nn { acro } { #1 } }
-
-% variables:
+\tl_new:N   \l_acro_extra_instance_tl
+\tl_set:Nn  \l_acro_extra_instance_tl { paren }
+\tl_new:N   \l_acro_page_instance_tl
+\tl_set:Nn  \l_acro_page_instance_tl  { none }
+\tl_new:N   \l_acro_page_name_tl
+\tl_set:Nn  \l_acro_page_name_tl      { p. }
+\tl_new:N   \l_acro_list_instance_tl
+\tl_set:Nn  \l_acro_list_instance_tl { description }
+\tl_new:N   \l_acro_list_type_tl
+\tl_set:Nn  \l_acro_list_type_tl     { description }
+\tl_new:N   \l_acro_list_title_tl
+\tl_set:Nn  \l_acro_list_title_tl    { section* }
+\tl_new:N   \l_acro_list_name_tl
+\tl_set:Nn  \l_acro_list_name_tl     { Acronyms }
+\tl_new:N   \l_acro_short_tl
+\tl_new:N   \l_acro_alt_tl
+\tl_new:N   \l_acro_long_tl
 \prop_new:N \l_acro_short_prop
 \prop_new:N \l_acro_alt_prop
 \prop_new:N \l_acro_long_prop
@@ -42,60 +46,79 @@
 \prop_new:N \l_acro_replace_plural_prop
 \prop_new:N \l_acro_short_plural_prop
 \prop_new:N \l_acro_long_plural_prop
+\prop_new:N \l_acro_extra_prop
 \bool_new:N \l_acro_use_plural_bool
-\tl_new:N   \l_acro_short_tl
-\tl_new:N   \l_acro_alt_tl
-\tl_new:N   \l_acro_long_tl
+\newcounter { acro }
 
+% options:
+\keys_define:nn { acro }
+  {
+    xspace         .bool_set:N = \l_acro_use_xspace_bool   ,
+    short-format   .tl_set:N   = \l_acro_short_format_tl   ,
+    long-format    .tl_set:N   = \l_acro_long_format_tl    ,
+    extra-format   .tl_set:N   = \l_acro_extra_format_tl   ,
+    single         .bool_set:N = \l_acro_use_single_bool   ,
+    first-style    .tl_set:N   = \l_acro_first_instance_tl ,
+    extra-style    .tl_set:N   = \l_acro_extra_instance_tl ,
+    page-style     .tl_set:N   = \l_acro_page_instance_tl  ,
+    page-name      .tl_set:N   = \l_acro_page_name_tl      ,
+    list-style     .tl_set:N   = \l_acro_list_instance_tl  ,
+    list-type      .tl_set:N   = \l_acro_list_type_tl      ,
+    list-header    .tl_set:N   = \l_acro_list_title_tl     ,
+    list-name      .tl_set:N   = \l_acro_list_name_tl      ,
+  }
+
+% setup command:
+\NewDocumentCommand \acsetup { m }
+  { \keys_set:nn { acro } { #1 } }
+
+% --------------------------------------------------------------------------
 % adding an acronym, internal command:
-% #1: command
+% #1: use/replace plural (boolean)
 % #2: id
 % #3: short
-% #4: alt
-% #5: long
-% #6: class
-% #7: use/replace plural (boolean)
-% #8: short plural
-% #9: long plural
+% #4: short plural
+% #5: alt
+% #6: long
+% #7: long plural
+% #8: class
+% #9: extra
 \cs_new:Npn \acro_new:nnnnnnnnn #1#2#3#4#5#6#7#8#9
   {
-    \IfNoValueTF { #3 }
-      { \prop_put:Nnn \l_acro_short_prop { #2 } { #2 } }
-      { \prop_put:Nnn \l_acro_short_prop { #2 } { #3 } }
-    \IfNoValueTF { #4 }
-      { \prop_put:Nnn \l_acro_alt_prop { #2 } { #2 } }
-      { \prop_put:Nnn \l_acro_alt_prop { #2 } { #4 } }
-    \prop_put:Nnn \l_acro_long_prop { #2 } { #5 }
-    \IfNoValueF { #6 }
-      { \prop_put:Nnn \l_acro_class_prop { #2 } { #6 } }
-    \IfBooleanTF { #7 }
+    \IfBooleanTF { #1 }
       { \prop_put:Nnn \l_acro_replace_plural_prop { #2 } { \c_true_bool } }
       { \prop_put:Nnn \l_acro_replace_plural_prop { #2 } { \c_false_bool } }
-    \IfNoValueTF { #8 }
+    \prop_put:Nnn \l_acro_short_prop { #2 } { #3 }
+    \IfNoValueTF { #4 }
       { \prop_put:Nnn \l_acro_short_plural_prop { #2 } { s } }
-      { \prop_put:Nnn \l_acro_short_plural_prop { #2 } { #8 } }
-    \IfNoValueTF { #9 }
+      { \prop_put:Nnn \l_acro_short_plural_prop { #2 } { #4 } }
+    \IfNoValueTF { #5 }
+      { \prop_put:Nnn \l_acro_alt_prop { #2 } { #2 } }
+      { \prop_put:Nnn \l_acro_alt_prop { #2 } { #5 } }
+    \prop_put:Nnn \l_acro_long_prop { #2 } { #6 }
+    \IfNoValueTF { #7 }
       { \prop_put:Nnn \l_acro_long_plural_prop { #2 } { s } }
-      { \prop_put:Nnn \l_acro_long_plural_prop { #2 } { #9 } }
+      { \prop_put:Nnn \l_acro_long_plural_prop { #2 } { #7 } }
+    \IfNoValueF { #8 }
+      { \prop_put:Nnn \l_acro_class_prop { #2 } { #8} }
+    \IfNoValueF { #9 }
+      { \prop_put:Nnn \l_acro_extra_prop { #2 } { #9 } }
     \bool_new:c { g_acro_#2_used_bool }
-    \cs_new:Npn #1
-      {
-        \bool_if:NTF \l_acro_use_xspace_bool
-          { \acro_use:n { #2 } \xspace }
-          { \acro_use:n { #2 }  }
-      }
+    \bool_new:c { g_acro_#2_label_bool }
   }
 
 % typeset the shortcut:
-\cs_new:Npn \acro_write:n #1
+\cs_new:Npn \acro_write:Nn #1#2
   {
     \group_begin:
-      \tl_use:N \l_acro_short_format_tl
-      #1
+      \tl_use:N #1
+      #2
     \group_end:
   }
-\cs_generate_variant:Nn \acro_write:n { V }
+\cs_generate_variant:Nn \acro_write:Nn { NV }
 
+% --------------------------------------------------------------------------
+% output style of the first time an acronym is used
 \bool_new:N \l_acro_first_use_brackets_bool
 \tl_new:N   \l_acro_first_brackets_tl
 
@@ -119,9 +142,7 @@
     \tl_use:N \c_space_tl
     \bool_if:NT \l_acro_first_use_brackets_bool
       { \tl_head:N \l_acro_first_brackets_tl }
-    \group_begin:
-      \acro_write:n { #1 }
-    \group_end:
+    \acro_write:Nn \l_acro_short_format_tl { #1 }
     \bool_if:NT \l_acro_first_use_brackets_bool
       { \tl_tail:N \l_acro_first_brackets_tl }
   }
@@ -130,34 +151,231 @@
 \DeclareTemplateCode { acro-first } { footnote } { 2 } { }
   {
     \AssignTemplateKeys
-    \acro_write:n { #1 } \footnote { #2 } 
+    \acro_write:Nn \l_acro_short_format_tl { #1 }
+    \footnote { \acro_write:Nn \l_acro_long_format_tl { #2 } } 
   }
 
 \DeclareInstance { acro-first } { default  } { text     } { }
 \DeclareInstance { acro-first } { square   } { text     } { brackets-type = [] }
 \DeclareInstance { acro-first } { footnote } { footnote } { }
 
+% --------------------------------------------------------------------------
+% formatting the extras information:
+\bool_new:N \l_acro_extra_comma_bool
+\bool_new:N \l_acro_extra_use_brackets_bool
+\tl_new:N   \l_acro_extra_brackets_tl
+
+\DeclareObjectType { acro-extra } { 1 }
+
+\DeclareTemplateInterface { acro-extra } { default } { 1 }
+  {
+    comma         : boolean   = false ,
+    brackets      : boolean   = true  ,
+    brackets-type : tokenlist = ()
+  }
+
+\DeclareTemplateCode { acro-extra } { default } { 1 }
+  {
+    comma         = \l_acro_extra_comma_bool    ,
+    brackets      = \l_acro_extra_use_brackets_bool ,
+    brackets-type = \l_acro_extra_brackets_tl
+  }
+  {
+    \AssignTemplateKeys
+    \bool_if:NT \l_acro_extra_comma_bool { , }
+    \tl_use:N \c_space_tl
+    \bool_if:NT \l_acro_extra_use_brackets_bool
+      { \tl_head:N \l_acro_extra_brackets_tl }
+    \acro_write:Nn \l_acro_extra_format_tl { #1 }
+    \bool_if:NT \l_acro_extra_use_brackets_bool
+      { \tl_tail:N \l_acro_extra_brackets_tl }
+  }
+
+\DeclareInstance { acro-extra } { paren   } { default } { }
+\DeclareInstance { acro-extra } { bracket } { default } { brackets-type=[] }
+\DeclareInstance { acro-extra } { comma   } { default }
+  { comma = true, brackets = false }
+
+% --------------------------------------------------------------------------
+% outputting the page number:
+\bool_new:N \l_acro_page_comma_bool
+\bool_new:N \l_acro_page_display_bool
+\dim_new:N  \l_acro_page_space_dim
+
+\DeclareObjectType { acro-page } { 1 }
+
+\DeclareTemplateInterface { acro-page } { default } { 1 }
+  {
+    display       : boolean   = true  ,
+    comma         : boolean   = true  ,
+    brackets      : boolean   = false ,
+    brackets-type : tokenlist = ()    ,
+    space         : length    = .2ex  ,
+    name          : tokenlist         ,
+  }
+
+\DeclareTemplateCode { acro-page } { default } { 1 }
+  {
+    display       = \l_acro_page_display_bool  ,
+    comma         = \l_acro_page_comma_bool    ,
+    brackets      = \l_acro_page_brackets_bool ,
+    brackets-type = \l_acro_page_brackets_tl   ,
+    space         = \l_acro_page_space_dim     ,
+    name          = \l_acro_page_name_tl       ,
+  }
+  {
+    \AssignTemplateKeys
+    \bool_if:NT \l_acro_page_display_bool
+      {
+        \bool_if:NT \l_acro_page_comma_bool { , }
+        \tl_use:N \c_space_tl
+        \bool_if:NT \l_acro_page_brackets_bool
+          { \tl_head:N \l_acro_page_brackets_tl }
+        \tl_use:N \l_acro_page_name_tl
+        \skip_horizontal:N \l_acro_page_space_dim
+        \pageref { ac:#1 }
+        \bool_if:NT \l_acro_page_brackets_bool
+          { \tl_tail:N \l_acro_page_brackets_tl }
+      }
+  }
+
+\DeclareInstance { acro-page } { comma } { default } { }
+\DeclareInstance { acro-page } { paren } { default }
+  { comma=false, brackets=true }
+\DeclareInstance { acro-page } { none  } { default } { display = false }
+
+% --------------------------------------------------------------------------
+% the title of the list:
+\cs_new:Npn \acro_list_title_format:n #1 { #1 }
+
+\DeclareObjectType { acro-title } { 1 }
+
+\DeclareTemplateInterface { acro-title } { sectioning } { 1 }
+  { name-format : function 1 = #1 }
+
+\DeclareTemplateCode { acro-title } { sectioning } { 1 }
+  { name-format = \acro_list_title_format:n }
+  {
+    \AssignTemplateKeys
+    \acro_list_title_format:n { #1 }
+  }
+
+\DeclareInstance { acro-title } { chapter*    } { sectioning }
+  { name-format = \chapter* { #1 } }
+\DeclareInstance { acro-title } { part*       } { sectioning }
+  { name-format = \part* { #1 } }
+\DeclareInstance { acro-title } { section*    } { sectioning }
+  { name-format = \section* { #1 } }
+\DeclareInstance { acro-title } { subsection* } { sectioning }
+  { name-format = \subsection* { #1 } }
+\DeclareInstance { acro-title } { chapter     } { sectioning }
+  { name-format = \chapter { #1 } }
+\DeclareInstance { acro-title } { part        } { sectioning }
+  { name-format = \part { #1 } }
+\DeclareInstance { acro-title } { section     } { sectioning }
+  { name-format = \section { #1 } }
+\DeclareInstance { acro-title } { subsection  } { sectioning }
+  { name-format = \subsection { #1 } }
+
+% --------------------------------------------------------------------------
+% outputting the whole list
+\DeclareObjectType { acro-list } { 2 }
+
+\DeclareTemplateInterface { acro-list } { list } { 2 }
+  {  }
+
+\DeclareTemplateCode { acro-list } { list } { 2 }
+  {  }
+  {
+    \begin { #1 }
+      \prop_map_inline:Nn \l_acro_short_prop
+        {
+          \bool_if:nT
+            {
+              ( \l_acro_use_single_bool && \cs_if_exist_p:c { acro@##1 } ) ||
+              ! \l_acro_use_single_bool
+            }
+            {
+              \tl_if_blank:nTF { #2 }
+                {
+                  \item [ \acro_write:Nn \l_acro_short_format_tl { ##2 } ]
+                  \acro_write:Nn \l_acro_long_format_tl
+                    { \prop_get:Nn \l_acro_long_prop { ##1 } }
+                  \prop_get:NnNT \l_acro_extra_prop { ##1 } \l_tmpa_tl
+                    {
+                      \UseInstance { acro-extra } { \l_acro_extra_instance_tl }
+                        { \l_tmpa_tl }
+                    }
+                  \UseInstance { acro-page } { \l_acro_page_instance_tl } { ##1 }
+                }
+                {
+                  \clist_map_inline:nn { #2 }
+                    {
+                      \prop_get:NnNT \l_acro_class_prop { ##1 } \l_tmpa_tl
+                        {
+                          \tl_set:Nn \l_tmpb_tl { ####1 }
+                          \tl_trim_spaces:N \l_tmpa_tl
+                          \tl_trim_spaces:N \l_tmpb_tl
+                          \tl_if_eq:NNT \l_tmpa_tl \l_tmpb_tl
+                            {
+                              \item [ \acro_write:Nn \l_acro_short_format_tl { ##2 } ]
+                              \acro_write:Nn \l_acro_long_format_tl
+                                { \prop_get:Nn \l_acro_long_prop { ##1 } }
+                              \prop_get:NnNT \l_acro_extra_prop { ##1 } \l_tmpa_tl
+                                {
+                                  \UseInstance { acro-extra } { \l_acro_extra_instance_tl }
+                                    { \l_tmpa_tl }
+                                }
+                              \UseInstance { acro-page } { \l_acro_page_instance_tl } { ##1 }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    \exp_args:No \end { #1 }
+  }
+
+\DeclareTemplateInterface { acro-list } { table } { 2 } {}
+\DeclareTemplateCode { acro-list } { table } { 2 } {} {}
+
+\DeclareInstance { acro-list } { list } { list } { }
+
+% --------------------------------------------------------------------------
 % automatic typesetting, the internals of \ac:
 % #1: id
 \cs_new:Npn \acro_use:n #1
   {
+    % if this is the second, third, ... time:
     \bool_if:cT { g_acro_#1_used_bool }
       { \iow_now:Nx \@auxout { \string \acro@used@twice { #1 } } }
+    % get the acronym and the plural settings:
     \acro_get:n { #1 }
     \acro_set_plural:n { #1 }
     \bool_if:cTF { g_acro_#1_used_bool }
-      { \acro_write:V \l_acro_short_tl }
       {
+        % this is not the first time
+        \acro_write:NV \l_acro_short_format_tl \l_acro_short_tl
+      }
+      {
+        % this is the first time
+        \bool_if:cF { g_acro_#1_label_bool }
+          {
+            \bool_gset_true:c { g_acro_#1_label_bool }
+            \refstepcounter{acro}\label{ac:#1}
+          }
         \bool_gset_true:c { g_acro_#1_used_bool }
         \bool_if:nTF { !\l_acro_use_single_bool || \cs_if_exist_p:c { acro@#1 } }
           { 
             \UseInstance { acro-first } { \l_acro_first_instance_tl }
               { \l_acro_short_tl } { \l_acro_long_tl }
           }
-          { \acro_write:V \l_acro_long_tl }
+          { \acro_write:NV \l_acro_long_format_tl \l_acro_long_tl }
       }
   }
 
+% --------------------------------------------------------------------------
+% two helpers we'll need more often:
 \cs_new:Npn \acro_get:n #1
   {
     \prop_get:NnNF \l_acro_short_prop { #1 } \l_acro_short_tl
@@ -187,6 +405,9 @@
       }
   }
 
+% --------------------------------------------------------------------------
+% enable us to know if the acronym is used only once and provide a different
+% style for that %TODO customize output style
 \cs_new:Npn \acro@used@twice #1
   { \expandafter\xdef\csname acro@#1 \endcsname { #1 } }
 
@@ -200,12 +421,14 @@
       }
   }
 
+% --------------------------------------------------------------------------
+% the standard internals:
 % get short entry:
 \cs_new:Npn \acro_short:n #1
   {
     \acro_get:n { #1 }
     \acro_set_plural:n { #1 }
-    \acro_write:V \l_acro_short_tl
+    \acro_write:NV \l_acro_short_format_tl \l_acro_short_tl
   }
 
 % get alternative entry:
@@ -213,7 +436,7 @@
   {
     \acro_get:n { #1 }
     \acro_set_plural:n { #1 }
-    \acro_write:V \l_acro_alt_tl
+    \acro_write:NV \l_acro_short_format_tl \l_acro_alt_tl
   }
 
 % get long entry:
@@ -221,7 +444,7 @@
   {
     \acro_get:n { #1 }
     \acro_set_plural:n { #1 }
-    \acro_write:V \l_acro_long_tl
+    \acro_write:NV \l_acro_long_format_tl \l_acro_long_tl
   }
 
 % output like the first time:
@@ -234,19 +457,28 @@
   }
 
 % --------------------------------------------------------------------------
+% print the whole list:
+\cs_new:Npn \acro_print_acronyms:n #1
+  {
+    \UseInstance { acro-title } { \l_acro_list_title_tl } { \l_acro_list_name_tl }
+    \exp_args:Nnno
+    \UseInstance { acro-list } { list } { \l_acro_list_type_tl } { #1 }
+  }
+
+% --------------------------------------------------------------------------
 % USER COMMANDS
 % adding an acronym, user command:
-% #1: command
+% #1: use/replace plural (boolean)
 % #2: id
 % #3: short
-% #4: alt
-% #5: long
-% #6: class
-% #7: use/replace plural (boolean)
-% #8: short plural
-% #9: long plural
-\NewDocumentCommand \NewAcronym { mmoomosgg }
-  { \acro_new:nnnnnnnnn { #1 } { #2 } { #3 } { #4 } { #5 } { #6 } { #7 } { #8 } { #9 } }
+% #4: short plural
+% #5: alt
+% #6: long
+% #7: long plural
+% #8: class
+% #9: extra
+\NewDocumentCommand \NewAcronym { sm>{\SplitArgument{1}{,}}mo>{\SplitArgument{1}{,}}mog }
+  { \acro_new:nnnnnnnnn { #1 } { #2 } #3 { #4 } #5 { #6 } { #7 } }
 \@onlypreamble \NewAcronym
 
 % automatic:
@@ -319,48 +551,11 @@
 
 % typeset the list:
 \NewDocumentCommand \printacronyms { G{} }
-  {
-    \begin{description}
-      \prop_map_inline:Nn \l_acro_short_prop
-        {
-          \bool_if:nT
-            {
-              ( \l_acro_use_single_bool && \cs_if_exist_p:c { acro@##1 } ) ||
-              ! \l_acro_use_single_bool
-            }
-            {
-              \tl_if_blank:nTF { #1 }
-                {
-                  \item[\acro_write:n{##2}]
-                  \prop_get:Nn \l_acro_long_prop { ##1 }
-                }
-                {
-                  \clist_map_inline:nn { #1 }
-                    {
-                      \prop_get:NnNT \l_acro_class_prop { ##1 } \l_tmpa_tl
-                        {
-                          \tl_set:Nn \l_tmpb_tl { ####1 }
-                          \tl_trim_spaces:N \l_tmpa_tl
-                          \tl_trim_spaces:N \l_tmpb_tl
-                          \tl_if_eq:NNT \l_tmpa_tl \l_tmpb_tl
-                            {
-                              \item[\acro_write:n{##2}]
-                              \prop_get:Nn \l_acro_long_prop { ##1 }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    \end{description}
-  }
+  { \acro_print_acronyms:n { #1 } }
 
 \ProcessKeysOptions { acro }
 
 \tex_endinput:D
 % TODO:
-- Support für verschiedene Darstellungen der Acronym-Liste (incl. Sprachsupport)
-  => templates
-- kompatibilität mit fnpct herstellen.
-- Support, um in verschiedene Klassen zu unterteilen und \printacronyms
-  anpassen
+- Support für verschiedene Darstellungen der Acronym-Liste (incl. _Sprachsupport_)
+  => templates => table-template
