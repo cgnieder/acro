@@ -1,0 +1,376 @@
+% --------------------------------------------------------------------------
+% the ACRO package
+% 
+%   Handle acronyms in a flexible way
+% 
+% 2012/06/19
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://bitbucket.org/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011-2012 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% The acro package consists of the files
+%  - acro.sty, acro_en.tex, acro_en.pdf, README
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+%
+% if you want to compile this documentation you'll need the document class
+% `cnpkgdoc' which you can get here:
+%    https://bitbucket.org/cgnieder/cnpkgdoc/
+% the class is licensed LPPL 1.3 or later
+%
+\documentclass[DIV10,toc=index]{cnpkgdoc}
+\usepackage[osf]{libertine}
+\docsetup{
+  pkg = [single]acro ,
+  code-box = {
+    backgroundcolor  = gray!7!white ,
+    skipbelow        = .6\baselineskip plus .5ex minus .5ex ,
+    skipabove        = .6\baselineskip plus .5ex minus .5ex
+  } ,
+  gobble   = 1
+}
+
+\acsetup{hyperref}
+
+\cnpkgcolors{
+  main   => cnpkgred ,
+  key    => yellow!40!brown ,
+  module => cnpkgblue ,
+  link   => black!90
+}
+
+\addcmds{
+  ac,
+  aca,
+  acap,
+  acf,
+  acfp,
+  acl,
+  aclp,
+  acp,
+  acs,
+  acsetup,
+  acsp,
+  NewAcronym,
+  printacronyms
+}
+
+\renewcommand*\othersectionlevelsformat[3]{%
+  \textcolor{main}{#3\autodot}\enskip}
+\renewcommand*\partformat{%
+  \textcolor{main}{\partname~\thepart\autodot}}
+
+\TitlePicture{\parbox{.75\linewidth}{%
+  \acro not only allows you to create acronyms in a simple way but also lets you
+  add them to different classes of acronyms. Lists can be created of seperate classes
+  whereever you want the list to appear.\par
+  \acro also provides an option \key{single} which ignores acronyms that are used
+  only once in the whole document.}}
+
+\usepackage{fnpct,longtable,enumitem,makeidx}
+
+\let\h\uline
+
+\NewAcronym{bue}  {bb}             {B\"ugelbrett,er}
+  \AcronymFormat{bue}{\scshape}
+\NewAcronym{cd}   {cd}             {Compact Disc}
+  \AcronymFormat{cd}{\scshape}
+\NewAcronym{id}{id}{identification string}
+  \AcronymFormat{id}{\scshape}
+\NewAcronym{la}   {LA,}            {Los Angeles,}[city]
+\NewAcronym*{mp}  {MP}             {Member of Parliament,Members of Parliament}
+\NewAcronym{nato} {nato}           {North Atlantic Treaty Organization}{\textit{deutsch}: Organisation des Nordatlantikvertrags}
+  \AcronymFormat{nato}{\scshape}
+\NewAcronym{ny}   {NY,}            {New York,}[city]
+\NewAcronym{ot}{ot}{Other Test}
+  \AcronymFormat{ot}{\scshape}
+\NewAcronym{test} {ST}             {Some Test}
+\NewAcronym{zb}   {z.\,B.,}[Z.\,B.]{zum Beispiel,}
+
+\makeindex
+\begin{document}
+
+\section{Licence and Requirements}
+\acro is placed under the terms of the LaTeX Project Public License,
+version 1.3 or later (\url{http://www.latex-project.org/lppl.txt}).
+It has the status ``maintained.''
+
+\acro loads and needs the following packages: \paket{expl3},
+\paket{xparse}, \paket{xtemplate} and \paket{l3keys2e}.
+
+\section{Basics}
+\subsection{Creating New Acronyms}
+Acronyms are created with the command \cmd{NewAcronym} that can only be used in
+the preamble.
+\begin{beschreibung}
+ \Befehl{NewAcronym}*{<id>}\ma{<short>,<pl>}\oa{<alt.>}\ma{<long>,<pl>}\ma{<extra>}\oa{<class>} \verb+% can be used only in preamble+
+ \Befehl{AcronymFormat}{<id>}\ma{<format>}
+\end{beschreibung}
+Although this command has quite a number of arguments. In the simplest case you'll
+only need three:
+\begin{beispiel}[code only]
+ % preamble
+ \NewAcronym{test}{ST}{Some Test}
+\end{beispiel}
+This creates the acronym \acs{test} with the \acs{id} \code{test} and the long form
+``\acl{test}''. The other arguments will be described later in this document.
+
+If you want to assign a special format to an acronym you can do that with
+\cmd{AcronymFormat}.
+\begin{beispiel}[code only]
+ % preamble:
+ \NewAcronym{ot}{ot}{Other Test}
+ \AcronymFormat{ot}{\scshape}
+\end{beispiel}
+This now looks like this: \acs{ot}.
+
+\subsection{Using the Acronyms -- the commands}
+Acronyms are used with with one of the following commands:
+\begin{beschreibung}
+ \befehl{ac} basic command; the first output is different from subsequent ones.
+ \befehl{acs} \h{s}hort form; the actual acronym.
+ \befehl{acl} \h{l}ong form; the meaning of the acronym.
+ \befehl{aca} \h{a}lternative short form as specified in the \oa{<short>} argument of
+ \cmd{NewAcronym}; if it hasn't been specified this is identical to \cmd{acs}.
+ \befehl{acf} first form; output like the first time \cmd{ac} is output.
+ \befehl{acp} \h{p}lural form of \cmd{ac};
+ \befehl{acsp} plural form of \cmd{acs};
+ \befehl{aclp} plural form of \cmd{acp};
+ \befehl{acap} plural form of \cmd{aca};
+ \befehl{acfp} plural form of \cmd{acf};
+\end{beschreibung}
+If an acronym is used the first time\footnote{This means: the first time! If it
+has been used with \emph{any} of the output commands before it is \emph{not} the
+first time any more.} with \cmd{ac}  its output is different from subsequent uses.
+
+\begin{beispiel}
+ % preamble: \NewAcronym{cd}{cd}{Compact Disc}
+ % \AcronymFormat{cd}{\scshape}
+ first time: \ac{cd} \\
+ second time: \ac{cd} \\
+ short: \acs{cd} \\
+ alternative: \aca{cd} \\
+ long: \acl{cd} \\
+ short plural: \acsp{cd} \\
+ long plural: \aclp{cd}
+\end{beispiel}
+
+\subsection{Plural Forms}
+If an acronym is defined in the standard way \acro uses an `s' that's appended to
+both the short and the long form when one of the plural commands is used. However,
+that is not always the best solution. For one thing not all acronyms may have a
+plural form. Second, the plural form especially of the long forms may be fomed
+differently. And third, other languages can have other plural endings.
+
+For this reason \cmd{NewAcronym} provides additional arguments:
+\begin{beschreibung}
+ \Befehl{NewAcronym}{<id>}\ma{<short>,<plural ending>}\ma{<long>,<plural ending>}
+ \Befehl{NewAcronym}*{<id>}\ma{<short>,<plural ending>}\ma{<long>,<plural form>}
+\end{beschreibung}
+These arguments are optional. If they're not used, the default setting is `s'.
+If you use the starred version long form will be replaced by the specifies plural
+form when necessary. A given short plural will still be appended.
+
+\begin{beispiel}
+ % preamble:
+ % \NewAcronym{cd}{\textsc{cd}}{Compact Disc}
+ %   \AcronymFormat{cd}{\scshape}
+ % \NewAcronym{ny}{NY,}{New York,}
+ % \NewAcronym{bue}{bb}{B\"ugelbrett,er}
+ %   \AcronymFormat{bue}{\scshape}
+ % \NewAcronym*{mp}{MP}{Member of Parliament,Members of Parliament}
+ \acsp{cd}, \aclp{cd} \\
+ \acsp{ny}, \aclp{ny} \\
+ \acsp{bue}, \aclp{bue} \\
+ \acsp{mp}, \aclp{mp}
+\end{beispiel}
+
+\subsection{Alternative Short Forms}
+For some acronyms it might be useful to have alternative forms, maybe because
+they're written differently at the beginning of a sentence. For this \cmd{NewAcronym}
+has an optional argument:
+\begin{beschreibung}
+ \Befehl{NewAcronym}{<id>}\ma{<short>}\oa{<alternative>}\ma{<long>}
+\end{beschreibung}
+\begin{beispiel}
+ % preamble \NewAcronym{zb}{z.\,B.,}[Z.\,B.]{zum Beispiel,}
+ in der Mitte, \acs{zb} \ldots \\
+ \aca{zb} auch am Anfang \ldots
+\end{beispiel}
+The alternative form uses the same plural ending as the default short form and
+is formatted in the same way.
+
+\subsection{Extra Information for the List Entry}
+Of course you can print a list of acronyms where there meaning is explained.
+Sometimes it can useful to add additional information there. This is done with
+another optional argument to \cmd{NewAcronym}:
+\begin{beschreibung}
+ \Befehl{NewAcronym}{<id>}\ma{<short>}\ma{<long>}\ma{<extra>}
+\end{beschreibung}
+These information will only be displayed in the list.
+\begin{beispiel}
+ % preamble:
+ % \NewAcronym{nato}{nato}{North Atlantic Treaty Organization}{\textit{deutsch}: Organisation des Nordatlantikvertrags}
+ % \AcronymFormat{nato}{\scshape}
+ The \ac{nato} is an intergovernmental military alliance based on the
+ North Atlantic Treaty which was signed on 4~April 1949. \ac{nato}
+ headquarters are in Brussels, Belgium, one of the 28 member states
+ across North America and Europe, the newest of which, Albania and
+ Croatia, joined in April 2009.
+\end{beispiel}
+
+\section{Additional Commands}
+\subsection{Using Classes}
+The acronyms of \acro can be divided into different classes. This doesn't change
+the output but allows different acronym lists, see section \ref{sec:pint_lists}.
+For this \cmd{NewAcronym} has an optional argument:
+\begin{beschreibung}
+ \Befehl{NewAcronym}{<id>}\ma{<short>}\ma{<long>}\oa{<class>}
+\end{beschreibung}
+\begin{beispiel}
+ % preamble:
+ % \NewAcronym{la}{LA,}{Los Angeles,}[city]
+ % \NewAcronym{ny}{NY,}{New York,}[city]
+ \acl{la} (\acs{la}) \\
+ \acl{ny} (\acs{ny})
+\end{beispiel}
+This might be useful if you can divide your acronyms into different types,
+technical and grammatical ones, say.
+
+\subsection{Resetting}
+
+\section{Printing the List}\label{sec:pint_lists}
+Printing the whole list of acronyms is easy: just place \cmd{printacronyms}
+wherever you want the list to be.
+\begin{beschreibung}
+ \befehl{printacronyms}{<list of classes>} the \emph{optional} argument takes a
+ comma-separated list of the classes of acronyms that should in the list. If the
+ argument is left out, \emph{all} acronyms are printed.
+\end{beschreibung}
+\begin{beispiel}[below]
+ \acsetup{hyperref=false}
+ \printacronyms
+\end{beispiel}
+You can see that the default layout is a \code{description} list with a
+\code{section*} title. Both can be changed, see section \ref{sec:customization}.
+
+\section{Customization}\label{sec:customization}
+\subsection{General Options}
+There are a few options which change the general behaviour of \acro.
+\begin{beschreibung}
+ \option{single}{\default{true}/false} if set to true an acronym that's used only
+ once in a document will only print the long form and will not be printed in the
+ list.
+ \option{hyperref}{\default{true}/false} if set to true the short forms of the
+ acronyms will be linked to their list entry.
+ \option{only-used}{\default{true}/false} this option is true as default. It means
+ that only acronyms that are actually used in the document are printed in the list.
+ If false, all acronyms defined with \cmd{NewAcronym} will be written in the list.
+\end{beschreibung}
+
+% TODO: \acsetup beschreiben
+
+\subsection{Options Regarding Acronyms}
+\begin{beschreibung}
+ \option{short-format}{<format>} sets a format for all short forms. For example
+ \key{short-format}{\cmd{scshape}} would print all short forms in small caps.
+ \option{long-format}{<format>} the same for the long forms.
+ \option{extra-format}{<format>} the same for the extra information.
+ \option{first-style}{default/footnote/square} the basic style of the first
+ appearance of an acronym.
+ \option{extra-style}{plain/comma/paren/bracket} define the way the extra
+ information is printed in the list.
+\end{beschreibung}
+
+\begin{beispiel}
+ % (Keep in mind that we're in
+ % a minipage here!)
+ \acsetup{first-style=footnote}
+ \acf{ny}
+\end{beispiel}
+
+
+\subsection{Options Regarding the List}
+\begin{beschreibung}
+ %%
+ \option{page-ref}{none/plain/comma/paren} Default: \code{none}% TODO:
+ %%
+ \option{page-name}{<page name>} Default: \code{p.}% TODO:
+ %%
+ \option{list-style}{list/table} Default: \code{list}% TODO:
+ %%
+ \option{list-type} Depending on the value of \key{list-type}. If it is \code{list}
+ then \key{list-type} can be any valid list like \code{description} or
+ \code{itemize}. If you chose \key{list-type}{table} valid values are \code{tabular}
+ and \code{longtable}. The latter requires you to put \verb+\usepackage{longtable}+
+ in your preamble.
+ %%
+ \option{list-header}{chapter/chapter*/section/section*/subsection/subsection*}
+ The header type of the list. Default: \code{section*}
+ %%
+ \option{list-name}{<list name>} Default: \code{Acronyms}% TODO:
+ %%
+ \option{list-table-width} this has only an effect if you chose \key{list-type}{table}.
+ the second column of the table is a \code{p} column whose width can be specified
+ with this option. Default: \verb+.7\linewidth+
+\end{beschreibung}
+
+% TODO: ein Beispiel für ein angepasstes Layout
+\newlist{acronyms}{description}{1}
+\setlist[acronyms]{labelwidth=2.5em,leftmargin=3em,noitemsep,itemindent=0pt}
+
+\appendix
+\section{All Acronyms Used in this Documentation}
+\begin{beispiel}[code only]
+ \acsetup{
+   list-type   = table,
+   list-style  = longtable,
+   list-header = subsection*,
+   extra-style = comma,
+   page-ref    = comma,
+   list-name   = All Acronyms}
+ \printacronyms
+\end{beispiel}
+\acsetup{
+  list-type   = table,
+   list-style  = longtable,
+   list-header = subsection*,
+   extra-style = comma,
+   page-ref    = comma,
+   list-name   = All Acronyms}
+\printacronyms
+
+\begin{beispiel}[code only]
+ \acsetup{
+   list-type   = table,
+   list-style  = longtable,
+   list-header = subsection*,
+   page-ref    = comma,
+   list-name   = City-Acronyms}
+ \printacronyms{city}
+\end{beispiel}
+\acsetup{list-name=City-Acronyms}
+\printacronyms{city}
+
+\printindex
+\end{document}
+% TODO:
+- \jobname.ist
+- Default-Werte
