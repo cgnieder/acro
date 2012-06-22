@@ -6,7 +6,7 @@
 % --------------------------------------------------------------------------
 % the ACRO package
 % 
-%   Handle acronyms in a flexible way
+%   Typeset Acronyms
 % 
 % 2012/06/22
 % --------------------------------------------------------------------------
@@ -175,8 +175,8 @@ and in consequence led to \acro and it's option \key{single}.
 some macros have the same name and meaning\footnote{\emph{Not} in the sense of
 \code{\textbackslash\textcolor{code}{meaning}}!}.
 
-\section{Basics}
-\subsection{Creating New Acronyms}
+\section{Basics}\secidx{Basics}
+\subsection{Creating New Acronyms}\secidx[new acronyms]{Basics}
 Acronyms are created with the command \cmd{NewAcronym} that can only be used in
 the preamble.
 \begin{beschreibung}
@@ -202,7 +202,7 @@ If you want to assign a special format to an acronym you can do that with
 \end{beispiel}
 This now looks like this: \acs{ot}.
 
-\subsection{Using the Acronyms -- the commands}
+\subsection{Using the Acronyms -- the Commands}\secidx[using acronyms]{Basics}
 Acronyms are used with with one of the following commands:
 \begin{beschreibung}
  \befehl{ac} basic command; the first output is different from subsequent ones.
@@ -234,7 +234,7 @@ time any more.
  long plural: \aclp{cd}
 \end{beispiel}
 
-\subsection{Plural Forms}
+\subsection{Plural Forms}\secidx[plural forms]{Basics}
 If an acronym is defined in the standard way \acro uses an `s' that's appended to
 both the short and the long form when one of the plural commands is used. However,
 that is not always the best solution. For one thing not all acronyms may have a
@@ -263,7 +263,7 @@ form when necessary. A given short plural will still be appended.
  \acsp{mp}, \aclp{mp}
 \end{beispiel}
 
-\subsection{Alternative Short Forms}
+\subsection{Alternative Short Forms}\secidx[alternative forms]{Basics}
 For some acronyms it might be useful to have alternative forms, maybe because
 they're written differently at the beginning of a sentence. For this \cmd{NewAcronym}
 has an optional argument:
@@ -278,7 +278,7 @@ has an optional argument:
 The alternative form uses the same plural ending as the default short form and
 is formatted in the same way.
 
-\subsection{Extra Information for the List Entry}
+\subsection{Extra Information for the List Entry}\secidx[extra information]{Basics}
 Of course you can print a list of acronyms where there meaning is explained.
 Sometimes it can useful to add additional information there. This is done with
 another optional argument to \cmd{NewAcronym}:
@@ -298,9 +298,10 @@ for the impact of the following example.
  across North America and Europe, the newest of which, Albania and
  Croatia, joined in April 2009.
 \end{beispiel}
+\secidx*{Basics}
 
-\section{Additional Commands}
-\subsection{Using Classes}
+\section{Additional Commands}\secidx{Additional Commands}
+\subsection{Using Classes}\secidx[classes]{Additional Commands}
 The acronyms of \acro can be divided into different classes. This doesn't change
 the output but allows different acronym lists, see section \ref{sec:print_lists}.
 For this \cmd{NewAcronym} has an optional argument:
@@ -317,7 +318,7 @@ For this \cmd{NewAcronym} has an optional argument:
 This might be useful if you can divide your acronyms into different types,
 technical and grammatical ones, say.
 
-\subsection{Resetting}
+\subsection{Resetting}\secidx[resetting]{Additional Commands}
 If you want for some reason to fool \acro into thinking that an acronym is used
 for the first time you can call this command:
 \begin{beschreibung}
@@ -328,8 +329,9 @@ for the first time you can call this command:
  \ac{ny}
 \end{beispiel}
 Beware that this command acts \emph{globally} and effects \emph{all} acronyms!
+\secidx*{Additional Commands}
 
-\section{Printing the List}\label{sec:print_lists}
+\section{Printing the List}\label{sec:print_lists}\secidx{Printing the List}
 Printing the whole list of acronyms is easy: just place \cmd{printacronyms}
 wherever you want the list to be.
 \begin{beschreibung}
@@ -345,9 +347,10 @@ wherever you want the list to be.
 \end{beispiel}
 You can see that the default layout is a \code{description} list with a
 \code{section*} title. Both can be changed, see section \ref{sec:customization}.
+\secidx*{Printing the List}
 
-\section{Customization}\label{sec:customization}
-\subsection{General Options}
+\section{Customization}\label{sec:customization}\secidx{Customization}
+\subsection{General Options}\secidx[general options]{Customization}
 There are a few options which change the general behaviour of \acro.
 \begin{beschreibung}
  \option{single}{\default{true}/false} if set to true an acronym that's used only
@@ -366,7 +369,7 @@ options or via the setup command:
  \Befehl{acsetup}{<options>}
 \end{beschreibung}
 
-\subsection{Options Regarding Acronyms}
+\subsection{Options Regarding Acronyms}\secidx[acronyms]{Customization}
 The options described in this section all influence the layout of one of the
 possible output forms of the acronyms.
 \begin{beschreibung}
@@ -387,7 +390,7 @@ possible output forms of the acronyms.
  \acf{ny}
 \end{beispiel}
 
-\subsection{Options Regarding the List}
+\subsection{Options Regarding the List}\secidx[list]{Customization}
 \begin{beschreibung}
  %%
  \option{page-ref}{none/plain/comma/paren} The style with which the page number of
@@ -421,11 +424,12 @@ the acronym list:
  % \usepackage{enumitem}
  \newlist{acronyms}{description}{1}
  \setlist[acronyms]{labelwidth=2.5em,leftmargin=3em,noitemsep,itemindent=0pt}
- \acsetup{list-type=acronyms,hyperref=false}
+ \acsetup{list-type=acronyms,hyperref=false,extra-style=comma}
  \printacronyms
 \end{beispiel}
+\secidx*{Customization}
 
-\section{\paket{hyperref} Support}
+\section{\paket{hyperref} Support}\secidx{\paket{hyperref} support}[hyperref Support]
 The option \key{hyperref}{true} adds internal links from all short (or alternative)
 forms to the respective list entry. You should use this option with care: if
 you don't use \cmd{printacronyms} anywhere this option will result in loads of
@@ -433,6 +437,7 @@ you don't use \cmd{printacronyms} anywhere this option will result in loads of
 if don't clearly separate the list into different classes. If an acronym appears
 in more than one list there will also be more than one hypertarget for this
 acronym.
+\secidx*{\paket{hyperref} support}[hyperref Support]
 
 \appendix
 \section{All Acronyms Used in this Documentation}\label{sec:documentation_acronyms}
