@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2012/06/21}
-  {0.0e}
+  {2012/06/22}
+  {0.1}
   {Handle acronyms in a flexible way}
 
 % error messages:
@@ -104,7 +104,7 @@
     extra-style      .tl_set:N   = \l_acro_extra_instance_tl    ,
     page-ref         .tl_set:N   = \l_acro_page_instance_tl     ,
     page-name        .tl_set:N   = \l_acro_page_name_tl         ,
-    list-style       .tl_set:N   = \l_acro_list_instance_tl     ,
+    table-style      .tl_set:N   = \l_acro_list_instance_tl     ,
     list-type        .tl_set:N   = \l_acro_list_type_tl         ,
     list-header      .tl_set:N   = \l_acro_list_title_tl        ,
     list-name        .tl_set:N   = \l_acro_list_name_tl         ,
@@ -156,9 +156,9 @@
   {
     \group_begin:
       \bool_if:NTF \l_acro_custom_format_bool
-        { \tl_use:N \l_acro_custom_format_tl }
-        { \tl_use:N \l_acro_short_format_tl }
-      #1
+        { \l_acro_custom_format_tl }
+        { \l_acro_short_format_tl }
+      { \hbox:n { #1 } }
     \group_end:
     \bool_if:NT \l_acro_use_plural_bool
       { \tl_use:N \l_acro_short_plural_tl }
@@ -192,15 +192,14 @@
 
 \cs_new:Npn \acro_make_link:nNN #1#2#3
   {
-    \hbox_set:Nn \l_tmpa_box { #3 }
     \tl_set:Nn #2
        {
-         \acro_hyper_link:nn { #1 } { \skip_horizontal:n { \box_wd:N \l_tmpa_box } }
-         \skip_horizontal:n { - \box_wd:N \l_tmpa_box }
-         \acro_is_single:nTF { #1 } { #3 }
+         \acro_hyper_link:nn { #1 } { \phantom { #3 } }
+         \acro_is_single:nTF { #1 } { \hbox_overlap_left:n { #3 } }
            {
              \bool_if:NTF \l_acro_use_hyperref_bool
-               { \textcolor { \@linkcolor } { #3 } } { #3 }
+               { \textcolor { \@linkcolor } { \hbox_overlap_left:n { #3 } } }
+               { \hbox_overlap_left:n { #3 } }
            }
        }
   }
@@ -728,6 +727,7 @@
 
 \NewDocumentCommand \AcronymFormat { mm }
   { \acro_format:nn { #1 } { #2 } }
+\@onlypreamble \AcronymFormat
 
 % automatic:
 \NewDocumentCommand \ac { m }
@@ -830,6 +830,10 @@
   }
 
 \tex_endinput:D
+% --------------------------------------------------------------------------
+% HISTORY:
+2012/06/22 v0.1 - first public release
+
+% --------------------------------------------------------------------------
 % TODO:
 - Sprach-Support Überschrift der Acronym-Liste
-- echtes printonlyused gewährleisten (bei Option single schon vorhanden)
