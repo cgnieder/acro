@@ -54,6 +54,7 @@
 \bool_new:N \l_acro_custom_format_bool
 \bool_new:N \l_acro_strict_bool
 \bool_new:N \l_acro_create_macros_bool
+\bool_new:N \l_acro_first_upper_bool
 
 \tl_new:N   \l_acro_short_format_tl
 \tl_new:N   \l_acro_long_format_tl
@@ -186,10 +187,12 @@
     \mode_if_horizontal:F { \leavevmode }
     \group_begin:
       \tl_use:N #1
-      #2
+      \bool_if:NTF \l_acro_first_upper_bool
+        { \tl_to_uppercase:n { \tl_head:n { #2 } } \tl_tail:n { #2 } }
+        { #2 }
     \group_end:
   }
-\cs_generate_variant:Nn \acro_write:Nn { NV }
+\cs_generate_variant:Nn \acro_write:Nn { NV,No }
 
 % --------------------------------------------------------------------------
 % hyperref support
@@ -241,7 +244,7 @@
   }
   {
     \AssignTemplateKeys
-    \acro_write:Nn \l_acro_long_format_tl { #2 }
+    \acro_write:No \l_acro_long_format_tl { #2 }
     \tl_use:N \c_space_tl
     \bool_if:NT \l_acro_first_use_brackets_bool
       { \tl_head:N \l_acro_first_brackets_tl }
@@ -753,6 +756,14 @@
     \group_end:
   }
 
+\NewDocumentCommand \Ac { m }
+  {
+    \group_begin:
+      \bool_set_true:N \l_acro_first_upper_bool
+      \acro_use:n { #1 }
+    \group_end:
+  }
+
 \NewDocumentCommand \acp { m }
   {
     \group_begin:
@@ -801,10 +812,27 @@
     \group_end:
   }
 
+\NewDocumentCommand \Acl { m }
+  {
+    \group_begin:
+      \bool_set_true:N \l_acro_first_upper_bool
+      \acro_long:n { #1 }
+    \group_end:
+  }
+
 \NewDocumentCommand \aclp { m }
   {
     \group_begin:
       \bool_set_true:N \l_acro_use_plural_bool
+      \acro_long:n { #1 }
+    \group_end:
+  }
+
+\NewDocumentCommand \Aclp { m }
+  {
+    \group_begin:
+      \bool_set_true:N \l_acro_use_plural_bool
+      \bool_set_true:N \l_acro_first_upper_bool
       \acro_long:n { #1 }
     \group_end:
   }
@@ -849,9 +877,22 @@
 % --------------------------------------------------------------------------
 % HISTORY:
 2012/06/22 v0.1  - first public release
-2012/06/22 v0.1a - bug fix, added `strict' option and creation of shortcut
-                   macros
+2012/06/23 v0.1a - bug fix, added `strict' and `macros' option and creation of
+                   shortcut macros
+                 - added capitalized version of long forms
+                 - 
 
 % --------------------------------------------------------------------------
 % TODO:
 - Sprach-Support Überschrift der Acronym-Liste
+- add experimantal sorting feature with l3sort?? see example:
+\tl_set:Nn \l_tmpa_tl { bjugaPoinfe }
+\tl_sort:Nn \l_tmpa_tl
+  {
+    \tl_to_lowercase:n {
+      \int_compare:nTF { \pdfstrcmp { #1 } { #2 } = 1 }
+        { \sort_reversed: }
+        { \sort_ordered: }
+    }
+  }
+\tl_use:N \l_tmpa_tl => abefgijnoPu
