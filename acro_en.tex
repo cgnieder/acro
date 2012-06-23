@@ -213,7 +213,7 @@ course the mighty \paket{glossaries} \cite{glossaries}. So there is \emph{really
 no \emph{need} for a new package.
 
 The main reason for the existance of \acro is a question on \acs{texse}%
-\footnote{\url{http://tex.stackexchange.com/q/59449/5049}}, which intrigued me
+\footnote{\url{http://tex.stackexchange.com/q/59449/5049}} which intrigued me
 and in consequence led to \acro and it's option \key{single}.
 
 \acro has very much similarities with the \paket{acronym} package. In fact, quite
@@ -258,12 +258,14 @@ Acronyms are used with with one of the following commands:
  \befehl{aca} \h{a}lternative short form as specified in the \oa{<short>} argument
  of \cmd{NewAcronym}; if it hasn't been specified this is identical to \cmd{acs}.
  \befehl{acf} first form; output like the first time \cmd{ac} is output.
+ \befehl{Acf} same as \cmd{acf} but capitalizes first letter.
  \befehl{acp} \h{p}lural form of \cmd{ac};
  \befehl{acsp} plural form of \cmd{acs};
  \befehl{aclp} plural form of \cmd{acp};
  \befehl{Aclp} same as \cmd{aclp} but capitalizes first letter.
  \befehl{acap} plural form of \cmd{aca};
  \befehl{acfp} plural form of \cmd{acf};
+ \befehl{Acfp} same as \cmd{acfp} but capitalizes first letter.
 \end{beschreibung}
 If an acronym is used the first time with \cmd{ac} its output is different from
 subsequent uses. To be clear on this: the first time! If the acronym has been
@@ -295,7 +297,7 @@ For this reason \cmd{NewAcronym} provides additional arguments:
  \Befehl{NewAcronym}*{<id>}\ma{<short>,<plural ending>}\ma{<long>,<plural form>}
 \end{beschreibung}
 These arguments are optional. If they're not used, the default setting is `s'.
-If you use the starred version long form will be replaced by the specifies plural
+If you use the starred version long form will be replaced by the specified plural
 form when necessary. A given short plural will still be appended.
 
 \begin{beispiel}
@@ -312,9 +314,8 @@ form when necessary. A given short plural will still be appended.
 \end{beispiel}
 
 \subsection{Alternative Short Forms}\secidx[alternative forms]{Basics}
-For some acronyms it might be useful to have alternative forms, maybe because
-they're written differently at the beginning of a sentence. For this \cmd{NewAcronym}
-has an optional argument:
+For some acronyms it might be useful to have alternative forms. For this
+\cmd{NewAcronym} has another optional argument:
 \begin{beschreibung}
  \Befehl{NewAcronym}{<id>}\ma{<short>}\oa{<alternative>}\ma{<long>}
 \end{beschreibung}
@@ -328,7 +329,7 @@ is formatted in the same way.
 
 \subsection{Extra Information for the List Entry}\secidx[extra information]{Basics}
 Of course you can print a list of acronyms where there meaning is explained.
-Sometimes it can useful to add additional information there. This is done with
+Sometimes it can be useful to add additional information there. This is done with
 another optional argument to \cmd{NewAcronym}:
 \begin{beschreibung}
  \Befehl{NewAcronym}{<id>}\ma{<short>}\ma{<long>}\ma{<extra>}
@@ -363,8 +364,9 @@ For this \cmd{NewAcronym} has an optional argument:
  \acl{la} (\acs{la}) \\
  \acl{ny} (\acs{ny})
 \end{beispiel}
-This might be useful if you can divide your acronyms into different types,
-technical and grammatical ones, say.
+This might be useful if you can and want to divide your acronyms into different
+types, technical and grammatical ones, say, that shall be listed in different
+lists.
 
 \subsection{Resetting}\secidx[resetting]{Additional Commands}
 If you want for some reason to fool \acro into thinking that an acronym is used
@@ -402,16 +404,17 @@ You can see that the default layout is a \code{description} list with a
 There are a few options which change the general behaviour of \acro.
 \begin{beschreibung}
  %%
- \option{single}{\default{true}/false} if set to true an acronym that's used only
- once in a document will only print the long form and will not be printed in the
- list.
+ \option{single}{\default{true}/false} if set to \code{true} an acronym that's
+ used only once in a document will only print the long form and will not be
+ printed in the list. Default: \code{false}
  %%
- \option{hyperref}{\default{true}/false} if set to true the short forms of the
- acronyms will be linked to their list entry.
+ \option{hyperref}{\default{true}/false} if set to \code{true} the short forms
+ of the acronyms will be linked to their list entry. Default: \code{false}
  %%
- \option{only-used}{\default{true}/false} this option is true as default. It means
- that only acronyms that are actually used in the document are printed in the list.
- If false, all acronyms defined with \cmd{NewAcronym} will be written in the list.
+ \option{only-used}{\default{true}/false} this option is \code{true} as default.
+ It means that only acronyms that are actually used in the document are printed
+ in the list. If \code{false}, all acronyms defined with \cmd{NewAcronym} will
+ be written in the list. Default: \code{true}
  %%
  \option{macros}{\default{true}/false} if set to \code{true} this option will
  create an macro \cmd{<id>} for each acronym as a shortcut for \cmd{ac}{<id>}.
@@ -449,9 +452,9 @@ possible output forms of the acronyms.
  \option{long-format}{<format>} the same for the long forms.
  \option{extra-format}{<format>} the same for the extra information.
  \option{first-style}{default/footnote/square} the basic style of the first
- appearance of an acronym.
+ appearance of an acronym. Default: \code{default}
  \option{extra-style}{plain/comma/paren/bracket} define the way the extra
- information is printed in the list.
+ information is printed in the list. Default: \code{plain}
 \end{beschreibung}
 
 \begin{beispiel}
@@ -471,7 +474,7 @@ possible output forms of the acronyms.
  %%
  %%
  \option{list-type}{table/<list>} This option let's you choose how the list is
- printed. \code{<list>} can be any valid list like \code{itemize} or \code{description}.
+ printed. \code{<list>} can be any valid list like \code{itemize} or \code{description}
  Default: \code{description}.
  \option{table-style}{tabular/longtable} If you choose \key{list-type}{table}
  you have to specify which kind of table should be used. If you choose \code{longtable}
@@ -502,10 +505,10 @@ the acronym list:
 
 \section{\paket{hyperref} Support}\secidx{\paket{hyperref} support}[hyperref Support]
 The option \key{hyperref}{true} adds internal links from all short (or alternative)
-forms to the respective list entry. You should use this option with care: if
+forms to their respective list entries. You should use this option with care: if
 you don't use \cmd{printacronyms} anywhere this option will result in loads of
-\paket{hyperref} warnings. Also printing several list can result in warnings
-if don't clearly separate the list into different classes. If an acronym appears
+\paket{hyperref} warnings. Also printing several lists can result in warnings
+if don't clearly separate the lists into different classes. If an acronym appears
 in more than one list there will also be more than one hypertarget for this
 acronym.
 \secidx*{\paket{hyperref} support}[hyperref Support]

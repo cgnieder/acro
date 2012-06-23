@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2012/06/23}
-  {0.1a}
+  {2012/06/24}
+  {0.1b}
   {Typeset Acronyms}
 
 % error messages:
@@ -738,9 +738,9 @@
             \seq_sort:Nn \l_tmpa_seq
               {
                 \tl_to_lowercase:n {
-                  \int_compare:nTF { \pdfstrcmp { ##1 } { ##2 } = 1 }
-                    { \sort_reversed: }
+                  \int_compare:nTF { \pdfstrcmp { ##1 } { ##2 } = -1 }
                     { \sort_ordered: }
+                    { \sort_reversed: }
                 }
               }
             \prop_clear:N \l_tmpa_prop
@@ -883,10 +883,27 @@
     \group_end:
   }
 
+\NewDocumentCommand \Acf { m }
+  {
+    \group_begin:
+      \bool_set_true:N \l_acro_first_upper_bool
+      \acro_first:n { #1 }
+    \group_end:
+  }
+
 \NewDocumentCommand \acfp { m }
   {
     \group_begin:
       \bool_set_true:N \l_acro_use_plural_bool
+      \acro_first:n { #1 }
+    \group_end:
+  }
+
+\NewDocumentCommand \Acfp { m }
+  {
+    \group_begin:
+      \bool_set_true:N \l_acro_use_plural_bool
+      \bool_set_true:N \l_acro_first_upper_bool
       \acro_first:n { #1 }
     \group_end:
   }
@@ -919,6 +936,7 @@
                    shortcut macros
                  - added capitalized version of long forms
                  - added `sort' option
+2012/06/24 v0.1b - added \Acf and \Acfp
 
 % --------------------------------------------------------------------------
 % TODO:
