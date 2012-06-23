@@ -55,6 +55,7 @@
 \bool_new:N \l_acro_strict_bool
 \bool_new:N \l_acro_create_macros_bool
 \bool_new:N \l_acro_first_upper_bool
+\bool_new:N \l_acro_sort_bool
 
 \tl_new:N   \l_acro_short_format_tl
 \tl_new:N   \l_acro_long_format_tl
@@ -101,6 +102,7 @@
   {
     macros           .bool_set:N = \l_acro_create_macros_bool   ,
     strict           .bool_set:N = \l_acro_strict_bool          ,
+    sort             .bool_set:N = \l_acro_sort_bool            ,
     short-format     .tl_set:N   = \l_acro_short_format_tl      ,
     long-format      .tl_set:N   = \l_acro_long_format_tl       ,
     extra-format     .tl_set:N   = \l_acro_extra_format_tl      ,
@@ -719,9 +721,45 @@
   { \prop_put:Nnn \l_acro_format_prop { #1 } { #2 } }
 
 % --------------------------------------------------------------------------
+% experimental sorting feature:
+\AtBeginDocument
+  {
+    \bool_if:NT \l_acro_sort_bool
+      {
+        \RequirePackage { l3sort }
+        \prop_new:N \l_tmpa_prop
+        \seq_new:N  \l_tmpa_seq
+
+        \cs_new:Npn \acro_sort_prop:N #1
+          {
+            \seq_clear:N \l_tmpa_seq
+            \prop_map_inline:Nn #1
+              { \seq_put_right:Nn \l_tmpa_seq { ##1 } }
+            \seq_sort:Nn \l_tmpa_seq
+              {
+                \tl_to_lowercase:n {
+                  \int_compare:nTF { \pdfstrcmp { ##1 } { ##2 } = 1 }
+                    { \sort_reversed: }
+                    { \sort_ordered: }
+                }
+              }
+            \prop_clear:N \l_tmpa_prop
+            \seq_map_inline:Nn \l_tmpa_seq
+              {
+                \prop_get:NnN #1 { ##1 } \l_tmpa_tl
+                \prop_put:NnV \l_tmpa_prop { ##1 } \l_tmpa_tl
+              }
+            \prop_set_eq:NN #1 \l_tmpa_prop
+          }
+      }
+  }
+
+% --------------------------------------------------------------------------
 % print the whole list:
 \cs_new:Npn \acro_print_acronyms:n #1
   {
+    \bool_if:NT \l_acro_sort_bool
+      { \acro_sort_prop:N \l_acro_short_prop }
     \UseInstance { acro-title } { \l_acro_list_title_tl }
       { \l_acro_list_name_tl }
     \UseInstance { acro-list } { \l_acro_list_instance_tl }
@@ -880,19 +918,8 @@
 2012/06/23 v0.1a - bug fix, added `strict' and `macros' option and creation of
                    shortcut macros
                  - added capitalized version of long forms
-                 - 
+                 - added `sort' option
 
 % --------------------------------------------------------------------------
 % TODO:
 - Sprach-Support Überschrift der Acronym-Liste
-- add experimantal sorting feature with l3sort?? see example:
-\tl_set:Nn \l_tmpa_tl { bjugaPoinfe }
-\tl_sort:Nn \l_tmpa_tl
-  {
-    \tl_to_lowercase:n {
-      \int_compare:nTF { \pdfstrcmp { #1 } { #2 } = 1 }
-        { \sort_reversed: }
-        { \sort_ordered: }
-    }
-  }
-\tl_use:N \l_tmpa_tl => abefgijnoPu

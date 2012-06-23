@@ -42,7 +42,7 @@
 %
 \documentclass[DIV10,toc=index,toc=bib]{cnpkgdoc}
 \docsetup{
-  pkg = {[single,macros]acro} ,
+  pkg = {[single,macros,sort]acro} ,
   code-box = {
     backgroundcolor  = gray!7!white ,
     skipbelow        = .6\baselineskip plus .5ex minus .5ex ,
@@ -158,7 +158,9 @@
   add them to different classes of acronyms. Lists can be created of seperate classes
   wherever you want the list to appear.\par
   \acro also provides an option \key{single} which ignores acronyms that are used
-  only once in the whole document.}}
+  only once in the whole document.\par
+  As an experimental feature \acro also offers the option \key{sort} which
+  automatically sorts the list created by \cmd{printacronyms}.}}
 
 % additional packages:
 \usepackage{fnpct,longtable,enumitem,ragged2e}
@@ -399,20 +401,30 @@ You can see that the default layout is a \code{description} list with a
 \subsection{General Options}\secidx[general options]{Customization}
 There are a few options which change the general behaviour of \acro.
 \begin{beschreibung}
+ %%
  \option{single}{\default{true}/false} if set to true an acronym that's used only
  once in a document will only print the long form and will not be printed in the
  list.
+ %%
  \option{hyperref}{\default{true}/false} if set to true the short forms of the
  acronyms will be linked to their list entry.
+ %%
  \option{only-used}{\default{true}/false} this option is true as default. It means
  that only acronyms that are actually used in the document are printed in the list.
  If false, all acronyms defined with \cmd{NewAcronym} will be written in the list.
+ %%
  \option{macros}{\default{true}/false} if set to \code{true} this option will
  create an macro \cmd{<id>} for each acronym as a shortcut for \cmd{ac}{<id>}.
  Already existing macros will \emph{not} be overwritten. Default: \code{false}
+ %%
  \option{strict}{\default{true}/false} if set to \code{true} and the option
  \key{macros}{true} is in effect then already existing macros will be overwritten.
  Default: \code{false}
+ %%
+ \option{sort}{\default{true}/false} if set to \code{true} the acronym list will
+ be sorted automatically. This option needs the experimental package \paket*{l3sort}
+ (from the \paket{l3experimental} bundle). This option can only be set in the
+ preamble. Default: \code{false}
 \end{beschreibung}
 
 All options of this and the following sections can be set up either as package
@@ -497,7 +509,7 @@ in more than one list there will also be more than one hypertarget for this
 acronym.
 \secidx*{\paket{hyperref} support}[hyperref Support]
 
-\newpage\appendix
+\appendix
 \section{All Acronyms Used in this Documentation}\label{sec:documentation_acronyms}
 \begin{beispiel}[code only]
  \acsetup{
