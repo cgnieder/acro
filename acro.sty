@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2012/06/22}
-  {0.1}
+  {2012/06/23}
+  {0.1a}
   {Typeset Acronyms}
 
 % error messages:
@@ -52,6 +52,8 @@
 \bool_new:N \l_acro_hyperref_loaded_bool
 \bool_new:N \l_acro_use_hyperref_bool
 \bool_new:N \l_acro_custom_format_bool
+\bool_new:N \l_acro_strict_bool
+\bool_new:N \l_acro_create_macros_bool
 
 \tl_new:N   \l_acro_short_format_tl
 \tl_new:N   \l_acro_long_format_tl
@@ -96,6 +98,8 @@
 % options:
 \keys_define:nn { acro }
   {
+    macros           .bool_set:N = \l_acro_create_macros_bool   ,
+    strict           .bool_set:N = \l_acro_strict_bool          ,
     short-format     .tl_set:N   = \l_acro_short_format_tl      ,
     long-format      .tl_set:N   = \l_acro_long_format_tl       ,
     extra-format     .tl_set:N   = \l_acro_extra_format_tl      ,
@@ -150,10 +154,21 @@
       { \prop_put:Nnn \l_acro_extra_prop { #2 } { #9 } }
     \bool_new:c { g_acro_#2_used_bool }
     \bool_new:c { g_acro_#2_label_bool }
+    \bool_if:NT \l_acro_create_macros_bool
+      {
+        \cs_if_exist:cTF { #2 }
+          {
+            \bool_if:NT \l_acro_strict_bool
+              { \cs_set:cpn { #2 } { \ac { #2 } } }
+          }
+          { \cs_new:cpn { #2 } { \ac { #2 } } }
+      }
   }
 
+% typeset the short form:
 \cs_new:Npn \acro_write_short:n #1
   {
+    \mode_if_horizontal:F { \leavevmode }
     \group_begin:
       \bool_if:NTF \l_acro_custom_format_bool
         { \l_acro_custom_format_tl }
@@ -165,9 +180,10 @@
   }
 \cs_generate_variant:Nn \acro_write_short:n { V }
 
-% typeset the shortcut:
+% typeset the longform,...:
 \cs_new:Npn \acro_write:Nn #1#2
   {
+    \mode_if_horizontal:F { \leavevmode }
     \group_begin:
       \tl_use:N #1
       #2
@@ -721,7 +737,7 @@
 % #7: long plural
 % #8: class
 % #9: extra
-\NewDocumentCommand \NewAcronym { sm>{\SplitArgument{1}{,}}mo>{\SplitArgument{1}{,}}mgo }
+\NewDocumentCommand \NewAcronym { sm>{\SplitArgument{1}{,}}mo>{\SplitArgument{1}{,}}+mgo }
   { \acro_new:nnnnnnnnn { #1 } { #2 } #3 { #4 } #5 { #7 } { #6 } }
 \@onlypreamble \NewAcronym
 
@@ -832,7 +848,9 @@
 \tex_endinput:D
 % --------------------------------------------------------------------------
 % HISTORY:
-2012/06/22 v0.1 - first public release
+2012/06/22 v0.1  - first public release
+2012/06/22 v0.1a - bug fix, added `strict' option and creation of shortcut
+                   macros
 
 % --------------------------------------------------------------------------
 % TODO:

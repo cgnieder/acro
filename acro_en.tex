@@ -41,9 +41,8 @@
 % the class is licensed LPPL 1.3 or later
 %
 \documentclass[DIV10,toc=index,toc=bib]{cnpkgdoc}
-\usepackage[osf]{libertine}
 \docsetup{
-  pkg = [single]acro ,
+  pkg = {[single,macros]acro} ,
   code-box = {
     backgroundcolor  = gray!7!white ,
     skipbelow        = .6\baselineskip plus .5ex minus .5ex ,
@@ -51,6 +50,8 @@
   } ,
   gobble   = 1
 }
+
+\usepackage[osf]{libertine}
 
 \acsetup{hyperref}
 
@@ -80,17 +81,19 @@
   acs,
   acsetup,
   acsp,
+  nato,
   NewAcronym,
   newlist,
+  ny,
   printacronyms,
   setlist
 }
 
 \usepackage{filecontents}
 
+% bibliography:
 \usepackage[backend=biber,style=alphabetic]{biblatex}
 \addbibresource{\jobname.bib}
-
 \begin{filecontents}{\jobname.bib}
 @online{wikipedia,
   author  = {Wikipedia},
@@ -98,10 +101,45 @@
   urldate = {2012-06-21},
   url     = {http://en.wikipedia.org/wiki/Acronyms}
 }
+@software{acroterm,
+  title   = {acroterm},
+  author  = {Jakob Voss},
+  date    = {2010-11-19},
+  version = {0.1},
+  url     = {http://www.ctan.org/pkg/acroterm}
+}
+@software{acronym,
+  title   = {acronym -- An Acronym Environment for \LaTeXe},
+  author  = {Tobias Oetiker},
+  date    = {2010-09-08},
+  version = {1.36},
+  url     = {http://www.ctan.org/pkg/acronym}
+}
+@software{acromake,
+  title   = {acromake},
+  author  = {Paul A. Thompson},
+  date    = {1995-07-16},
+  version = {na},
+  url     = {http://www.ctan.org/pkg/acromake}
+}
+@software{glossaries,
+  title   = {glossaries},
+  author  = {Nicola L.C. Talbot},
+  date    = {2011-04-12},
+  version = {3.01},
+  url     = {http://www.ctan.org/pkg/glossaries}
+}
+@software{abbrevs,
+  title   = {abbrevs},
+  author  = {Matt Swift},
+  date    = {2001-09-08},
+  version = {1.4},
+  url     = {http://www.ctan.org/pkg/abbrevs}
+}
 \end{filecontents}
 
+% index:
 \usepackage{makeidx}
-
 \begin{filecontents}{\jobname.ist}
  heading_prefix "{\\bfseries "
  heading_suffix "\\hfil}\\nopagebreak\n"
@@ -114,6 +152,7 @@
  suffix_3p "\\nohyperpage{\\,ff.}"
 \end{filecontents}
 
+% abstract:
 \TitlePicture{\parbox{.75\linewidth}{%
   \acro not only allows you to create acronyms in a simple way but also lets you
   add them to different classes of acronyms. Lists can be created of seperate classes
@@ -121,11 +160,14 @@
   \acro also provides an option \key{single} which ignores acronyms that are used
   only once in the whole document.}}
 
+% additional packages:
 \usepackage{fnpct,longtable,enumitem,ragged2e}
 
+% Wikipedia:
 \newcommand*\wikipedia{\libertineGlyph{W.alt}\kern-.055em\textsc{ikipedia}}
 \let\h\uline
 
+% define acronyms:
 \NewAcronym{cd}   {cd}             {Compact Disc}
   \AcronymFormat{cd}{\scshape}
 \NewAcronym{id}   {id}             {identification string}
@@ -161,11 +203,12 @@ It has the status ``maintained.''
  on the precise definition of the various terms nor on written usage.
 \end{zitat}
 After \wikipedia\ told us what acronyms are -- why do we need another package
-for them? There are several already: \paket{acronym}, \paket{acromake},
-\paket{acroterm}, the abbreviations package \paket{abbrevs} (which has a bug%
+for them? There are several already: \paket{acronym} \cite{acronym},
+\paket{acromake} \cite{acromake}, \paket{acroterm} \cite{acroterm}, the
+abbreviations package \paket{abbrevs} \cite{abbrevs} (which has a bug%
 \footnote{\url{http://tex.stackexchange.com/q/59840/5049}}, though), and of
-course the mighty \paket{glossaries}. So there is \emph{really} no reason for a
-new package.
+course the mighty \paket{glossaries} \cite{glossaries}. So there is \emph{really}
+no \emph{need} for a new package.
 
 The main reason for the existance of \acro is a question on \acs{texse}%
 \footnote{\url{http://tex.stackexchange.com/q/59449/5049}}, which intrigued me
@@ -361,13 +404,25 @@ There are a few options which change the general behaviour of \acro.
  \option{only-used}{\default{true}/false} this option is true as default. It means
  that only acronyms that are actually used in the document are printed in the list.
  If false, all acronyms defined with \cmd{NewAcronym} will be written in the list.
+ \option{macros}{\default{true}/false} if set to \code{true} this option will
+ create an macro \cmd{<id>} for each acronym as a shortcut for \cmd{ac}{<id>}.
+ Already existing macros will \emph{not} be overwritten. Default: \code{false}
+ \option{strict}{\default{true}/false} if set to \code{true} and the option
+ \key{macros}{true} is in effect then already existing macros will be overwritten.
+ Default: \code{false}
 \end{beschreibung}
 
 All options of this and the following sections can be set up either as package
 options or via the setup command:
 \begin{beschreibung}
- \Befehl{acsetup}{<options>}
+ \Befehl{acsetup}{<options>} set up \acro anywhere in the document. Or separate
+ package loading from setup.
 \end{beschreibung}
+
+\begin{beispiel}
+ % with \acsetup{macros}; remember I used \acreset before
+ we could have used these before: \nato, \ny
+\end{beispiel}
 
 \subsection{Options Regarding Acronyms}\secidx[acronyms]{Customization}
 The options described in this section all influence the layout of one of the
@@ -439,7 +494,7 @@ in more than one list there will also be more than one hypertarget for this
 acronym.
 \secidx*{\paket{hyperref} support}[hyperref Support]
 
-\appendix
+\newpage\appendix
 \section{All Acronyms Used in this Documentation}\label{sec:documentation_acronyms}
 \begin{beispiel}[code only]
  \acsetup{
