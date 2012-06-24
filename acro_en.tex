@@ -204,19 +204,19 @@ It has the status ``maintained.''
  or parts of words (as in Benelux and Ameslan). There is no universal agreement
  on the precise definition of the various terms nor on written usage.
 \end{zitat}
-After \wikipedia\ told us what acronyms are -- why do we need another package
-for them? There are several already: \paket{acronym} \cite{acronym},
-\paket{acromake} \cite{acromake}, \paket{acroterm} \cite{acroterm}, the
-abbreviations package \paket{abbrevs} \cite{abbrevs} (which has a bug%
-\footnote{\url{http://tex.stackexchange.com/q/59840/5049}}, though), and of
-course the mighty \paket{glossaries} \cite{glossaries}. So there is \emph{really}
-no \emph{need} for a new package.
+After \wikipedia\ told us what acronyms are and won't confuse them with units or
+abbreviations -- why do we need another package for them? There are several
+already: \paket{acronym} \cite{acronym}, \paket{acromake} \cite{acromake},
+\paket{acroterm} \cite{acroterm}, the abbreviations package \paket{abbrevs}
+\cite{abbrevs} (which has a bug\footnote{\url{http://tex.stackexchange.com/q/59840/5049}},
+though), and of course the mighty \paket{glossaries} \cite{glossaries}. So there
+is \emph{really} no \emph{need} for a new package.
 
 The main reason for the existance of \acro is a question on \acs{texse}%
 \footnote{\url{http://tex.stackexchange.com/q/59449/5049}} which intrigued me
 and in consequence led to \acro and it's option \key{single}.
 
-\acro has very much similarities with the \paket{acronym} package. In fact, quite
+\acro has many similarities with the \paket{acronym} package. In fact, quite
 some macros have the same name and meaning\footnote{\emph{Not} in the sense of
 \code{\textbackslash\textcolor{code}{meaning}}!}.
 
@@ -385,13 +385,15 @@ Beware that this command acts \emph{globally} and effects \emph{all} acronyms!
 Printing the whole list of acronyms is easy: just place \cmd{printacronyms}
 wherever you want the list to be.
 \begin{beschreibung}
- \befehl{printacronyms}{<list of classes>} the \emph{optional} argument takes a
- comma-separated list of the classes of acronyms that should in the list. If the
- argument is left out, \emph{all} acronyms are printed.
+ \Befehl{printacronyms}{<list of classes>}\oa{<excluded classes>} \cnpkgdocarrow\
+ the \emph{optional} argument \ma{<list of classes>} takes a comma-separated list
+ of the classes of acronyms that should in the list. If the argument is left out,
+ \emph{all} acronyms are printed. In the optional argument \oa{<excluded classes>}
+ classes can be specified that shall not be included into the list.
 \end{beschreibung}
 \begin{beispiel}[below]
  \acsetup{hyperref=false,extra-style=comma}
- \printacronyms
+ \printacronyms[city]
  \acsetup{list-name=City Acronyms}
  \printacronyms{city}
 \end{beispiel}
@@ -505,7 +507,8 @@ the acronym list:
  % preamble:
  % \usepackage{enumitem}
  \newlist{acronyms}{description}{1}
- \setlist[acronyms]{labelwidth=2.5em,leftmargin=3em,noitemsep,itemindent=0pt}
+ \newcommand*\addcolon[1]{#1:}
+ \setlist[acronyms]{labelwidth=3em,leftmargin=3.5em,noitemsep,itemindent=0pt,font=\addcolon}
  \acsetup{list-type=acronyms,hyperref=false,extra-style=comma}
  \printacronyms
 \end{beispiel}
