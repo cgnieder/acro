@@ -32,7 +32,7 @@
 \ProvidesExplPackage
   {acro}
   {2012/06/24}
-  {0.1c}
+  {0.2}
   {Typeset Acronyms}
 
 % error messages:
@@ -809,13 +809,13 @@
 % #7: long plural
 % #8: class
 % #9: extra
-\NewDocumentCommand \NewAcronym { sm>{\SplitArgument{1}{,}}mo>{\SplitArgument{1}{,}}+mgo }
+\NewDocumentCommand \DeclareAcronym { sm>{\SplitArgument{1}{,}}mo>{\SplitArgument{1}{,}}+mgo }
   { \acro_new:nnnnnnnnn { #1 } { #2 } #3 { #4 } #5 { #7 } { #6 } }
-\@onlypreamble \NewAcronym
+\@onlypreamble \DeclareAcronym
 
-\NewDocumentCommand \AcronymFormat { mm }
+\NewDocumentCommand \DeclareAcronymFormat { mm }
   { \acro_format:nn { #1 } { #2 } }
-\@onlypreamble \AcronymFormat
+\@onlypreamble \DeclareAcronymFormat
 
 % automatic:
 \NewDocumentCommand \ac { m }
@@ -969,6 +969,8 @@
                  - added `sort' option
 2012/06/24 v0.1b - added \Acf and \Acfp, added option `plural-ending'
 2012/06/24 v0.1c - added excluded argument to \printacronyms
+2012/06/24 v0.2  - renamed \NewAcronym => \DeclareAcronym
+                   \AcronymFormat => \DeclareAcronymFormat
 
 % --------------------------------------------------------------------------
 % TODO:
