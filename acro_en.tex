@@ -447,14 +447,22 @@ options or via the setup command:
 The options described in this section all influence the layout of one of the
 possible output forms of the acronyms.
 \begin{beschreibung}
+ %%
  \option{short-format}{<format>} sets a format for all short forms. For example
  \key{short-format}{\cmd{scshape}} would print all short forms in small caps.
+ %%
  \option{long-format}{<format>} the same for the long forms.
+ %%
  \option{extra-format}{<format>} the same for the extra information.
+ %%
  \option{first-style}{default/footnote/square} the basic style of the first
  appearance of an acronym. Default: \code{default}
+ %%
  \option{extra-style}{plain/comma/paren/bracket} define the way the extra
  information is printed in the list. Default: \code{plain}
+ %%
+ \option{plural-ending}{<tokenlist>} With this option the default plural ending
+ can be set. Default: \code{s}
 \end{beschreibung}
 
 \begin{beispiel}
@@ -472,10 +480,10 @@ possible output forms of the acronyms.
  %%
  \option{page-name}{<page name>} The ``name'' of the page label. Default: \code{p.}
  %%
- %%
  \option{list-type}{table/<list>} This option let's you choose how the list is
  printed. \code{<list>} can be any valid list like \code{itemize} or \code{description}
  Default: \code{description}.
+ %%
  \option{table-style}{tabular/longtable} If you choose \key{list-type}{table}
  you have to specify which kind of table should be used. If you choose \code{longtable}
  you have to \verb+\usepackage{longtable}+ in your preamble.

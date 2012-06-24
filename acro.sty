@@ -78,6 +78,8 @@
 \tl_set:Nn  \l_acro_list_name_tl      { Acronyms }
 \tl_new:N   \l_acro_short_tl
 \tl_new:N   \l_acro_short_plural_tl
+\tl_new:N   \l_acro_default_plural_tl
+\tl_set:Nn  \l_acro_default_plural_tl { s }
 \tl_new:N   \l_acro_alt_tl
 \tl_new:N   \l_acro_long_tl
 \tl_new:N   \l_acro_custom_format_tl
@@ -118,6 +120,7 @@
     list-table-width .dim_set:N  = \l_acro_table_width_dim      ,
     hyperref         .bool_set:N = \l_acro_use_hyperref_bool    ,
     only-used        .bool_set:N = \l_acro_print_only_used_bool ,
+    plural-ending    .tl_set:N   = \l_acro_default_plural_tl    ,
   }
 
 % setup command:
@@ -142,14 +145,14 @@
       { \prop_put:Nnn \l_acro_replace_plural_prop { #2 } { \c_false_bool } }
     \prop_put:Nnn \l_acro_short_prop { #2 } { #3 }
     \IfNoValueTF { #4 }
-      { \prop_put:Nnn \l_acro_short_plural_prop { #2 } { s } }
+      { \prop_put:Nnn \l_acro_short_plural_prop { #2 } { \l_acro_default_plural_tl } }
       { \prop_put:Nnn \l_acro_short_plural_prop { #2 } { #4 } }
     \IfNoValueTF { #5 }
       { \prop_put:Nnn \l_acro_alt_prop { #2 } { #2 } }
       { \prop_put:Nnn \l_acro_alt_prop { #2 } { #5 } }
     \prop_put:Nnn \l_acro_long_prop { #2 } { #6 }
     \IfNoValueTF { #7 }
-      { \prop_put:Nnn \l_acro_long_plural_prop { #2 } { s } }
+      { \prop_put:Nnn \l_acro_long_plural_prop { #2 } { \l_acro_default_plural_tl } }
       { \prop_put:Nnn \l_acro_long_plural_prop { #2 } { #7 } }
     \IfNoValueF { #8 }
       { \prop_put:Nnn \l_acro_class_prop { #2 } { #8} }
@@ -936,7 +939,7 @@
                    shortcut macros
                  - added capitalized version of long forms
                  - added `sort' option
-2012/06/24 v0.1b - added \Acf and \Acfp
+2012/06/24 v0.1b - added \Acf and \Acfp, added option `plural-ending'
 
 % --------------------------------------------------------------------------
 % TODO:
