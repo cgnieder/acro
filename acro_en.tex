@@ -46,7 +46,8 @@
   code-box = {
     backgroundcolor  = gray!7!white ,
     skipbelow        = .6\baselineskip plus .5ex minus .5ex ,
-    skipabove        = .6\baselineskip plus .5ex minus .5ex
+    skipabove        = .6\baselineskip plus .5ex minus .5ex ,
+    roundcorner      = 3pt ,
   } ,
   gobble   = 1
 }
@@ -156,7 +157,7 @@
 % abstract:
 \TitlePicture{\parbox{.75\linewidth}{%
   \acro not only allows you to create acronyms in a simple way but also lets you
-  add them to different classes of acronyms. Lists can be created of seperate classes
+  add them to different classes of acronyms. Lists can be created of separate classes
   wherever you want the list to appear.\par
   \acro also provides an option \key{single} which ignores acronyms that are used
   only once in the whole document.\par
@@ -168,14 +169,14 @@
 
 % Wikipedia:
 \newcommand*\wikipedia{\libertineGlyph{W.alt}\kern-.055em\textsc{ikipedia}}
-\let\h\uline
+\newcommand*\h[1]{\textcolor{main}{#1}}
 
 % define acronyms:
 \DeclareAcronym{cd}   {cd}             {Compact Disc}
   \DeclareAcronymFormat{cd}{\scshape}
 \DeclareAcronym{id}   {id}             {identification string}
   \DeclareAcronymFormat{id}{\scshape}
-\DeclareAcronym{jpg}  {JPG}[JPEG]      {Joint Photographic Experts Group}
+\DeclareAcronym{jpg}  {JPEG}[JPG]      {Joint Photographic Experts Group}
 \DeclareAcronym{la}   {LA,}            {Los Angeles,}[city]
 \DeclareAcronym*{mp}  {MP}             {Member of Parliament,Members of Parliament}
 \DeclareAcronym{nato} {nato}           {North Atlantic Treaty Organization}{\textit{deutsch}: Organisation des Nordatlantikvertrags}
@@ -206,16 +207,21 @@ It has the status ``maintained.''
  on the precise definition of the various terms nor on written usage.
 \end{zitat}
 After \wikipedia\ told us what acronyms are and won't confuse them with units or
-abbreviations -- why do we need another package for them? There are several
-already: \paket{acronym} \cite{acronym}, \paket{acromake} \cite{acromake},
+other kinds of abbreviations -- why would we need another package for them? There
+are several already: \paket{acronym} \cite{acronym}, \paket{acromake} \cite{acromake},
 \paket{acroterm} \cite{acroterm}, the abbreviations package \paket{abbrevs}
-\cite{abbrevs} (which has a bug\footnote{\url{http://tex.stackexchange.com/q/59840/5049}},
+\cite{abbrevs} (v1.4 has a bug\footnote{\url{http://tex.stackexchange.com/q/59840/5049}},
 though), and of course the mighty \paket{glossaries} \cite{glossaries}. So there
-is \emph{really} no \emph{need} for a new package.
+is really no \emph{need} for a new package.
+
+On the other hand \paket{acronyms} has one or two short-commings and sometimes
+using \paket{glossaries} seems a bit of an overkill (or simply inconvenient as
+one has to run \code{makeglossaries} or \code{makeindex}, then). So \acro stands
+somewhere in between (but much closer to \paket{acronym}).
 
 The main reason for the existance of \acro is a question on \acs{texse}%
-\footnote{\url{http://tex.stackexchange.com/q/59449/5049}} which intrigued me
-and in consequence led to \acro and it's option \key{single}.
+\footnote{\url{http://tex.stackexchange.com/q/59449/5049}}, though, which intrigued
+me and in consequence led to \acro and it's option \key{single}.
 
 \acro has many similarities with the \paket{acronym} package. In fact, quite
 some macros have the same name and meaning\footnote{\emph{Not} in the sense of
@@ -239,8 +245,8 @@ only need three:
 This creates the acronym \acs{test} with the \acs{id} \code{test} and the long form
 ``\acl{test}''. The other arguments will be described later in this document.
 
-If you want to assign a special format to an acronym you can do that with
-\cmd{DeclareAcronymFormat}.
+\cmd{DeclareAcronymFormat} lets you assign a special format to an acronym. Maybe
+small caps:
 \begin{beispiel}[code only]
  % preamble:
  \DeclareAcronym{ot}{ot}{Other Test}
@@ -280,6 +286,7 @@ time any more.
  second time: \ac{cd} \\
  short: \acs{cd} \\
  alternative: \aca{cd} \\
+ first again: \acf{cd} \\
  long: \acl{cd} \\
  short plural: \acsp{cd} \\
  long plural: \aclp{cd}
@@ -321,7 +328,7 @@ For some acronyms it might be useful to have alternative forms. For this
  \Befehl{DeclareAcronym}{<id>}\ma{<short>}\oa{<alternative>}\ma{<long>}
 \end{beschreibung}
 \begin{beispiel}
- % preamble \DeclareAcronym{jpg}{JPG}[JPEG]{Joint Photographic Experts Group}
+ % preamble \DeclareAcronym{jpg}{JPEG}[JPG]{Joint Photographic Experts Group}
  default: \acs{jpg} \\
  alt.: \aca{jpg}
 \end{beispiel}
@@ -329,7 +336,7 @@ The alternative form uses the same plural ending as the default short form and
 is formatted in the same way.
 
 \subsection{Extra Information for the List Entry}\secidx[extra information]{Basics}
-Of course you can print a list of acronyms where there meaning is explained.
+Of course you can print a list of acronyms where their meaning is explained.
 Sometimes it can be useful to add additional information there. This is done with
 another optional argument to \cmd{DeclareAcronym}:
 \begin{beschreibung}
@@ -387,10 +394,10 @@ Printing the whole list of acronyms is easy: just place \cmd{printacronyms}
 wherever you want the list to be.
 \begin{beschreibung}
  \Befehl{printacronyms}{<list of classes>}\oa{<excluded classes>} \cnpkgdocarrow\
- the \emph{optional} argument \ma{<list of classes>} takes a comma-separated list
- of the classes of acronyms that should in the list. If the argument is left out,
- \emph{all} acronyms are printed. In the optional argument \oa{<excluded classes>}
- classes can be specified that shall not be included into the list.
+ the first \emph{optional} (!) argument \ma{<list of classes>} takes a comma-separated
+ list of the classes of acronyms that should in the list. If the argument is left
+ out, \emph{all} acronyms are printed. In the optional argument \oa{<excluded
+ classes>} classes can be specified that shall not be included into the list.
 \end{beschreibung}
 \begin{beispiel}[below]
  \acsetup{hyperref=false,extra-style=comma}
@@ -458,8 +465,8 @@ possible output forms of the acronyms.
  %%
  \option{extra-format}{<format>} the same for the extra information.
  %%
- \option{first-style}{default/footnote/square} the basic style of the first
- appearance of an acronym. Default: \code{default}
+ \option{first-style}{default/footnote/square/short/reversed} the basic style of
+ the first appearance of an acronym. Default: \code{default}
  %%
  \option{extra-style}{plain/comma/paren/bracket} define the way the extra
  information is printed in the list. Default: \code{plain}
@@ -515,7 +522,7 @@ the acronym list:
 \end{beispiel}
 \secidx*{Customization}
 
-\section{\paket*{hyperref} Support}\secidx{\paket{hyperref} support}[hyperref Support]
+\section{hyperref Support}\secidx{\paket{hyperref} support}[hyperref Support]
 The option \key{hyperref}{true} adds internal links from all short (or alternative)
 forms to their respective list entries. You should use this option with care: if
 you don't use \cmd{printacronyms} anywhere this option will result in loads of
