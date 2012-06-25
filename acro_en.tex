@@ -85,6 +85,7 @@
   addcolon,
   nato,
   DeclareAcronym,
+  linewidth,
   newlist,
   ny,
   printacronyms,
@@ -167,9 +168,22 @@
 % additional packages:
 \usepackage{fnpct,longtable,enumitem,ragged2e}
 
-% Wikipedia:
+% custom macros:
 \newcommand*\wikipedia{\libertineGlyph{W.alt}\kern-.055em\textsc{ikipedia}}
 \newcommand*\h[1]{\textcolor{main}{#1}}
+
+\ExplSyntaxOn
+\NewDocumentCommand \Default {g}
+  {
+    \hfill\llap
+      {
+        \IfNoValueTF { #1 }
+          {(initially~empty)}
+          {Default:~\code{#1}}
+      }
+    \newline
+  }
+\ExplSyntaxOff
 
 % define acronyms:
 \DeclareAcronym{cd}   {cd}             {Compact Disc}
@@ -208,10 +222,10 @@ It has the status ``maintained.''
 \end{zitat}
 After \wikipedia\ told us what acronyms are and won't confuse them with units or
 other kinds of abbreviations -- why would we need another package for them? There
-are several already: \paket{acronym} \cite{acronym}, \paket{acromake} \cite{acromake},
-\paket{acroterm} \cite{acroterm}, the abbreviations package \paket{abbrevs}
-\cite{abbrevs} (v1.4 has a bug\footnote{\url{http://tex.stackexchange.com/q/59840/5049}},
-though), and of course the mighty \paket{glossaries} \cite{glossaries}. So there
+are several already: \paket{acronym}~\cite{acronym}, \paket{acromake}~\cite{acromake},
+\paket{acroterm}~\cite{acroterm}, the abbreviations package \paket{abbrevs}~\cite{abbrevs}
+(v1.4 has a bug\footnote{\url{http://tex.stackexchange.com/q/59840/5049}},
+though), and of course the mighty \paket{glossaries}~\cite{glossaries}. So there
 is really no \emph{need} for a new package.
 
 On the other hand \paket{acronyms} has one or two short-commings and sometimes
@@ -342,7 +356,7 @@ another optional argument to \cmd{DeclareAcronym}:
 \begin{beschreibung}
  \Befehl{DeclareAcronym}{<id>}\ma{<short>}\ma{<long>}\ma{<extra>}
 \end{beschreibung}
-These information will only be displayed in the list. See section \ref{sec:print_lists}
+These information will only be displayed in the list. See section~\ref{sec:print_lists}
 for the impact of the following example.
 
 \begin{beispiel}
@@ -357,10 +371,10 @@ for the impact of the following example.
 \end{beispiel}
 \secidx*{Basics}
 
-\section{Additional Commands}\secidx{Additional Commands}
+\section{Additional Commands and Possibilities}\secidx{Additional Commands}
 \subsection{Using Classes}\secidx[classes]{Additional Commands}
 The acronyms of \acro can be divided into different classes. This doesn't change
-the output but allows different acronym lists, see section \ref{sec:print_lists}.
+the output but allows different acronym lists, see section~\ref{sec:print_lists}.
 For this \cmd{DeclareAcronym} has an optional argument:
 \begin{beschreibung}
  \Befehl{DeclareAcronym}{<id>}\ma{<short>}\ma{<long>}\oa{<class>}
@@ -387,6 +401,12 @@ for the first time you can call this command:
  \ac{ny}
 \end{beispiel}
 Beware that this command acts \emph{globally} and effects \emph{all} acronyms!
+
+\subsection{Labels}\secidx[labels]{Additional Commands}
+The first usage of an acronym sets a label \verb+\label{ac:<id>}+, regardless
+which command has been used to typeset it. This label is used to create the page
+numbers in the list (see section~\ref{sec:print_lists} for details) but can also
+be used for other references if needed.
 \secidx*{Additional Commands}
 
 \section{Printing the List}\label{sec:print_lists}\secidx{Printing the List}
@@ -406,7 +426,12 @@ wherever you want the list to be.
  \printacronyms{city}
 \end{beispiel}
 You can see that the default layout is a \code{description} list with a
-\code{section*} title. Both can be changed, see section \ref{sec:customization}.
+\code{section*} title. Both can be changed, see section~\ref{sec:customization}.
+
+The command \cmd{printacronyms} needs two \LaTeX\ runs. This is a precaution to
+avoid error messages with a possibly empty list. But since almost all documents
+need at least two runs and often are compiled much more often than that, this
+fact shouldn't cause too much inconvenience.
 \secidx*{Printing the List}
 
 \section{Customization}\label{sec:customization}\secidx{Customization}
@@ -414,31 +439,31 @@ You can see that the default layout is a \code{description} list with a
 There are a few options which change the general behaviour of \acro.
 \begin{beschreibung}
  %%
- \option{single}{\default{true}/false} if set to \code{true} an acronym that's
- used only once in a document will only print the long form and will not be
- printed in the list. Default: \code{false}
+ \Option{single}{\default{true}|false}\Default{false} If set to \code{true} an
+ acronym that's used only once in a document will only print the long form and
+ will not be printed in the list.
  %%
- \option{hyperref}{\default{true}/false} if set to \code{true} the short forms
- of the acronyms will be linked to their list entry. Default: \code{false}
+ \Option{hyperref}{\default{true}|false}\Default{false} If set to \code{true}
+ the short forms of the acronyms will be linked to their list entry.
  %%
- \option{only-used}{\default{true}/false} this option is \code{true} as default.
- It means that only acronyms that are actually used in the document are printed
- in the list. If \code{false}, all acronyms defined with \cmd{DeclareAcronym} will
- be written in the list. Default: \code{true}
+ \Option{only-used}{\default{true}|false}\Default{true} This option is \code{true}
+ as default. It means that only acronyms that are actually used in the document
+ are printed in the list. If \code{false}, all acronyms defined with \cmd{DeclareAcronym}
+ will be written in the list.
  %%
- \option{macros}{\default{true}/false} if set to \code{true} this option will
- create an macro \cmd{<id>} for each acronym as a shortcut for \cmd{ac}{<id>}.
- Already existing macros will \emph{not} be overwritten. Default: \code{false}
+ \Option{macros}{\default{true}|false}\Default{false} If set to \code{true} this
+ option will create an macro \cmd{<id>} for each acronym as a shortcut for
+ \cmd{ac}{<id>}.  Already existing macros will \emph{not} be overwritten.
  %%
- \option{strict}{\default{true}/false} if set to \code{true} and the option
- \key{macros}{true} is in effect then already existing macros will be overwritten.
- Default: \code{false}
+ \Option{strict}{\default{true}|false}\Default{false} If set to \code{true} and
+ the option \key{macros}{true} is in effect then already existing macros will be
+ overwritten.
  %%
- \option{sort}{\default{true}/false} if set to \code{true} the acronym list will
- be sorted automatically. The entries are sorted by their \acs{id} ignoring upper
- and lower case. This option needs the experimental package \paket*{l3sort}
- (from the \paket{l3experimental} bundle) and can only be set in the
- preamble. Default: \code{false}
+ \Option{sort}{\default{true}|false}\Default{false} If set to \code{true} the
+ acronym list will be sorted automatically. The entries are sorted by their
+ \acs{id} ignoring upper and lower case. This option needs the experimental
+ package \paket*{l3sort} (from the \paket{l3experimental} bundle) and can only
+ be set in the preamble.
 \end{beschreibung}
 
 All options of this and the following sections can be set up either as package
@@ -458,55 +483,67 @@ The options described in this section all influence the layout of one of the
 possible output forms of the acronyms.
 \begin{beschreibung}
  %%
- \option{short-format}{<format>} sets a format for all short forms. For example
- \key{short-format}{\cmd{scshape}} would print all short forms in small caps.
+ \Option{short-format}{<format>}\Default Sets a format for all short forms.
+ For example \key{short-format}{\cmd{scshape}} would print all short forms in
+ small caps.
  %%
- \option{long-format}{<format>} the same for the long forms.
+ \Option{long-format}{<format>}\Default The same for the long forms.
  %%
- \option{extra-format}{<format>} the same for the extra information.
+ \Option{extra-format}{<format>}\Default The same for the extra information.
  %%
- \option{first-style}{default/footnote/square/short/reversed} the basic style of
- the first appearance of an acronym. Default: \code{default}
+ \Option{first-style}{default|footnote|square|short|reversed}\Default{default}
+ The basic style of the first appearance of an acronym.
  %%
- \option{extra-style}{plain/comma/paren/bracket} define the way the extra
- information is printed in the list. Default: \code{plain}
+ \Option{extra-style}{plain|comma|paren|bracket}\Default{plain} Defines the way
+ the extra information is printed in the list.
  %%
- \option{plural-ending}{<tokenlist>} With this option the default plural ending
- can be set. Default: \code{s}
+ \Option{plural-ending}{<tokenlist>}\Default{s} With this option the default
+ plural ending can be set.
 \end{beschreibung}
 
 \begin{beispiel}
  % (Keep in mind that we're in
  % a minipage here!)
  \acsetup{first-style=footnote}
+ \acf{ny} \\
+ \acsetup{first-style=square}
+ \acf{ny} \\
+ \acsetup{first-style=short}
+ \acf{ny} \\
+ \acsetup{first-style=reversed}
  \acf{ny}
 \end{beispiel}
 
 \subsection{Options Regarding the List}\secidx[list]{Customization}
 \begin{beschreibung}
  %%
- \option{page-ref}{none/plain/comma/paren} The style with which the page number of
- the first appearance of the acronym in the text is displayed. Default: \code{none}
+ \Option{page-ref}{none|plain|comma|paren}\Default{none} The style with which
+ the page number of the first appearance of the acronym in the text is displayed.
  %%
- \option{page-name}{<page name>} The ``name'' of the page label. Default: \code{p.}
+ \Option{page-name}{<page name>}\Default{p.} The ``name'' of the page label.
  %%
- \option{list-type}{table/<list>} This option let's you choose how the list is
- printed. \code{<list>} can be any valid list like \code{itemize} or \code{description}
- Default: \code{description}.
+ \Option{list-type}{table|<list>}\Default{description} This option let's you
+ choose how the list is printed. \code{<list>} can be any valid list like
+ \code{itemize} or \code{description}.
  %%
- \option{table-style}{tabular/longtable} If you choose \key{list-type}{table}
- you have to specify which kind of table should be used. If you choose \code{longtable}
- you have to \verb+\usepackage{longtable}+ in your preamble.
+ \Option{list-style}{list|tabular|longtable|extra-tabular|extra-longtable|\\
+ extra-tabular-rev|extra-longtable-rev}\Default{list} If you choose
+ \key{list-type}{table} you have to specify which kind of table should be used.
+ If you choose \code{longtable}, \code{extra-longtable} or \code{extra-longtable-rev}
+ you have to \verb+\usepackage{longtable}+ in your preamble. The values
+ \code{extra-longtable} and \code{extra-longtable-rev} put the extra information
+ in a column of its own.
  %%
- \option{list-header}{chapter/chapter*/section/section*/subsection/subsection*}
- The header type of the list. Default: \code{section*}
+ \Option{list-header}{chapter|chapter*|section|section*|subsection|subsection*}\\
+ The header type of the list.\Default{section*}
  %%
- \option{list-name}{<list name>} The name of the list. This is what's written in
- the list-header. Default: \code{Acronyms}
+ \Option{list-name}{<list name>}\Default{Acronyms} The name of the list. This is
+ what's written in the list-header.
  %%
- \option{list-table-width} this has only an effect if you chose \key{list-type}{table}.
- the second column of the table is a \code{p} column whose width can be specified
- with this option. Default: \verb+.7\linewidth+
+ \Option{list-table-width}\Default{.7\cmd{linewidth}} This has only an effect if
+ you chose \key{list-type}{table}. The second column (or the third if you choose
+ one of the \code{-rev} styles) of the table is a \code{p} column whose width can
+ be specified with this option.
 \end{beschreibung}
 
 If you for example have loaded \paket{enumitem} you can define a custom list for
@@ -537,7 +574,7 @@ acronym.
 \begin{beispiel}[code only]
  \acsetup{
    list-type   = table,
-   table-style = longtable,
+   list-style  = longtable,
    list-header = subsection*,
    extra-style = comma,
    page-ref    = comma,
@@ -546,7 +583,7 @@ acronym.
 \end{beispiel}
 \acsetup{
   list-type   = table,
-  table-style = longtable,
+  list-style  = longtable,
   list-header = subsection*,
   extra-style = comma,
   page-ref    = comma,
@@ -556,7 +593,7 @@ acronym.
 \begin{beispiel}[code only]
  \acsetup{
    list-type   = table,
-   table-style = longtable,
+   list-style  = longtable,
    list-header = subsection*,
    page-ref    = comma,
    list-name   = City-Acronyms}

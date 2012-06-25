@@ -1,0 +1,39 @@
+% arara: pdflatex
+% arara: pdflatex
+\documentclass{scrartcl}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{acro}
+\acsetup{
+  page-ref    = paren,
+  extra-style = comma,
+  only-used   = false,
+  sort        = true
+}
+
+\usepackage{longtable,array,siunitx}
+
+\DeclareAcronym{ecm}{ECM}  {Electro Chemical Machining}{Elektrochemisches Abtragen}
+\DeclareAcronym{adc}{ADC}  {Analog-to-Digital-Converter}
+\DeclareAcronym{edm}{EDM}  {Electro Discharge Machining}
+\DeclareAcronym{ecdm}{ECDM}{Electro Chemical Discharge Machining}{Kombination aus \acs{ecm} und \acs{edm}}
+
+\DeclareAcronym{f}{\ensuremath{f}}{Frequenz}{\si{\hertz}}[unit]
+\DeclareAcronym{A}{\ensuremath{A}}{Fläche}{\si{\metre^2}}[unit]
+\DeclareAcronym{C}{\ensuremath{C}}{Kapazität}{\si{\farad}}[unit]
+\DeclareAcronym{F}{\ensuremath{F}}{Kraft}{\si{\newton}}[unit]
+
+\begin{document}
+
+\acsetup{list-name=Abkürzungsverzeichnis}
+\printacronyms[unit]
+
+\acsetup{
+  list-name        = Formelverzeichnis,
+  list-type        = table,
+  table-style      = extra-longtable-rev,
+  extra-style      = plain
+}
+\printacronyms{unit}
+
+\end{document}
