@@ -227,19 +227,21 @@ It has the status ``maintained.''
  or parts of words (as in Benelux and Ameslan). There is no universal agreement
  on the precise definition of the various terms nor on written usage.
 \end{zitat}
-After \wikipedia\ told us what acronyms are and won't confuse them with units or
-other kinds of abbreviations -- why would we need another package for them? There
-are several already: \paket{acronym}~\cite{acronym}, \paket{acromake}~\cite{acromake},
-\paket{acroterm}~\cite{acroterm}, the abbreviations package \paket{abbrevs}~\cite{abbrevs}
-(the current version 1.4 has a bug\footnote{see \url{http://tex.stackexchange.com/q/59840/5049}
-for solutions.}, though), the nomenclature package \paket{nomencl}~\cite{nomencl},
-and of course the mighty \paket{glossaries}~\cite{glossaries}. So there is really
-no \emph{need} for a new package.
+After \wikipedia\ told us what acronyms are and we won't confuse them with units
+or other kinds of abbreviations -- why would we need another package for them?
+There are several already: \paket{acronym}~\cite{acronym}, \paket{acromake}%
+~\cite{acromake}, \paket{acroterm}~\cite{acroterm}, the abbreviations package
+\paket{abbrevs}~\cite{abbrevs} (the current version 1.4 has a bug\footnote{see
+\url{http://tex.stackexchange.com/q/59840/5049} for solutions.}, though), the
+nomenclature package \paket{nomencl}~\cite{nomencl}, and of course the mighty
+\paket{glossaries}~\cite{glossaries}. So there is really no \emph{need} for a
+new package.
 
-On the other hand \paket{acronyms} has one or two short-commings and sometimes
-using \paket{glossaries} seems a bit of an overkill (or simply inconvenient as
-one has to run \code{makeglossaries} or \code{makeindex}, then). So \acro stands
-somewhere in between (but much closer to \paket{acronym}).
+On the other hand \paket{acronym}, the best of the acronym specific packages,
+has one or two shortcomings and sometimes using \paket{glossaries} seems a bit
+of an overkill (or simply inconvenient as one has to run \code{makeglossaries}
+or \code{makeindex}, then). So \acro stands somewhere in between (but much
+closer to \paket{acronym}).
 
 The main reason for the existance of \acro is a question on \acs{texse}%
 \footnote{\url{http://tex.stackexchange.com/q/59449/5049}}, though, which intrigued
@@ -264,8 +266,8 @@ only need three:
  % preamble
  \DeclareAcronym{test}{ST}{Some Test}
 \end{beispiel}
-This creates the acronym \acs{test} with the \acs{id} \code{test} and the long form
-``\acl{test}''. The other arguments will be described later in this document.
+This creates the acronym ``\acs{test}'' with the \acs{id} ``test'' and the long
+form ``\acl{test}''. The other arguments will be described later in this document.
 
 \cmd{DeclareAcronymFormat} lets you assign a special format to an acronym. Maybe
 small caps:
@@ -274,7 +276,7 @@ small caps:
  \DeclareAcronym{ot}{ot}{Other Test}
  \DeclareAcronymFormat{ot}{\scshape}
 \end{beispiel}
-This now looks like this: \acs{ot}.
+The short form now looks like this: \acs{ot}.
 
 \subsection{Using the Acronyms -- the Commands}\secidx[using acronyms]{Basics}
 Acronyms are used with with one of the following commands:
