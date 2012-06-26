@@ -5,35 +5,42 @@
 \usepackage[utf8]{inputenc}
 \usepackage{acro}
 \acsetup{
-  page-ref    = paren,
-  extra-style = comma,
-  only-used   = false,
-  sort        = true
+  page-ref    = paren,% Seitennummer in Klammern
+  extra-style = comma,% extra-Informationen mit Komma anhängen
+  only-used   = false,% für das Beispiel auch die nicht verwendeten in die Liste aufnehmen
+  sort        = true  % Liste sortieren
 }
 
-\usepackage{longtable,array,siunitx}
+\usepackage{longtable,siunitx}
 
 \DeclareAcronym{ecm}{ECM}  {Electro Chemical Machining}{Elektrochemisches Abtragen}
 \DeclareAcronym{adc}{ADC}  {Analog-to-Digital-Converter}
 \DeclareAcronym{edm}{EDM}  {Electro Discharge Machining}
 \DeclareAcronym{ecdm}{ECDM}{Electro Chemical Discharge Machining}{Kombination aus \acs{ecm} und \acs{edm}}
 
-\DeclareAcronym{f}{\ensuremath{f}}{Frequenz}{\si{\hertz}}[unit]
-\DeclareAcronym{A}{\ensuremath{A}}{Fläche}{\si{\metre^2}}[unit]
-\DeclareAcronym{C}{\ensuremath{C}}{Kapazität}{\si{\farad}}[unit]
-\DeclareAcronym{F}{\ensuremath{F}}{Kraft}{\si{\newton}}[unit]
+% "Acronyme" (tatsächlich physikalische Größen) einer speziellen Klasse:
+\DeclareAcronym{f}{\ensuremath{f}}{Frequenz}{\si{\hertz}}[physics]
+\DeclareAcronym{A}{\ensuremath{A}}{Fläche}{\si{\metre^2}}[physics]
+\DeclareAcronym{C}{\ensuremath{C}}{Kapazität}{\si{\farad}}[physics]
+\DeclareAcronym{F}{\ensuremath{F}}{Kraft}{\si{\newton}}[physics]
 
 \begin{document}
 
-\acsetup{list-name=Abkürzungsverzeichnis}
-\printacronyms[unit]
+erstes Mal: \ac{ecm}
 
+zweites Mal: \ac{ecm}
+
+% alle außer der Klasse 'physics' auflisten:
+\acsetup{list-name=Abkürzungsverzeichnis}
+\printacronyms[physics]
+
+% nur die Klasse 'physics' auflisten:
 \acsetup{
-  list-name        = Formelverzeichnis,
-  list-type        = table,
-  table-style      = extra-longtable-rev,
-  extra-style      = plain
+  list-name   = Formelverzeichnis,
+  list-type   = table,
+  list-style  = extra-longtable-rev,
+  extra-style = plain
 }
-\printacronyms{unit}
+\printacronyms{physics}
 
 \end{document}

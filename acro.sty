@@ -1025,7 +1025,7 @@
 
 % reset outputs, they'll behave like the first time again (!not like the _only_
 % time!):
-\NewDocumentCommand \acreset {}
+\NewDocumentCommand \acresetall {}
   {
     \prop_map_inline:Nn \l_acro_short_prop
       { \bool_gset_false:c { g_acro_##1_used_bool } }
