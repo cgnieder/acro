@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2012/06/25}
-  {0.3}
+  {2012/06/27}
+  {0.3a}
   {Typeset Acronyms}
 
 % error messages:
@@ -56,6 +56,7 @@
 \bool_new:N \l_acro_create_macros_bool
 \bool_new:N \l_acro_first_upper_bool
 \bool_new:N \l_acro_sort_bool
+\bool_new:N \l_acro_capitalize_list_bool
 
 \tl_new:N   \l_acro_short_format_tl
 \tl_new:N   \l_acro_long_format_tl
@@ -119,6 +120,7 @@
     hyperref         .bool_set:N = \l_acro_use_hyperref_bool    ,
     only-used        .bool_set:N = \l_acro_print_only_used_bool ,
     plural-ending    .tl_set:N   = \l_acro_default_plural_tl    ,
+    list-caps        .bool_set:N = \l_acro_capitalize_list_bool ,
   }
 
 % setup command:
@@ -195,7 +197,7 @@
         { #2 }
     \group_end:
   }
-\cs_generate_variant:Nn \acro_write:Nn { NV,No }
+\cs_generate_variant:Nn \acro_write:Nn { NV,No,Nf }
 
 % --------------------------------------------------------------------------
 % hyperref support
@@ -279,7 +281,7 @@
   {
     \AssignTemplateKeys
     \acro_write_short:n { #1 }
-    \footnote { \acro_write:Nn \l_acro_long_format_tl { #2 } } 
+    \footnote { \acro_write:No \l_acro_long_format_tl { #2 } } 
   }
 
 \DeclareInstance { acro-first } { default  } { text     } { }
@@ -478,7 +480,10 @@
                 \tl_if_blank:nTF { #1 }
                   {
                     \acro_print_list_short:nn { ##1 } { ##2 }
+                    \bool_if:NT \l_acro_capitalize_list_bool
+                      { \bool_set_true:N \l_acro_first_upper_bool }
                     \acro_print_list_long:n { ##1 }
+                    \bool_set_false:N \l_acro_first_upper_bool
                     \acro_print_list_extra:n { ##1 }
                     \acro_print_list_page:n { ##1 }
                   }
@@ -493,7 +498,10 @@
                             \tl_if_eq:NNT \l_tmpa_tl \l_tmpb_tl
                               {
                                 \acro_print_list_short:nn { ##1 } { ##2 }
+                                \bool_if:NT \l_acro_capitalize_list_bool
+                                  { \bool_set_true:N \l_acro_first_upper_bool }
                                 \acro_print_list_long:n { ##1 }
+                                \bool_set_false:N \l_acro_first_upper_bool
                                 \acro_print_list_extra:n { ##1 }
                                 \acro_print_list_page:n { ##1 }
                               }
@@ -517,7 +525,7 @@
     \cs_set:Npn \acro_print_list_short:nn ##1##2
       { \item [ \acro_hyper_target:nn { ##1 } { \acro_write_short:n { ##2 } } ] }
     \cs_set:Npn \acro_print_list_long:n ##1
-      { \acro_write:Nn \l_acro_long_format_tl { \prop_get:Nn \l_acro_long_prop { ##1 } } }
+      { \acro_write:Nf \l_acro_long_format_tl { \prop_get:Nn \l_acro_long_prop { ##1 } } }
     \cs_set:Npn \acro_print_list_extra:n ##1
       {
         \prop_get:NnNT \l_acro_extra_prop { ##1 } \l_tmpa_tl
@@ -557,7 +565,7 @@
     \cs_set:Npn \acro_print_list_short:nn ##1##2
       { \acro_hyper_target:nn { ##1 } { \acro_write_short:n { ##2 } } & }
     \cs_set:Npn \acro_print_list_long:n ##1
-      { \acro_write:Nn \l_acro_long_format_tl { \prop_get:Nn \l_acro_long_prop { ##1 } } }
+      { \acro_write:Nf \l_acro_long_format_tl { \prop_get:Nn \l_acro_long_prop { ##1 } } }
     \cs_set:Npn \acro_print_list_extra:n ##1
       {
         \prop_get:NnNT \l_acro_extra_prop { ##1 } \l_tmpa_tl
@@ -595,7 +603,7 @@
     \cs_set:Npn \acro_print_list_short:nn ##1##2
       { \acro_hyper_target:nn { ##1 } { \acro_write_short:n { ##2 } } & }
     \cs_set:Npn \acro_print_list_long:n ##1
-      { \acro_write:Nn \l_acro_long_format_tl { \prop_get:Nn \l_acro_long_prop { ##1 } } & }
+      { \acro_write:Nf \l_acro_long_format_tl { \prop_get:Nn \l_acro_long_prop { ##1 } } & }
     \cs_set:Npn \acro_print_list_extra:n ##1
       {
         \prop_get:NnNT \l_acro_extra_prop { ##1 } \l_tmpa_tl
@@ -634,7 +642,12 @@
     \cs_set:Npn \acro_print_list_short:nn ##1##2
       { \acro_hyper_target:nn { ##1 } { \acro_write_short:n { ##2 } } & }
     \cs_set:Npn \acro_print_list_extra:n ##1
-      { \acro_write:Nn \l_acro_long_format_tl { \prop_get:Nn \l_acro_long_prop { ##1 } } & }
+      {
+        \bool_if:NT \l_acro_capitalize_list_bool
+          { \bool_set_true:N \l_acro_first_upper_bool }
+        \acro_write:Nf \l_acro_long_format_tl
+          { \prop_get:Nn \l_acro_long_prop { ##1 } } &
+      }
     \cs_set:Npn \acro_print_list_long:n ##1
       {
         \prop_get:NnNT \l_acro_extra_prop { ##1 } \l_tmpa_tl
@@ -1059,6 +1072,7 @@
 2012/06/25 v0.3  - new list formats: extra-tabular, extra-longtable,
                    extra-tabular-rev, extra-longtable-rev
                  - extra precaution when using \printacronyms to avoid errors.
+2012/06/27 v0.3a - new option `list-caps'
 
 % --------------------------------------------------------------------------
 % TODO:
