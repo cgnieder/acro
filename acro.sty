@@ -938,6 +938,15 @@
     \group_end:
   }
 
+\NewDocumentCommand \Acp { m }
+  {
+    \group_begin:
+      \bool_set_true:N \l_acro_use_plural_bool
+      \bool_set_true:N \l_acro_first_upper_bool
+      \acro_use:n { #1 }
+    \group_end:
+  }
+
 % short:
 \NewDocumentCommand \acs { m }
   {
@@ -1072,7 +1081,7 @@
 2012/06/25 v0.3  - new list formats: extra-tabular, extra-longtable,
                    extra-tabular-rev, extra-longtable-rev
                  - extra precaution when using \printacronyms to avoid errors.
-2012/06/27 v0.3a - new option `list-caps'
+2012/06/27 v0.3a - new option `list-caps', \Acp added
 
 % --------------------------------------------------------------------------
 % TODO:
