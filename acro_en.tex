@@ -14,7 +14,7 @@
 % Web:    https://bitbucket.org/cgnieder/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2011-2012 Clemens Niederberger
+% Copyright 2012 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -503,7 +503,8 @@ possible output forms of the acronyms.
  %%
  \Option{extra-format}{<format>}\Default The same for the extra information.
  %%
- \Option{first-style}{default|footnote|square|short|reversed}\Default{default}
+ \Option{first-style}{default|plain|footnote|square|short|reversed|plain-reversed}\\
+ \null\Default{default}
  The basic style of the first appearance of an acronym.
  %%
  \Option{extra-style}{plain|comma|paren|bracket}\Default{plain} Defines the way
@@ -523,6 +524,10 @@ possible output forms of the acronyms.
  \acsetup{first-style=short}
  \acf{ny} \\
  \acsetup{first-style=reversed}
+ \acf{ny} \\
+ \acsetup{first-style=plain}
+ \acf{ny} \\
+ \acsetup{first-style=plain-reversed}
  \acf{ny}
 \end{beispiel}
 

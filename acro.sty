@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2012/06/27}
-  {0.3a}
+  {2012/06/29}
+  {0.3b}
   {Typeset Acronyms}
 
 % error messages:
@@ -84,6 +84,7 @@
 \tl_new:N   \l_acro_alt_tl
 \tl_new:N   \l_acro_long_tl
 \tl_new:N   \l_acro_custom_format_tl
+\tl_new:N   \l_acro_first_between_tl
 
 \prop_new:N \l_acro_short_prop
 \prop_new:N \l_acro_alt_prop
@@ -245,6 +246,7 @@
     brackets-type : tokenlist = ()    ,
     only-short    : boolean   = false ,
     reversed      : boolean   = false ,
+    between       : tokenlist         ,
   }
 \DeclareTemplateCode { acro-first } { text } { 2 }
   {
@@ -252,6 +254,7 @@
     brackets-type = \l_acro_first_brackets_tl       ,
     only-short    = \l_acro_first_only_short_bool   ,
     reversed      = \l_acro_first_reversed_bool     ,
+    between       = \l_acro_first_between_tl        ,
   }
   {
     \AssignTemplateKeys
@@ -259,6 +262,11 @@
       {
         \acro_write:No \l_acro_long_format_tl { #2 }
         \tl_use:N \c_space_tl
+        \tl_if_blank:VF \l_acro_first_between_tl
+          {
+            \tl_use:N \l_acro_first_between_tl
+            \tl_use:N \c_space_tl
+          }
       }
     \bool_if:nT { \l_acro_first_use_brackets_bool && !\l_acro_first_reversed_bool }
       { \tl_head:N \l_acro_first_brackets_tl }
@@ -267,6 +275,11 @@
       { \tl_tail:N \l_acro_first_brackets_tl }
     \bool_if:nT { !\l_acro_first_only_short_bool && \l_acro_first_reversed_bool }
       {
+        \tl_if_blank:VF \l_acro_first_between_tl
+          {
+            \tl_use:N \c_space_tl
+            \tl_use:N \l_acro_first_between_tl
+          }
         \tl_use:N \c_space_tl
         \bool_if:nT { \l_acro_first_use_brackets_bool && \l_acro_first_reversed_bool }
           { \tl_head:N \l_acro_first_brackets_tl }
@@ -284,12 +297,18 @@
     \footnote { \acro_write:No \l_acro_long_format_tl { #2 } } 
   }
 
-\DeclareInstance { acro-first } { default  } { text     } { }
-\DeclareInstance { acro-first } { square   } { text     } { brackets-type = [] }
-\DeclareInstance { acro-first } { footnote } { footnote } { }
-\DeclareInstance { acro-first } { short    } { text     }
+\DeclareInstance { acro-first } { default        } { text     } { }
+\DeclareInstance { acro-first } { square         } { text     }
+  { brackets-type = [] }
+\DeclareInstance { acro-first } { plain          } { text     }
+  { brackets = false , between = -- }
+\DeclareInstance { acro-first } { plain-reversed } { text     }
+  { brackets = false , between = -- , reversed = true }
+\DeclareInstance { acro-first } { footnote       } { footnote } { }
+\DeclareInstance { acro-first } { short          } { text     }
   { only-short = true , brackets = false }
-\DeclareInstance { acro-first } { reversed } { text     } { reversed = true }
+\DeclareInstance { acro-first } { reversed       } { text     }
+  { reversed = true }
 
 % --------------------------------------------------------------------------
 % formatting the extras information:
@@ -1082,6 +1101,8 @@
                    extra-tabular-rev, extra-longtable-rev
                  - extra precaution when using \printacronyms to avoid errors.
 2012/06/27 v0.3a - new option `list-caps', \Acp added
+2012/06/29 v0.3b - extended the `text' template to the `acro-first' object
+                 - added `acro-first' instances `plain' and `plain-reversed'
 
 % --------------------------------------------------------------------------
 % TODO:
