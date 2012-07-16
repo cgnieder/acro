@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2012/06/29}
-  {0.3b}
+  {2012/07/16}
+  {0.3c}
   {Typeset Acronyms}
 
 % error messages:
@@ -43,8 +43,7 @@
     apperantly~haven't~defined~it,~yet!~Maybe~you've~mispelled~it?
   }
 
-% package options:
-% variables
+% boolean variables:
 \bool_new:N \l_acro_use_single_bool
 \bool_new:N \l_acro_print_only_used_bool
 \bool_set_true:N \l_acro_print_only_used_bool
@@ -58,6 +57,7 @@
 \bool_new:N \l_acro_sort_bool
 \bool_new:N \l_acro_capitalize_list_bool
 
+% tokenlist variables:
 \tl_new:N   \l_acro_short_format_tl
 \tl_new:N   \l_acro_long_format_tl
 \tl_new:N   \l_acro_extra_format_tl
@@ -86,6 +86,7 @@
 \tl_new:N   \l_acro_custom_format_tl
 \tl_new:N   \l_acro_first_between_tl
 
+% property list variables:
 \prop_new:N \l_acro_short_prop
 \prop_new:N \l_acro_alt_prop
 \prop_new:N \l_acro_long_prop
@@ -96,6 +97,7 @@
 \prop_new:N \l_acro_extra_prop
 \prop_new:N \l_acro_format_prop
 
+% length variables:
 \dim_new:N  \l_acro_table_width_dim
 \dim_set:Nn \l_acro_table_width_dim { .7\linewidth }
 
@@ -222,7 +224,7 @@
          \acro_hyper_link:nn { #1 } { \phantom { #3 } }
          \acro_is_single:nTF { #1 } { \hbox_overlap_left:n { #3 } }
            {
-             \bool_if:NTF \l_acro_use_hyperref_bool
+             \bool_if:nTF { \l_acro_use_hyperref_bool && \l_acro_hyperref_loaded_bool }
                { \textcolor { \@linkcolor } { \hbox_overlap_left:n { #3 } } }
                { \hbox_overlap_left:n { #3 } }
            }
@@ -297,6 +299,7 @@
     \footnote { \acro_write:No \l_acro_long_format_tl { #2 } } 
   }
 
+% the different styles:
 \DeclareInstance { acro-first } { default        } { text     } { }
 \DeclareInstance { acro-first } { square         } { text     }
   { brackets-type = [] }
@@ -345,6 +348,7 @@
       { \tl_tail:N \l_acro_extra_brackets_tl }
   }
 
+% the different styles:
 \DeclareInstance { acro-extra } { default } { default }
   { brackets = false , punct = true , punct-symbol = . }
 \DeclareInstance { acro-extra } { plain   } { default }
@@ -405,6 +409,7 @@
       }
   }
 
+% the different styles:
 \DeclareInstance { acro-page-number } { default } { default }
   { punct = true , punct-symbol = . }
 \DeclareInstance { acro-page-number } { plain   } { default }
@@ -431,6 +436,7 @@
     \acro_list_title_format:n { #1 }
   }
 
+% the different styles:
 \DeclareInstance { acro-title } { chapter*    } { sectioning }
   { name-format = \chapter* { #1 } }
 \DeclareInstance { acro-title } { part*       } { sectioning }
@@ -687,7 +693,7 @@
     \exp_args:No \end { \l_acro_list_table_tl }
   }
 
-% instances:
+% the different styles:
 \DeclareInstance { acro-list } { list }                { list }  { }
 \DeclareInstance { acro-list } { tabular }             { table }
   { table = tabular }
@@ -756,6 +762,7 @@
   }
 
 \cs_generate_variant:Nn \tl_put_right:Nn { NV }
+
 \cs_new:Npn \acro_set_plural:n #1
   {
     \bool_if:NT \l_acro_use_plural_bool
@@ -774,7 +781,7 @@
 
 % --------------------------------------------------------------------------
 % enable us to know if the acronym is used only once and provide a different
-% style for that
+% style for that:
 \cs_new:Npn \acro_is_used:nTF #1#2#3
   {
     \bool_if:cTF { g_acro_#1_used_bool }
@@ -1107,4 +1114,4 @@
 % --------------------------------------------------------------------------
 % TODO:
 - Sprach-Support Überschrift der Acronym-Liste
-- \printacronyms erweitern um eine `exclude' Option
+- Option `totoc'

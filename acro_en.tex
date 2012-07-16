@@ -8,7 +8,7 @@
 % 
 %   Typeset Acronyms
 % 
-% 2012/06/22
+% 2012/06/30
 % --------------------------------------------------------------------------
 % Clemens Niederberger
 % Web:    https://bitbucket.org/cgnieder/acro/
@@ -40,7 +40,7 @@
 %    https://bitbucket.org/cgnieder/cnpkgdoc/
 % the class is licensed LPPL 1.3 or later
 %
-\documentclass[DIV10,toc=index,toc=bib]{cnpkgdoc}
+\documentclass[DIV10,toc=index,toc=bib,hyperfootnotes=false]{cnpkgdoc}
 \docsetup{
   pkg = {[single,macros,sort]acro} ,
   code-box = {
@@ -52,22 +52,24 @@
   gobble   = 1
 }
 
+% Layout:
 \usepackage[osf]{libertine}
-
 \acsetup{hyperref}
-
 \cnpkgcolors{
   main   => cnpkgred ,
   key    => yellow!40!brown ,
   module => cnpkgblue ,
   link   => black!90
 }
-
 \renewcommand*\othersectionlevelsformat[3]{%
   \textcolor{main}{#3\autodot}\enskip}
 \renewcommand*\partformat{%
   \textcolor{main}{\partname~\thepart\autodot}}
+\usepackage[biblatex]{embrac}[2012/06/29]
+\ChangeEmph{[}[,.02em]{]}[.055em,-.08em]
+\ChangeEmph{(}[-.01em,.04em]{)}[.04em,-.05em]
 
+% highlight commands in listings:
 \addcmds{
   ac,
   aca,
@@ -144,7 +146,8 @@
   author  = {Wikipedia},
   title   = {Acronym and initialism},
   urldate = {2012-06-21},
-  url     = {http://en.wikipedia.org/wiki/Acronyms}
+  url     = {http://en.wikipedia.org/wiki/Acronyms},
+  year    = {2012}
 }
 \end{filecontents}
 
@@ -172,8 +175,13 @@
   As an experimental feature \acro also offers the option \key{sort} which
   automatically sorts the list created by \cmd{printacronyms}.}}
 
+% footnotes:
+\usepackage{fnpct}
+% \usepackage{bigfoot}
+% \DeclareNewFootnote[para]{default}
+
 % additional packages:
-\usepackage{fnpct,longtable,enumitem,ragged2e}
+\usepackage{longtable,enumitem,ragged2e}
 
 % custom macros:
 \newcommand*\wikipedia{\libertineGlyph{W.alt}\kern-.055em\textsc{ikipedia}}
@@ -213,9 +221,10 @@
 \begin{document}
 \newpage
 \section{Licence and Requirements}
-\acro is placed under the terms of the LaTeX Project Public License,
-version 1.3 or later (\url{http://www.latex-project.org/lppl.txt}).
-It has the status ``maintained.''
+Permission is granted to copy, distribute and/or modify this software under the
+terms of the \LaTeX{} Project Public License, version 1.3 or later
+(\url{http://www.latex-project.org/lppl.txt}). The package has the status
+``maintained.''
 
 \acro loads and needs the following packages: \paket{expl3},
 \paket{xparse}, \paket{xtemplate} and \paket{l3keys2e}.
@@ -239,12 +248,12 @@ new package.
 
 On the other hand \paket{acronym}, the best of the acronym specific packages,
 has one or two shortcomings and sometimes using \paket{glossaries} seems a bit
-of an overkill (or simply inconvenient as one has to run \code{makeglossaries}
-or \code{makeindex}, then). So \acro stands somewhere in between (but much
-closer to \paket{acronym}).
+of an overkill (or simply inconvenient as one has to run \code{makeglossaries},
+\code{makeindex} or \code{xindy}, then). So \acro stands somewhere in between
+(but much closer to \paket{acronym}).
 
 The main reason for the existance of \acro is a question on \acs{texse}%
-\footnote{\url{http://tex.stackexchange.com/q/59449/5049}}, though, which intrigued
+\footnote{\url{http://tex.stackexchange.com/q/59449/5049}} which intrigued
 me and in consequence led to \acro and it's option \key{single}.
 
 \acro has many similarities with the \paket{acronym} package. In fact, quite
@@ -289,15 +298,15 @@ Acronyms are used with with one of the following commands:
  \befehl{aca} \h{a}lternative short form as specified in the \oa{<short>} argument
  of \cmd{DeclareAcronym}; if it hasn't been specified this is identical to \cmd{acs}.
  \befehl{acf} first form; output like the first time \cmd{ac} is output.
- \befehl{Acf} same as \cmd{acf} but capitalizes first letter.
+ \befehl{Acf} same as \cmd{acf} but capitalizes first letter of the long form.
  \befehl{acp} \h{p}lural form of \cmd{ac};
- \befehl{Acp} same as \cmd{acp} but capitalizes first letter.
+ \befehl{Acp} same as \cmd{acp} but capitalizes first letter of the long form.
  \befehl{acsp} plural form of \cmd{acs};
  \befehl{aclp} plural form of \cmd{acp};
  \befehl{Aclp} same as \cmd{aclp} but capitalizes first letter.
  \befehl{acap} plural form of \cmd{aca};
  \befehl{acfp} plural form of \cmd{acf};
- \befehl{Acfp} same as \cmd{acfp} but capitalizes first letter.
+ \befehl{Acfp} same as \cmd{acfp} but capitalizes first letter of the long form.
 \end{beschreibung}
 If an acronym is used the first time with \cmd{ac} its output is different from
 subsequent uses. To be clear on this: the first time! If the acronym has been
@@ -330,8 +339,8 @@ For this reason \cmd{DeclareAcronym} provides additional arguments:
  \Befehl{DeclareAcronym}*{<id>}\ma{<short>,<plural ending>}\ma{<long>,<plural form>}
 \end{beschreibung}
 These arguments are optional. If they're not used, the default setting is `s'.
-If you use the starred version long form will be replaced by the specified plural
-form when necessary. A given short plural will still be appended.
+If you use the starred version the long form will be replaced by the specified
+plural form when necessary. A given short plural will still be appended.
 
 \begin{beispiel}
  % preamble:
@@ -426,8 +435,8 @@ wherever you want the list to be.
 \begin{beschreibung}
  \Befehl{printacronyms}{<list of classes>}\oa{<excluded classes>} \cnpkgdocarrow\
  the first \emph{optional} (!) argument \ma{<list of classes>} takes a comma-separated
- list of the classes of acronyms that should in the list. If the argument is left
- out, \emph{all} acronyms are printed. In the optional argument \oa{<excluded
+ list of the classes of acronyms that should be in the list. If the argument is
+ left out, \emph{all} acronyms are printed. In the optional argument \oa{<excluded
  classes>} classes can be specified that shall not be included into the list.
 \end{beschreibung}
 \begin{beispiel}[below]
@@ -452,8 +461,8 @@ There are a few options which change the general behaviour of \acro.
 \begin{beschreibung}
  %%
  \Option{single}{\default{true}|false}\Default{false} If set to \code{true} an
- acronym that's used only once in a document will only print the long form and
- will not be printed in the list.
+ acronym that's used only once '(with \cmd{ac}) in a document will only print
+ the long form and will not be printed in the list.
  %%
  \Option{hyperref}{\default{true}|false}\Default{false} If set to \code{true}
  the short forms of the acronyms will be linked to their list entry.
@@ -461,10 +470,10 @@ There are a few options which change the general behaviour of \acro.
  \Option{only-used}{\default{true}|false}\Default{true} This option is \code{true}
  as default. It means that only acronyms that are actually used in the document
  are printed in the list. If \code{false}, all acronyms defined with \cmd{DeclareAcronym}
- will be written in the list.
+ will be written to the list.
  %%
  \Option{macros}{\default{true}|false}\Default{false} If set to \code{true} this
- option will create an macro \cmd{<id>} for each acronym as a shortcut for
+ option will create a macro \cmd{<id>} for each acronym as a shortcut for
  \cmd{ac}{<id>}.  Already existing macros will \emph{not} be overwritten.
  %%
  \Option{strict}{\default{true}|false}\Default{false} If set to \code{true} and
@@ -547,7 +556,7 @@ possible output forms of the acronyms.
  extra-tabular-rev|extra-longtable-rev}\Default{list} If you choose
  \key{list-type}{table} you have to specify which kind of table should be used.
  If you choose \code{longtable}, \code{extra-longtable} or \code{extra-longtable-rev}
- you have to \verb+\usepackage{longtable}+ in your preamble. The values
+ you have to load \paket{longtable} in your preamble. The values
  \code{extra-longtable} and \code{extra-longtable-rev} put the extra information
  in a column of its own.
  %%
@@ -581,11 +590,12 @@ the acronym list:
 
 \section{hyperref Support}\secidx{\paket{hyperref} support}[hyperref Support]
 The option \key{hyperref}{true} adds internal links from all short (or alternative)
-forms to their respective list entries. You should use this option with care: if
-you don't use \cmd{printacronyms} anywhere this option will result in loads of
-\paket{hyperref} warnings. Also printing several lists can result in warnings
-if don't clearly separate the lists into different classes. If an acronym appears
-in more than one list there will also be more than one hypertarget for this
+forms to their respective list entries. Of course this only works if you have
+loaded the \paket{hyperref} package in your preamble. You should use this option
+with care: if you don't use \cmd{printacronyms} anywhere this option will result
+in loads of \paket{hyperref} warnings. Also printing several lists can result in
+warnings if don't clearly separate the lists into different classes. If an acronym
+appears in more than one list there will also be more than one hypertarget for this
 acronym.
 \secidx*{\paket{hyperref} support}[hyperref Support]
 
@@ -622,7 +632,7 @@ acronym.
 \acsetup{list-name=City-Acronyms}
 \printacronyms{city}
 
-{\RaggedRight
+{\RaggedRight\EmbracOff
 \printbibliography}
 
 \setindexpreamble{Section titles are indicated \textbf{bold}, packages
