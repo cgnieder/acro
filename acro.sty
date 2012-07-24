@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2012/07/23}
-  {0.3d}
+  {2012/07/24}
+  {0.3e}
   {Typeset Acronyms}
 
 % error messages:
@@ -873,9 +873,10 @@
     \bool_if:NT \l_acro_sort_bool
       {
         \RequirePackage { l3sort }
-        \prop_new:N \l_tmpa_prop
-        \seq_new:N  \l_tmpa_seq
-
+        \cs_if_exist:NF \l_tmpa_prop
+          { \prop_new:N \l_tmpa_prop }
+        \cs_if_exist:NF \l_tmpa_seq
+          { \seq_new:N  \l_tmpa_seq }
         \cs_new:Npn \acro_sort_prop:N #1
           {
             \seq_clear:N \l_tmpa_seq
@@ -1112,6 +1113,7 @@
                  - added `acro-first' instances `plain' and `plain-reversed'
 2012/07/16 v0.3c - small adjustments to the documentation
 2012/07/23 v0.3d - first CTAN version
+2012/07/24 v0.3e - adapted to updated l3kernel
 
 % --------------------------------------------------------------------------
 % TODO:
