@@ -1,5 +1,4 @@
 % arara: pdflatex
-% arara: makeindex: { sort: true, style: acro_en.ist }
 % arara: biber
 % arara: pdflatex
 % arara: pdflatex
@@ -13,7 +12,7 @@
 % Web:    https://bitbucket.org/cgnieder/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2012 Clemens Niederberger
+% Copyright 2011-2012 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -42,6 +41,7 @@
 \documentclass[DIV10,toc=index,toc=bib,hyperfootnotes=false]{cnpkgdoc}
 \docsetup{
   pkg = {[single,macros,sort]acro} ,
+  language = en ,
   code-box = {
     backgroundcolor  = gray!7!white ,
     skipbelow        = .6\baselineskip plus .5ex minus .5ex ,
@@ -51,15 +51,9 @@
   gobble   = 1
 }
 
-% Layout:
-\usepackage[osf]{libertine}
 \acsetup{hyperref}
-\cnpkgcolors{
-  main   => cnpkgred ,
-  key    => yellow!40!brown ,
-  module => cnpkgblue ,
-  link   => black!90
-}
+\cnpkgusecolorscheme{friendly}
+\usepackage{fnpct}
 \renewcommand*\othersectionlevelsformat[3]{%
   \textcolor{main}{#3\autodot}\enskip}
 \renewcommand*\partformat{%
@@ -68,7 +62,6 @@
 \ChangeEmph{[}[,.02em]{]}[.055em,-.08em]
 \ChangeEmph{(}[-.01em,.04em]{)}[.04em,-.05em]
 
-% highlight commands in listings:
 \addcmds{
   ac,
   aca,
@@ -95,7 +88,6 @@
 
 \usepackage{filecontents}
 
-% bibliography:
 \usepackage[backend=biber,style=alphabetic,maxnames=10]{biblatex}
 \addbibresource{\jobname.bib}
 \begin{filecontents}{\jobname.bib}
@@ -148,10 +140,15 @@
   url     = {http://en.wikipedia.org/wiki/Acronyms},
   year    = {2012}
 }
+@online{NewYork,
+  author  = {Wikipedia},
+  title   = {New York City},
+  urldate = {2012-09-27},
+  url     = {http://en.wikipedia.org/wiki/New_York_City},
+  year    = {2012}
+}
 \end{filecontents}
 
-% index:
-\usepackage{makeidx}
 \begin{filecontents}{\jobname.ist}
  heading_prefix "{\\bfseries "
  heading_suffix "\\hfil}\\nopagebreak\n"
@@ -164,7 +161,6 @@
  suffix_3p "\\nohyperpage{\\,ff.}"
 \end{filecontents}
 
-% abstract:
 \TitlePicture{\parbox{.75\linewidth}{%
   \acro not only allows you to create acronyms in a simple way but also lets you
   add them to different classes of acronyms. Lists can be created of separate classes
@@ -174,16 +170,11 @@
   As an experimental feature \acro also offers the option \key{sort} which
   automatically sorts the list created by \cmd{printacronyms}.}}
 
-% footnotes:
-\usepackage{fnpct}
-% \usepackage{bigfoot}
-% \DeclareNewFootnote[para]{default}
-
 % additional packages:
-\usepackage{longtable,enumitem,ragged2e}
+\usepackage{longtable,enumitem,ragged2e,amssymb}
 
-% custom macros:
-\newcommand*\wikipedia{\libertineGlyph{W.alt}\kern-.055em\textsc{ikipedia}}
+\newcommand*\wikipedia{%\libertineGlyph{W.alt}\kern-.055em
+\textsc{Wikipedia}}
 \newcommand*\h[1]{\textcolor{main}{\textbf{#1}}}
 
 \ExplSyntaxOn
@@ -199,7 +190,6 @@
   }
 \ExplSyntaxOff
 
-% define acronyms:
 \DeclareAcronym{cd}{cd}{Compact Disc}
   \DeclareAcronymFormat{cd}{\scshape}
 \DeclareAcronym{id}{id}{identification string}
@@ -210,15 +200,17 @@
 \DeclareAcronym{nato}{nato}{North Atlantic Treaty Organization}{\textit{deutsch}: Organisation des Nordatlantikvertrags}
   \DeclareAcronymFormat{nato}{\scshape}
 \DeclareAcronym{ny}{NY,}{New York,}[city]
+\DeclareAcronymCitation{ny}{NewYork}
 \DeclareAcronym{ot}{ot}{Other Test}
   \DeclareAcronymFormat{ot}{\scshape}
 \DeclareAcronym{sw}{SW}{Sammelwerk,e}
 \DeclareAcronym{test}{ST}{Some Test}
 \DeclareAcronym{texse}{\{TeX\}.SE}{\TeX\ StackExchange}
 
-\makeindex
+\usepackage{imakeidx}
+\makeindex[columns=3,options={-sl \jobname.ist},intoc]
+
 \begin{document}
-\newpage
 \section{Licence and Requirements}
 Permission is granted to copy, distribute and/or modify this software under the
 terms of the \LaTeX{} Project Public License, version 1.3 or later
@@ -267,15 +259,17 @@ the preamble.
  \Befehl{DeclareAcronym}*{<id>}\ma{<short>,<pl>}\oa{<alt.>}\ma{<long>,<pl>}\ma{<extra>}\oa{<class>}
  \verb+% can be used only in preamble+
  \Befehl{DeclareAcronymFormat}{<id>}\ma{<format>} \verb+% can be used only in preamble+
+ \Befehl{DeclareAcronymCitation}{<id>}\oa{<pre>}\oa{<post>}\ma{<cite keys>}
+   \verb+% can be used only in preamble+
 \end{beschreibung}
-Although this command has quite a number of arguments. In the simplest case you'll
-only need three:
+Although \cmd{DeclareAcronym} has quite a number of arguments. In the simplest
+case you'll only need three:
 \begin{beispiel}[code only]
  % preamble
  \DeclareAcronym{test}{ST}{Some Test}
 \end{beispiel}
 This creates the acronym ``\acs{test}'' with the \acs{id} ``test'' and the long
-form ``\acl{test}''. The other arguments will be described later in this document.
+form ``\acl{test}.'' The other arguments will be described later in this document.
 
 \cmd{DeclareAcronymFormat} lets you assign a special format to an acronym. Maybe
 small caps:
@@ -285,6 +279,25 @@ small caps:
  \DeclareAcronymFormat{ot}{\scshape}
 \end{beispiel}
 The short form now looks like this: \acs{ot}.
+
+With \cmd{DeclareAcronymCitation} you can add a key as used in \cmd*{cite} that
+is added to the first or every appearance of the acronym (depending on an option
+that is described later).
+\begin{beispiel}[code only]
+ % preamble:
+ \DeclareAcronym{ny}{NY,}{New York,}
+ \DeclareAcronymCitation{ny}{NewYork}
+ % bib file for use with biber/biblatex:
+ @online{NewYork,
+   author  = {Wikipedia},
+   title   = {New York City},
+   urldate = {2012-09-27},
+   url     = {http://en.wikipedia.org/wiki/New_York_City},
+   year    = {2012}
+ }
+\end{beispiel}
+The first appearance now looks as follows\footnote{The appearance of the citation
+of course depends on the citation style you're using.}: \acf{ny}.
 
 \subsection{Using the Acronyms -- the Commands}\secidx[using acronyms]{Basics}
 Acronyms are used with with one of the following commands:
@@ -459,31 +472,48 @@ There are a few options which change the general behaviour of \acro.
 \default{Underlined} values are used if no value is given.
 \begin{beschreibung}
  %%
- \Option{single}{\default{true}|false}\Default{false} If set to \code{true} an
- acronym that's used only once '(with \cmd{ac}) in a document will only print
- the long form and will not be printed in the list.
+ \Option{single}{\default{true}|false}\Default{false}
+   If set to \code{true} an acronym that's used only once '(with \cmd{ac}) in a
+   document will only print the long form and will not be printed in the list.
  %%
- \Option{hyperref}{\default{true}|false}\Default{false} If set to \code{true}
- the short forms of the acronyms will be linked to their list entry.
+ \Option{hyperref}{\default{true}|false}\Default{false}
+   If set to \code{true} the short forms of the acronyms will be linked to their
+   list entry.
  %%
- \Option{only-used}{\default{true}|false}\Default{true} This option is \code{true}
- as default. It means that only acronyms that are actually used in the document
- are printed in the list. If \code{false}, all acronyms defined with \cmd{DeclareAcronym}
- will be written to the list.
+ \Option{only-used}{\default{true}|false}\Default{true}
+   This option is \code{true} as default. It means that only acronyms that are
+   actually used in the document are printed in the list. If \code{false}, all
+   acronyms defined with \cmd{DeclareAcronym} will be written to the list.
  %%
- \Option{macros}{\default{true}|false}\Default{false} If set to \code{true} this
- option will create a macro \cmd{<id>} for each acronym as a shortcut for
- \cmd{ac}{<id>}.  Already existing macros will \emph{not} be overwritten.
+ \Option{macros}{\default{true}|false}\Default{false}
+   If set to \code{true} this option will create a macro \cmd{<id>} for each
+   acronym as a shortcut for \cmd{ac}{<id>}.  Already existing macros will
+   \emph{not} be overwritten.
  %%
- \Option{strict}{\default{true}|false}\Default{false} If set to \code{true} and
- the option \key{macros}{true} is in effect then already existing macros will be
- overwritten.
+ \Option{strict}{\default{true}|false}\Default{false}
+   If set to \code{true} and the option \key{macros}{true} is in effect then
+   already existing macros will be overwritten.
  %%
- \Option{sort}{\default{true}|false}\Default{false} If set to \code{true} the
- acronym list will be sorted automatically. The entries are sorted by their
- \acs{id} ignoring upper and lower case. This option needs the experimental
- package \paket*{l3sort} (from the \paket{l3experimental} bundle) and can only
- be set in the preamble.
+ \Option{sort}{\default{true}|false}\Default{false}
+   If set to \code{true} the acronym list will be sorted automatically. The
+   entries are sorted by their \acs{id} ignoring upper and lower case. This
+   option needs the experimental package \paket*{l3sort} (from the
+   \paket{l3experimental} bundle) and can only be set in the preamble.
+ %%
+ \Option{cite}{\default{all}|first|none}\Default{first}
+   This option decides whether citations that are added vie \cmd{DeclareAcronymCitation}
+   are added to each first, every or no appearance of an acronym.
+ %%
+ \Option{cite-cmd}{<cmd>}\Default{\cmd*{cite}}
+   This option determines which command is used for the citation. Each citation
+   command that takes the cite key as argument is valid, for example \paket{biblatex}'s
+   \cmd*{footcite}.
+ %%
+ \Option{cite-space}{<code>}\Default{\cmd*{nobreakspace}}
+   Depending on the citation command in use a space should be inserted before the
+   citation or maybe not (e.g.\ \cmd*{footcite}\ldots). This option allows you to
+   set this. Actually it can be used to place arbitrary code right before the
+   citation.
 \end{beschreibung}
 
 All options of this and the following sections can be set up either as package
@@ -503,23 +533,25 @@ The options described in this section all influence the layout of one of the
 possible output forms of the acronyms.
 \begin{beschreibung}
  %%
- \Option{short-format}{<format>}\Default Sets a format for all short forms.
- For example \key{short-format}{\cmd{scshape}} would print all short forms in
- small caps.
+ \Option{short-format}{<format>}\Default
+   Sets a format for all short forms. For example \key{short-format}{\cmd{scshape}}
+   would print all short forms in small caps.
  %%
- \Option{long-format}{<format>}\Default The same for the long forms.
+ \Option{long-format}{<format>}\Default
+   The same for the long forms.
  %%
- \Option{extra-format}{<format>}\Default The same for the extra information.
+ \Option{extra-format}{<format>}\Default
+   The same for the extra information.
  %%
  \Option{first-style}{default|plain|footnote|square|short|reversed|plain-reversed}\\
  \null\Default{default}
- The basic style of the first appearance of an acronym.
+   The basic style of the first appearance of an acronym.
  %%
- \Option{extra-style}{plain|comma|paren|bracket}\Default{plain} Defines the way
- the extra information is printed in the list.
+ \Option{extra-style}{plain|comma|paren|bracket}\Default{plain}
+   Defines the way the extra information is printed in the list.
  %%
- \Option{plural-ending}{<tokenlist>}\Default{s} With this option the default
- plural ending can be set.
+ \Option{plural-ending}{<tokenlist>}\Default{s}
+   With this option the default plural ending can be set.
 \end{beschreibung}
 
 \begin{beispiel}
@@ -542,36 +574,39 @@ possible output forms of the acronyms.
 \subsection{Options Regarding the List}\secidx[list]{Customization}
 \begin{beschreibung}
  %%
- \Option{page-ref}{none|plain|comma|paren}\Default{none} The style with which
- the page number of the first appearance of the acronym in the text is displayed.
+ \Option{page-ref}{none|plain|comma|paren}\Default{none}
+   The style with which the page number of the first appearance of the acronym
+   in the text is displayed.
  %%
- \Option{page-name}{<page name>}\Default{p.} The ``name'' of the page label.
+ \Option{page-name}{<page name>}\Default{p.}
+   The ``name'' of the page label.
  %%
- \Option{list-type}{table|<list>}\Default{description} This option let's you
- choose how the list is printed. \code{<list>} can be any valid list like
+ \Option{list-type}{table|<list>}\Default{description}
+   This option let's you choose how the list is printed. \code{<list>} can be any
+   valid list like
  \code{itemize} or \code{description}.
  %%
  \Option{list-style}{list|tabular|longtable|extra-tabular|extra-longtable|\\
- extra-tabular-rev|extra-longtable-rev}\Default{list} If you choose
- \key{list-type}{table} you have to specify which kind of table should be used.
- If you choose \code{longtable}, \code{extra-longtable} or \code{extra-longtable-rev}
- you have to load \paket{longtable} in your preamble. The values
- \code{extra-longtable} and \code{extra-longtable-rev} put the extra information
- in a column of its own.
+ extra-tabular-rev|extra-longtable-rev}\Default{list}
+   If you choose \key{list-type}{table} you have to specify which kind of table
+   should be used. If you choose \code{longtable}, \code{extra-longtable} or
+   \code{extra-longtable-rev} you have to load \paket{longtable} in your preamble.
+   The values \code{extra-longtable} and \code{extra-longtable-rev} put the extra
+   information in a column of its own.
  %%
  \Option{list-header}{chapter|chapter*|section|section*|subsection|subsection*}\\
- The header type of the list.\Default{section*}
+   The header type of the list.\Default{section*}
  %%
- \Option{list-name}{<list name>}\Default{Acronyms} The name of the list. This is
- what's written in the list-header.
+ \Option{list-name}{<list name>}\Default{Acronyms}
+   The name of the list. This is what's written in the list-header.
  %%
- \Option{list-table-width}\Default{.7\cmd{linewidth}} This has only an effect if
- you chose \key{list-type}{table}. The second column (or the third if you choose
- one of the \code{-rev} styles) of the table is a \code{p} column whose width can
- be specified with this option.
+ \Option{list-table-width}\Default{.7\cmd{linewidth}}
+   This has only an effect if you chose \key{list-type}{table}. The second column
+   (or the third if you choose one of the \code{-rev} styles) of the table is a
+   \code{p} column whose width can be specified with this option.
  %%
- \Option{list-caps}{\default{true}|false}\Default{false} Print the first letters
- of the long form capitalized.
+ \Option{list-caps}{\default{true}|false}\Default{false}
+   Print the first letters of the long form capitalized.
 \end{beschreibung}
 
 If you for example have loaded \paket{enumitem} you can define a custom list for
@@ -599,6 +634,7 @@ acronym.
 \secidx*{\paket{hyperref} support}[hyperref Support]
 
 \appendix
+
 \section{All Acronyms Used in this Documentation}\label{sec:documentation_acronyms}
 \begin{beispiel}[code only]
  \acsetup{
@@ -634,8 +670,9 @@ acronym.
 {\RaggedRight\EmbracOff
 \printbibliography}
 
-\setindexpreamble{Section titles are indicated \textbf{bold}, packages
-\textsf{sans serif}, commands \code{\textbackslash\textcolor{code}{brown}}
- and options \textcolor{key}{\code{yellow}}.\par\bigskip}
+\indexprologue{%
+  \noindent Section titles are indicated \textbf{bold}, packages \textsf{sans serif},
+  commands \cmd*{brown} and options \textcolor{key}{\code{yellow}}.}
 \printindex
+
 \end{document}
