@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2012/09/29}
-  {0.4}
+  {2012/10/07}
+  {0.4a}
   {Typeset Acronyms}
 
 % error messages:
@@ -70,6 +70,7 @@
 % tokenlist variables:
 \tl_new:N   \l__acro_short_format_tl
 \tl_new:N   \l__acro_long_format_tl
+\tl_new:N   \l__acro_list_long_format_tl
 \tl_new:N   \l__acro_extra_format_tl
 \tl_new:N   \l__acro_first_instance_tl
 \tl_set:Nn  \l__acro_first_instance_tl { default }
@@ -119,6 +120,11 @@
 \cs_new:Npn \__acro_citation_cmd:w { \cite }
 \cs_new:Npn \__acro_no_break: { \tex_penalty:D \c_ten_thousand }
 
+\cs_new:Npn \__acro_first_upper_case:n #1
+  { \tl_expandable_uppercase:n { \tl_head:n { #1 } } \tl_tail:n { #1 } }
+
+\cs_new_eq:NN \acro_first_upper_case:n \__acro_first_upper_case:n
+
 % options:
 \keys_define:nn { acro }
   {
@@ -126,7 +132,10 @@
     strict           .bool_set:N = \l__acro_strict_bool          ,
     sort             .bool_set:N = \l__acro_sort_bool            ,
     short-format     .tl_set:N   = \l__acro_short_format_tl      ,
-    long-format      .tl_set:N   = \l__acro_long_format_tl       ,
+    long-format      .code:n     =
+      \tl_set:Nn \l__acro_long_format_tl { #1 }
+      \tl_set:Nn \l__acro_list_long_format_tl { #1 } ,
+    list-long-format .tl_set:N   = \l__acro_list_long_format_tl  ,
     extra-format     .tl_set:N   = \l__acro_extra_format_tl      ,
     single           .bool_set:N = \l__acro_use_single_bool      ,
     first-style      .tl_set:N   = \l__acro_first_instance_tl    ,
@@ -155,7 +164,9 @@
     cite-all         .default:n  = all                           ,
     cite-cmd         .code:n     =
       \cs_set:Npn \__acro_citation_cmd:w { #1 }                  ,
-    cite-space       .tl_set:N   = \l__acro_citation_space_tl
+    cite-space       .tl_set:N   = \l__acro_citation_space_tl    ,
+    uc-cmd           .code:n     =
+      \cs_set_eq:NN \__acro_first_upper_case:n #1
   }
 
 % setup command:
@@ -226,10 +237,12 @@
   {
     \mode_if_horizontal:F { \leavevmode }
     \group_begin:
-      \tl_use:N #1
-      \bool_if:NTF \l__acro_first_upper_bool
-        { \tl_to_uppercase:n { \tl_head:n { #2 } } \tl_tail:n { #2 } }
-        { #2 }
+      \exp_args:Nx #1
+        {
+          \bool_if:NTF \l__acro_first_upper_bool
+            { \exp_not:N \__acro_first_upper_case:n { \exp_not:n { #2 } } }
+            { \exp_not:n { #2 } }
+        }
     \group_end:
   }
 \cs_generate_variant:Nn \__acro_write_long:Nn { NV,No,Nf }
@@ -589,7 +602,7 @@
       { \item [ \acro_hyper_target:nn { ##1 } { \__acro_write_short:n { ##2 } } ] }
     \cs_set:Npn \acro_print_list_long:n ##1
       {
-        \__acro_write_long:Nf \l__acro_long_format_tl
+        \__acro_write_long:Nf \l__acro_list_long_format_tl
           { \prop_get:Nn \l__acro_long_prop { ##1 } }
         \__acro_cite_if:Nn \l__acro_citation_all_bool { ##1 }
       }
@@ -633,7 +646,7 @@
       { \acro_hyper_target:nn { ##1 } { \__acro_write_short:n { ##2 } } & }
     \cs_set:Npn \acro_print_list_long:n ##1
       {
-        \__acro_write_long:Nf \l__acro_long_format_tl
+        \__acro_write_long:Nf \l__acro_list_long_format_tl
           { \prop_get:Nn \l__acro_long_prop { ##1 } }
         \__acro_cite_if:Nn \l__acro_citation_all_bool { ##1 }
       }
@@ -675,7 +688,7 @@
       { \acro_hyper_target:nn { ##1 } { \__acro_write_short:n { ##2 } } & }
     \cs_set:Npn \acro_print_list_long:n ##1
       {
-        \__acro_write_long:Nf \l__acro_long_format_tl
+        \__acro_write_long:Nf \l__acro_list_long_format_tl
           { \prop_get:Nn \l__acro_long_prop { ##1 } }
         \__acro_cite_if:Nn \l__acro_citation_all_bool { ##1 }
         &
@@ -1220,6 +1233,7 @@
 2012/07/23 v0.3d - first CTAN version
 2012/07/24 v0.3e - adapted to updated l3kernel
 2012/09/28 v0.4  - added means to add citations to acronyms
+2012/10/07 v0.4a - new options: "uc-cmd", "list-long-format"
 
 % --------------------------------------------------------------------------
 % TODO:

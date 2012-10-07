@@ -91,42 +91,42 @@
 \usepackage[backend=biber,style=alphabetic,maxnames=10]{biblatex}
 \addbibresource{\jobname.bib}
 \begin{filecontents}{\jobname.bib}
-@software{abbrevs,
+@package{abbrevs,
   title   = {abbrevs},
   author  = {Matt Swift},
   date    = {2001-09-08},
   version = {1.4},
   url     = {http://www.ctan.org/pkg/abbrevs}
 }
-@software{acromake,
+@package{acromake,
   title   = {acromake},
   author  = {Paul A. Thompson},
   date    = {1995-07-16},
   version = {na},
   url     = {http://www.ctan.org/pkg/acromake}
 }
-@software{acronym,
+@package{acronym,
   title   = {acronym -- An Acronym Environment for \LaTeXe},
   author  = {Tobias Oetiker},
   date    = {2010-09-08},
   version = {1.36},
   url     = {http://www.ctan.org/pkg/acronym}
 }
-@software{acroterm,
+@package{acroterm,
   title   = {acroterm},
   author  = {Jakob Voss},
   date    = {2010-11-19},
   version = {0.1},
   url     = {http://www.ctan.org/pkg/acroterm}
 }
-@software{glossaries,
+@package{glossaries,
   title   = {glossaries},
   author  = {Nicola L.C. Talbot},
   date    = {2011-04-12},
   version = {3.01},
   url     = {http://www.ctan.org/pkg/glossaries}
 }
-@software{nomencl,
+@package{nomencl,
   title   = {nomencl -- A Package to Create a Nomenclature},
   author  = {Boris Veytsman and Bernd Schandl and Lee Netherton and C.V. Radhakrishnan},
   date    = {2005-09-22},
@@ -513,7 +513,12 @@ There are a few options which change the general behaviour of \acro.
    Depending on the citation command in use a space should be inserted before the
    citation or maybe not (e.g.\ \cmd*{footcite}\ldots). This option allows you to
    set this. Actually it can be used to place arbitrary code right before the
-   citation.
+   citation.\catcode`\_=11
+ \Option{uc-cmd}{<cmd>}\Default{\cmd*{acro_first_upper_case:n}}
+   The command that is used to capitalize the first word in the \cmd{Ac} and the
+   like commands. You can change it to another one like for example
+   \cmd*{makefirstuc}\footnote{from the \paket*{mfirstuc} package} or
+   \cmd*{MakeTextUppercase}\footnote{from the \paket*{textcase} package}.\catcode`\_=8
 \end{beschreibung}
 
 All options of this and the following sections can be set up either as package
@@ -539,6 +544,10 @@ possible output forms of the acronyms.
  %%
  \Option{long-format}{<format>}\Default
    The same for the long forms.
+ %%
+ \Option{list-long-format}{<format>}\Default
+   An extra format for the long entries in the list. If not used this is the same
+   as \key{long-format}.
  %%
  \Option{extra-format}{<format>}\Default
    The same for the extra information.
