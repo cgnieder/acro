@@ -63,25 +63,12 @@
 \ChangeEmph{(}[-.01em,.04em]{)}[.04em,-.05em]
 
 \addcmds{
-  ac,
-  aca,
-  acap,
-  acf,
-  acfp,
-  acl,
-  aclp,
-  acp,
-  acresetall,
-  DeclareAcronymFormat,
-  acs,
-  acsetup,
-  acsp,
+  ac,aca,acap,acf,acfp,acl,aclp,acp,acreset,acresetall,acs,acsetup,acsp,
   addcolon,
-  nato,
-  DeclareAcronym,
+  DeclareAcronym,DeclareAcronymCitation,DeclareAcronymFormat,
+  DeclareAcronymPDFString,
   linewidth,
-  newlist,
-  ny,
+  nato,newlist,ny,
   printacronyms,
   setlist
 }
@@ -203,12 +190,32 @@
 \DeclareAcronymCitation{ny}{NewYork}
 \DeclareAcronym{ot}{ot}{Other Test}
   \DeclareAcronymFormat{ot}{\scshape}
+\DeclareAcronym{pdf}{pdf}{Portable Document Format}
+  \DeclareAcronymFormat{pdf}{\scshape}
+  \DeclareAcronymPDFString{pdf}{PDF}
 \DeclareAcronym{sw}{SW}{Sammelwerk,e}
 \DeclareAcronym{test}{ST}{Some Test}
 \DeclareAcronym{texse}{\{TeX\}.SE}{\TeX\ StackExchange}
 
 \usepackage{imakeidx}
 \makeindex[columns=3,options={-sl \jobname.ist},intoc]
+
+\usepackage{marginnote}
+\makeatletter
+\newcommand*\sinceversion[1]{%
+  \@bsphack
+  \marginnote{%
+    \footnotesize\sffamily\RaggedRight
+    \textcolor{black!75}{Introduced in version~#1}}%
+  \@esphack}
+\newcommand*\changedversion[1]{%
+  \@bsphack
+  \marginnote{%
+    \footnotesize\sffamily\RaggedRight
+    \textcolor{black!75}{Changed in version~#1}}%
+  \@esphack}
+\renewcommand*\cnpkgdoctriangle{}
+\makeatother
 
 \begin{document}
 \section{Licence and Requirements}
@@ -253,13 +260,15 @@ some macros have the same name and meaning\footnote{\emph{Not} in the sense of
 
 \section{Basics}\secidx{Basics}
 \subsection{Creating New Acronyms}\secidx[new acronyms]{Basics}
-Acronyms are created with the command \cmd{DeclareAcronym} that can only be used in
-the preamble.
+Acronyms are created with the command \cmd{DeclareAcronym} that can only be used
+in the preamble.
 \begin{beschreibung}
  \Befehl{DeclareAcronym}*{<id>}\ma{<short>,<pl>}\oa{<alt.>}\ma{<long>,<pl>}\ma{<extra>}\oa{<class>}
  \verb+% can be used only in preamble+
  \Befehl{DeclareAcronymFormat}{<id>}\ma{<format>} \verb+% can be used only in preamble+
  \Befehl{DeclareAcronymCitation}{<id>}\oa{<pre>}\oa{<post>}\ma{<cite keys>}
+   \verb+% can be used only in preamble+
+ \Befehl{DeclareAcronymPDFString}{<id>}\ma{<pdf entry>,<plural ending>}
    \verb+% can be used only in preamble+
 \end{beschreibung}
 Although \cmd{DeclareAcronym} has quite a number of arguments. In the simplest
@@ -302,28 +311,38 @@ of course depends on the citation style you're using.}: \acf{ny}.
 \subsection{Using the Acronyms -- the Commands}\secidx[using acronyms]{Basics}
 Acronyms are used with with one of the following commands:
 \begin{beschreibung}
- \befehl{ac} basic command; the first output is different from subsequent ones.
- \befehl{Ac} same as \cmd{ac} but capitalizes the first letter of the long form.
- \befehl{acs} \h{s}hort form; the actual acronym.
- \befehl{acl} \h{l}ong form; the meaning of the acronym.
- \befehl{Acl} same as \cmd{acl} but capitalizes first letter.
- \befehl{aca} \h{a}lternative short form as specified in the \oa{<short>} argument
- of \cmd{DeclareAcronym}; if it hasn't been specified this is identical to \cmd{acs}.
- \befehl{acf} first form; output like the first time \cmd{ac} is output.
- \befehl{Acf} same as \cmd{acf} but capitalizes first letter of the long form.
- \befehl{acp} \h{p}lural form of \cmd{ac};
- \befehl{Acp} same as \cmd{acp} but capitalizes first letter of the long form.
- \befehl{acsp} plural form of \cmd{acs};
- \befehl{aclp} plural form of \cmd{acp};
- \befehl{Aclp} same as \cmd{aclp} but capitalizes first letter.
- \befehl{acap} plural form of \cmd{aca};
- \befehl{acfp} plural form of \cmd{acf};
- \befehl{Acfp} same as \cmd{acfp} but capitalizes first letter of the long form.
+ \befehl{ac}*{<id>} basic command; the first output is different from subsequent
+   ones.
+ \befehl{Ac}*{<id>} same as \cmd{ac} but capitalizes the first letter of the
+   long form.
+ \befehl{acs}*{<id>} \h{s}hort form; the actual acronym.
+ \befehl{acl}*{<id>} \h{l}ong form; the meaning of the acronym.
+ \befehl{Acl}*{<id>} same as \cmd{acl} but capitalizes first letter.
+ \befehl{aca}*{<id>} \h{a}lternative short form as specified in the \oa{<short>}
+   argument of \cmd{DeclareAcronym}; if it hasn't been specified this is
+   identical to \cmd{acs}.
+ \befehl{acf}*{<id>} first form; output like the first time \cmd{ac} is output.
+ \befehl{Acf}*{<id>} same as \cmd{acf} but capitalizes first letter of the long
+   form.
+ \befehl{acp}*{<id>} \h{p}lural form of \cmd{ac};
+ \befehl{Acp}*{<id>} same as \cmd{acp} but capitalizes first letter of the long
+   form.
+ \befehl{acsp}*{<id>} plural form of \cmd{acs};
+ \befehl{aclp}*{<id>} plural form of \cmd{acl};
+ \befehl{Aclp}*{<id>} same as \cmd{aclp} but capitalizes first letter.
+ \befehl{acap}*{<id>} plural form of \cmd{aca};
+ \befehl{acfp}*{<id>} plural form of \cmd{acf};
+ \befehl{Acfp}*{<id>} same as \cmd{acfp} but capitalizes first letter of the
+   long form.
 \end{beschreibung}
 If an acronym is used the first time with \cmd{ac} its output is different from
 subsequent uses. To be clear on this: the first time! If the acronym has been
 used with \emph{any} of the output commands before it is \emph{not} the first
 time any more.
+
+\sinceversion{0.5}If you use the starred variant an acronym will not be marked as
+used. This proves useful if an acronym is typeset in a section title, for example,
+since then the appearance in the table of contents won't mark it as used.
 
 \begin{beispiel}
  % preamble: \DeclareAcronym{cd}{cd}{Compact Disc}
@@ -422,23 +441,57 @@ This might be useful if you can and want to divide your acronyms into different
 types, technical and grammatical ones, say, that shall be listed in different
 lists.
 
-\subsection{Resetting}\secidx[resetting]{Additional Commands}
+\subsection{Reset or Mark as Used}\secidx[resetting]{Additional Commands}
 If you want for some reason to fool \acro into thinking that an acronym is used
-for the first time you can call this command:
+for the first time you can call one of these commands:
 \begin{beschreibung}
+ \Befehl{acreset}{<comma separated list of ids>}\sinceversion{0.5}
  \Befehl{acresetall}
 \end{beschreibung}
 \begin{beispiel}
- \acresetall
- \ac{ny}
+ \acreset{ny}\ac{ny}
 \end{beispiel}
-Beware that this command acts \emph{globally} and effects \emph{all} acronyms!
+Beware that both commands act \emph{globally}! There is also one command that
+effectively is the opposite of \cmd{acreset}, i.e., it marks an acronym as used:
+\begin{beschreibung}
+ \Befehl{acuse}{<comma separated list of ids>}\sinceversion{0.5}
+\end{beschreibung}
 
 \subsection{Labels}\secidx[labels]{Additional Commands}
 The first usage of an acronym sets a label \verb+\label{ac:<id>}+, regardless
 which command has been used to typeset it. This label is used to create the page
 numbers in the list (see section~\ref{sec:print_lists} for details) but can also
 be used for other references if needed.
+
+\subsection{\cmd{ac} and Friends in \acs*{pdf} Bookmarks}
+\noindent\sinceversion{0.5}\acro's commands usually are not expandable which
+means they'd leave unallowed tokens in \acs{pdf} bookmarks. \paket{hyperref}
+offers \cmd{texorpdfstring} to circumvent that issue manually but that isn't
+really a nice solution. What's the point of having macros to get output for you
+if you have to specify it manually after all?
+
+That is why \acro offers a preliminary solution for this. In a bookmark every
+\cmd{ac} like command falls back to a simple text string typesetting what \cmd{acs}
+would do (or \cmd{acsp} for plural forms). These text strings both can accessed
+manually and can be modified to an output reserved for \acs{pdf} bookmarks.
+
+\begin{beschreibung}
+ \befehl{acpdfstring}{<id>} access the text string used in \acs{pdf} bookmarks.
+ \befehl{acpdfstringplural}{<id>} access the plural form of the text string used
+   in \acs{pdf} bookmarks.
+ \Befehl{DeclareAcronymPDFString}{<id>}\ma{<pdf entry>,<plural ending>} \cnpkgdocarrow\
+   declare a custom text string for \acs{pdf} bookmarks.
+\end{beschreibung}
+
+For example the \acs{pdf} acronym used in the title for this section is defined
+as follows:
+\begin{beispiel}[code only]
+ \DeclareAcronym{pdf}{pdf}{Portable Document File}
+ \DeclareAcronymFormat{pdf}{\scshape}
+ \DeclareAcronymPDFString{pdf}{PDF}
+\end{beispiel}
+
+
 \secidx*{Additional Commands}
 
 \section{Printing the List}\label{sec:print_lists}\secidx{Printing the List}
@@ -506,8 +559,8 @@ There are a few options which change the general behaviour of \acro.
  %%
  \Option{cite-cmd}{<cmd>}\Default{\cmd*{cite}}
    This option determines which command is used for the citation. Each citation
-   command that takes the cite key as argument is valid, for example \paket{biblatex}'s
-   \cmd*{footcite}.
+   command that takes the cite key as argument is valid, for example \paket*{biblatex}'s%
+   \footnote{\CTANurl{biblatex}} \cmd*{footcite}.
  %%
  \Option{cite-space}{<code>}\Default{\cmd*{nobreakspace}}
    Depending on the citation command in use a space should be inserted before the
@@ -529,7 +582,7 @@ options or via the setup command:
 \end{beschreibung}
 
 \begin{beispiel}
- % with \acsetup{macros}; remember I used \acresetall before
+ % with \acsetup{macros}
  we could have used these before: \nato, \ny
 \end{beispiel}
 

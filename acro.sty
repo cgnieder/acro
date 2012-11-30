@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2012/10/07}
-  {0.4a}
+  {2012/11/30}
+  {0.5}
   {Typeset Acronyms}
 
 % error messages:
@@ -51,6 +51,7 @@
 \seq_new:N  \l__acro_tmpa_seq
 
 % boolean variables:
+\bool_new:N \l__acro_mark_as_used_bool
 \bool_new:N \l__acro_use_single_bool
 \bool_new:N \l__acro_print_only_used_bool
 \bool_set_true:N \l__acro_print_only_used_bool
@@ -112,6 +113,8 @@
 \prop_new:N \l__acro_citation_prop
 \prop_new:N \l__acro_citation_pre_prop
 \prop_new:N \l__acro_citation_post_prop
+\prop_new:N \l__acro_pdfstring_prop
+\prop_new:N \l__acro_pdfstring_plural_prop
 
 % length variables:
 \dim_new:N  \l__acro_table_width_dim
@@ -190,9 +193,18 @@
       { \prop_put:Nnn \l__acro_replace_plural_prop { #2 } { \c_true_bool } }
       { \prop_put:Nnn \l__acro_replace_plural_prop { #2 } { \c_false_bool } }
     \prop_put:Nnn \l__acro_short_prop { #2 } { #3 }
+    \prop_put:Nnn \l__acro_pdfstring_prop { #2 } { #3 }
     \IfNoValueTF { #4 }
-      { \prop_put:Nnn \l__acro_short_plural_prop { #2 } { \l__acro_default_plural_tl } }
-      { \prop_put:Nnn \l__acro_short_plural_prop { #2 } { #4 } }
+      {
+        \prop_put:Nnn \l__acro_short_plural_prop
+          { #2 } { \l__acro_default_plural_tl }
+        \prop_put:Nnx \l__acro_pdfstring_plural_prop
+          { #2 } { #3 \l__acro_default_plural_tl }
+      }
+      {
+        \prop_put:Nnn \l__acro_short_plural_prop { #2 } { #4 }
+        \prop_put:Nnx \l__acro_pdfstring_plural_prop { #2 } { #3 #4 }
+      }
     \IfNoValueTF { #5 }
       { \prop_put:Nnn \l__acro_alt_prop { #2 } { #2 } }
       { \prop_put:Nnn \l__acro_alt_prop { #2 } { #5 } }
@@ -204,8 +216,8 @@
       { \prop_put:Nnn \l__acro_class_prop { #2 } { #8} }
     \IfNoValueF { #9 }
       { \prop_put:Nnn \l__acro_extra_prop { #2 } { #9 } }
-    \bool_new:c { g_acro_#2_used_bool }
-    \bool_new:c { g_acro_#2_label_bool }
+    \bool_new:c { g__acro_#2_used_bool }
+    \bool_new:c { g__acro_#2_label_bool }
     \bool_if:NT \l__acro_create_macros_bool
       {
         \cs_if_exist:cTF { #2 }
@@ -853,16 +865,19 @@
 % style for that:
 \cs_new:Npn \acro_is_used:nTF #1#2#3
   {
-    \bool_if:cTF { g_acro_#1_used_bool }
+    \bool_if:cTF { g__acro_#1_used_bool }
       { \iow_now:Nx \@auxout { \string \acro@used@twice { #1 } } #2 }
       {
         \iow_now:Nx \@auxout { \string \acro@used@once { #1 } }
-        \bool_if:cF { g_acro_#1_label_bool }
+        \bool_if:NT \l__acro_mark_as_used_bool
           {
-            \bool_gset_true:c { g_acro_#1_label_bool }
-            \label{ac:#1}
+            \bool_if:cF { g__acro_#1_label_bool }
+              {
+                \bool_gset_true:c { g__acro_#1_label_bool }
+                \label{ac:#1}
+              }
+            \bool_gset_true:c { g__acro_#1_used_bool }
           }
-        \bool_gset_true:c { g_acro_#1_used_bool }
         #3
       }
   }
@@ -1059,144 +1074,184 @@
   { \acro_citation:nnnn { #1 } { #2 } { #3 } { #4 } }
 \@onlypreamble \DeclareAcronymCitation
 
+\NewDocumentCommand \DeclareAcronymPDFString
+  { m >{ \SplitArgument { 1 } { , } } m }
+  { \acro_pdfstring:nnn { #1 } #2 }
+\@onlypreamble \DeclareAcronymPDFstring
+
+\cs_new:Npn \acro_use_if:n #1
+  {
+    \IfBooleanTF { #1 }
+      { \bool_set_false:N \l__acro_mark_as_used_bool }
+      { \bool_set_true:N \l__acro_mark_as_used_bool }
+  }
+
 % automatic:
-\NewDocumentCommand \ac { m }
+\NewDocumentCommand \ac { sm }
   {
     \group_begin:
-      \acro_use:n { #1 }
+      \acro_use_if:n { #1 }
+      \acro_use:n { #2 }
     \group_end:
   }
 
-\NewDocumentCommand \Ac { m }
+\NewDocumentCommand \Ac { sm }
   {
     \group_begin:
+      \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_first_upper_bool
-      \acro_use:n { #1 }
+      \acro_use:n { #2 }
     \group_end:
   }
 
-\NewDocumentCommand \acp { m }
+\NewDocumentCommand \acp { sm }
   {
     \group_begin:
+      \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
-      \acro_use:n { #1 }
+      \acro_use:n { #2 }
     \group_end:
   }
 
-\NewDocumentCommand \Acp { m }
+\NewDocumentCommand \Acp { sm }
   {
     \group_begin:
+      \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
       \bool_set_true:N \l__acro_first_upper_bool
-      \acro_use:n { #1 }
+      \acro_use:n { #2 }
     \group_end:
   }
 
 % short:
-\NewDocumentCommand \acs { m }
+\NewDocumentCommand \acs { sm }
   {
     \group_begin:
-      \acro_short:n { #1 }
+      \acro_use_if:n { #1 }
+      \acro_short:n { #2 }
     \group_end:
   }
 
-\NewDocumentCommand \acsp { m }
+\NewDocumentCommand \acsp { sm }
   {
     \group_begin:
+      \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
-      \acro_short:n { #1 }
+      \acro_short:n { #2 }
     \group_end:
   }
 
 % alt:
-\NewDocumentCommand \aca { m }
+\NewDocumentCommand \aca { sm }
   {
     \group_begin:
-      \acro_alt:n { #1 }
+      \acro_use_if:n { #1 }
+      \acro_alt:n { #2 }
     \group_end:
   }
 
-\NewDocumentCommand \acap { m }
+\NewDocumentCommand \acap { sm }
   {
     \group_begin:
+      \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
-      \acro_alt:n { #1 }
+      \acro_alt:n { #2 }
     \group_end:
   }
 
 % long:
-\NewDocumentCommand \acl { m }
+\NewDocumentCommand \acl { sm }
   {
     \group_begin:
-      \acro_long:n { #1 }
+      \acro_use_if:n { #1 }
+      \acro_long:n { #2 }
     \group_end:
   }
 
-\NewDocumentCommand \Acl { m }
+\NewDocumentCommand \Acl { sm }
   {
     \group_begin:
+      \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_first_upper_bool
-      \acro_long:n { #1 }
+      \acro_long:n { #2 }
     \group_end:
   }
 
-\NewDocumentCommand \aclp { m }
+\NewDocumentCommand \aclp { sm }
   {
     \group_begin:
+      \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
-      \acro_long:n { #1 }
+      \acro_long:n { #2 }
     \group_end:
   }
 
-\NewDocumentCommand \Aclp { m }
+\NewDocumentCommand \Aclp { sm }
   {
     \group_begin:
+      \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
       \bool_set_true:N \l__acro_first_upper_bool
-      \acro_long:n { #1 }
+      \acro_long:n { #2 }
     \group_end:
   }
 
 % first:
-\NewDocumentCommand \acf { m }
+\NewDocumentCommand \acf { sm }
   {
     \group_begin:
-      \acro_first:n { #1 }
+      \acro_use_if:n { #1 }
+      \acro_first:n { #2 }
     \group_end:
   }
 
-\NewDocumentCommand \Acf { m }
+\NewDocumentCommand \Acf { sm }
   {
     \group_begin:
+      \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_first_upper_bool
-      \acro_first:n { #1 }
+      \acro_first:n { #2 }
     \group_end:
   }
 
-\NewDocumentCommand \acfp { m }
+\NewDocumentCommand \acfp { sm }
   {
     \group_begin:
+      \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
-      \acro_first:n { #1 }
+      \acro_first:n { #2 }
     \group_end:
   }
 
-\NewDocumentCommand \Acfp { m }
+\NewDocumentCommand \Acfp { sm }
   {
     \group_begin:
+      \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
       \bool_set_true:N \l__acro_first_upper_bool
-      \acro_first:n { #1 }
+      \acro_first:n { #2 }
     \group_end:
   }
 
 % reset outputs, they'll behave like the first time again (!not like the _only_
 % time!):
+\cs_new:Npn \acro_reset:n #1
+  { \bool_gset_false:c { g__acro_#1_used_bool } }
+
+\cs_new:Npn \acro_mark_as_used:n #1
+  { \bool_gset_true:c { g__acro_#1_used_bool } }
+
+\cs_new:Npn \acro_reset_all:
+  { \prop_map_inline:Nn \l__acro_short_prop { \acro_reset:n { ##1 } } }
+
 \NewDocumentCommand \acresetall {}
-  {
-    \prop_map_inline:Nn \l__acro_short_prop
-      { \bool_gset_false:c { g_acro_##1_used_bool } }
-  }
+  { \acro_reset_all: }
+
+\NewDocumentCommand \acreset { > { \SplitList { , } } m }
+  { \ProcessList { #1 } { \acro_reset:n } }
+
+\NewDocumentCommand \acuse { > { \SplitList { , } } m }
+  { \ProcessList { #1 } { \acro_mark_as_used:n } }
 
 % typeset the list:
 \NewDocumentCommand \printacronyms { G{}o }
@@ -1204,11 +1259,85 @@
 
 \ProcessKeysOptions { acro }
 
+% ---------------------------------------------------------------------------
+% PDF bookmark support
+\cs_new:Npn \acpdfstring
+  { \acro_pdf_string:n }
+
+\cs_new:Npn \acpdfstringplural
+  { \acro_pdf_string_plural:n }
+
+\cs_new:Npn \acro_tl_if_eq:nnTF #1#2
+  { \ifx#1#2\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi }
+
+\cs_new:Npn \acro_pdf_string:n #1
+  {
+    \acro_tl_if_eq:nnTF {*} {#1}
+      { \prop_get:Nn \l__acro_pdfstring_prop }
+      { \prop_get:Nn \l__acro_pdfstring_prop { #1 } }
+  }
+
+\cs_new:Npn \acro_pdf_string_plural:n #1
+  {
+    \acro_tl_if_eq:nnTF {*} {#1}
+      { \prop_get:Nn \l__acro_pdfstring_plural_prop }
+      { \prop_get:Nn \l__acro_pdfstring_plural_prop { #1 } }
+  }
+
+\cs_new:Npn \acro_pdfstring:nnn #1#2#3
+  {
+    \prop_put:Nnx \l__acro_pdfstring_prop { #1 } { #2 }
+    \IfNoValueTF { #3 }
+      {
+        \prop_put:Nnx \l__acro_pdfstring_plural_prop
+          { #1 } { #2 \l__acro_default_plural_tl }
+      }
+      {
+        \prop_put:Nnx \l__acro_pdfstring_plural_prop
+          { #1 } { #2 #3 }
+      }
+  }
+
 \AtBeginDocument
   {
     \@ifpackageloaded { hyperref }
-      { \bool_set_true:N \l__acro_hyperref_loaded_bool } {}
+      {
+        \bool_set_true:N \l__acro_hyperref_loaded_bool
+        \pdfstringdefDisableCommands
+          {
+            \cs_set_eq:NN \ac   \acpdfstring
+            \cs_set_eq:NN \Ac   \acpdfstring
+            \cs_set_eq:NN \acs  \acpdfstring
+            \cs_set_eq:NN \acl  \acpdfstring
+            \cs_set_eq:NN \Acl  \acpdfstring
+            \cs_set_eq:NN \acf  \acpdfstring
+            \cs_set_eq:NN \Acf  \acpdfstring
+            \cs_set_eq:NN \aca  \acpdfstring
+            \cs_set_eq:NN \acp  \acpdfstringplural
+            \cs_set_eq:NN \Acp  \acpdfstringplural
+            \cs_set_eq:NN \acsp \acpdfstringplural
+            \cs_set_eq:NN \aclp \acpdfstringplural
+            \cs_set_eq:NN \Aclp \acpdfstringplural
+            \cs_set_eq:NN \acfp \acpdfstringplural
+            \cs_set_eq:NN \Acfp \acpdfstringplural
+            \cs_set_eq:NN \acap \acpdfstringplural
+          }
+      } {}
   }
+
+% --------------------------------------------------------------------------
+% language support
+\RequirePackage { translations }
+\DeclareTranslation { English  } { acronym-list-name } { Acronyms }
+\DeclareTranslation { American } { acronym-list-name } { Acronyms }
+\DeclareTranslation { British  } { acronym-list-name } { Acronyms }
+\DeclareTranslation { French   } { acronym-list-name } { Acronymes }
+\DeclareTranslation { German   } { acronym-list-name } { Abk\"urzungen }
+\DeclareTranslation { Italian  } { acronym-list-name } { Acronimi }
+\DeclareTranslation { Spanish  } { acronym-list-name } { Siglas }
+\DeclareTranslation { Catalan  } { acronym-list-name } { Sigles }
+\DeclareTranslation { Turkish  } { acronym-list-name } { K\i saltmalar }
+\tl_set:Nn \l__acro_list_name_tl { \GetTranslation { acronym-list-name } }
 
 \tex_endinput:D
 % --------------------------------------------------------------------------
@@ -1234,8 +1363,19 @@
 2012/07/24 v0.3e - adapted to updated l3kernel
 2012/09/28 v0.4  - added means to add citations to acronyms
 2012/10/07 v0.4a - new options: "uc-cmd", "list-long-format"
+                 - preliminary language support, needs package `translations'
+2012/11/30 v0.5  - added starred variants of the commands that won't mark an
+                   acronym as used
+                 - added \acreset{<id>}
+                 - added preliminary support for pdf strings: in pdf strings
+                   always the singular lowercase short version is inserted
+                   (the equivalent of \acs)
 
 % --------------------------------------------------------------------------
 % TODO:
-- Sprach-Support Überschrift der Acronym-Liste
-- Option `totoc'?
+- Option `totoc'!?
+- accsupp Support?
+- revise list styles to allow _full_ customization by creating own instances!
+  this probably needs a handfull of macros that give access to the entries
+  without worrying about internals
+- record and list _all_ pagenumbers where an acronym occurs
