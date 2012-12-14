@@ -198,7 +198,7 @@
 \DeclareAcronym{texse}{\{TeX\}.SE}{\TeX\ StackExchange}
 
 \usepackage{imakeidx}
-\makeindex[columns=3,options={-sl \jobname.ist},intoc]
+\makeindex[columns=2,options={-sl \jobname.ist},intoc]
 
 \usepackage{marginnote}
 \makeatletter
@@ -542,6 +542,11 @@ There are a few options which change the general behaviour of \acro.
    If set to \code{true} this option will create a macro \cmd{<id>} for each
    acronym as a shortcut for \cmd{ac}{<id>}.  Already existing macros will
    \emph{not} be overwritten.
+ %%
+ \Option{xspace}{\default{true}|false}\Default{false}
+   \sinceversion{0.6}If set to \code{true} this option will append \cmd{xspace}
+   from the \paket{xspace} package to the commands created with the \key{macros}
+   option.
  %%
  \Option{strict}{\default{true}|false}\Default{false}
    If set to \code{true} and the option \key{macros}{true} is in effect then

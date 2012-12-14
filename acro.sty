@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2012/11/30}
-  {0.5}
+  {2012/12/14}
+  {0.6}
   {Typeset Acronyms}
 
 % error messages:
@@ -61,6 +61,7 @@
 \bool_new:N \l__acro_custom_format_bool
 \bool_new:N \l__acro_strict_bool
 \bool_new:N \l__acro_create_macros_bool
+\bool_new:N \l__acro_xspace_bool
 \bool_new:N \l__acro_first_upper_bool
 \bool_new:N \l__acro_sort_bool
 \bool_new:N \l__acro_capitalize_list_bool
@@ -132,6 +133,7 @@
 \keys_define:nn { acro }
   {
     macros           .bool_set:N = \l__acro_create_macros_bool   ,
+    xspace           .bool_set:N = \l__acro_xspace_bool          ,
     strict           .bool_set:N = \l__acro_strict_bool          ,
     sort             .bool_set:N = \l__acro_sort_bool            ,
     short-format     .tl_set:N   = \l__acro_short_format_tl      ,
@@ -172,6 +174,18 @@
       \cs_set_eq:NN \__acro_first_upper_case:n #1
   }
 
+\AtBeginDocument
+  {
+    \bool_if:NTF \l__acro_xspace_bool
+      {
+        \@ifpackageloaded { xspace }
+          { }
+          { \RequirePackage { xspace } }
+        \cs_new_eq:NN \acro_xspace: \xspace
+      }
+      { \cs_new:Npn \acro_xspace: {} }
+  }
+
 % setup command:
 \NewDocumentCommand \acsetup { m }
   { \keys_set:nn { acro } { #1 } \ignorespaces }
@@ -199,11 +213,11 @@
         \prop_put:Nnn \l__acro_short_plural_prop
           { #2 } { \l__acro_default_plural_tl }
         \prop_put:Nnx \l__acro_pdfstring_plural_prop
-          { #2 } { #3 \l__acro_default_plural_tl }
+          { #2 } { \exp_not:n { #3 } \exp_not:V \l__acro_default_plural_tl }
       }
       {
         \prop_put:Nnn \l__acro_short_plural_prop { #2 } { #4 }
-        \prop_put:Nnx \l__acro_pdfstring_plural_prop { #2 } { #3 #4 }
+        \prop_put:Nnx \l__acro_pdfstring_plural_prop { #2 } { \exp_not:n { #3 #4 } }
       }
     \IfNoValueTF { #5 }
       { \prop_put:Nnn \l__acro_alt_prop { #2 } { #2 } }
@@ -223,9 +237,9 @@
         \cs_if_exist:cTF { #2 }
           {
             \bool_if:NT \l__acro_strict_bool
-              { \cs_set:cpn { #2 } { \ac { #2 } } }
+              { \cs_set:cpn { #2 } { \ac { #2 } \acro_xspace: } }
           }
-          { \cs_new:cpn { #2 } { \ac { #2 } } }
+          { \cs_new:cpn { #2 } { \ac { #2 } \acro_xspace: } }
       }
   }
 
@@ -282,11 +296,35 @@
          \__acro_is_single:nTF { #1 } { \hbox_overlap_left:n { #3 } }
            {
              \bool_if:nTF { \l__acro_use_hyperref_bool && \l__acro_hyperref_loaded_bool }
-               { \textcolor { \@linkcolor } { \hbox_overlap_left:n { #3 } } }
+               { \acro_color_link:n { \hbox_overlap_left:n { #3 } } }
                { \hbox_overlap_left:n { #3 } }
            }
        }
   }
+
+\cs_new:Npn \acro_color_link:n #1
+  {
+    \cs_if_exist:NTF \hypersetup
+      {
+        \ifHy@colorlinks
+          \exp_after:wN \use_i:nn
+        \else
+          \ifHy@ocgcolorlinks
+            \exp_after:wN \use_i:nn
+          \else
+            \exp_after:wN \use_ii:nn
+          \fi
+        \fi
+        { \textcolor { \@linkcolor } { #1 } }
+        { #1 }
+      }
+      { #1 }
+  }
+
+\AtBeginDocument{
+  \cs_if_exist:NF \textcolor
+    { \cs_new_eq:NN \textcolor \use_ii:nn }
+}
 
 % --------------------------------------------------------------------------
 % output style of the first time an acronym is used
@@ -1370,6 +1408,10 @@
                  - added preliminary support for pdf strings: in pdf strings
                    always the singular lowercase short version is inserted
                    (the equivalent of \acs)
+2012/12/14 v0.6  - bug with not-colored links resolved
+                 - bug introduced with the last update (full expansion of the
+                   short entry) resolved
+                 - option `xspace' added
 
 % --------------------------------------------------------------------------
 % TODO:
