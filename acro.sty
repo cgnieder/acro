@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2012/12/14}
-  {0.6}
+  {2013/01/02}
+  {0.6a}
   {Typeset Acronyms}
 
 % error messages:
@@ -865,11 +865,16 @@
 
 % --------------------------------------------------------------------------
 % some helpers we'll need more often:
+\cs_new:Npn \acro_defined:n #1
+  {
+    \prop_if_in:NnF \l__acro_short_prop { #1 }
+      { \msg_error:nnx { acro } { undefined } { #1 } }
+  }
+
 \cs_new:Npn \acro_get:n #1
   {
     \__acro_activate_hyperref_support:
-    \prop_get:NnNF \l__acro_short_prop { #1 } \l__acro_tmpa_tl
-      { \msg_error:nnx { acro } { undefined } { #1 } }
+    \prop_get:NnN \l__acro_short_prop { #1 } \l__acro_tmpa_tl
     \__acro_make_link:nNN { #1 } \l__acro_short_tl \l__acro_tmpa_tl
     \prop_get:NnN \l__acro_short_plural_prop { #1 } \l__acro_short_plural_tl
     \prop_get:NnN \l__acro_long_prop { #1 } \l__acro_long_tl
@@ -1128,6 +1133,7 @@
 \NewDocumentCommand \ac { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \acro_use:n { #2 }
     \group_end:
@@ -1136,6 +1142,7 @@
 \NewDocumentCommand \Ac { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_first_upper_bool
       \acro_use:n { #2 }
@@ -1145,6 +1152,7 @@
 \NewDocumentCommand \acp { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
       \acro_use:n { #2 }
@@ -1154,6 +1162,7 @@
 \NewDocumentCommand \Acp { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
       \bool_set_true:N \l__acro_first_upper_bool
@@ -1165,6 +1174,7 @@
 \NewDocumentCommand \acs { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \acro_short:n { #2 }
     \group_end:
@@ -1173,6 +1183,7 @@
 \NewDocumentCommand \acsp { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
       \acro_short:n { #2 }
@@ -1183,6 +1194,7 @@
 \NewDocumentCommand \aca { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \acro_alt:n { #2 }
     \group_end:
@@ -1191,6 +1203,7 @@
 \NewDocumentCommand \acap { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
       \acro_alt:n { #2 }
@@ -1201,6 +1214,7 @@
 \NewDocumentCommand \acl { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \acro_long:n { #2 }
     \group_end:
@@ -1209,6 +1223,7 @@
 \NewDocumentCommand \Acl { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_first_upper_bool
       \acro_long:n { #2 }
@@ -1218,6 +1233,7 @@
 \NewDocumentCommand \aclp { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
       \acro_long:n { #2 }
@@ -1227,6 +1243,7 @@
 \NewDocumentCommand \Aclp { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
       \bool_set_true:N \l__acro_first_upper_bool
@@ -1238,6 +1255,7 @@
 \NewDocumentCommand \acf { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \acro_first:n { #2 }
     \group_end:
@@ -1246,6 +1264,7 @@
 \NewDocumentCommand \Acf { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_first_upper_bool
       \acro_first:n { #2 }
@@ -1255,6 +1274,7 @@
 \NewDocumentCommand \acfp { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
       \acro_first:n { #2 }
@@ -1264,6 +1284,7 @@
 \NewDocumentCommand \Acfp { sm }
   {
     \group_begin:
+      \acro_defined:n { #2 }
       \acro_use_if:n { #1 }
       \bool_set_true:N \l__acro_use_plural_bool
       \bool_set_true:N \l__acro_first_upper_bool
@@ -1277,13 +1298,22 @@
   { \bool_gset_false:c { g__acro_#1_used_bool } }
 
 \cs_new:Npn \acro_mark_as_used:n #1
-  { \bool_gset_true:c { g__acro_#1_used_bool } }
+  {
+    \bool_gset_true:c { g__acro_#1_used_bool }
+    \acro@used@once { #1 }
+  }
 
 \cs_new:Npn \acro_reset_all:
   { \prop_map_inline:Nn \l__acro_short_prop { \acro_reset:n { ##1 } } }
 
+\cs_new:Npn \acro_mark_all_as_used:
+  { \prop_map_inline:Nn \l__acro_short_prop { \acro_mark_as_used:n { ##1 } } }
+
 \NewDocumentCommand \acresetall {}
   { \acro_reset_all: }
+
+\NewDocumentCommand \acuseall {}
+  { \acro_mark_all_as_used: }
 
 \NewDocumentCommand \acreset { > { \SplitList { , } } m }
   { \ProcessList { #1 } { \acro_reset:n } }
@@ -1412,7 +1442,8 @@
                  - bug introduced with the last update (full expansion of the
                    short entry) resolved
                  - option `xspace' added
-
+2013/01/02 v0.6a - \acuseall
+                 
 % --------------------------------------------------------------------------
 % TODO:
 - Option `totoc'!?
@@ -1421,3 +1452,21 @@
   this probably needs a handfull of macros that give access to the entries
   without worrying about internals
 - record and list _all_ pagenumbers where an acronym occurs
+- compilation halts instead of throwing an error if an undefined acronym is used
+- possibility to add sort key
+- add \ACF, \ACFP, \ACL and \ACLP that will print all words of the long form
+  capitalized 
+
+= long term =
+- new syntax:
+  \DeclareAcronym{<ID>}
+    {
+      short        = ?? ,
+      long         = ?? ,
+      sort         = ?? ,
+      short-plural = ?? ,
+      long-plural* = ?? ,% * = replacement instead of ending
+      PDF-text     = ?? ,
+      cite         = ?? ,
+      ...
+    }

@@ -455,6 +455,7 @@ Beware that both commands act \emph{globally}! There is also one command that
 effectively is the opposite of \cmd{acreset}, i.e., it marks an acronym as used:
 \begin{beschreibung}
  \Befehl{acuse}{<comma separated list of ids>}\sinceversion{0.5}
+ \Befehl{acuseall}\sinceversion{0.6a}
 \end{beschreibung}
 
 \subsection{Labels}\secidx[labels]{Additional Commands}
@@ -614,7 +615,7 @@ possible output forms of the acronyms.
  \null\Default{default}
    The basic style of the first appearance of an acronym.
  %%
- \Option{extra-style}{plain|comma|paren|bracket}\Default{plain}
+ \Option{extra-style}{default|plain|comma|paren|bracket}\Default{default}
    Defines the way the extra information is printed in the list.
  %%
  \Option{plural-ending}{<tokenlist>}\Default{s}
