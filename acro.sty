@@ -72,11 +72,14 @@
 \bool_new:N \l__acro_xspace_bool
 \bool_new:N \l__acro_first_upper_bool
 \bool_new:N \l__acro_sort_bool
+\bool_set_true:N \l__acro_sort_bool
 \bool_new:N \l__acro_capitalize_list_bool
 \bool_new:N \l__acro_citation_all_bool
 \bool_new:N \l__acro_citation_first_bool
 \bool_set_true:N \l__acro_citation_first_bool
 \bool_new:N \l__acro_acc_supp_bool
+\bool_new:N \l__acro_page_ranges_bool
+\bool_set_true:N \l__acro_page_ranges_bool
 
 % tokenlist variables:
 \tl_new:N   \l__acro_short_format_tl
@@ -179,6 +182,7 @@
     extra-style      .tl_set:N   = \l__acro_extra_instance_tl    ,
     page-ref         .tl_set:N   = \l__acro_page_instance_tl     ,
     page-name        .tl_set:N   = \l__acro_page_name_tl         ,
+    page-ranges      .bool_set:N = \l__acro_page_ranges_bool     ,
     list-style       .tl_set:N   = \l__acro_list_instance_tl     ,
     list-type        .tl_set:N   = \l__acro_list_type_tl         ,
     list-header      .tl_set:N   = \l__acro_list_title_tl        ,
@@ -439,11 +443,186 @@
   { punct = true, brackets = false }
 
 % --------------------------------------------------------------------------
-% outputting the page number:
+% outputting the page numbers:
 \bool_new:N \l__acro_page_punct_bool
+\bool_new:N \l__acro_page_brackets_bool
 \bool_new:N \l__acro_page_display_bool
 \tl_new:N   \l__acro_page_punct_tl
 \dim_new:N  \l__acro_page_space_dim
+
+\tl_new:N  \l__acro_next_page_tl
+\tl_set:Nn \l__acro_next_page_tl { f }
+\tl_new:N  \l__acro_next_pages_tl
+\tl_set:Nn \l__acro_next_pages_tl { ff }
+
+\tl_new:N  \l__acro_page_tl
+\tl_set:Nn \l__acro_page_tl { p.\@ }
+\tl_new:N  \l__acro_pages_tl
+\tl_set:Nn \l__acro_pages_tl { pp.\@ }
+
+\cs_new:Npn \acro_create_page_records:n #1
+  {
+    \seq_new:c { g__acro_#1_tmp_seq }
+    \seq_new:c { g__acro_#1_pages_seq }
+  }
+
+\cs_new:Npn \acro@hyper@page #1
+  {
+    \tl_if_in:nnTF { #1 } { \acro@no@hyperpage }
+      { #1 }
+      { \acro_hyper_page:n { #1 } }
+  }
+
+\cs_new_protected:Npn \acro@no@hyperpage {}
+
+\cs_new:Npn \__acro_safe_pages_aux:n #1
+  { \noexpand \acro@hyper@page {#1}| }
+
+\cs_new_eq:NN \acro_hyper_page:n \use:n
+
+\cs_new:Npn \acro_safe_pages:n #1
+  {
+    \iow_now:Nx \@auxout
+      {
+        \gdef \exp_not:o { \csname acro@#1@pages \endcsname }
+          { \seq_map_function:cN { g__acro_#1_pages_seq } \__acro_safe_pages_aux:n }
+      }
+  }
+
+\AtEndDocument
+  {
+    \prop_map_inline:Nn \l__acro_short_prop
+      {
+        \acro_finalize_page_numbers:n { #1 }
+        \acro_safe_pages:n { #1 }
+      }
+  }
+
+\tl_new:N \l__acro_tmp_page_tl
+\tl_new:N \l__acro_last_page_tl
+
+\cs_new:Npn \acro_record_page_number:n #1
+  {
+    \seq_if_empty:cTF { g__acro_#1_pages_seq }
+      {% no pages recorded, yet
+        \seq_gput_right:cx { g__acro_#1_pages_seq } { \thepage }
+        \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
+      }
+      {
+        \seq_get_right:cN { g__acro_#1_tmp_seq } \l__acro_tmp_page_tl
+        \seq_get_right:cN { g__acro_#1_pages_seq } \l__acro_last_page_tl
+        \tl_if_eq:NNTF \l__acro_tmp_page_tl \l__acro_last_page_tl
+          {% range may have started
+            \int_compare:nNnF { \value{page} } = { \l__acro_tmp_page_tl }
+              {
+                \int_compare:nNnTF { \value{page} } = { \l__acro_tmp_page_tl + 1 }
+                  {% range continues
+                    \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
+                  }
+                  {% no range (any more)
+                    \seq_gput_right:cx { g__acro_#1_pages_seq } { \l__acro_tmp_page_tl }
+                    \seq_gclear:c      { g__acro_#1_tmp_seq }
+                    \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
+                    \seq_gput_right:cx { g__acro_#1_pages_seq } { \thepage }
+                  }
+              }
+          }
+          {% we're in a range
+            \int_compare:nNnF { \value{page} } = { \l__acro_tmp_page_tl }
+              {
+                \int_compare:nNnTF { \value{page} } = { \l__acro_tmp_page_tl + 1 }
+                  {% range continues
+                    \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
+                  }
+                  {% no range (any more)
+                    \int_compare:nNnTF { \l__acro_tmp_page_tl } = { \l__acro_last_page_tl +1 }
+                      {
+                        \bool_if:NTF \l__acro_page_ranges_bool
+                          {
+                            \seq_gput_right:cn { g__acro_#1_pages_seq }
+                              { \acro@no@hyperpage,~ }
+                            \seq_gput_right:cx { g__acro_#1_pages_seq }
+                              { \l__acro_tmp_page_tl }
+                          }
+                          {
+                            \seq_gput_right:cn { g__acro_#1_pages_seq }
+                              { \acro@no@hyperpage\l__acro_next_page_tl }
+                          }
+                      }
+                      {
+                        \bool_if:NTF \l__acro_page_ranges_bool
+                          {
+                            \seq_gput_right:cn { g__acro_#1_pages_seq }
+                              { \acro@no@hyperpage-- }
+                            \seq_gput_right:cx { g__acro_#1_pages_seq }
+                              { \l__acro_tmp_page_tl }
+                          }
+                          {
+                            \seq_gput_right:cn { g__acro_#1_pages_seq }
+                              { \acro@no@hyperpage\l__acro_next_pages_tl }
+                          }
+                      }
+                    \seq_gclear:c      { g__acro_#1_tmp_seq }
+                    \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
+                    \seq_gput_right:cn { g__acro_#1_pages_seq } { \acro@no@hyperpage,~ }
+                    \seq_gput_right:cx { g__acro_#1_pages_seq } { \thepage }
+                  }
+              }
+          }
+      }
+  }
+
+\cs_new:Npn \acro_finalize_page_numbers:n #1
+  {
+    \seq_get_right:cN { g__acro_#1_tmp_seq } \l__acro_tmp_page_tl
+    \seq_get_right:cN { g__acro_#1_pages_seq } \l__acro_last_page_tl
+    \tl_if_eq:NNF \l__acro_tmp_page_tl \l__acro_last_page_tl
+      {
+        \int_compare:nNnTF { \l__acro_tmp_page_tl } = { \l__acro_last_page_tl +1 }
+          {
+            \bool_if:NTF \l__acro_page_ranges_bool
+              {
+                \seq_gput_right:cn { g__acro_#1_pages_seq }
+                  { \acro@no@hyperpage,~ }
+                \seq_gput_right:cx { g__acro_#1_pages_seq }
+                  { \l__acro_tmp_page_tl }
+              }
+              {
+                \seq_gput_right:cn { g__acro_#1_pages_seq }
+                  { \acro@no@hyperpage\l__acro_next_page_tl }
+              }
+          }
+          {
+            \bool_if:NTF \l__acro_page_ranges_bool
+              {
+                \seq_gput_right:cn { g__acro_#1_pages_seq }
+                  { \acro@no@hyperpage-- }
+                \seq_gput_right:cx { g__acro_#1_pages_seq }
+                  { \l__acro_tmp_page_tl }
+              }
+              {
+                \seq_gput_right:cn { g__acro_#1_pages_seq }
+                  { \acro@no@hyperpage\l__acro_next_pages_tl }
+              }
+          }
+      }
+  }
+
+\cs_new:Npn \acro_print_page_numbers:n #1
+  {
+    \cs_if_exist:cTF { acro@#1@pages }
+      {
+        \tl_set_eq:Nc \l__acro_tmpa_tl { acro@#1@pages }
+        \seq_set_split:NnV \l_tmpa_seq { | } \l__acro_tmpa_tl
+        \int_compare:nNnTF { \seq_count:N \l_tmpa_seq } = { 1 }
+          { \l__acro_page_tl } { \l__acro_pages_tl }
+        \acro_no_break:
+        \skip_horizontal:N \l__acro_page_space_dim
+        \acro_no_break:
+        \seq_map_inline:Nn \l_tmpa_seq { ##1 }
+      }
+      { ?? }
+  }
 
 \cs_new:Npn \acro_no_break: { \tex_penalty:D \c_ten_thousand }
 
@@ -468,7 +647,7 @@
     brackets      = \l__acro_page_brackets_bool ,
     brackets-type = \l__acro_page_brackets_tl   ,
     space         = \l__acro_page_space_dim     ,
-    name          = \l__acro_page_name_tl       ,
+    name          = \l__acro_page_name_tl       ,% TODO vielleicht entfernen da neue range funktion
   }
   {
     \AssignTemplateKeys
@@ -479,11 +658,7 @@
         \tl_use:N \c_space_tl
         \bool_if:NT \l__acro_page_brackets_bool
           { \tl_head:N \l__acro_page_brackets_tl }
-        \tl_use:N \l__acro_page_name_tl
-        \acro_no_break:
-        \skip_horizontal:N \l__acro_page_space_dim
-        \acro_no_break:
-        \pageref { ac:#1 }
+        \acro_print_page_numbers:n { #1 }
         \bool_if:NT \l__acro_page_brackets_bool
           { \tl_tail:N \l__acro_page_brackets_tl }
       }
@@ -547,7 +722,7 @@
 \cs_new:Npn \acro_is_excluded:nnF #1#2#3
   {
     \bool_set_false:N \l__acro_is_excluded_bool
-    \IfNoValueTF { #2 }
+    \tl_if_blank:nTF { #2 }
       { #3 }
       {
         \clist_map_inline:nn { #2 }
@@ -1105,31 +1280,19 @@
   }
 
 % --------------------------------------------------------------------------
-% print the whole list:
-\cs_new:Npn \acro_print_acronyms:nn #1#2
-  {
-    \iow_now:Nx \@auxout { \string \acro@print@list }
-    \bool_if:NT \l__acro_sort_bool
-      { \acro_sort_prop:N \l__acro_short_prop }
-    \UseInstance { acro-title } { \l__acro_list_title_tl }
-      { \l__acro_list_name_tl }
-    \cs_if_exist:NTF \acro@printed@list
-      {
-        \UseInstance { acro-list } { \l__acro_list_instance_tl }
-          { \l__acro_list_type_tl } { #1 } { #2 }
-      }
-      { \@latex@warning@no@line {Rerun~to~get~acronym~list~right} }
-  }
-
+% regarding list printing:
 \cs_new:Npn \acro@print@list
   { \cs_if_exist:NF \acro@printed@list { \cs_new:Npn \acro@printed@list {} } }
 
 
-\cs_new:Npn \acro_use_if:n #1
+\cs_new:Npn \acro_use_if:nn #1#2
   {
     \IfBooleanTF { #1 }
       { \bool_set_false:N \l__acro_mark_as_used_bool }
-      { \bool_set_true:N \l__acro_mark_as_used_bool }
+      {
+        \acro_record_page_number:n { #2 }
+        \bool_set_true:N \l__acro_mark_as_used_bool
+      }
   }
 
 % --------------------------------------------------------------------------
@@ -1139,7 +1302,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \acro_use:n { #2 }
     \group_end:
   }
@@ -1148,7 +1311,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \bool_set_true:N \l__acro_first_upper_bool
       \acro_use:n { #2 }
     \group_end:
@@ -1158,7 +1321,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \bool_set_true:N \l__acro_use_plural_bool
       \acro_use:n { #2 }
     \group_end:
@@ -1168,7 +1331,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \bool_set_true:N \l__acro_use_plural_bool
       \bool_set_true:N \l__acro_first_upper_bool
       \acro_use:n { #2 }
@@ -1180,7 +1343,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \acro_short:n { #2 }
     \group_end:
   }
@@ -1189,7 +1352,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \bool_set_true:N \l__acro_use_plural_bool
       \acro_short:n { #2 }
     \group_end:
@@ -1200,7 +1363,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \acro_alt:n { #2 }
     \group_end:
   }
@@ -1209,7 +1372,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \bool_set_true:N \l__acro_use_plural_bool
       \acro_alt:n { #2 }
     \group_end:
@@ -1220,7 +1383,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \acro_long:n { #2 }
     \group_end:
   }
@@ -1229,7 +1392,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \bool_set_true:N \l__acro_first_upper_bool
       \acro_long:n { #2 }
     \group_end:
@@ -1239,7 +1402,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \bool_set_true:N \l__acro_use_plural_bool
       \acro_long:n { #2 }
     \group_end:
@@ -1249,7 +1412,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \bool_set_true:N \l__acro_use_plural_bool
       \bool_set_true:N \l__acro_first_upper_bool
       \acro_long:n { #2 }
@@ -1261,7 +1424,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \acro_first:n { #2 }
     \group_end:
   }
@@ -1270,7 +1433,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \bool_set_true:N \l__acro_first_upper_bool
       \acro_first:n { #2 }
     \group_end:
@@ -1280,7 +1443,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \bool_set_true:N \l__acro_use_plural_bool
       \acro_first:n { #2 }
     \group_end:
@@ -1290,7 +1453,7 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:n { #1 }
+      \acro_use_if:nn { #1 } { #2 }
       \bool_set_true:N \l__acro_use_plural_bool
       \bool_set_true:N \l__acro_first_upper_bool
       \acro_first:n { #2 }
@@ -1326,9 +1489,7 @@
 \NewDocumentCommand \acuse { > { \SplitList { , } } m }
   { \ProcessList { #1 } { \acro_mark_as_used:n } }
 
-% typeset the list:
-\NewDocumentCommand \printacronyms { G{}o }
-  { \acro_print_acronyms:nn { #1 } { #2 } }
+
 
 \ProcessKeysOptions { acro }
 
@@ -1381,6 +1542,7 @@
             \cs_set_eq:NN \Acfp \acpdfstringplural
             \cs_set_eq:NN \acap \acpdfstringplural
           }
+        \cs_set_eq:NN \acro_hyper_page:n \hyperpage
       } {}
   }
 
@@ -1441,12 +1603,16 @@
                  - option `xspace' added
 2013/01/02 v0.6a - \acuseall
 2013/01/?? v1.0  - new syntax of \DeclareAcronym
-                 - new option `compatibility'
+                 - new option `compatibility' %TODO rename into `version'
                  - new `accsupp' acronym property
                  - new `sort' acronym property
+                 - new syntax of \printacronyms
+                 - new default: `sort=true' 
+                 - new option `page-ranges'
 
 % --------------------------------------------------------------------------
 % TODO:
+- disable \labels for `version=1', keep them for backwards compatibility
 - Option `totoc'!?
 - revise list styles to allow _full_ customization by creating own instances!
   this probably needs a handfull of macros that give access to the entries

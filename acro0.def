@@ -83,6 +83,23 @@
   }
 
 % --------------------------------------------------------------------------
+% print the list:
+\cs_new:Npn \acro_print_acronyms:nn #1#2
+  {
+    \iow_now:Nx \@auxout { \string \acro@print@list }
+    \bool_if:NT \l__acro_sort_bool
+      { \acro_sort_prop:N \l__acro_short_prop }
+    \UseInstance { acro-title } { \l__acro_list_title_tl }
+      { \l__acro_list_name_tl }
+    \cs_if_exist:NTF \acro@printed@list
+      {
+        \UseInstance { acro-list } { \l__acro_list_instance_tl }
+          { \l__acro_list_type_tl } { #1 } { #2 }
+      }
+      { \@latex@warning@no@line {Rerun~to~get~acronym~list~right} }
+  }
+
+% --------------------------------------------------------------------------
 % USER COMMANDS
 % adding an acronym, user command:
 % #1: use/replace plural (boolean)
@@ -111,5 +128,9 @@
   { m >{ \SplitArgument { 1 } { , } } m }
   { \acro_pdfstring:nnn { #1 } #2 }
 \@onlypreamble \DeclareAcronymPDFstring
+
+% typeset the list:
+\NewDocumentCommand \printacronyms { G{}O{} }
+  { \acro_print_acronyms:nn { #1 } { #2 } }
 
 \tex_endinput:D

@@ -231,6 +231,7 @@
     \keys_set:nn { acro / declare-acronym } { #2 }
     \bool_new:c { g__acro_#1_used_bool }
     \bool_new:c { g__acro_#1_label_bool }
+    \acro_create_page_records:n { #1 }
     \bool_if:NT \l__acro_create_macros_bool
       {
         \cs_if_exist:cTF { #1 }
@@ -252,4 +253,45 @@
 \NewDocumentCommand \DeclareAcronym { mm }
   { \acro_declare_acronym:nn { #1 } { #2 } }
 
+% --------------------------------------------------------------------------
+% print the list:
+% #1: list of classes
+% #2: list of excluded classes
+\tl_new:N \l__acro_included_classes_tl
+\tl_new:N \l__acro_excluded_classes_tl
+
+\cs_new:Npn \acro_use_list_instance:nn #1#2
+  {
+    \UseInstance { acro-list } { \l__acro_list_instance_tl }
+      { \l__acro_list_type_tl } { #1 } { #2 }
+  }
+\cs_generate_variant:Nn \acro_use_list_instance:nn { VV }
+
+\keys_define:nn { acro / print-acronyms }
+  {
+    include-classes .tl_set:N = \l__acro_included_classes_tl ,
+    exclude-classes .tl_set:N = \l__acro_excluded_classes_tl ,
+    name            .tl_set:N = \l__acro_list_name_tl ,
+    header          .tl_set:N = \l__acro_list_title_tl
+  }
+
+\cs_new:Npn \acro_print_acronyms:n #1
+  {
+    \keys_set:nn { acro / print-acronyms } { #1 }
+    \iow_now:Nx \@auxout { \string \acro@print@list }
+    \bool_if:NT \l__acro_sort_bool
+      { \acro_sort_prop:N \l__acro_short_prop }
+    \UseInstance { acro-title } { \l__acro_list_title_tl }
+      { \l__acro_list_name_tl }
+    \cs_if_exist:NTF \acro@printed@list
+      {
+        \acro_use_list_instance:VV
+          \l__acro_included_classes_tl
+          \l__acro_excluded_classes_tl
+      }
+      { \@latex@warning@no@line {Rerun~to~get~acronym~list~right} }
+  }
+
+\NewDocumentCommand \printacronyms { O{} }
+  { \acro_print_acronyms:n { #1 } }
 \tex_endinput:D
