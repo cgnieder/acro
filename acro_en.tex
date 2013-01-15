@@ -27,7 +27,7 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The acro package consists of the files
-%  - acro.sty, acro_en.tex, acro_en.pdf, README
+%  - acro.sty, acro0.def, acro1.def, acro_en.tex, acro_en.pdf, README
 % --------------------------------------------------------------------------
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
@@ -40,7 +40,7 @@
 %
 \documentclass[DIV10,toc=index,toc=bib,hyperfootnotes=false]{cnpkgdoc}
 \docsetup{
-  pkg = {[single,macros,sort]acro} ,
+  pkg = {[single,macros]acro} ,
   language = en ,
   code-box = {
     backgroundcolor  = gray!7!white ,
@@ -177,25 +177,84 @@
   }
 \ExplSyntaxOff
 
-\DeclareAcronym{cd}{cd}{Compact Disc}
-  \DeclareAcronymFormat{cd}{\scshape}
-\DeclareAcronym{id}{id}{identification string}
-  \DeclareAcronymFormat{id}{\scshape}
-\DeclareAcronym{jpg}{JPEG}[JPG]{Joint Photographic Experts Group}
-\DeclareAcronym{la}{LA,}{Los Angeles,}[city]
-\DeclareAcronym*{mp}{MP}{Member of Parliament,Members of Parliament}
-\DeclareAcronym{nato}{nato}{North Atlantic Treaty Organization}{\textit{deutsch}: Organisation des Nordatlantikvertrags}
-  \DeclareAcronymFormat{nato}{\scshape}
-\DeclareAcronym{ny}{NY,}{New York,}[city]
-\DeclareAcronymCitation{ny}{NewYork}
-\DeclareAcronym{ot}{ot}{Other Test}
-  \DeclareAcronymFormat{ot}{\scshape}
-\DeclareAcronym{pdf}{pdf}{Portable Document Format}
-  \DeclareAcronymFormat{pdf}{\scshape}
-  \DeclareAcronymPDFString{pdf}{PDF}
-\DeclareAcronym{sw}{SW}{Sammelwerk,e}
-\DeclareAcronym{test}{ST}{Some Test}
-\DeclareAcronym{texse}{\{TeX\}.SE}{\TeX\ StackExchange}
+\DeclareAcronym{cd}
+  {
+    short  = cd ,
+    long   = Compact Disc ,
+    format = \scshape
+  }
+\DeclareAcronym{id}
+  {
+    short  = id ,
+    long   = identification string ,
+    format = \scshape
+  }
+\DeclareAcronym{jpg}
+  {
+    short = JPEG ,
+    alt   = JPG ,
+    long  = Joint Photographic Experts Group
+  }
+\DeclareAcronym{la}
+  {
+    short        = LA ,
+    short-plural = ,
+    long         = Los Angeles,
+    long-plural  = ,
+    class        = city
+  }
+\DeclareAcronym{mp}
+  {
+    short = MP ,
+    long  = Member of Parliament ,
+    long-plural-form = Members of Parliament
+  }
+\DeclareAcronym{nato}
+  {
+    short  = nato ,
+    long   = North Atlantic Treaty Organization ,
+    extra  = \emph{deutsch}: Organisation des Nordatlantikvertrags ,
+    format = \scshape
+  }
+\DeclareAcronym{ny}
+  {
+    short        = NY ,
+    short-plural = ,
+    long         = New York ,
+    long-plural  = ,
+    class        = city ,
+    cite         = NewYork
+  }
+\DeclareAcronym{ot}
+  {
+    short  = ot ,
+    long   = Other Test ,
+    format = \scshape
+  }
+\DeclareAcronym{pdf}
+  {
+    short     = pdf ,
+    long      = Portable Document Format ,
+    format    = \scshape ,
+    pdfstring = PDF ,
+    accsupp   = PDF
+  }
+\DeclareAcronym{sw}
+  {
+    short       = SW ,
+    long        = Sammelwerk ,
+    long-plural = e
+  }
+\DeclareAcronym{test}
+  {
+    short = ST ,
+    long  = Some Test
+  }
+\DeclareAcronym{texse}
+  {
+    short = \{TeX\}.SE ,
+    long  = \TeX\ StackExchange
+  }
 
 \usepackage{imakeidx}
 \makeindex[columns=2,options={-sl \jobname.ist},intoc]
@@ -258,44 +317,85 @@ me and in consequence led to \acro and it's option \key{single}.
 some macros have the same name and meaning\footnote{\emph{Not} in the sense of
 \code{\textbackslash\textcolor{code}{meaning}}!}.
 
+\section{Updating from Version 0.*}
+Version 1.0 introduces a major syntax change. In order to keep documents
+using a prior version compilable \acro introduces the option \key{version}{0}.
+It provides the acronym defining commands with the old syntax and also all the
+additional commands like \cmd{DeclareAcronymFormat} that have been dropped in
+v1.0. Also the old syntax of \cmd{printacronyms} is restored. Versions 0.* also
+set labels when an acronym was used the first time, v1.0 doesn't do that any
+more. \key{version}{0} sets them as expected.
+
+Note that \key{version}{0} \emph{does not and will not} support new features of
+any kind.
+
 \section{Basics}\secidx{Basics}
 \subsection{Creating New Acronyms}\secidx[new acronyms]{Basics}
 Acronyms are created with the command \cmd{DeclareAcronym} that can only be used
 in the preamble.
 \begin{beschreibung}
- \Befehl{DeclareAcronym}*{<id>}\ma{<short>,<pl>}\oa{<alt.>}\ma{<long>,<pl>}\ma{<extra>}\oa{<class>}
- \verb+% can be used only in preamble+
- \Befehl{DeclareAcronymFormat}{<id>}\ma{<format>} \verb+% can be used only in preamble+
- \Befehl{DeclareAcronymCitation}{<id>}\oa{<pre>}\oa{<post>}\ma{<cite keys>}
-   \verb+% can be used only in preamble+
- \Befehl{DeclareAcronymPDFString}{<id>}\ma{<pdf entry>,<plural ending>}
-   \verb+% can be used only in preamble+
+ \Befehl{DeclareAcronym}{<id>}\ma{<list of keys>}
+ \Option{short}{<text>}\newline the short form of the acronym.
+ \Option{long}{<text>}\newline the long form of the acronym.
+ \Option{short-plural}{<text>}\Default{s} the plural ending appended to the
+   short form.
+ \Option{long-plural}{<text>}\Default{s} the plural ending appended to the
+   long form.
+ \Option{long-plural-form}{<text>}\newline plural long form of the acronym;
+   replaces the long form when used instead of appending the plural ending.
+ \Option{alt}{<text>}\newline alternative short form.
+ \Option{extra}{<text>}\newline extra information to be added in the list of
+   acronyms.
+ \Option{sort}{<text>}\newline if used the acronym will be sorted according to
+   this key instead of its \acs{id}.
+ \Option{class}{<text>}\newline the class the acronym belongs to.
+ \Option{cite}{[<prenote>][<postnote>]\{citation keys\}}\newline a citation that
+   is printed to the acronym according to an option explained later.
+ \Option{format}{<TeX code>}\newline the format used for the short form of the
+   acronym.
+ \Option{pdfstring}{<text>}\newline used as \acs{pdf} string replacement in
+   bookmarks when used together with the \paket*{hyperref} package.
+ \Option{accsupp}{<text>}\newline sets the \code{ActualText} key as presented
+   by the \paket*{accsupp} package for the acronym.
 \end{beschreibung}
-Although \cmd{DeclareAcronym} has quite a number of arguments. In the simplest
-case you'll only need three:
+
+In its simplest form an acronym needs a short and a long form. Please not that
+both keys \emph{must} be set and that the \key{short} key \emph{must} always be
+the \emph{first} key that is set.
 \begin{beispiel}[code only]
  % preamble
- \DeclareAcronym{test}{ST}{Some Test}
+ \DeclareAcronym{test}{
+   short = ST ,
+   long  = Some Test
+ }
 \end{beispiel}
 This creates the acronym ``\acs{test}'' with the \acs{id} ``test'' and the long
-form ``\acl{test}.'' The other arguments will be described later in this document.
+form ``\acl{test}.''
 
-\cmd{DeclareAcronymFormat} lets you assign a special format to an acronym. Maybe
-small caps:
+The \key{format} key allows you to choose a specific format for the short form of
+an acronym:
 \begin{beispiel}[code only]
  % preamble:
- \DeclareAcronym{ot}{ot}{Other Test}
- \DeclareAcronymFormat{ot}{\scshape}
+ \DeclareAcronym{ot}{
+   short  = ot ,
+   long   = Other Test ,
+   format = \scshape
+ }
 \end{beispiel}
 The short form now looks like this: \acs{ot}.
 
-With \cmd{DeclareAcronymCitation} you can add a key as used in \cmd*{cite} that
-is added to the first or every appearance of the acronym (depending on an option
-that is described later).
+The \key{cite} key needs a bit explaining. It expects arguments like the standard
+\cmd*{cite} command, i.e., two optional arguments setting the \code{<prenote>}
+and \code{<postnote>} and one mandatory argument setting the citation key.
 \begin{beispiel}[code only]
  % preamble:
- \DeclareAcronym{ny}{NY,}{New York,}
- \DeclareAcronymCitation{ny}{NewYork}
+ \DeclareAcronym{ny}{
+   short = NY ,
+   short-plural = ,
+   long         = New York ,
+   long-plural  = ,
+   cite         = {NewYork}
+ }
  % bib file for use with biber/biblatex:
  @online{NewYork,
    author  = {Wikipedia},
@@ -345,8 +445,12 @@ used. This proves useful if an acronym is typeset in a section title, for exampl
 since then the appearance in the table of contents won't mark it as used.
 
 \begin{beispiel}
- % preamble: \DeclareAcronym{cd}{cd}{Compact Disc}
- % \DeclareAcronymFormat{cd}{\scshape}
+ % preamble:
+ % \DeclareAcronym{cd}{
+ %   short  = cd ,
+ %   long   = Compact Disc ,
+ %   format = \scshape
+ % }
  first time: \ac{cd} \\
  second time: \ac{cd} \\
  short: \acs{cd} \\
@@ -364,22 +468,42 @@ that is not always the best solution. For one thing not all acronyms may have a
 plural form. Second, the plural form especially of the long forms may be fomed
 differently. And third, other languages can have other plural endings.
 
-For this reason \cmd{DeclareAcronym} provides additional arguments:
+For this reason \cmd{DeclareAcronym} can get the following keys:
 \begin{beschreibung}
- \Befehl{DeclareAcronym}{<id>}\ma{<short>,<plural ending>}\ma{<long>,<plural ending>}
- \Befehl{DeclareAcronym}*{<id>}\ma{<short>,<plural ending>}\ma{<long>,<plural form>}
+ \Option{short-plural}{<text>}
+ \Option{long-plural}{<text>}
+ \Option{long-plural-form}{<text>}
 \end{beschreibung}
-These arguments are optional. If they're not used, the default setting is `s'.
-If you use the starred version the long form will be replaced by the specified
-plural form when necessary. A given short plural will still be appended.
+These keys are optional. If they're not used, the default setting is `s'.
+If you use \key{long-plural-form} the long form will be replaced by the specified
+plural form when necessary.
 
+Suppose we define the following acronyms:
+\begin{beispiel}[code only]
+ \DeclareAcronym{cd}{
+   short  = cd ,
+   long   = Compact Disc ,
+   format = \scshape
+ }
+ \DeclareAcronym{ny}{
+   short        = NY ,
+   short-plural = ,
+   long         = New York ,
+   long-plural  =
+ }
+ \DeclareAcronym{sw}{
+   short       = SW ,
+   long        = Sammelwerk ,
+   long-plural = e
+ }
+ \DeclareAcronym{mp}{
+   short            = MP ,
+   long             = Member of Parliament ,
+   long-plural-form = Members of Parliament
+ }
+\end{beisiel}
+These acronyms now have the following plural appearances:
 \begin{beispiel}
- % preamble:
- % \DeclareAcronym{cd}{\textsc{cd}}{Compact Disc}
- %   \DeclareAcronymFormat{cd}{\scshape}
- % \DeclareAcronym{ny}{NY,}{New York,}
- % \DeclareAcronym{sw}{SW}{Sammelwerk,e}
- % \DeclareAcronym*{mp}{MP}{Member of Parliament,Members of Parliament}
  \acsp{cd}, \aclp{cd} \\
  \acsp{ny}, \aclp{ny} \\
  \acsp{sw}, \aclp{sw} \\
@@ -388,12 +512,17 @@ plural form when necessary. A given short plural will still be appended.
 
 \subsection{Alternative Short Forms}\secidx[alternative forms]{Basics}
 For some acronyms it might be useful to have alternative forms. For this
-\cmd{DeclareAcronym} has another optional argument:
+\cmd{DeclareAcronym} has another key:
 \begin{beschreibung}
- \Befehl{DeclareAcronym}{<id>}\ma{<short>}\oa{<alternative>}\ma{<long>}
+ \Option{alt}{<text>}
 \end{beschreibung}
 \begin{beispiel}
- % preamble \DeclareAcronym{jpg}{JPEG}[JPG]{Joint Photographic Experts Group}
+ % preamble
+ % \DeclareAcronym{jpg}{
+ %   short = JPEG ,
+ %   alt   = JPG ,
+ %   long  = Joint Photographic Experts Group
+ % }
  default: \acs{jpg} \\
  alt.: \aca{jpg}
 \end{beispiel}
@@ -403,17 +532,21 @@ is formatted in the same way.
 \subsection{Extra Information for the List Entry}\secidx[extra information]{Basics}
 Of course you can print a list of acronyms where their meaning is explained.
 Sometimes it can be useful to add additional information there. This is done with
-another optional argument to \cmd{DeclareAcronym}:
+another key to \cmd{DeclareAcronym}:
 \begin{beschreibung}
- \Befehl{DeclareAcronym}{<id>}\ma{<short>}\ma{<long>}\ma{<extra>}
+ \Option{extra}{<text>}
 \end{beschreibung}
 These information will only be displayed in the list. See section~\ref{sec:print_lists}
 for the impact of the following example.
 
 \begin{beispiel}
  % preamble:
- % \DeclareAcronym{nato}{nato}{North Atlantic Treaty Organization}{\textit{deutsch}: Organisation des Nordatlantikvertrags}
- % \DeclareAcronymFormat{nato}{\scshape}
+ % \DeclareAcronym{nato}{
+ %   short  = nato ,
+ %   long   = North Atlantic Treaty Organization ,
+ %   extra  = \textit{deutsch}: Organisation des Nordatlantikvertrags ,
+ %   format = \scshape
+ % }
  The \ac{nato} is an intergovernmental military alliance based on the
  North Atlantic Treaty which was signed on 4~April 1949. \ac{nato}
  headquarters are in Brussels, Belgium, one of the 28 member states
@@ -426,14 +559,27 @@ for the impact of the following example.
 \subsection{Using Classes}\secidx[classes]{Additional Commands}
 The acronyms of \acro can be divided into different classes. This doesn't change
 the output but allows different acronym lists, see section~\ref{sec:print_lists}.
-For this \cmd{DeclareAcronym} has an optional argument:
+For this \cmd{DeclareAcronym} has an additional key:
 \begin{beschreibung}
- \Befehl{DeclareAcronym}{<id>}\ma{<short>}\ma{<long>}\oa{<class>}
+ \Option{class}{<text>}
 \end{beschreibung}
 \begin{beispiel}
  % preamble:
- % \DeclareAcronym{la}{LA,}{Los Angeles,}[city]
- % \DeclareAcronym{ny}{NY,}{New York,}[city]
+ % \DeclareAcronym{la}{
+ %   short        = LA ,
+ %   short-plural = ,
+ %   long         = Los Angeles ,
+ %   long-plural  = ,
+ %   class        = city
+ % }
+ % \DeclareAcronym{ny}{
+ %   short        = NY ,
+ %   short-plural = ,
+ %   long         = New York ,
+ %   long-plural  = ,
+ %   class        = city ,
+ %   cite         = NewYork
+ % }
  \acl{la} (\acs{la}) \\
  \acl{ny} (\acs{ny})
 \end{beispiel}
@@ -480,36 +626,52 @@ manually and can be modified to an output reserved for \acs{pdf} bookmarks.
  \befehl{acpdfstring}{<id>} access the text string used in \acs{pdf} bookmarks.
  \befehl{acpdfstringplural}{<id>} access the plural form of the text string used
    in \acs{pdf} bookmarks.
- \Befehl{DeclareAcronymPDFString}{<id>}\ma{<pdf entry>,<plural ending>} \cnpkgdocarrow\
-   declare a custom text string for \acs{pdf} bookmarks.
+ \Option{pdfstring}{<pdfstring>/<plural ending>} \cnpkgdocarrow\
+   declare a custom text string for \acs{pdf} bookmarks. The plural ending can
+   be set optionally.
 \end{beschreibung}
 
 For example the \acs{pdf} acronym used in the title for this section is defined
 as follows:
 \begin{beispiel}[code only]
- \DeclareAcronym{pdf}{pdf}{Portable Document File}
- \DeclareAcronymFormat{pdf}{\scshape}
- \DeclareAcronymPDFString{pdf}{PDF}
+\DeclareAcronym{pdf}
+  {
+    short     = pdf ,
+    long      = Portable Document Format ,
+    format    = \scshape ,
+    pdfstring = PDF ,
+    accsupp   = PDF
+  }
 \end{beispiel}
 
+\sinceversion{1.0}This also demonstrates the \key{accsupp}. For this to work you
+need to use the \emph{package option} \key{accsupp} which will load the package
+\paket{accsupp}. Then the key \key{accsupp} will set the \code{ActualText} property
+of \cmd*{BeginAccSupp}. Please refer to \paket{accsupp}'s documentation for details.
 
 \secidx*{Additional Commands}
 
 \section{Printing the List}\label{sec:print_lists}\secidx{Printing the List}
-Printing the whole list of acronyms is easy: just place \cmd{printacronyms}
-wherever you want the list to be.
+\noindent\changedversion{1.0}Printing the whole list of acronyms is easy: just
+place \cmd{printacronyms} wherever you want the list to be.
 \begin{beschreibung}
- \Befehl{printacronyms}{<list of classes>}\oa{<excluded classes>} \cnpkgdocarrow\
- the first \emph{optional} (!) argument \ma{<list of classes>} takes a comma-separated
- list of the classes of acronyms that should be in the list. If the argument is
- left out, \emph{all} acronyms are printed. In the optional argument \oa{<excluded
- classes>} classes can be specified that shall not be included into the list.
+ \Befehl{printacronyms}[<options>]
+ \Option{include-classes}{<list of classes>}\newline
+   takes a comma-separated list of the classes of acronyms that should be in the
+   list.
+ \Option{exclude-classes}{<list of classes>}\newline
+   takes a comma-separated list of the classes of acronyms that should \emph{not}
+   be in the list.
+ \Option{name}{<name of the list>}\newline
+   sets the name for the list.
+ \Option{header}{<sectioning command without leading backslash>}\Default{section*}
+   sets the sectioning command for the header of the list.
 \end{beschreibung}
 \begin{beispiel}[below]
  \acsetup{hyperref=false,extra-style=comma}
- \printacronyms[city]
- \acsetup{list-name=City Acronyms}
- \printacronyms{city}
+ \printacronyms[exclude-classes=city]
+
+ \printacronyms[include-classes=city,name=City Acronyms]
 \end{beispiel}
 You can see that the default layout is a \code{description} list with a
 \code{section*} title. Both can be changed, see section~\ref{sec:customization}.
@@ -525,6 +687,10 @@ fact shouldn't cause too much inconvenience.
 There are a few options which change the general behaviour of \acro.
 \default{Underlined} values are used if no value is given.
 \begin{beschreibung}
+ %%
+ \Option{version}{0|1}\Default{1}
+   Provide backwards compatibility for documents set with \acro in a version
+   prior to v1.0.
  %%
  \Option{single}{\default{true}|false}\Default{false}
    If set to \code{true} an acronym that's used only once '(with \cmd{ac}) in a
@@ -553,7 +719,7 @@ There are a few options which change the general behaviour of \acro.
    If set to \code{true} and the option \key{macros}{true} is in effect then
    already existing macros will be overwritten.
  %%
- \Option{sort}{\default{true}|false}\Default{false}
+ \Option{sort}{\default{true}|false}\Default{true}
    If set to \code{true} the acronym list will be sorted automatically. The
    entries are sorted by their \acs{id} ignoring upper and lower case. This
    option needs the experimental package \paket*{l3sort} (from the
@@ -573,6 +739,11 @@ There are a few options which change the general behaviour of \acro.
    citation or maybe not (e.g.\ \cmd*{footcite}\ldots). This option allows you to
    set this. Actually it can be used to place arbitrary code right before the
    citation.\catcode`\_=11
+ %%
+ \Option{accsupp}{\default{true}|false}\Default{false}
+   \sinceversion{1.0}Activates the access support as provided by the 
+   paket{accsupp} package.
+ %%
  \Option{uc-cmd}{<cmd>}\Default{\cmd*{acro_first_upper_case:n}}
    The command that is used to capitalize the first word in the \cmd{Ac} and the
    like commands. You can change it to another one like for example
@@ -649,6 +820,18 @@ possible output forms of the acronyms.
  \Option{page-name}{<page name>}\Default{p.}
    The ``name'' of the page label.
  %%
+ \Option{page-ranges}{\default{true}|false}\Default{true}
+   \sinceversion{1.0}If set to \code{false} ranges will be set by appending
+   \code{f} or \code{ff}, respectively.
+ %%
+ \Option{next-page}{<text>}\Default{f}
+   \sinceversion{1.0}Appended to a page number when \key{page-ranges} is set to
+   \code{false} and the range is only 2 pages long.
+ %%
+ \Option{next-pages}{<text>}\Default{ff}
+   \sinceversion{1.0}Appended to a page number when \key{page-ranges} is set to
+   \code{false} and the range is more than 2 pages long.
+ %%
  \Option{list-type}{table|<list>}\Default{description}
    This option let's you choose how the list is printed. \code{<list>} can be any
    valid list like
@@ -703,6 +886,19 @@ acronym.
 
 \appendix
 
+\section{Commands provided in version 0.*}
+Prior to version 1.0 the following commands were available. They are still
+provided if you set the option \key{version}{0}.
+\begin{beschreibung}
+ \Befehl{DeclareAcronym}*{<id>}\ma{<short>,<pl>}\oa{<alt.>}\ma{<long>,<pl>}\ma{<extra>}\oa{<class>}
+ \verb+% can be used only in preamble+
+ \Befehl{DeclareAcronymFormat}{<id>}\ma{<format>} \verb+% can be used only in preamble+
+ \Befehl{DeclareAcronymCitation}{<id>}\oa{<pre>}\oa{<post>}\ma{<cite keys>}
+   \verb+% can be used only in preamble+
+ \Befehl{DeclareAcronymPDFString}{<id>}\ma{<pdf entry>,<plural ending>}
+   \verb+% can be used only in preamble+
+\end{beschreibung}
+
 \section{All Acronyms Used in this Documentation}\label{sec:documentation_acronyms}
 \begin{beispiel}[code only]
  \acsetup{
@@ -710,30 +906,29 @@ acronym.
    list-style  = longtable,
    list-header = subsection*,
    extra-style = comma,
-   page-ref    = comma,
-   list-name   = All Acronyms}
- \printacronyms
+   page-ref    = comma
+ }
+ \printacronyms[name=All Acronyms]
 \end{beispiel}
 \acsetup{
   list-type   = table,
   list-style  = longtable,
   list-header = subsection*,
   extra-style = comma,
-  page-ref    = comma,
-  list-name   = All Acronyms}
-\printacronyms
+  page-ref    = comma
+}
+\printacronyms[name=All Acronyms]
 
 \begin{beispiel}[code only]
  \acsetup{
    list-type   = table,
    list-style  = longtable,
    list-header = subsection*,
-   page-ref    = comma,
-   list-name   = City-Acronyms}
- \printacronyms{city}
+   page-ref    = comma
+ }
+ \printacronyms[include-classes=city,name=City-Acronyms]
 \end{beispiel}
-\acsetup{list-name=City-Acronyms}
-\printacronyms{city}
+\printacronyms[include-classes=city,name=City-Acronyms]
 
 {\RaggedRight\EmbracOff
 \printbibliography}

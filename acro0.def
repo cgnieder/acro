@@ -1,4 +1,37 @@
+% --------------------------------------------------------------------------
+% the ACRO package
+% 
+%   Typeset Acronyms
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://bitbucket.org/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011-2013 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% The acro package consists of the files
+%  - acro.sty, acro0.def, acro1.def, acro_en.tex, acro_en.pdf, README
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
 \ProvidesFile{acro0.def}
+
+\tl_new:N  \l__acro_active_version_tl
+\tl_set:Nn \l__acro_active_version_tl { 0 }
 
 % --------------------------------------------------------------------------
 % adding an acronym, internal command:
@@ -17,7 +50,9 @@
       { \prop_put:Nnn \l__acro_replace_plural_prop { #2 } { \c_true_bool } }
       { \prop_put:Nnn \l__acro_replace_plural_prop { #2 } { \c_false_bool } }
     \prop_put:Nnn \l__acro_short_prop { #2 } { #3 }
+    \prop_put:Nnn \l__acro_sort_prop  { #2 } { #2 }
     \prop_put:Nnn \l__acro_pdfstring_prop { #2 } { #3 }
+    \acro_create_page_records:n { #2 }
     \IfNoValueTF { #4 }
       {
         \prop_put:Nnn \l__acro_short_plural_prop
@@ -83,23 +118,6 @@
   }
 
 % --------------------------------------------------------------------------
-% print the list:
-\cs_new:Npn \acro_print_acronyms:nn #1#2
-  {
-    \iow_now:Nx \@auxout { \string \acro@print@list }
-    \bool_if:NT \l__acro_sort_bool
-      { \acro_sort_prop:N \l__acro_short_prop }
-    \UseInstance { acro-title } { \l__acro_list_title_tl }
-      { \l__acro_list_name_tl }
-    \cs_if_exist:NTF \acro@printed@list
-      {
-        \UseInstance { acro-list } { \l__acro_list_instance_tl }
-          { \l__acro_list_type_tl } { #1 } { #2 }
-      }
-      { \@latex@warning@no@line {Rerun~to~get~acronym~list~right} }
-  }
-
-% --------------------------------------------------------------------------
 % USER COMMANDS
 % adding an acronym, user command:
 % #1: use/replace plural (boolean)
@@ -129,7 +147,24 @@
   { \acro_pdfstring:nnn { #1 } #2 }
 \@onlypreamble \DeclareAcronymPDFstring
 
-% typeset the list:
+% --------------------------------------------------------------------------
+% print the list:
+\cs_new:Npn \acro_print_acronyms:nn #1#2
+  {
+    \iow_now:Nx \@auxout { \string \acro@print@list }
+    \bool_if:NT \l__acro_sort_bool
+      { \acro_sort_prop:N \l__acro_short_prop }
+    \UseInstance { acro-title } { \l__acro_list_title_tl }
+      { \l__acro_list_name_tl }
+    \cs_if_exist:NTF \acro@printed@list
+      {
+        \UseInstance { acro-list } { \l__acro_list_instance_tl }
+          { \l__acro_list_type_tl } { #1 } { #2 }
+      }
+      { \@latex@warning@no@line {Rerun~to~get~acronym~list~right} }
+  }
+
+% user command:
 \NewDocumentCommand \printacronyms { G{}O{} }
   { \acro_print_acronyms:nn { #1 } { #2 } }
 

@@ -1,9 +1,9 @@
 --------------------------------------------------------------------------
-the ACRO package v0.6a
+the ACRO package v1.0
 
   Typeset Acronyms
 
-2013/01/02
+2013/01/15
 --------------------------------------------------------------------------
 Clemens Niederberger
 Web:    https://bitbucket.org/cgnieder/acro/
@@ -24,7 +24,7 @@ This work has the LPPL maintenance status `maintained'.
 The Current Maintainer of this work is Clemens Niederberger.
 --------------------------------------------------------------------------
 The acro package consists of the files
- - acro.sty, acro_en.tex, acro_en.pdf, README
+ - acro.sty, acro0.def, acro1.def, acro_en.tex, acro_en.pdf, README
 --------------------------------------------------------------------------
 If you have any ideas, questions, suggestions or bugs to report, please
 feel free to contact me.

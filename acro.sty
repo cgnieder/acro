@@ -23,7 +23,7 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The acro package consists of the files
-%  - acro.sty, acro_en.tex, acro_en.pdf, README
+%  - acro.sty, acro0.def, acro1.def, acro_en.tex, acro_en.pdf, README
 % --------------------------------------------------------------------------
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2013/01/02}
-  {0.6a}
+  {2013/01/15}
+  {1.0}
   {Typeset Acronyms}
 
 % warning and error messages:
@@ -43,10 +43,10 @@
     apperantly~haven't~defined~it,~yet!~Maybe~you've~mispelled~it?
   }
 
-\msg_new:nnnn { acro } { compatibility }
-  { You've~selected~compatibility~option~`#1'~which~doesn't~exist. }
+\msg_new:nnnn { acro } { version }
+  { You've~selected~the~version~option~`#1'~which~doesn't~exist. }
   {
-    You've~selected~compatibility~option~`#1'~which~doesn't~exist.~
+    You've~selected~the~version~option~`#1'~which~doesn't~exist.~
     I'm~using~option~`#2'~instead.
   }
 
@@ -94,6 +94,10 @@
 \tl_set:Nn  \l__acro_page_instance_tl  { none }
 \tl_new:N   \l__acro_page_name_tl
 \tl_set:Nn  \l__acro_page_name_tl      { p. }
+\tl_new:N   \l__acro_next_page_tl
+\tl_set:Nn  \l__acro_next_page_tl { f }
+\tl_new:N   \l__acro_next_pages_tl
+\tl_set:Nn  \l__acro_next_pages_tl { ff }
 \tl_new:N   \l__acro_list_instance_tl
 \tl_set:Nn  \l__acro_list_instance_tl  { list }
 \tl_new:N   \l__acro_list_type_tl
@@ -156,7 +160,7 @@
     \clist_if_in:NnTF \l__acro_versions_clist { #1 }
       { \file_input:n { acro#1.def } }
       {
-        \msg_warning:nnxx { acro } { compatibility } { #1 } { 1 }
+        \msg_warning:nnxx { acro } { version } { #1 } { 1 }
         \file_input:n { acro1.def }
       }
     \bool_set_true:N \l__acro_version_selected_bool
@@ -165,7 +169,7 @@
 % options:
 \keys_define:nn { acro }
   {
-    compatibility    .code:n     = \__acro_select_version:n { #1 } ,
+    version          .code:n     = \__acro_select_version:n { #1 } ,
     accsupp          .bool_set:N = \l__acro_acc_supp_bool        ,
     macros           .bool_set:N = \l__acro_create_macros_bool   ,
     xspace           .bool_set:N = \l__acro_xspace_bool          ,
@@ -183,6 +187,8 @@
     page-ref         .tl_set:N   = \l__acro_page_instance_tl     ,
     page-name        .tl_set:N   = \l__acro_page_name_tl         ,
     page-ranges      .bool_set:N = \l__acro_page_ranges_bool     ,
+    next-page        .tl_set:N   = \l__acro_next_page_tl         ,
+    next-pages       .tl_set:N   = \l__acro_next_pages_tl        ,
     list-style       .tl_set:N   = \l__acro_list_instance_tl     ,
     list-type        .tl_set:N   = \l__acro_list_type_tl         ,
     list-header      .tl_set:N   = \l__acro_list_title_tl        ,
@@ -448,12 +454,8 @@
 \bool_new:N \l__acro_page_brackets_bool
 \bool_new:N \l__acro_page_display_bool
 \tl_new:N   \l__acro_page_punct_tl
+\tl_new:N   \l__acro_page_brackets_tl
 \dim_new:N  \l__acro_page_space_dim
-
-\tl_new:N  \l__acro_next_page_tl
-\tl_set:Nn \l__acro_next_page_tl { f }
-\tl_new:N  \l__acro_next_pages_tl
-\tl_set:Nn \l__acro_next_pages_tl { ff }
 
 \tl_new:N  \l__acro_page_tl
 \tl_set:Nn \l__acro_page_tl { p.\@ }
@@ -520,9 +522,9 @@
                     \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
                   }
                   {% no range (any more)
-                    \seq_gput_right:cx { g__acro_#1_pages_seq } { \l__acro_tmp_page_tl }
+                    \seq_gput_right:cx { g__acro_#1_pages_seq } { \acro@no@hyperpage,~ }
                     \seq_gclear:c      { g__acro_#1_tmp_seq }
-                    \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
+                    \seq_gput_right:cx { g__acro_#1_tmp_seq }   { \thepage }
                     \seq_gput_right:cx { g__acro_#1_pages_seq } { \thepage }
                   }
               }
@@ -563,7 +565,7 @@
                           }
                       }
                     \seq_gclear:c      { g__acro_#1_tmp_seq }
-                    \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
+                    \seq_gput_right:cx { g__acro_#1_tmp_seq }   { \thepage }
                     \seq_gput_right:cn { g__acro_#1_pages_seq } { \acro@no@hyperpage,~ }
                     \seq_gput_right:cx { g__acro_#1_pages_seq } { \thepage }
                   }
@@ -722,7 +724,7 @@
 \cs_new:Npn \acro_is_excluded:nnF #1#2#3
   {
     \bool_set_false:N \l__acro_is_excluded_bool
-    \tl_if_blank:nTF { #2 }
+    \tl_if_empty:nTF { #2 }
       { #3 }
       {
         \clist_map_inline:nn { #2 }
@@ -1092,7 +1094,11 @@
         \iow_now:Nx \@auxout { \string \acro@used@once { #1 } }
         \bool_if:NT \l__acro_mark_as_used_bool
           {
-            \bool_if:cF { g__acro_#1_label_bool }
+            \bool_if:nT
+              {
+                !\bool_if_p:c { g__acro_#1_label_bool } &&
+                \tl_if_eq_p:Nc \l__acro_active_version_tl { 0 }
+              }
               {
                 \bool_gset_true:c { g__acro_#1_label_bool }
                 \label{ac:#1}
@@ -1602,17 +1608,18 @@
                    short entry) resolved
                  - option `xspace' added
 2013/01/02 v0.6a - \acuseall
-2013/01/?? v1.0  - new syntax of \DeclareAcronym
-                 - new option `compatibility' %TODO rename into `version'
+2013/01/11 v1.0  - new syntax of \DeclareAcronym
+                 - new option `version'
                  - new `accsupp' acronym property
                  - new `sort' acronym property
                  - new syntax of \printacronyms
                  - new default: `sort=true' 
-                 - new option `page-ranges'
+                 - new options `page-ranges', `next-page', `next-pages'
+                 - no automatic label placement for page number referencing
+                   any more
 
 % --------------------------------------------------------------------------
 % TODO:
-- disable \labels for `version=1', keep them for backwards compatibility
 - Option `totoc'!?
 - revise list styles to allow _full_ customization by creating own instances!
   this probably needs a handfull of macros that give access to the entries
