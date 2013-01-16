@@ -31,7 +31,7 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2013/01/15}
+  {2013/01/16}
   {1.0}
   {Typeset Acronyms}
 
@@ -57,6 +57,9 @@
 \prop_new:N \l__acro_tmpa_prop
 \prop_new:N \l__acro_tmpb_prop
 \seq_new:N  \l__acro_tmpa_seq
+\seq_new:N  \l__acro_tmpb_seq
+
+\tl_new:N   \l__acro_ignore_tl
 
 % boolean variables:
 \bool_new:N \l__acro_mark_as_used_bool
@@ -80,6 +83,8 @@
 \bool_new:N \l__acro_acc_supp_bool
 \bool_new:N \l__acro_page_ranges_bool
 \bool_set_true:N \l__acro_page_ranges_bool
+\bool_new:N \l__acro_record_pages_bool
+\bool_set_true:N \l__acro_record_pages_bool
 
 % tokenlist variables:
 \tl_new:N   \l__acro_short_format_tl
@@ -93,11 +98,13 @@
 \tl_new:N   \l__acro_page_instance_tl
 \tl_set:Nn  \l__acro_page_instance_tl  { none }
 \tl_new:N   \l__acro_page_name_tl
-\tl_set:Nn  \l__acro_page_name_tl      { p. }
+\tl_set:Nn  \l__acro_page_name_tl      { p.\@\, }
+\tl_new:N   \l__acro_pages_name_tl
+\tl_set:Nn  \l__acro_pages_name_tl     { pp.\@\, }
 \tl_new:N   \l__acro_next_page_tl
-\tl_set:Nn  \l__acro_next_page_tl { f }
+\tl_set:Nn  \l__acro_next_page_tl      { f. }
 \tl_new:N   \l__acro_next_pages_tl
-\tl_set:Nn  \l__acro_next_pages_tl { ff }
+\tl_set:Nn  \l__acro_next_pages_tl     { ff. }
 \tl_new:N   \l__acro_list_instance_tl
 \tl_set:Nn  \l__acro_list_instance_tl  { list }
 \tl_new:N   \l__acro_list_type_tl
@@ -149,6 +156,10 @@
 
 % --------------------------------------------------------------------------
 % versioning:
+\tl_new:N  \l__acro_active_version_tl
+\tl_new:N  \l__acro_version_zero_tl
+\tl_set:Nn \l__acro_version_zero_tl { 0 }
+
 \clist_new:N \l__acro_versions_clist
 \clist_put_right:Nn \l__acro_versions_clist { 0 }
 \clist_put_right:Nn \l__acro_versions_clist { 1 }
@@ -158,13 +169,18 @@
 \cs_new:Npn \__acro_select_version:n #1
   {
     \clist_if_in:NnTF \l__acro_versions_clist { #1 }
-      { \file_input:n { acro#1.def } }
+      {
+        \file_input:n { acro#1.def }
+        \tl_set:Nn \l__acro_active_version_tl { #1 }
+      }
       {
         \msg_warning:nnxx { acro } { version } { #1 } { 1 }
         \file_input:n { acro1.def }
+        \tl_set:Nn \l__acro_active_version_tl { 1 }
       }
     \bool_set_true:N \l__acro_version_selected_bool
   }
+
 
 % options:
 \keys_define:nn { acro }
@@ -186,7 +202,9 @@
     extra-style      .tl_set:N   = \l__acro_extra_instance_tl    ,
     page-ref         .tl_set:N   = \l__acro_page_instance_tl     ,
     page-name        .tl_set:N   = \l__acro_page_name_tl         ,
+    pages-name       .tl_set:N   = \l__acro_pages_name_tl        ,
     page-ranges      .bool_set:N = \l__acro_page_ranges_bool     ,
+    record-pages     .bool_set:N = \l__acro_record_pages_bool    ,
     next-page        .tl_set:N   = \l__acro_next_page_tl         ,
     next-pages       .tl_set:N   = \l__acro_next_pages_tl        ,
     list-style       .tl_set:N   = \l__acro_list_instance_tl     ,
@@ -226,6 +244,8 @@
         \cs_new_eq:NN \acro_xspace: \xspace
       }
       { \cs_new:Npn \acro_xspace: {} }
+    \bool_if:NF \l__acro_record_pages_bool
+      { \cs_set_eq:NN \__acro_record_page_number:n \use_none:n }
   }
 
 % setup command:
@@ -301,7 +321,7 @@
           \ifHy@ocgcolorlinks
             \exp_after:wN \use_i:nn
           \else
-            \exp_after:wN \use_ii:nn
+            \exp_after:wN \exp_after:wN \exp_after:wN \use_ii:nn
           \fi
         \fi
         { \textcolor { \@linkcolor } { #1 } }
@@ -457,11 +477,6 @@
 \tl_new:N   \l__acro_page_brackets_tl
 \dim_new:N  \l__acro_page_space_dim
 
-\tl_new:N  \l__acro_page_tl
-\tl_set:Nn \l__acro_page_tl { p.\@ }
-\tl_new:N  \l__acro_pages_tl
-\tl_set:Nn \l__acro_pages_tl { pp.\@ }
-
 \cs_new:Npn \acro_create_page_records:n #1
   {
     \seq_new:c { g__acro_#1_tmp_seq }
@@ -503,7 +518,24 @@
 \tl_new:N \l__acro_tmp_page_tl
 \tl_new:N \l__acro_last_page_tl
 
-\cs_new:Npn \acro_record_page_number:n #1
+%TODO: this should be translated into expl3 syntax
+\cs_new:Npn \__acro_if_is_number:nTF #1
+  {
+    \if!\ifnum9<1#1!\expandafter\expandafter\expandafter\@firstoftwo\fi
+    \else
+      \expandafter\@secondoftwo
+    \fi
+  }
+
+\cs_new:Npn \__acro_convert_to_arabic:n #1
+  {
+    \__acro_if_is_number:nTF { #1 }
+      { #1 }
+      { \exp_args:Nf \int_from_roman:n { \tl_expandable_lowercase:n { #1 } } }
+  }
+\cs_generate_variant:Nn \__acro_convert_to_arabic:n { V }
+
+\cs_new:Npn \__acro_record_page_number:n #1
   {
     \seq_if_empty:cTF { g__acro_#1_pages_seq }
       {% no pages recorded, yet
@@ -515,9 +547,15 @@
         \seq_get_right:cN { g__acro_#1_pages_seq } \l__acro_last_page_tl
         \tl_if_eq:NNTF \l__acro_tmp_page_tl \l__acro_last_page_tl
           {% range may have started
-            \int_compare:nNnF { \value{page} } = { \l__acro_tmp_page_tl }
+            \int_compare:nNnF
+              { \value{page} }
+                =
+              { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl }
               {
-                \int_compare:nNnTF { \value{page} } = { \l__acro_tmp_page_tl + 1 }
+                \int_compare:nNnTF
+                  { \value{page} }
+                    =
+                  { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl + 1 }
                   {% range continues
                     \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
                   }
@@ -530,14 +568,23 @@
               }
           }
           {% we're in a range
-            \int_compare:nNnF { \value{page} } = { \l__acro_tmp_page_tl }
+            \int_compare:nNnF
+              { \value{page} }
+                =
+              { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl }
               {
-                \int_compare:nNnTF { \value{page} } = { \l__acro_tmp_page_tl + 1 }
+                \int_compare:nNnTF
+                  { \value{page} }
+                    =
+                  { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl + 1 }
                   {% range continues
                     \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
                   }
                   {% no range (any more)
-                    \int_compare:nNnTF { \l__acro_tmp_page_tl } = { \l__acro_last_page_tl +1 }
+                    \int_compare:nNnTF
+                      { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl }
+                        =
+                      { \__acro_convert_to_arabic:V \l__acro_last_page_tl +1 }
                       {
                         \bool_if:NTF \l__acro_page_ranges_bool
                           {
@@ -580,7 +627,10 @@
     \seq_get_right:cN { g__acro_#1_pages_seq } \l__acro_last_page_tl
     \tl_if_eq:NNF \l__acro_tmp_page_tl \l__acro_last_page_tl
       {
-        \int_compare:nNnTF { \l__acro_tmp_page_tl } = { \l__acro_last_page_tl +1 }
+        \int_compare:nNnTF
+          { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl }
+            =
+          { \__acro_convert_to_arabic:V \l__acro_last_page_tl +1 }
           {
             \bool_if:NTF \l__acro_page_ranges_bool
               {
@@ -615,15 +665,36 @@
     \cs_if_exist:cTF { acro@#1@pages }
       {
         \tl_set_eq:Nc \l__acro_tmpa_tl { acro@#1@pages }
-        \seq_set_split:NnV \l_tmpa_seq { | } \l__acro_tmpa_tl
-        \int_compare:nNnTF { \seq_count:N \l_tmpa_seq } = { 1 }
-          { \l__acro_page_tl } { \l__acro_pages_tl }
-        \acro_no_break:
-        \skip_horizontal:N \l__acro_page_space_dim
-        \acro_no_break:
-        \seq_map_inline:Nn \l_tmpa_seq { ##1 }
+        \__acro_print_page_numbers:n { #1 }
       }
       { ?? }
+  }
+
+\cs_new:Npn \__acro_print_page_numbers:n #1
+  {
+    \seq_set_split:NnV \l__acro_tmpb_seq { | } \l__acro_tmpa_tl
+    \seq_pop_right:NN \l__acro_tmpb_seq \l__acro_ignore_tl
+    \int_compare:nNnTF { \seq_count:N \l__acro_tmpb_seq } = { 1 }
+      { \l__acro_page_name_tl } { \l__acro_pages_name_tl }
+    \acro_no_break:
+    \skip_horizontal:N \l__acro_page_space_dim
+    \acro_no_break:
+    \seq_map_inline:Nn \l__acro_tmpb_seq { ##1 }
+  }
+
+\AtBeginDocument
+  {
+    \tl_if_eq:NNT \l__acro_active_version_tl \l__acro_version_zero_tl
+      {
+        \cs_set:Npn \__acro_print_page_numbers:n #1
+          {
+            \acro_no_break:
+            \skip_horizontal:N \l__acro_page_space_dim
+            \acro_no_break:
+            \tl_use:N \l__acro_page_name_tl
+            \pageref{ac:#1}
+          }
+      }
   }
 
 \cs_new:Npn \acro_no_break: { \tex_penalty:D \c_ten_thousand }
@@ -637,8 +708,7 @@
     punct-symbol  : tokenlist = {,}   ,
     brackets      : boolean   = false ,
     brackets-type : tokenlist = ()    ,
-    space         : length    = .3ex  ,
-    name          : tokenlist         ,
+    space         : length    = .3ex
   }
 
 \DeclareTemplateCode { acro-page-number } { default } { 1 }
@@ -648,8 +718,7 @@
     punct-symbol  = \l__acro_page_punct_tl      ,
     brackets      = \l__acro_page_brackets_bool ,
     brackets-type = \l__acro_page_brackets_tl   ,
-    space         = \l__acro_page_space_dim     ,
-    name          = \l__acro_page_name_tl       ,% TODO vielleicht entfernen da neue range funktion
+    space         = \l__acro_page_space_dim
   }
   {
     \AssignTemplateKeys
@@ -1097,7 +1166,7 @@
             \bool_if:nT
               {
                 !\bool_if_p:c { g__acro_#1_label_bool } &&
-                \tl_if_eq_p:Nc \l__acro_active_version_tl { 0 }
+                \tl_if_eq_p:NN \l__acro_active_version_tl \l__acro_version_zero_tl
               }
               {
                 \bool_gset_true:c { g__acro_#1_label_bool }
@@ -1296,7 +1365,7 @@
     \IfBooleanTF { #1 }
       { \bool_set_false:N \l__acro_mark_as_used_bool }
       {
-        \acro_record_page_number:n { #2 }
+        \__acro_record_page_number:n { #2 }
         \bool_set_true:N \l__acro_mark_as_used_bool
       }
   }
@@ -1555,6 +1624,7 @@
 % --------------------------------------------------------------------------
 % language support
 \RequirePackage { translations }
+% Listenname
 \DeclareTranslationFallback      { acronym-list-name } { Acronyms }
 \DeclareTranslation { English  } { acronym-list-name } { Acronyms }
 \DeclareTranslation { American } { acronym-list-name } { Acronyms }
@@ -1566,6 +1636,26 @@
 \DeclareTranslation { Catalan  } { acronym-list-name } { Sigles }
 \DeclareTranslation { Turkish  } { acronym-list-name } { K\i saltmalar }
 \tl_set:Nn \l__acro_list_name_tl { \GetTranslation { acronym-list-name } }
+% Seitenname
+\DeclareTranslationFallback     { acronym-page-name } { p. }
+\DeclareTranslation { English } { acronym-page-name } { p. }
+\DeclareTranslation { German  } { acronym-page-name } { S. }
+\tl_set:Nn \l__acro_page_name_tl { \GetTranslation { acronym-page-name }\@\, }
+% Seitenname - Plural
+\DeclareTranslationFallback     { acronym-pages-name } { pp. }
+\DeclareTranslation { English } { acronym-pages-name } { pp. }
+\DeclareTranslation { German  } { acronym-pages-name } { S. }
+\tl_set:Nn \l__acro_pages_name_tl { \GetTranslation { acronym-pages-name }\@\, }
+% einzelne folgende Seite
+\DeclareTranslationFallback     { acronym-next-page } { f. }
+\DeclareTranslation { English } { acronym-next-page } { f. }
+\DeclareTranslation { German  } { acronym-next-page } { f. }
+\tl_set:Nn \l__acro_next_page_tl { \GetTranslation {acronym-next-page }\@ }
+% mehrere folgende Seiten
+\DeclareTranslationFallback     { acronym-next-pages } { ff. }
+\DeclareTranslation { English } { acronym-next-pages } { ff. }
+\DeclareTranslation { German  } { acronym-next-pages } { ff. }
+\tl_set:Nn \l__acro_next_pages_tl { \GetTranslation {acronym-next-pages }\@ }
 
 % --------------------------------------------------------------------------
 % load default version
@@ -1608,13 +1698,14 @@
                    short entry) resolved
                  - option `xspace' added
 2013/01/02 v0.6a - \acuseall
-2013/01/11 v1.0  - new syntax of \DeclareAcronym
+2013/01/16 v1.0  - new syntax of \DeclareAcronym
                  - new option `version'
                  - new `accsupp' acronym property
                  - new `sort' acronym property
                  - new syntax of \printacronyms
                  - new default: `sort=true' 
-                 - new options `page-ranges', `next-page', `next-pages'
+                 - new options `page-ranges', `next-page', `next-pages',
+                   `pages-name', `record-pages'
                  - no automatic label placement for page number referencing
                    any more
 

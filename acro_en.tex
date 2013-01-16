@@ -40,7 +40,7 @@
 %
 \documentclass[DIV10,toc=index,toc=bib,hyperfootnotes=false]{cnpkgdoc}
 \docsetup{
-  pkg = {[single,macros]acro} ,
+  pkg = {[single,macros,accsupp]acro} ,
   language = en ,
   code-box = {
     backgroundcolor  = gray!7!white ,
@@ -177,6 +177,7 @@
   }
 \ExplSyntaxOff
 
+% declare acronyms
 \DeclareAcronym{cd}
   {
     short  = cd ,
@@ -253,7 +254,7 @@
 \DeclareAcronym{texse}
   {
     short = \{TeX\}.SE ,
-    long  = \TeX\ StackExchange
+    long  = \TeX{} StackExchange
   }
 
 \usepackage{imakeidx}
@@ -274,6 +275,14 @@
     \textcolor{black!75}{Changed in version~#1}}%
   \@esphack}
 \renewcommand*\cnpkgdoctriangle{}
+
+\AtBeginDocument{%
+  \ifdef\texorpdfstring{}{\let\texorpdfstring\@firstoftwo}%
+}
+\newrobustcmd\@versionstar{\raisebox{-.25em}{*}}
+\newcommand\versionstar{\texorpdfstring{\@versionstar}{*}}
+
+\newcommand*\CTANlink[1]{\href{http://www.ctan.org/pkg/#1}{#1}}
 \makeatother
 
 \begin{document}
@@ -283,8 +292,10 @@ terms of the \LaTeX{} Project Public License, version 1.3 or later
 (\url{http://www.latex-project.org/lppl.txt}). The package has the status
 ``maintained.''
 
-\acro loads and needs the following packages: \paket{expl3},
-\paket{xparse}, \paket{xtemplate} and \paket{l3keys2e}.
+\acro loads and needs the following packages: \paket*{expl3}\footnote{\CTANurl{l3kernel}},
+\paket*{xparse}, \paket*{xtemplate}, \paket*{l3keys2e}\footnote{All three part of
+the \CTANlink{l3packages} bundle} and \paket*{translations}\footnote{Part of the
+\CTANlink{exsheets} bundle.}.
 
 \section{About}
 \begin{zitat}[\cite{wikipedia}]
@@ -293,7 +304,7 @@ terms of the \LaTeX{} Project Public License, version 1.3 or later
  or parts of words (as in Benelux and Ameslan). There is no universal agreement
  on the precise definition of the various terms nor on written usage.
 \end{zitat}
-After \wikipedia\ told us what acronyms are and we won't confuse them with units
+After \wikipedia{} told us what acronyms are and we won't confuse them with units
 or other kinds of abbreviations -- why would we need another package for them?
 There are several already: \paket{acronym}~\cite{acronym}, \paket{acromake}%
 ~\cite{acromake}, \paket{acroterm}~\cite{acroterm}, the abbreviations package
@@ -306,8 +317,9 @@ new package.
 On the other hand \paket{acronym}, the best of the acronym specific packages,
 has one or two shortcomings and sometimes using \paket{glossaries} seems a bit
 of an overkill (or simply inconvenient as one has to run \code{makeglossaries},
-\code{makeindex} or \code{xindy}, then). So \acro stands somewhere in between
-(but much closer to \paket{acronym}).
+\code{makeindex} or \code{xindy}, then\footnote{Rumour has it there is going to
+be a version that can be used without running an external program}). So \acro
+stands somewhere in between (but closer to \paket{acronym}).
 
 The main reason for the existance of \acro is a question on \acs{texse}%
 \footnote{\url{http://tex.stackexchange.com/q/59449/5049}} which intrigued
@@ -317,53 +329,79 @@ me and in consequence led to \acro and it's option \key{single}.
 some macros have the same name and meaning\footnote{\emph{Not} in the sense of
 \code{\textbackslash\textcolor{code}{meaning}}!}.
 
-\section{Updating from Version 0.*}
-Version 1.0 introduces a major syntax change. In order to keep documents
+Please take a minute to think and decide which package will suit your needs
+best. Are you planning to add a glossary to your book? You should probably go
+with \paket{glossaries}, then. Are you planning to add a nomenclature? You
+may want to choose \paket{nomencl} and so on\ldots
+
+
+\section{Updating from Version~0.\versionstar}
+Version~1.0 introduces a major syntax change. In order to keep documents
 using a prior version compilable \acro introduces the option \key{version}{0}.
 It provides the acronym defining commands with the old syntax and also all the
 additional commands like \cmd{DeclareAcronymFormat} that have been dropped in
-v1.0. Also the old syntax of \cmd{printacronyms} is restored. Versions 0.* also
-set labels when an acronym was used the first time, v1.0 doesn't do that any
-more. \key{version}{0} sets them as expected.
+version~1.0. Also the old syntax of \cmd{printacronyms} is restored.
+Versions~0.\versionstar{} also set labels when an acronym was used the first time,
+version~1.0 doesn't do that any more. \key{version}{0} sets them as expected.
 
 Note that \key{version}{0} \emph{does not and will not} support new features of
 any kind.
 
+With version~1.0 acronyms are declared with a key/value syntax similar to the
+way in package \paket{glossaries} glossary entries are defined. This was made
+for a good reason: in the beginning the old \cmd*{DeclareAcronym} already had
+lots of arguments that were hard to remember. Every new feature needed to
+introduce further commands so that in version~0.6 there have been \emph{four}
+different commands already. All this isn't necessary any more and there is only
+one command with only two arguments.
+
 \section{Basics}\secidx{Basics}
 \subsection{Creating New Acronyms}\secidx[new acronyms]{Basics}
-Acronyms are created with the command \cmd{DeclareAcronym} that can only be used
-in the preamble.
+\noindent\changedversion{1.0}Acronyms are created with the command
+\cmd{DeclareAcronym} that can only be used in the preamble.
 \begin{beschreibung}
  \Befehl{DeclareAcronym}{<id>}\ma{<list of keys>}
- \Option{short}{<text>}\newline the short form of the acronym.
- \Option{long}{<text>}\newline the long form of the acronym.
- \Option{short-plural}{<text>}\Default{s} the plural ending appended to the
-   short form.
- \Option{long-plural}{<text>}\Default{s} the plural ending appended to the
-   long form.
- \Option{long-plural-form}{<text>}\newline plural long form of the acronym;
-   replaces the long form when used instead of appending the plural ending.
- \Option{alt}{<text>}\newline alternative short form.
- \Option{extra}{<text>}\newline extra information to be added in the list of
-   acronyms.
- \Option{sort}{<text>}\newline if used the acronym will be sorted according to
-   this key instead of its \acs{id}.
- \Option{class}{<text>}\newline the class the acronym belongs to.
- \Option{cite}{[<prenote>][<postnote>]\{citation keys\}}\newline a citation that
-   is printed to the acronym according to an option explained later.
- \Option{format}{<TeX code>}\newline the format used for the short form of the
-   acronym.
- \Option{pdfstring}{<text>}\newline used as \acs{pdf} string replacement in
-   bookmarks when used together with the \paket*{hyperref} package.
- \Option{accsupp}{<text>}\newline sets the \code{ActualText} key as presented
-   by the \paket*{accsupp} package for the acronym.
+\end{beschreibung}
+This command understands a number of keys which are listed below. Some of them
+are not described immediately but at appropriate places in the documentation.
+\begin{beschreibung}
+ \Option{short}{<text>}\newline
+   the short form of the acronym.
+ \Option{long}{<text>}\newline
+   the long form of the acronym.
+ \Option{short-plural}{<text>}\Default{s}
+   the plural ending appended to the short form.
+ \Option{long-plural}{<text>}\Default{s}
+   the plural ending appended to the long form.
+ \Option{long-plural-form}{<text>}\newline
+   plural long form of the acronym; replaces the long form when used instead of
+   appending the plural ending.
+ \Option{alt}{<text>}\newline
+   alternative short form.
+ \Option{extra}{<text>}\newline
+   extra information to be added in the list of acronyms.
+ \Option{sort}{<text>}\newline
+   if used the acronym will be sorted according to this key instead of its \acs{id}.
+ \Option{class}{<text>}\newline
+   the class the acronym belongs to.
+ \Option{cite}{[<prenote>][<postnote>]\{citation keys\}}\newline
+   a citation that is printed to the acronym according to an option explained later.
+ \Option{format}{<\TeX{} code>}\newline
+   the format used for the short form of the acronym.
+ \Option{pdfstring}{<text>/<plural ending>}\newline
+   used as \acs{pdf} string replacement in bookmarks when used together with the
+   \paket*{hyperref} package. The appended plural ending is optional. If you
+   leave it (\emph{and} the \code{/}) the default ending is used.
+ \Option{accsupp}{<text>}\newline
+   sets the \code{ActualText} key as presented by the \paket*{accsupp} package
+   for the acronym.
 \end{beschreibung}
 
-In its simplest form an acronym needs a short and a long form. Please not that
+In its simplest form an acronym needs a short and a long form. Please note that
 both keys \emph{must} be set and that the \key{short} key \emph{must} always be
 the \emph{first} key that is set.
 \begin{beispiel}[code only]
- % preamble
+ % preamble:
  \DeclareAcronym{test}{
    short = ST ,
    long  = Some Test
@@ -411,29 +449,39 @@ of course depends on the citation style you're using.}: \acf{ny}.
 \subsection{Using the Acronyms -- the Commands}\secidx[using acronyms]{Basics}
 Acronyms are used with with one of the following commands:
 \begin{beschreibung}
- \befehl{ac}*{<id>} basic command; the first output is different from subsequent
-   ones.
- \befehl{Ac}*{<id>} same as \cmd{ac} but capitalizes the first letter of the
-   long form.
- \befehl{acs}*{<id>} \h{s}hort form; the actual acronym.
- \befehl{acl}*{<id>} \h{l}ong form; the meaning of the acronym.
- \befehl{Acl}*{<id>} same as \cmd{acl} but capitalizes first letter.
- \befehl{aca}*{<id>} \h{a}lternative short form as specified in the \oa{<short>}
-   argument of \cmd{DeclareAcronym}; if it hasn't been specified this is
-   identical to \cmd{acs}.
- \befehl{acf}*{<id>} first form; output like the first time \cmd{ac} is output.
- \befehl{Acf}*{<id>} same as \cmd{acf} but capitalizes first letter of the long
-   form.
- \befehl{acp}*{<id>} \h{p}lural form of \cmd{ac};
- \befehl{Acp}*{<id>} same as \cmd{acp} but capitalizes first letter of the long
-   form.
- \befehl{acsp}*{<id>} plural form of \cmd{acs};
- \befehl{aclp}*{<id>} plural form of \cmd{acl};
- \befehl{Aclp}*{<id>} same as \cmd{aclp} but capitalizes first letter.
- \befehl{acap}*{<id>} plural form of \cmd{aca};
- \befehl{acfp}*{<id>} plural form of \cmd{acf};
- \befehl{Acfp}*{<id>} same as \cmd{acfp} but capitalizes first letter of the
-   long form.
+ \Befehl{ac}*{<id>}\newline
+   basic command; the first output is different from subsequent ones.
+ \Befehl{Ac}*{<id>}\newline
+   same as \cmd{ac} but capitalizes the first letter of the long form.
+ \Befehl{acs}*{<id>}\newline
+   \h{s}hort form; the actual acronym.
+ \Befehl{acl}*{<id>}\newline
+   \h{l}ong form; the meaning of the acronym.
+ \Befehl{Acl}*{<id>}\newline
+   same as \cmd{acl} but capitalizes first letter.
+ \Befehl{aca}*{<id>}\newline
+   \h{a}lternative short form as specified in the \key{short} key of
+   \cmd{DeclareAcronym}; if it hasn't been specified this is identical to \cmd{acs}.
+ \Befehl{acf}*{<id>}\newline
+   first form; output like the first time \cmd{ac} is output.
+ \Befehl{Acf}*{<id>}\newline
+   same as \cmd{acf} but capitalizes first letter of the long form.
+ \Befehl{acp}*{<id>}\newline
+   \h{p}lural form of \cmd{ac};
+ \Befehl{Acp}*{<id>}\newline
+   same as \cmd{acp} but capitalizes first letter of the long form.
+ \Befehl{acsp}*{<id>}\newline
+   plural form of \cmd{acs};
+ \Befehl{aclp}*{<id>}\newline
+   plural form of \cmd{acl};
+ \Befehl{Aclp}*{<id>}\newline
+   same as \cmd{aclp} but capitalizes first letter.
+ \Befehl{acap}*{<id>}\newline
+   plural form of \cmd{aca};
+ \Befehl{acfp}*{<id>}\newline
+   plural form of \cmd{acf};
+ \Befehl{Acfp}*{<id>}\newline
+   same as \cmd{acfp} but capitalizes first letter of the long form.
 \end{beschreibung}
 If an acronym is used the first time with \cmd{ac} its output is different from
 subsequent uses. To be clear on this: the first time! If the acronym has been
@@ -465,10 +513,10 @@ since then the appearance in the table of contents won't mark it as used.
 If an acronym is defined in the standard way \acro uses an `s' that's appended to
 both the short and the long form when one of the plural commands is used. However,
 that is not always the best solution. For one thing not all acronyms may have a
-plural form. Second, the plural form especially of the long forms may be fomed
+plural form. Second, the plural form especially of the long forms may be formed
 differently. And third, other languages can have other plural endings.
 
-For this reason \cmd{DeclareAcronym} can get the following keys:
+For these reasons \cmd{DeclareAcronym} can get the following keys:
 \begin{beschreibung}
  \Option{short-plural}{<text>}
  \Option{long-plural}{<text>}
@@ -501,7 +549,7 @@ Suppose we define the following acronyms:
    long             = Member of Parliament ,
    long-plural-form = Members of Parliament
  }
-\end{beisiel}
+\end{beispiel}
 These acronyms now have the following plural appearances:
 \begin{beispiel}
  \acsp{cd}, \aclp{cd} \\
@@ -517,7 +565,7 @@ For some acronyms it might be useful to have alternative forms. For this
  \Option{alt}{<text>}
 \end{beschreibung}
 \begin{beispiel}
- % preamble
+ % preamble:
  % \DeclareAcronym{jpg}{
  %   short = JPEG ,
  %   alt   = JPG ,
@@ -597,18 +645,12 @@ for the first time you can call one of these commands:
 \begin{beispiel}
  \acreset{ny}\ac{ny}
 \end{beispiel}
-Beware that both commands act \emph{globally}! There is also one command that
-effectively is the opposite of \cmd{acreset}, i.e., it marks an acronym as used:
+Beware that both commands act \emph{globally}! There are also commands that
+effectively do the opposite of \cmd{acreset}, i.e., mark acronyms as used:
 \begin{beschreibung}
  \Befehl{acuse}{<comma separated list of ids>}\sinceversion{0.5}
  \Befehl{acuseall}\sinceversion{0.6a}
 \end{beschreibung}
-
-\subsection{Labels}\secidx[labels]{Additional Commands}
-The first usage of an acronym sets a label \verb+\label{ac:<id>}+, regardless
-which command has been used to typeset it. This label is used to create the page
-numbers in the list (see section~\ref{sec:print_lists} for details) but can also
-be used for other references if needed.
 
 \subsection{\cmd{ac} and Friends in \acs*{pdf} Bookmarks}
 \noindent\sinceversion{0.5}\acro's commands usually are not expandable which
@@ -623,18 +665,24 @@ would do (or \cmd{acsp} for plural forms). These text strings both can accessed
 manually and can be modified to an output reserved for \acs{pdf} bookmarks.
 
 \begin{beschreibung}
- \befehl{acpdfstring}{<id>} access the text string used in \acs{pdf} bookmarks.
- \befehl{acpdfstringplural}{<id>} access the plural form of the text string used
-   in \acs{pdf} bookmarks.
- \Option{pdfstring}{<pdfstring>/<plural ending>} \cnpkgdocarrow\
-   declare a custom text string for \acs{pdf} bookmarks. The plural ending can
-   be set optionally.
+ \Befehl{acpdfstring}{<id>}\newline
+   access the text string used in \acs{pdf} bookmarks.
+ \Befehl{acpdfstringplural}{<id>}\newline
+   access the plural form of the text string used in \acs{pdf} bookmarks.
+ \Option{pdfstring}{<pdfstring>/<plural ending>}\newline
+   Key for \cmd{DeclareAcronym} to declare a custom text string for \acs{pdf}
+   bookmarks. The plural ending can be set optionally.
+ \Option{accsupp}{<text>}\newline
+   \sinceversion{1.0}Key for \cmd{DeclareAcronym} to set the \code{ActualText}
+   property of \cmd*{BeginAccSupp} (see \paket{accsupp}'s documentation for details)
+   to be used for an acronym. It only has an effect when the package option \key{accsupp}
+   is used, too.
 \end{beschreibung}
 
 For example the \acs{pdf} acronym used in the title for this section is defined
 as follows:
 \begin{beispiel}[code only]
-\DeclareAcronym{pdf}
+ \DeclareAcronym{pdf}
   {
     short     = pdf ,
     long      = Portable Document Format ,
@@ -644,10 +692,12 @@ as follows:
   }
 \end{beispiel}
 
-\sinceversion{1.0}This also demonstrates the \key{accsupp}. For this to work you
-need to use the \emph{package option} \key{accsupp} which will load the package
-\paket{accsupp}. Then the key \key{accsupp} will set the \code{ActualText} property
-of \cmd*{BeginAccSupp}. Please refer to \paket{accsupp}'s documentation for details.
+This also demonstrates the \key{accsupp} key. For this to work you need to use
+the \emph{package option} \key{accsupp}, too, which will load the package
+\paket{accsupp}. Then the key \key{accsupp} will set the \code{ActualText}
+property of \cmd*{BeginAccSupp}. Please refer to \paket{accsupp}'s documentation
+for details. To see its effect copy \ac{pdf} and paste it into a text file. You
+should get uppercase letters instead of lowercase ones.
 
 \secidx*{Additional Commands}
 
@@ -656,6 +706,9 @@ of \cmd*{BeginAccSupp}. Please refer to \paket{accsupp}'s documentation for deta
 place \cmd{printacronyms} wherever you want the list to be.
 \begin{beschreibung}
  \Befehl{printacronyms}[<options>]
+\end{beschreibung}
+The commands takes a few options, namely the following ones:
+\begin{beschreibung}
  \Option{include-classes}{<list of classes>}\newline
    takes a comma-separated list of the classes of acronyms that should be in the
    list.
@@ -671,12 +724,12 @@ place \cmd{printacronyms} wherever you want the list to be.
  \acsetup{hyperref=false,extra-style=comma}
  \printacronyms[exclude-classes=city]
 
- \printacronyms[include-classes=city,name=City Acronyms]
+ \printacronyms[include-classes=city,name={City Acronyms}]
 \end{beispiel}
 You can see that the default layout is a \code{description} list with a
 \code{section*} title. Both can be changed, see section~\ref{sec:customization}.
 
-The command \cmd{printacronyms} needs two \LaTeX\ runs. This is a precaution to
+The command \cmd{printacronyms} needs two \LaTeX{} runs. This is a precaution to
 avoid error messages with a possibly empty list. But since almost all documents
 need at least two runs and often are compiled much more often than that, this
 fact shouldn't cause too much inconvenience.
@@ -699,6 +752,13 @@ There are a few options which change the general behaviour of \acro.
  \Option{hyperref}{\default{true}|false}\Default{false}
    If set to \code{true} the short forms of the acronyms will be linked to their
    list entry.
+ %%
+ \Option{record-pages}{\default{true}|false}\Default{true}
+   Since \acro can handle arabic, roman and Roman page numbers but \emph{not}
+   any other kind of numbering this option enables to turn the page number
+   recording of for these cases as it would lead to errors else. This affects
+   the whole document and can only be set in the preamble! It means you cannot
+   have page numbers in the list of acronyms in this case.
  %%
  \Option{only-used}{\default{true}|false}\Default{true}
    This option is \code{true} as default. It means that only acronyms that are
@@ -742,7 +802,7 @@ There are a few options which change the general behaviour of \acro.
  %%
  \Option{accsupp}{\default{true}|false}\Default{false}
    \sinceversion{1.0}Activates the access support as provided by the 
-   paket{accsupp} package.
+   \paket{accsupp} package.
  %%
  \Option{uc-cmd}{<cmd>}\Default{\cmd*{acro_first_upper_case:n}}
    The command that is used to capitalize the first word in the \cmd{Ac} and the
@@ -754,8 +814,8 @@ There are a few options which change the general behaviour of \acro.
 All options of this and the following sections can be set up either as package
 options or via the setup command:
 \begin{beschreibung}
- \Befehl{acsetup}{<options>} set up \acro anywhere in the document. Or separate
- package loading from setup.
+ \Befehl{acsetup}{<options>}\newline
+   set up \acro anywhere in the document. Or separate package loading from setup.
 \end{beschreibung}
 
 \begin{beispiel}
@@ -814,23 +874,36 @@ possible output forms of the acronyms.
 \begin{beschreibung}
  %%
  \Option{page-ref}{none|plain|comma|paren}\Default{none}
-   The style with which the page number of the first appearance of the acronym
-   in the text is displayed.
+   If this option is set to a value other than \code{none} the page numbers of
+   the an acronym appeared on are printed in the list. Please note that this
+   is an experimental feature and might fail in quite a number of cases. If you
+   notice anything please send me an email!
  %%
- \Option{page-name}{<page name>}\Default{p.}
-   The ``name'' of the page label.
+ \Option{page-name}{<page name>}\Default{p.\cmd*{@}\cmd*{,}}
+   The ``name'' of the page label. This is automatically translated to the
+   active language. However for the time being there are many translations
+   missing, yet. Please notify me if you find your language missing.
+ \Option{pages-name}{<page name plural>}\Default{pp.\cmd*{@}\cmd*{,}}
+   \sinceversion{1.0}The ``name'' of the page label when there are more than one
+   page. This is automatically translated to the active language. However for the
+   time being there are many translations missing, yet. Please notify me if you
+   find your language missing.
  %%
  \Option{page-ranges}{\default{true}|false}\Default{true}
    \sinceversion{1.0}If set to \code{false} ranges will be set by appending
    \code{f} or \code{ff}, respectively.
  %%
- \Option{next-page}{<text>}\Default{f}
+ \Option{next-page}{<text>}\Default{f.}
    \sinceversion{1.0}Appended to a page number when \key{page-ranges} is set to
-   \code{false} and the range is only 2 pages long.
+   \code{false} and the range is only 2 pages long. This is automatically
+   translated to the active language. However, for the time being there are many
+   translations missing, yet. Please notify me if you find your language missing.
  %%
- \Option{next-pages}{<text>}\Default{ff}
+ \Option{next-pages}{<text>}\Default{ff.}
    \sinceversion{1.0}Appended to a page number when \key{page-ranges} is set to
-   \code{false} and the range is more than 2 pages long.
+   \code{false} and the range is more than 2 pages long. This is automatically
+   translated to the active language. However, for the time being there are many
+   translations missing, yet. Please notify me if you find your language missing.
  %%
  \Option{list-type}{table|<list>}\Default{description}
    This option let's you choose how the list is printed. \code{<list>} can be any
@@ -849,7 +922,10 @@ possible output forms of the acronyms.
    The header type of the list.\Default{section*}
  %%
  \Option{list-name}{<list name>}\Default{Acronyms}
-   The name of the list. This is what's written in the list-header.
+   The name of the list. This is what's written in the list-header. This is
+   automatically translated to the active language. However, for the time being
+   there are many translations missing, yet. Please notify me if you find your
+   language missing.
  %%
  \Option{list-table-width}\Default{.7\cmd{linewidth}}
    This has only an effect if you chose \key{list-type}{table}. The second column
@@ -871,6 +947,13 @@ the acronym list:
  \acsetup{list-type=acronyms,hyperref=false,extra-style=comma}
  \printacronyms
 \end{beispiel}
+
+A note on the \key{page-ref} option: in version~0.\versionstar{} it would add a
+page reference for an acronym in the list of acronyms that used \cmd*{pageref}
+to refer to the first appearance of an acronym. This is retained using
+\key{version}{0}. Version~1.0 uses a different approach that doesn't use a label
+but instead will list \emph{all} pages an acronym appeared on. This will usually
+need two compilation runs to get all the numbers right.
 \secidx*{Customization}
 
 \section{hyperref Support}\secidx{\paket{hyperref} support}[hyperref Support]
@@ -882,21 +965,28 @@ in loads of \paket{hyperref} warnings. Also printing several lists can result in
 warnings if don't clearly separate the lists into different classes. If an acronym
 appears in more than one list there will also be more than one hypertarget for this
 acronym.
+
+Using \paket{hyperref} will also add \cmd{hyperpage} to the page numbers in the
+list (provided they are displayed in the style chosen). Like with an index the
+references will thus not point to the acronyms directly but to the page they're
+on.
 \secidx*{\paket{hyperref} support}[hyperref Support]
 
 \appendix
 
-\section{Commands provided in version 0.*}
-Prior to version 1.0 the following commands were available. They are still
-provided if you set the option \key{version}{0}.
+\section{Commands provided in version~0.\versionstar}
+Prior to version~1.0 the following commands were available. They are still
+provided if you set the option \key{version}{0}. They will be mentioned here
+shortly but they won't be explained any more. If you'd like a more thorough
+description ask me for the documentation to version~0.6a.
 \begin{beschreibung}
  \Befehl{DeclareAcronym}*{<id>}\ma{<short>,<pl>}\oa{<alt.>}\ma{<long>,<pl>}\ma{<extra>}\oa{<class>}
- \verb+% can be used only in preamble+
+   \newline\verb+% can be used only in preamble+
  \Befehl{DeclareAcronymFormat}{<id>}\ma{<format>} \verb+% can be used only in preamble+
  \Befehl{DeclareAcronymCitation}{<id>}\oa{<pre>}\oa{<post>}\ma{<cite keys>}
-   \verb+% can be used only in preamble+
+   \newline\verb+% can be used only in preamble+
  \Befehl{DeclareAcronymPDFString}{<id>}\ma{<pdf entry>,<plural ending>}
-   \verb+% can be used only in preamble+
+   \newline\verb+% can be used only in preamble+
 \end{beschreibung}
 
 \section{All Acronyms Used in this Documentation}\label{sec:documentation_acronyms}
@@ -926,9 +1016,9 @@ provided if you set the option \key{version}{0}.
    list-header = subsection*,
    page-ref    = comma
  }
- \printacronyms[include-classes=city,name=City-Acronyms]
+ \printacronyms[include-classes=city,name=City Acronyms]
 \end{beispiel}
-\printacronyms[include-classes=city,name=City-Acronyms]
+\printacronyms[include-classes=city,name=City Acronyms]
 
 {\RaggedRight\EmbracOff
 \printbibliography}

@@ -30,9 +30,6 @@
 % --------------------------------------------------------------------------
 \ProvidesFile{acro0.def}
 
-\tl_new:N  \l__acro_active_version_tl
-\tl_set:Nn \l__acro_active_version_tl { 0 }
-
 % --------------------------------------------------------------------------
 % adding an acronym, internal command:
 % #1: use/replace plural (boolean)

@@ -30,9 +30,6 @@
 % --------------------------------------------------------------------------
 \ProvidesFile{acro1.def}
 
-\tl_new:N  \l__acro_active_version_tl
-\tl_set:Nn \l__acro_active_version_tl { 1 }
-
 % --------------------------------------------------------------------------
 % additional variables:
 \tl_new:N \l__acro_current_key_tl
@@ -258,15 +255,8 @@
       \__acro_declare_acc_supp:Vn \l__acro_current_key_tl { #1 }
   }
 
-% --------------------------------------------------------------------------
-% internal acronym declaring function:
-\cs_new:Npn \acro_declare_acronym:nn #1#2
+\cs_new:Npn \acro_define_acronym_macro:n #1
   {
-    \tl_set:Nn \l__acro_current_key_tl { #1 }
-    \keys_set:nn { acro / declare-acronym } { #2 }
-    \bool_new:c { g__acro_#1_used_bool }
-    \bool_new:c { g__acro_#1_label_bool }
-    \acro_create_page_records:n { #1 }
     \bool_if:NT \l__acro_create_macros_bool
       {
         \cs_if_exist:cTF { #1 }
@@ -276,6 +266,18 @@
           }
           { \cs_new:cpn { #1 } { \ac { #1 } \acro_xspace: } }
       }
+  }
+
+% --------------------------------------------------------------------------
+% internal acronym declaring function:
+\cs_new:Npn \acro_declare_acronym:nn #1#2
+  {
+    \tl_set:Nn \l__acro_current_key_tl { #1 }
+    \keys_set:nn { acro / declare-acronym } { #2 }
+    \bool_new:c { g__acro_#1_used_bool }
+    \bool_new:c { g__acro_#1_label_bool }
+    \acro_create_page_records:n { #1 }
+    \acro_define_acronym_macro:n { #1 }
     \tl_clear:N \l__acro_current_key_tl
     \bool_if:cF { l__acro_short_#1_set_bool }
       { \msg_error:nnxx { acro } { missing } { #1 } { short } }
