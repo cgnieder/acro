@@ -95,8 +95,8 @@
 @package{acronym,
   title   = {acronym -- An Acronym Environment for \LaTeXe},
   author  = {Tobias Oetiker},
-  date    = {2010-09-08},
-  version = {1.36},
+  date    = {2012-10-29},
+  version = {1.38},
   url     = {http://www.ctan.org/pkg/acronym}
 }
 @package{acroterm,
@@ -109,8 +109,8 @@
 @package{glossaries,
   title   = {glossaries},
   author  = {Nicola L.C. Talbot},
-  date    = {2011-04-12},
-  version = {3.01},
+  date    = {2012-11-18},
+  version = {3.04},
   url     = {http://www.ctan.org/pkg/glossaries}
 }
 @package{nomencl,
@@ -428,7 +428,7 @@ and \code{<postnote>} and one mandatory argument setting the citation key.
 \begin{beispiel}[code only]
  % preamble:
  \DeclareAcronym{ny}{
-   short = NY ,
+   short        = NY ,
    short-plural = ,
    long         = New York ,
    long-plural  = ,
@@ -460,7 +460,7 @@ Acronyms are used with with one of the following commands:
  \Befehl{Acl}*{<id>}\newline
    same as \cmd{acl} but capitalizes first letter.
  \Befehl{aca}*{<id>}\newline
-   \h{a}lternative short form as specified in the \key{short} key of
+   \h{a}lternative short form as specified in the \key{alt} key of
    \cmd{DeclareAcronym}; if it hasn't been specified this is identical to \cmd{acs}.
  \Befehl{acf}*{<id>}\newline
    first form; output like the first time \cmd{ac} is output.
@@ -720,12 +720,17 @@ The commands takes a few options, namely the following ones:
  \Option{header}{<sectioning command without leading backslash>}\Default{section*}
    sets the sectioning command for the header of the list.
 \end{beschreibung}
-\begin{beispiel}[below]
- \acsetup{hyperref=false,extra-style=comma}
+\begin{beispiel}[code only]
+ \acsetup{extra-style=comma}
  \printacronyms[exclude-classes=city]
 
  \printacronyms[include-classes=city,name={City Acronyms}]
 \end{beispiel}
+\acsetup{extra-style=comma}
+\printacronyms[exclude-classes=city]
+
+\printacronyms[include-classes=city,name={City Acronyms}]
+
 You can see that the default layout is a \code{description} list with a
 \code{section*} title. Both can be changed, see section~\ref{sec:customization}.
 
@@ -893,13 +898,13 @@ possible output forms of the acronyms.
    \sinceversion{1.0}If set to \code{false} ranges will be set by appending
    \code{f} or \code{ff}, respectively.
  %%
- \Option{next-page}{<text>}\Default{f.}
+ \Option{next-page}{<text>}\Default{\cmd*{,}f.\cmd*{@}}
    \sinceversion{1.0}Appended to a page number when \key{page-ranges} is set to
    \code{false} and the range is only 2 pages long. This is automatically
    translated to the active language. However, for the time being there are many
    translations missing, yet. Please notify me if you find your language missing.
  %%
- \Option{next-pages}{<text>}\Default{ff.}
+ \Option{next-pages}{<text>}\Default{\cmd*{,}ff.\cmd*{@}}
    \sinceversion{1.0}Appended to a page number when \key{page-ranges} is set to
    \code{false} and the range is more than 2 pages long. This is automatically
    translated to the active language. However, for the time being there are many
@@ -938,7 +943,7 @@ possible output forms of the acronyms.
 
 If you for example have loaded \paket{enumitem} you can define a custom list for
 the acronym list:
-\begin{beispiel}
+\begin{beispiel}[code only]
  % preamble:
  % \usepackage{enumitem}
  \newlist{acronyms}{description}{1}
@@ -947,14 +952,37 @@ the acronym list:
  \acsetup{list-type=acronyms,hyperref=false,extra-style=comma}
  \printacronyms
 \end{beispiel}
+\newlist{acronyms}{description}{1}
+\newcommand*\addcolon[1]{#1:}
+\setlist[acronyms]{labelwidth=3em,leftmargin=3.5em,noitemsep,itemindent=0pt,font=\addcolon}
+\acsetup{list-type=acronyms,extra-style=comma}
+\printacronyms
 
-A note on the \key{page-ref} option: in version~0.\versionstar{} it would add a
-page reference for an acronym in the list of acronyms that used \cmd*{pageref}
-to refer to the first appearance of an acronym. This is retained using
-\key{version}{0}. Version~1.0 uses a different approach that doesn't use a label
-but instead will list \emph{all} pages an acronym appeared on. This will usually
-need two compilation runs to get all the numbers right.
+\section{About Page Ranges}\secidx{About Page Ranges}
+If you enable the \key{page-ref} option \acro adds page numbers to the list of
+acronyms. In version~0.\versionstar{} it would add a page reference for an acronym
+in the list of acronyms that used \cmd*{pageref} to refer to the first appearance
+of an acronym. This is retained using \key{version}{0}. Version~1.0 uses a
+different approach that doesn't use a label but instead will list \emph{all}
+pages an acronym appeared on. With \paket{hyperref} the pages are referenced
+using \cmd*{hyperpage}.
+
+There are some options that control how this list will be typeset, e.g.,
+\key{page-ranges}, \key{next-pages} or the option \key{page-ref} itself. It is
+important to mention that the page list will always take two compilation runs
+until changes in the options or the actual page numbers affect it. This is due to
+the fact that the updated sequence is first written to the \code{aux} file and
+only read in during the next run.
+
+There is another important fact: \acro can only handle arabic and lowercase and
+uppercase roman page numbering. If you happen to choose a different numbering
+style you either have to use the package option \key{record-pages}{false} which
+means you will have to pass on page numbers in the list of acronyms, or you need
+to make sure that you only use the \emph{starred} versions of the \cmd{ac} commands
+on these pages so acronyms don't count as used there!
 \secidx*{Customization}
+
+\secidx*{About Page Ranges}
 
 \section{hyperref Support}\secidx{\paket{hyperref} support}[hyperref Support]
 The option \key{hyperref}{true} adds internal links from all short (or alternative)

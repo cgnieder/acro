@@ -102,9 +102,9 @@
 \tl_new:N   \l__acro_pages_name_tl
 \tl_set:Nn  \l__acro_pages_name_tl     { pp.\@\, }
 \tl_new:N   \l__acro_next_page_tl
-\tl_set:Nn  \l__acro_next_page_tl      { f. }
+\tl_set:Nn  \l__acro_next_page_tl      { \,f.\@ }
 \tl_new:N   \l__acro_next_pages_tl
-\tl_set:Nn  \l__acro_next_pages_tl     { ff. }
+\tl_set:Nn  \l__acro_next_pages_tl     { \,ff.\@ }
 \tl_new:N   \l__acro_list_instance_tl
 \tl_set:Nn  \l__acro_list_instance_tl  { list }
 \tl_new:N   \l__acro_list_type_tl
@@ -1650,12 +1650,12 @@
 \DeclareTranslationFallback     { acronym-next-page } { f. }
 \DeclareTranslation { English } { acronym-next-page } { f. }
 \DeclareTranslation { German  } { acronym-next-page } { f. }
-\tl_set:Nn \l__acro_next_page_tl { \GetTranslation {acronym-next-page }\@ }
+\tl_set:Nn \l__acro_next_page_tl { \,\GetTranslation {acronym-next-page }\@ }
 % mehrere folgende Seiten
 \DeclareTranslationFallback     { acronym-next-pages } { ff. }
 \DeclareTranslation { English } { acronym-next-pages } { ff. }
 \DeclareTranslation { German  } { acronym-next-pages } { ff. }
-\tl_set:Nn \l__acro_next_pages_tl { \GetTranslation {acronym-next-pages }\@ }
+\tl_set:Nn \l__acro_next_pages_tl { \,\GetTranslation {acronym-next-pages }\@ }
 
 % --------------------------------------------------------------------------
 % load default version
