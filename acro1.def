@@ -84,7 +84,7 @@
     \prop_put:Nnn \l__acro_short_prop     { #1 } { #2 }
     \prop_put:Nnn \l__acro_sort_prop      { #1 } { #1 }
     \prop_put:Nnn \l__acro_alt_prop       { #1 } { #2 }
-    \prop_put:Nnx \l__acro_pdfstring_prop { #1 } { #2 }
+    \prop_put:Nnx \l__acro_pdfstring_prop { #1 } { \exp_not:n { #2 } }
     \prop_put:Nnn \l__acro_short_plural_prop
       { #1 } { \l__acro_default_plural_tl }
     \prop_put:Nnx \l__acro_pdfstring_plural_prop

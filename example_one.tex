@@ -3,6 +3,7 @@
 \documentclass{scrartcl}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
 \usepackage{acro}
 \acsetup{
   page-ref    = paren,% Seitennummer in Klammern
@@ -13,16 +14,50 @@
 
 \usepackage{longtable,siunitx}
 
-\DeclareAcronym{ecm}{ECM}  {Electro Chemical Machining}{Elektrochemisches Abtragen}
-\DeclareAcronym{adc}{ADC}  {Analog-to-Digital-Converter}
-\DeclareAcronym{edm}{EDM}  {Electro Discharge Machining}
-\DeclareAcronym{ecdm}{ECDM}{Electro Chemical Discharge Machining}{Kombination aus \acs{ecm} und \acs{edm}}
+\DeclareAcronym{ecm}{
+  short = ECM ,
+  long  = Electro Chemical Machining ,
+  extra = Elektrochemisches Abtragen
+}
+\DeclareAcronym{adc}{
+  short = ADC ,
+  long  = Analog-to-Digital-Converter
+}
+\DeclareAcronym{edm}{
+  short = EDM ,
+  long  = Electro Discharge Machining
+}
+\DeclareAcronym{ecdm}{
+  short = ECDM ,
+  long  = Electro Chemical Discharge Machining ,
+  extra = Kombination aus \acs{ecm} und \acs{edm}
+}
 
 % "Acronyme" (tatsächlich physikalische Größen) einer speziellen Klasse:
-\DeclareAcronym{f}{\ensuremath{f}}{Frequenz}{\si{\hertz}}[physics]
-\DeclareAcronym{A}{\ensuremath{A}}{Fläche}{\si{\metre^2}}[physics]
-\DeclareAcronym{C}{\ensuremath{C}}{Kapazität}{\si{\farad}}[physics]
-\DeclareAcronym{F}{\ensuremath{F}}{Kraft}{\si{\newton}}[physics]
+\DeclareAcronym{f}{
+  short = \ensuremath{f} ,
+  long  = Frequenz ,
+  extra = \si{\hertz} ,
+  class = physics
+}
+\DeclareAcronym{A}{
+  short = \ensuremath{A} ,
+  long  = Fläche ,
+  extra = \si{\metre^2} ,
+  class = physics
+}
+\DeclareAcronym{C}{
+  short = \ensuremath{C} ,
+  long  = Kapazität ,
+  extra = \si{\farad} ,
+  class = physics
+}
+\DeclareAcronym{F}{
+  short = \ensuremath{F} ,
+  long  = Kraft ,
+  extra = \si{\newton} ,
+  class = physics
+}
 
 \begin{document}
 
@@ -31,16 +66,14 @@ erstes Mal: \ac{ecm}
 zweites Mal: \ac{ecm}
 
 % alle außer der Klasse 'physics' auflisten:
-\acsetup{list-name=Abkürzungsverzeichnis}
-\printacronyms[physics]
+\printacronyms[exclude-classes=physics, name=Abkürzungsverzeichnis]
 
 % nur die Klasse 'physics' auflisten:
 \acsetup{
-  list-name   = Formelverzeichnis,
   list-type   = table,
   list-style  = extra-longtable-rev,
   extra-style = plain
 }
-\printacronyms{physics}
+\printacronyms[include-classes=physics, name=Formelverzeichnis]
 
 \end{document}

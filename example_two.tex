@@ -3,21 +3,71 @@
 % this file is an adapted version of acrotest.tex shipped out with the `acronym'
 % package
 \documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{fixltx2e}
 \usepackage[colorlinks]{hyperref}
 \usepackage{acro}
+\DeclareInstance{acro-extra}{paren}{default}{
+  punct = true ,
+  punct-symbol = 
+}
 \acsetup{sort,page-ref=comma,extra-style=paren,hyperref}
 
-\DeclareAcronym{CDMA}{CDMA}{Code Division Multiple Access}
-\DeclareAcronym{GSM}{GSM}{Global System for Mobile communication}
-\DeclareAcronym{NA}{\ensuremath{N_{\mathrm A}}}{Number of Avogadro}{see \S\ref{Chem}}
-\DeclareAcronym{NAD+}{NAD\textsuperscript{+}}{Nicotinamide Adenine Dinucleotide}
-\DeclareAcronym{NUA}{NUA}{Not Used Acronym}
-\DeclareAcronym{TDMA}{TDMA}{Time Division Multiple Access}
-\DeclareAcronym{UA}{UA}{Used Acronym}
-\DeclareAcronym{lox}{\ensuremath{LOX}}{Liquid Oxygen}%
-\DeclareAcronym{lh2}{\ensuremath{LH_2}}{Liquid Hydrogen}%
-\DeclareAcronym{IC}{IC}{Integrated Circuit}%
-\DeclareAcronym*{BUT}{BUT}{Block Under Test,Blocks Under Test}%
+\DeclareAcronym{CDMA}{
+  short            = CDMA ,
+  long             = Code Division Multiple Access ,
+  long-plural      = es
+}
+\DeclareAcronym{GSM}{
+  short            = GSM ,
+  long             = Global System for Mobile communication
+}
+\DeclareAcronym{NA}{
+  short            = {\ensuremath{N_{\mathrm{A}}}} ,
+  long             = Number of Avogadro ,
+  extra            = see \S\ref{Chem} ,
+  pdfstring        = NA
+}
+\DeclareAcronym{NAD+}{
+  short            = {NAD\textsuperscript{+}} ,
+  short-plural     = ,
+  long             = Nicotinamide Adenine Dinucleotide ,
+  pdfstring        = NAD+
+}
+\DeclareAcronym{NUA}{
+  short            = NUA ,
+  long             = Not Used Acronym
+}
+\DeclareAcronym{TDMA}{
+  short            = TDMA ,
+  long             = Time Division Multiple Access ,
+  long-plural      = es
+}
+\DeclareAcronym{UA}{
+  short            = UA ,
+  long             = Used Acronym
+}
+\DeclareAcronym{lox}{
+  short            = {\emph{LOX}} ,
+  long             = Liquid Oxygen ,
+  pdfstring        = LOX
+}
+\DeclareAcronym{lh2}{
+  short            = {\emph{LH\textsubscript{2}}} ,
+  long             = Liquid Hydrogen ,
+  pdfstring        = LH2
+}
+\DeclareAcronym{IC}{
+  short            = IC ,
+  long             = Integrated Circuit
+}
+\DeclareAcronym{BUT}{
+  short            = BUT ,
+  long             = Block Under Test ,
+  long-plural-form = Blocks Under Test
+}
 \begin{document}
 
 \section{Intro}

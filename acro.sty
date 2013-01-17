@@ -501,7 +501,7 @@
   {
     \iow_now:Nx \@auxout
       {
-        \gdef \exp_not:o { \csname acro@#1@pages \endcsname }
+        \exp_not:n { \global \@namedef } { acro@#1@pages }
           { \seq_map_function:cN { g__acro_#1_pages_seq } \__acro_safe_pages_aux:n }
       }
   }
