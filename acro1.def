@@ -130,6 +130,14 @@
   }
 \cs_generate_variant:Nn \__acro_declare_long_plural_form:nn { V }
 
+% pre long:
+\cs_new:Npn \__acro_declare_long_pre:nn #1#2
+  {
+    \__acro_key_check:nn { #1 } { long-pre }
+    \prop_put:Nnn \l__acro_long_pre_prop { #1 } { #2 }
+  }
+\cs_generate_variant:Nn \__acro_declare_long_pre:nn { V }
+
 % sort:
 \cs_new:Npn \__acro_declare_sort:nn #1#2
   {
@@ -237,6 +245,8 @@
       \__acro_declare_long_plural:Vn \l__acro_current_key_tl { #1 } ,
     long-plural-form .code:n =
       \__acro_declare_long_plural_form:Vn \l__acro_current_key_tl { #1 } ,
+    long-pre     .code:n =
+      \__acro_declare_long_pre:Vn \l__acro_current_key_tl { #1 } ,
     sort         .code:n =
       \__acro_declare_sort:Vn \l__acro_current_key_tl { #1 } ,
     extra        .code:n =

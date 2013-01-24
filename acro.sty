@@ -119,6 +119,7 @@
 \tl_set:Nn  \l__acro_default_plural_tl { s }
 \tl_new:N   \l__acro_alt_tl
 \tl_new:N   \l__acro_long_tl
+\tl_new:N   \l__acro_long_pre_tl
 \tl_new:N   \l__acro_custom_format_tl
 \tl_new:N   \l__acro_first_between_tl
 \tl_new:N   \l__acro_citation_space_tl
@@ -133,6 +134,7 @@
 \prop_new:N \l__acro_replace_plural_prop
 \prop_new:N \l__acro_short_plural_prop
 \prop_new:N \l__acro_long_plural_prop
+\prop_new:N \l__acro_long_pre_prop
 \prop_new:N \l__acro_extra_prop
 \prop_new:N \l__acro_format_prop
 \prop_new:N \l__acro_citation_prop
@@ -1127,6 +1129,8 @@
     \__acro_make_link:nNN { #1 } \l__acro_short_tl \l__acro_tmpa_tl
     \prop_get:NnN \l__acro_short_plural_prop { #1 } \l__acro_short_plural_tl
     \prop_get:NnN \l__acro_long_prop { #1 } \l__acro_long_tl
+    \prop_get:NnNT \l__acro_long_pre_prop \l__acro_long_pre_tl { #1 }
+      { \tl_put_left:NV \l__acro_long_tl \l__acro_long_pre_tl }
     \prop_get:NnN \l__acro_alt_prop { #1 } \l__acro_tmpb_tl
     \__acro_make_link:nNN { #1 } \l__acro_alt_tl \l__acro_tmpb_tl
     \prop_get:NnNTF \l__acro_format_prop { #1 } \l__acro_custom_format_tl
