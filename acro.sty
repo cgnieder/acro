@@ -31,7 +31,7 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2013/01/25}
+  {2013/01/26}
   {1.1}
   {Typeset Acronyms}
 
@@ -85,9 +85,11 @@
 \bool_set_true:N \l__acro_page_ranges_bool
 \bool_new:N \l__acro_record_pages_bool
 \bool_set_true:N \l__acro_record_pages_bool
+\bool_new:N \l__acro_addto_index_bool
 
 % tokenlist variables:
 \tl_new:N   \l__acro_short_format_tl
+\tl_new:N   \l__acro_list_short_format_tl
 \tl_new:N   \l__acro_long_format_tl
 \tl_new:N   \l__acro_list_long_format_tl
 \tl_new:N   \l__acro_extra_format_tl
@@ -145,6 +147,9 @@
 \prop_new:N \l__acro_pdfstring_prop
 \prop_new:N \l__acro_pdfstring_plural_prop
 \prop_new:N \l__acro_acc_supp_prop
+\prop_new:N \l__acro_index_prop
+\prop_new:N \l__acro_index_sort_prop
+\prop_new:N \l__acro_index_cmd_prop
 
 % length variables:
 \dim_new:N  \l__acro_table_width_dim
@@ -152,6 +157,7 @@
 
 \cs_new:Npn \__acro_citation_cmd:w { \cite }
 \cs_new:Npn \__acro_no_break: { \tex_penalty:D \c_ten_thousand }
+\cs_new:Npn \__acro_index_cmd:n { \index }
 
 \cs_new:Npn \__acro_first_upper_case:n #1
   { \tl_expandable_uppercase:n { \tl_head:n { #1 } } \tl_tail:n { #1 } }
@@ -189,52 +195,58 @@
 % options:
 \keys_define:nn { acro }
   {
-    version          .code:n     = \__acro_select_version:n { #1 } ,
-    accsupp          .bool_set:N = \l__acro_acc_supp_bool        ,
-    macros           .bool_set:N = \l__acro_create_macros_bool   ,
-    xspace           .bool_set:N = \l__acro_xspace_bool          ,
-    strict           .bool_set:N = \l__acro_strict_bool          ,
-    sort             .bool_set:N = \l__acro_sort_bool            ,
-    short-format     .tl_set:N   = \l__acro_short_format_tl      ,
-    long-format      .code:n     =
+    version           .code:n     = \__acro_select_version:n { #1 } ,
+    accsupp           .bool_set:N = \l__acro_acc_supp_bool          ,
+    macros            .bool_set:N = \l__acro_create_macros_bool     ,
+    xspace            .bool_set:N = \l__acro_xspace_bool            ,
+    strict            .bool_set:N = \l__acro_strict_bool            ,
+    sort              .bool_set:N = \l__acro_sort_bool              ,
+    short-format      .code:n     =
+      \tl_set:Nn \l__acro_short_format_tl { #1 }
+      \tl_set:Nn \l__acro_list_short_format_tl { #1 }               ,
+    long-format       .code:n     =
       \tl_set:Nn \l__acro_long_format_tl { #1 }
-      \tl_set:Nn \l__acro_list_long_format_tl { #1 } ,
-    list-long-format .tl_set:N   = \l__acro_list_long_format_tl  ,
-    extra-format     .tl_set:N   = \l__acro_extra_format_tl      ,
-    single           .bool_set:N = \l__acro_use_single_bool      ,
-    first-style      .tl_set:N   = \l__acro_first_instance_tl    ,
-    extra-style      .tl_set:N   = \l__acro_extra_instance_tl    ,
-    page-ref         .tl_set:N   = \l__acro_page_instance_tl     ,
-    page-name        .tl_set:N   = \l__acro_page_name_tl         ,
-    pages-name       .tl_set:N   = \l__acro_pages_name_tl        ,
-    page-ranges      .bool_set:N = \l__acro_page_ranges_bool     ,
-    record-pages     .bool_set:N = \l__acro_record_pages_bool    ,
-    next-page        .tl_set:N   = \l__acro_next_page_tl         ,
-    next-pages       .tl_set:N   = \l__acro_next_pages_tl        ,
-    list-style       .tl_set:N   = \l__acro_list_instance_tl     ,
-    list-type        .tl_set:N   = \l__acro_list_type_tl         ,
-    list-header      .tl_set:N   = \l__acro_list_title_tl        ,
-    list-name        .tl_set:N   = \l__acro_list_name_tl         ,
-    list-table-width .dim_set:N  = \l__acro_table_width_dim      ,
-    hyperref         .bool_set:N = \l__acro_use_hyperref_bool    ,
-    only-used        .bool_set:N = \l__acro_print_only_used_bool ,
-    plural-ending    .tl_set:N   = \l__acro_default_plural_tl    ,
-    list-caps        .bool_set:N = \l__acro_capitalize_list_bool ,
-    cite             .choice:                                    ,
-    cite / all       .code:n     =
+      \tl_set:Nn \l__acro_list_long_format_tl { #1 }                ,
+    list-short-format .tl_set:N   = \l__acro_list_short_format_tl   ,
+    list-long-format  .tl_set:N   = \l__acro_list_long_format_tl    ,
+    extra-format      .tl_set:N   = \l__acro_extra_format_tl        ,
+    single            .bool_set:N = \l__acro_use_single_bool        ,
+    first-style       .tl_set:N   = \l__acro_first_instance_tl      ,
+    extra-style       .tl_set:N   = \l__acro_extra_instance_tl      ,
+    page-ref          .tl_set:N   = \l__acro_page_instance_tl       ,
+    page-name         .tl_set:N   = \l__acro_page_name_tl           ,
+    pages-name        .tl_set:N   = \l__acro_pages_name_tl          ,
+    page-ranges       .bool_set:N = \l__acro_page_ranges_bool       ,
+    record-pages      .bool_set:N = \l__acro_record_pages_bool      ,
+    next-page         .tl_set:N   = \l__acro_next_page_tl           ,
+    next-pages        .tl_set:N   = \l__acro_next_pages_tl          ,
+    list-style        .tl_set:N   = \l__acro_list_instance_tl       ,
+    list-type         .tl_set:N   = \l__acro_list_type_tl           ,
+    list-header       .tl_set:N   = \l__acro_list_title_tl          ,
+    list-name         .tl_set:N   = \l__acro_list_name_tl           ,
+    list-table-width  .dim_set:N  = \l__acro_table_width_dim        ,
+    hyperref          .bool_set:N = \l__acro_use_hyperref_bool      ,
+    only-used         .bool_set:N = \l__acro_print_only_used_bool   ,
+    plural-ending     .tl_set:N   = \l__acro_default_plural_tl      ,
+    list-caps         .bool_set:N = \l__acro_capitalize_list_bool   ,
+    cite              .choice:                                      ,
+    cite / all        .code:n     =
       \bool_set_true:N \l__acro_citation_all_bool
-      \bool_set_true:N \l__acro_citation_first_bool              ,
-    cite / none      .code:n     =
+      \bool_set_true:N \l__acro_citation_first_bool                 ,
+    cite / none       .code:n     =
       \bool_set_false:N \l__acro_citation_all_bool
-      \bool_set_false:N \l__acro_citation_first_bool             ,
-    cite / first     .code:n     =
+      \bool_set_false:N \l__acro_citation_first_bool                ,
+    cite / first      .code:n     =
       \bool_set_false:N \l__acro_citation_all_bool
-      \bool_set_true:N  \l__acro_citation_first_bool             ,
-    cite-all         .default:n  = all                           ,
-    cite-cmd         .code:n     =
-      \cs_set:Npn \__acro_citation_cmd:w { #1 }                  ,
-    cite-space       .tl_set:N   = \l__acro_citation_space_tl    ,
-    uc-cmd           .code:n     =
+      \bool_set_true:N  \l__acro_citation_first_bool                ,
+    cite-all          .default:n  = all                             ,
+    cite-cmd          .code:n     =
+      \cs_set:Npn \__acro_citation_cmd:w { #1 }                     ,
+    cite-space        .tl_set:N   = \l__acro_citation_space_tl      ,
+    index             .bool_set:N = \l__acro_addto_index_bool       ,
+    index-cmd         .code:n     =
+      \cs_set:Npn \__acro_index_cmd:n { #1 } ,
+    uc-cmd            .code:n     =
       \cs_set_eq:NN \__acro_first_upper_case:n #1
   }
 
@@ -249,7 +261,7 @@
       }
       { \cs_new:Npn \acro_xspace: {} }
     \bool_if:NF \l__acro_record_pages_bool
-      { \cs_set_eq:NN \__acro_record_page_number:n \use_none:n }
+      { \cs_set_eq:NN \acro_record_page_number:n \use_none:n }
   }
 
 % setup command:
@@ -344,14 +356,19 @@
 \bool_new:N \l__acro_first_use_brackets_bool
 \bool_new:N \l__acro_first_only_short_bool
 \bool_new:N \l__acro_first_reversed_bool
+\bool_new:N \l__acro_use_note_bool
+
 \tl_new:N   \l__acro_first_brackets_tl
+
+\cs_new:Npn \__acro_note_command:n #1 { #1 }
 
 % #1: id
 % #2: short
 % #3: long
 \DeclareObjectType { acro-first } { 3 }
 
-\DeclareTemplateInterface { acro-first } { text } { 3 }
+% template for inline appearance:
+\DeclareTemplateInterface { acro-first } { inline } { 3 }
   {
     brackets      : boolean   = true  ,
     brackets-type : tokenlist = ()    ,
@@ -359,7 +376,7 @@
     reversed      : boolean   = false ,
     between       : tokenlist         ,
   }
-\DeclareTemplateCode { acro-first } { text } { 3 }
+\DeclareTemplateCode { acro-first } { inline } { 3 }
   {
     brackets      = \l__acro_first_use_brackets_bool ,
     brackets-type = \l__acro_first_brackets_tl       ,
@@ -379,12 +396,15 @@
             \tl_use:N \c_space_tl
           }
       }
-    \bool_if:nT { \l__acro_first_use_brackets_bool && !\l__acro_first_reversed_bool }
+    \bool_if:nT
+      { \l__acro_first_use_brackets_bool && !\l__acro_first_reversed_bool }
       { \tl_head:N \l__acro_first_brackets_tl }
     \__acro_acc_supp:nn { #1 } { \__acro_write_short:n { #2 } }
-    \bool_if:nT { \l__acro_first_use_brackets_bool && !\l__acro_first_reversed_bool }
+    \bool_if:nT
+      { \l__acro_first_use_brackets_bool && !\l__acro_first_reversed_bool }
       { \tl_tail:N \l__acro_first_brackets_tl }
-    \bool_if:nT { !\l__acro_first_only_short_bool && \l__acro_first_reversed_bool }
+    \bool_if:nT
+      { !\l__acro_first_only_short_bool && \l__acro_first_reversed_bool }
       {
         \tl_if_blank:VF \l__acro_first_between_tl
           {
@@ -392,39 +412,88 @@
             \tl_use:N \l__acro_first_between_tl
           }
         \tl_use:N \c_space_tl
-        \bool_if:nT { \l__acro_first_use_brackets_bool && \l__acro_first_reversed_bool }
+        \bool_if:nT
+          { \l__acro_first_use_brackets_bool && \l__acro_first_reversed_bool }
           { \tl_head:N \l__acro_first_brackets_tl }
         \__acro_write_long:No \l__acro_long_format_tl { #3 }
-        \bool_if:nT { \l__acro_first_use_brackets_bool && \l__acro_first_reversed_bool }
+        \bool_if:nT
+          { \l__acro_first_use_brackets_bool && \l__acro_first_reversed_bool }
           { \tl_tail:N \l__acro_first_brackets_tl }
       }
-    \__acro_cite_if:Nn \l__acro_citation_first_bool { #1 }
+    \acro_after:n { #1 }
   }
 
-\DeclareTemplateInterface { acro-first } { footnote } { 3 } { }
-\DeclareTemplateCode { acro-first } { footnote } { 3 } { }
+% template for footnotes, sidenotes, ...
+\DeclareTemplateInterface { acro-first } { note } { 3 }
+  {
+    use-note     : boolean    = true ,
+    note-command : function 1 = \footnote { #1 }
+  }
+
+\DeclareTemplateCode { acro-first } { note } { 3 }
+  {
+    use-note     = \l__acro_use_note_bool ,
+    note-command = \__acro_note_command:n
+  }
   {
     \AssignTemplateKeys
     \__acro_acc_supp:nn { #1 } { \__acro_write_short:n { #2 } }
-    \footnote
+    \bool_if:NT \l__acro_use_note_bool
       {
-        \__acro_write_long:No \l__acro_long_format_tl { #3 }
-        \__acro_cite_if:Nn \l__acro_citation_first_bool { #1 }
-      } 
+        \__acro_note_command:n
+          {
+            \__acro_write_long:No \l__acro_long_format_tl { #3 }
+            \__acro_cite_if:Nn \l__acro_citation_first_bool { #1 }
+          }
+      }
   }
 
 % the different styles:
-\DeclareInstance { acro-first } { default        } { text     } { }
-\DeclareInstance { acro-first } { square         } { text     }
+\DeclareInstance { acro-first }
+  { default }
+  { inline }
+  { }
+\DeclareInstance { acro-first }
+  { square }
+  { inline }
   { brackets-type = [] }
-\DeclareInstance { acro-first } { plain          } { text     }
-  { brackets = false , between = -- }
-\DeclareInstance { acro-first } { plain-reversed } { text     }
-  { brackets = false , between = -- , reversed = true }
-\DeclareInstance { acro-first } { footnote       } { footnote } { }
-\DeclareInstance { acro-first } { short          } { text     }
-  { only-short = true , brackets = false }
-\DeclareInstance { acro-first } { reversed       } { text     }
+\DeclareInstance { acro-first }
+  { plain }
+  { inline }
+  {
+    brackets = false ,
+    between = --
+  }
+\DeclareInstance { acro-first }
+  { plain-reversed }
+  { inline }
+  { 
+    brackets = false ,
+    between = -- ,
+    reversed = true
+  }
+\DeclareInstance { acro-first }
+  { footnote }
+  { note }
+  { }
+\DeclareInstance { acro-first }
+  { sidenote }
+  { note }
+  { note-command = \sidenote { #1 } }
+\DeclareInstance { acro-first }
+  { empty }
+  { note }
+  { use-note = false }
+\DeclareInstance { acro-first }
+  { short }
+  { inline }
+  {
+    only-short = true ,
+    brackets = false
+  }
+\DeclareInstance { acro-first }
+  { reversed }
+  { inline }
   { reversed = true }
 
 % --------------------------------------------------------------------------
@@ -539,7 +608,7 @@
   }
 \cs_generate_variant:Nn \__acro_convert_to_arabic:n { V }
 
-\cs_new:Npn \__acro_record_page_number:n #1
+\cs_new:Npn \acro_record_page_number:n #1
   {
     \seq_if_empty:cTF { g__acro_#1_pages_seq }
       {% no pages recorded, yet
@@ -783,6 +852,10 @@
   { name-format = \section { #1 } }
 \DeclareInstance { acro-title } { subsection  } { sectioning }
   { name-format = \subsection { #1 } }
+\DeclareInstance { acro-title } { addchap     } { sectioning }
+  { name-format = \addchap { #1 } }
+\DeclareInstance { acro-title } { addsec      } { sectioning }
+  { name-format = \addsec { #1 } }
 
 % --------------------------------------------------------------------------
 % outputting the whole list
@@ -883,7 +956,11 @@
           [
             \acro_hyper_target:nn
               { ##1 }
-              { \__acro_acc_supp:nn { ##1 } { \__acro_write_short:n { ##2 } } }
+              {
+                \__acro_acc_supp:nn
+                  { ##1 }
+                  { \__acro_write_short:n { \l__acro_list_short_format_tl { ##2 } } }
+              }
           ]
       }
     \cs_set:Npn \acro_print_list_long:n ##1
@@ -932,7 +1009,11 @@
       {
         \acro_hyper_target:nn
           { ##1 }
-          { \__acro_acc_supp:nn { ##1 } { \__acro_write_short:n { ##2 } } }
+          {
+            \__acro_acc_supp:nn
+              { ##1 }
+              { \__acro_write_short:n { \l__acro_list_short_format_tl { ##2 } } }
+          }
         &
       }
     \cs_set:Npn \acro_print_list_long:n ##1
@@ -979,7 +1060,11 @@
       {
         \acro_hyper_target:nn
           { ##1 }
-          { \__acro_acc_supp:nn { ##1 } { \__acro_write_short:n { ##2 } } }
+          {
+            \__acro_acc_supp:nn
+              { ##1 }
+              { \__acro_write_short:n { \l__acro_list_short_format_tl { ##2 } } }
+          }
         &
       }
     \cs_set:Npn \acro_print_list_long:n ##1
@@ -1088,7 +1173,7 @@
         \__acro_acc_supp:nn
           { #1 }
           { \__acro_write_short:V \l__acro_short_tl }
-        \__acro_cite_if:Nn \l__acro_citation_all_bool { #1 }
+        \acro_after:n { #1 }
       }
       {
         % this is the first time
@@ -1202,6 +1287,12 @@
   }
 
 % --------------------------------------------------------------------------
+\cs_new:Npn \acro_after:n #1
+  {
+    \__acro_cite_if:Nn \l__acro_citation_all_bool { #1 }
+    \__acro_index_if:Nn \l__acro_addto_index_bool { #1 }
+  }
+
 % the standard internals:
 \cs_new:Npn \acro_short:n #1
   {
@@ -1212,7 +1303,7 @@
     \__acro_acc_supp:nn
       { #1 }
       { \__acro_write_short:V \l__acro_short_tl }
-    \__acro_cite_if:Nn \l__acro_citation_all_bool { #1 }
+    \acro_after:n { #1 }
   }
 
 % get alternative entry:
@@ -1225,7 +1316,7 @@
     \__acro_acc_supp:nn
       { #1 }
       { \__acro_write_short:V \l__acro_alt_tl }
-    \__acro_cite_if:Nn \l__acro_citation_all_bool { #1 }
+    \acro_after:n { #1 }
   }
 
 % get long entry:
@@ -1236,7 +1327,7 @@
     \__acro_is_single:nT { #1 }
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
     \__acro_write_long:NV \l__acro_long_format_tl \l__acro_long_tl
-    \__acro_cite_if:Nn \l__acro_citation_all_bool { #1 }
+    \acro_after:n { #1 }
   }
 
 % output like the first time:
@@ -1252,6 +1343,8 @@
       { \l__acro_long_tl }
   }
 
+% ----------------------------------------------------------------------------
+% citations:
 % #1 pre
 % #2 post
 % #3 key
@@ -1285,6 +1378,48 @@
       }
   }
 
+% ----------------------------------------------------------------------------
+% indexing:
+\cs_new:Npn \__acro_index_if:Nn #1#2
+  {
+    \bool_if:nT { #1 && \l__acro_mark_as_used_bool }
+      {
+        \prop_get:NnN \l__acro_index_cmd_prop  { #2 } \l__acro_tmpa_tl
+        \prop_get:NnN \l__acro_index_sort_prop { #2 } \l__acro_tmpb_tl
+        \prop_get:NnN \l__acro_index_prop      { #2 } \l__acro_tmpc_tl
+        \__acro_index:VnVV
+          \l__acro_tmpa_tl
+          { #2 }
+          \l__acro_tmpb_tl
+          \l__acro_tmpc_tl
+      }
+  }
+
+% #1: cmd
+% #2: key
+% #3: sort
+% #4: replace
+\cs_new:Npn \__acro_index:nnnn #1#2#3#4
+  {
+    \prop_get:NnN \l__acro_short_prop  { #2 } \l__acro_tmpa_tl
+    \prop_get:NnN \l__acro_format_prop { #2 } \l__acro_tmpb_tl
+    \quark_if_no_value:VTF \l__acro_tmpb_tl
+      { \tl_set:Nn \l__acro_tmpc_tl { \l__acro_short_format_tl \l__acro_tmpa_tl } }
+      { \tl_set:Nn \l__acro_tmpc_tl { \l__acro_tmpb_tl \l__acro_tmpa_tl } }
+    \quark_if_no_value:nF { #1 }
+      { \cs_set:Npn \__acro_index_cmd:n { #1 } }
+    \quark_if_no_value:nTF { #4 }
+      {
+        \quark_if_no_value:nTF { #3 }
+          { \__acro_index_cmd:n { #2 @ { \l__acro_tmpc_tl } } }
+          { \__acro_index_cmd:n { #3 @ { \l__acro_tmpc_tl } } }
+      }
+      { \__acro_index_cmd:n { #4 } }
+  }
+\cs_generate_variant:Nn \__acro_index:nnnn { VnVV }
+\cs_generate_variant:Nn \quark_if_no_value:nTF { V }
+
+% ----------------------------------------------------------------------------
 % accessability support
 \tl_new:N \l__acro_acc_supp_tl
 \cs_new_eq:NN \__acro_acc_supp:nn \use_ii:nn
@@ -1360,13 +1495,12 @@
 \cs_new:Npn \acro@print@list
   { \cs_if_exist:NF \acro@printed@list { \cs_new:Npn \acro@printed@list {} } }
 
-
 \cs_new:Npn \acro_use_if:nn #1#2
   {
     \IfBooleanTF { #1 }
       { \bool_set_false:N \l__acro_mark_as_used_bool }
       {
-        \__acro_record_page_number:n { #2 }
+        \acro_record_page_number:n { #2 }
         \bool_set_true:N \l__acro_mark_as_used_bool
       }
   }
@@ -1709,12 +1843,18 @@
                    `pages-name', `record-pages'
                  - no automatic label placement for page number referencing
                    any more
-2013/01/25 v1.1  - bug fix in the plural detection
+2013/01/26 v1.1  - bug fix in the plural detection
                  - new keys `long-pre' and `long-post'
+                 - new keys `index', `index-sort' and `index-cmd'
+                 - new options `index' and `index-cmd'
 
 % --------------------------------------------------------------------------
 % TODO:
 - Option `totoc'!?
+- Optionen `list-header = addsec|addchap' (acro-title instance)
+- acro-first instance `none', die nur die Kurzform verwendet
+- Option `list-short-format'
+
 - revise list styles to allow _full_ customization by creating own instances!
   this probably needs a handfull of macros that give access to the entries
   without worrying about internals

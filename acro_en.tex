@@ -40,7 +40,7 @@
 %
 \documentclass[DIV10,toc=index,toc=bib,hyperfootnotes=false]{cnpkgdoc}
 \docsetup{
-  pkg = {[single,macros,accsupp]acro} ,
+  pkg = {[single,macros,accsupp,index]acro} ,
   language = en ,
   code-box = {
     backgroundcolor  = gray!7!white ,
@@ -165,15 +165,15 @@
 \newcommand*\h[1]{\textcolor{main}{\textbf{#1}}}
 
 \ExplSyntaxOn
-\NewDocumentCommand \Default {g}
+\NewDocumentCommand \Default {sg}
   {
     \hfill\llap
       {
-        \IfNoValueTF { #1 }
+        \IfNoValueTF { #2 }
           {(initially~empty)}
-          {Default:~\code{#1}}
+          {Default:~\code{#2}}
       }
-    \newline
+    \IfBooleanF { #1 } { \newline }
   }
 \ExplSyntaxOff
 
@@ -365,36 +365,72 @@ one command with only two arguments.
 This command understands a number of keys which are listed below. Some of them
 are not described immediately but at appropriate places in the documentation.
 \begin{beschreibung}
+ %% short
  \Option{short}{<text>}\newline
    the short form of the acronym.
+ %% long
  \Option{long}{<text>}\newline
    the long form of the acronym.
+ %% short-plural
  \Option{short-plural}{<text>}\Default{s}
    the plural ending appended to the short form.
+ %% long-plural
  \Option{long-plural}{<text>}\Default{s}
    the plural ending appended to the long form.
+ %% long-plural-form
  \Option{long-plural-form}{<text>}\newline
    plural long form of the acronym; replaces the long form when used instead of
    appending the plural ending.
+ %% long-pre
+ \Option{long-pre}{<text>}\newline
+   \sinceversion{1.1}\code{<text>} is prepended to the long form in the text but
+   not in the list of acronyms.
+ %% long-post
+ \Option{long-post}{<text>}\newline
+   \sinceversion{1.1}\code{<text>} is appended to the long form in the text but
+   not in the list of acronyms.
+ %% alt
  \Option{alt}{<text>}\newline
    alternative short form.
+ %% extra
  \Option{extra}{<text>}\newline
    extra information to be added in the list of acronyms.
+ %% sort
  \Option{sort}{<text>}\newline
    if used the acronym will be sorted according to this key instead of its \acs{id}.
+ %% class
  \Option{class}{<text>}\newline
    the class the acronym belongs to.
+ %% cite
  \Option{cite}{[<prenote>][<postnote>]\{citation keys\}}\newline
    a citation that is printed to the acronym according to an option explained later.
+ %% format
  \Option{format}{<\TeX{} code>}\newline
    the format used for the short form of the acronym.
+ %% pdfstring
  \Option{pdfstring}{<text>/<plural ending>}\newline
    used as \acs{pdf} string replacement in bookmarks when used together with the
    \paket*{hyperref} package. The appended plural ending is optional. If you
    leave it (\emph{and} the \code{/}) the default ending is used.
+ %% accsupp
  \Option{accsupp}{<text>}\newline
    sets the \code{ActualText} key as presented by the \paket*{accsupp} package
    for the acronym.
+ %% index-sort
+ \Option{index-sort}{<text>}\newline
+   \sinceversion{1.1}If you use the package option \key{index} every occurrence
+   of an acronym is recorded to the index and sorted by its \ac{id} or (if set)
+   by the value of the \key{sort} key. This key allows to set an individual
+   sorting option for the index. See section~\ref{ssec:index} for details.
+ %% index
+ \Option{index}{<text>}\newline
+   \sinceversion{1.1}This key allows to overwrite the automatic index entry with
+   an arbitrary one. See section~\ref{ssec:index} for details.
+ %% index-cmd
+ \Option{index-cmd}{<text>}\newline
+   \sinceversion{1.1}This key let's you set an individual index creating command
+   for this acronym. It should be a command that takes one mandatory argument.
+   See section~\ref{ssec:index} for details.
 \end{beschreibung}
 
 In its simplest form an acronym needs a short and a long form. Please note that
@@ -611,7 +647,7 @@ For this \cmd{DeclareAcronym} has an additional key:
 \begin{beschreibung}
  \Option{class}{<text>}
 \end{beschreibung}
-\begin{beispiel}
+\begin{beispiel}[below]
  % preamble:
  % \DeclareAcronym{la}{
  %   short        = LA ,
@@ -699,6 +735,25 @@ property of \cmd*{BeginAccSupp}. Please refer to \paket{accsupp}'s documentation
 for details. To see its effect copy \ac{pdf} and paste it into a text file. You
 should get uppercase letters instead of lowercase ones.
 
+\subsection{Adding Acronyms to the Index}\label{ssec:index}
+\secidx[indexing]{Additional Commands}
+\noindent\sinceversion{1.1}\acro has the package option \key{index}. If it is
+used an index entry will be recorded every time an \emph{unstarred} acronym
+command is used. The index entry will be \code{<id>@<short>}, \code{<sort>@<short>}
+if the \key{sort} key has been set, \code{<index-sort>@<short>}if the
+\key{index-sort} has been set, or \code{<index>} if the key \key{index} has been
+set for the specific acronym. The short version appearing there are formatted
+according to the chosen format, of course.
+
+This document demonstrates the feature. You can find every acronym that has been
+declared in the index. In order to allow flexibility the indexing command can be
+chosen both globally via package option and individually for every acronym. This
+would allow to add acronyms to a specific index if more than one index is used,
+for example with help of the \paket{imakeidx} package.
+
+I'm not yet convinced this is a feature many people if anyone needs and if they
+do if it is flexible enough. If you have any thoughts on this I'd appreciate an
+email.
 \secidx*{Additional Commands}
 
 \section{Printing the List}\label{sec:print_lists}\secidx{Printing the List}
@@ -740,7 +795,7 @@ need at least two runs and often are compiled much more often than that, this
 fact shouldn't cause too much inconvenience.
 \secidx*{Printing the List}
 
-\section{Customization}\label{sec:customization}\secidx{Customization}
+\section{Options and Customization}\label{sec:customization}\secidx{Customization}
 \subsection{General Options}\secidx[general options]{Customization}
 There are a few options which change the general behaviour of \acro.
 \default{Underlined} values are used if no value is given.
@@ -805,6 +860,15 @@ There are a few options which change the general behaviour of \acro.
    set this. Actually it can be used to place arbitrary code right before the
    citation.\catcode`\_=11
  %%
+ \Option{index}{\default{true}|false}\Default{false}
+   \sinceversion{1.1}If set to \code{true} an index entry will be recorded
+   every time an \emph{unstarred} acronym command is used for the corresponding
+   acronym.
+ %%
+ \Option{index-cmd}{<cmd>}\Default{\cmd*{index}}
+   \sinceversion{1.1}Chooses the index command that is used when option \key{index}
+   has been set to \code{true}.
+ %%
  \Option{accsupp}{\default{true}|false}\Default{false}
    \sinceversion{1.0}Activates the access support as provided by the 
    \paket{accsupp} package.
@@ -840,16 +904,24 @@ possible output forms of the acronyms.
  \Option{long-format}{<format>}\Default
    The same for the long forms.
  %%
+ \Option{list-short-format}{<format>}\Default
+   \sinceversion{1.1}An extra format for the short entries in the list. If not
+   used this is the same as \key{short-format}. Please be aware that a call of
+   \key{short-format} after this one will overwrite it again.
+ %%
  \Option{list-long-format}{<format>}\Default
    An extra format for the long entries in the list. If not used this is the same
-   as \key{long-format}.
+   as \key{long-format}. Please be aware that a call of \key{long-format} after
+   this one will overwrite it again.
  %%
  \Option{extra-format}{<format>}\Default
    The same for the extra information.
  %%
- \Option{first-style}{default|plain|footnote|square|short|reversed|plain-reversed}\\
- \null\Default{default}
-   The basic style of the first appearance of an acronym.
+ \Option{first-style}{default|plain|empty|square|short|reversed|plain-reversed|\\
+   footnote|sidenote}\Default{default}
+   \changedversion{1.1}The basic style of the first appearance of an acronym.
+   The value \code{sidenote} needs the command \cmd*{sidenote} to be defined for
+   example by the \paket{sidenotes} package.
  %%
  \Option{extra-style}{default|plain|comma|paren|bracket}\Default{default}
    Defines the way the extra information is printed in the list.
@@ -861,6 +933,8 @@ possible output forms of the acronyms.
 \begin{beispiel}
  % (Keep in mind that we're in
  % a minipage here!)
+ \acsetup{first-style=empty}
+ \acf{ny} \\
  \acsetup{first-style=footnote}
  \acf{ny} \\
  \acsetup{first-style=square}
@@ -923,8 +997,10 @@ possible output forms of the acronyms.
    The values \code{extra-longtable} and \code{extra-longtable-rev} put the extra
    information in a column of its own.
  %%
- \Option{list-header}{chapter|chapter*|section|section*|subsection|subsection*}\\
-   The header type of the list.\Default{section*}
+ \Option{list-header}{chapter|chapter*|section|section*|subsection|subsection*|\\
+   addchap|addsec}\Default{section*}
+   \changedversion{1.1}The header type of the list. The last two only work with
+   a \KOMAScript{} class that also defines the appropriate command.
  %%
  \Option{list-name}{<list name>}\Default{Acronyms}
    The name of the list. This is what's written in the list-header. This is

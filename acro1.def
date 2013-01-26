@@ -51,26 +51,33 @@
   { The~`#2'~key~for~acronym~`#1'~is~missing. }
   { The~`#2'~key~for~acronym~`#1'~is~missing. }
 
-% TODO: checking:
-%  - `sort' zuerst, darf nicht fehlen
-%  - `long' darf nicht fehlen
+\msg_new:nnnn { acro } { doubled-key }
+  { It~seems~to~me~you~have~used~the~`#1'~key~before. }
+  {
+    It~seems~to~me~you~have~used~the~`#1'~key~before.~If~you~haven't~there's~
+    something~different~wrong~and~I'm~lost.~You~'re~on~your~own~now.
+  }
+
 \cs_new:Npn \__acro_key_check:nn #1#2
   {
     \tl_if_blank:VT \l__acro_current_key_tl
       { \msg_error:nn { acro } { no-id } }
-    \bool_if:cF { l__acro_short_#1_set_bool }
+    \bool_if:cF { l__acro_#1_short_set_bool }
       { \msg_error:nnxx { acro } { before-short } { #1 } { #2 } }
+    \bool_new:c { l__acro_#1_#2_set_bool }
+    \bool_set_true:c { l__acro_#1_#2_set_bool }
   }
 
 \cs_new:Npn \__acro_first_key_check:n #1
   {
-    \cs_if_exist:cTF { l__acro_short_#1_set_bool }
+    \cs_if_exist:cTF { l__acro_#1_short_set_bool }
       {
-         \bool_if:cTF { l__acro_short_#1_set_bool }
-           {}
-           { \bool_set_true:c { l__acro_short_#1_set_bool } }
+         \bool_if:cT { l__acro_#1_short_set_bool }
+           { \msg_error:nnx { acro } { doubled-key } { #1 } }
       }
-      {% error: key already used
+      {
+        \bool_new:c { l__acro_#1_short_set_bool }
+        \bool_set_true:c { l__acro_#1_short_set_bool }
       }
   }
 
@@ -79,12 +86,12 @@
 % short:
 \cs_new:Npn \__acro_declare_short:nn #1#2
   {
-    \bool_new:c { l__acro_short_#1_set_bool }
     \__acro_first_key_check:n { #1 }
-    \prop_put:Nnn \l__acro_short_prop     { #1 } { #2 }
-    \prop_put:Nnn \l__acro_sort_prop      { #1 } { #1 }
-    \prop_put:Nnn \l__acro_alt_prop       { #1 } { #2 }
-    \prop_put:Nnx \l__acro_pdfstring_prop { #1 } { \exp_not:n { #2 } }
+    \prop_put:Nnn \l__acro_short_prop      { #1 } { #2 }
+    \prop_put:Nnn \l__acro_sort_prop       { #1 } { #1 }
+    \prop_put:Nnn \l__acro_index_sort_prop { #1 } { #1 }
+    \prop_put:Nnn \l__acro_alt_prop        { #1 } { #2 }
+    \prop_put:Nnx \l__acro_pdfstring_prop  { #1 } { \exp_not:n { #2 } }
     \prop_put:Nnn \l__acro_short_plural_prop
       { #1 } { \l__acro_default_plural_tl }
     \prop_put:Nnx \l__acro_pdfstring_plural_prop
@@ -103,12 +110,13 @@
 \cs_new:Npn \__acro_declare_long:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long }
-    \bool_new:c { l__acro_long_#1_set_bool }
     \prop_put:Nnn \l__acro_replace_plural_prop { #1 } { \c_false_bool }
     \prop_put:Nnn \l__acro_long_prop { #1 } { #2 }
-    \prop_put:Nnn \l__acro_long_plural_prop
-      { #1 } { \l__acro_default_plural_tl }
-    \bool_set_true:c { l__acro_long_#1_set_bool }
+    \bool_if:cF { l__acro_#1_long-plural_set_bool }
+      {
+        \prop_put:Nnn \l__acro_long_plural_prop
+          { #1 } { \l__acro_default_plural_tl }
+      }
   }
 \cs_generate_variant:Nn \__acro_declare_long:nn { V }
 
@@ -151,6 +159,8 @@
   {
     \__acro_key_check:nn { #1 } { sort }
     \prop_put:Nnn \l__acro_sort_prop { #1 } { #2 }
+    \bool_if:cF { l__acro_#1_index-sort_set_bool }
+      { \prop_put:Nnn \l__acro_index_sort_prop { #1 } { #2 } }
   }
 \cs_generate_variant:Nn \__acro_declare_sort:nn { V }
 
@@ -185,6 +195,7 @@
           { #1 } { \exp_not:n { #2#3 } }
       }
   }
+\cs_generate_variant:Nn \__acro_declare_pdfstring:nw { V }
 
 % class:
 \cs_new:Npn \__acro_declare_class:nn #1#2
@@ -227,15 +238,53 @@
           }
       }
   }
+\cs_generate_variant:Nn \__acro_declare_citation:nw { V }
 
 \cs_new:Npn \__acro_declare_citation_aux:nnnn #1#2#3#4
   {
+    \__acro_key_check:nn { #1 } { cite }
     \prop_put:Nnn \l__acro_citation_prop { #1 } { #4 }
     \tl_if_empty:nF { #2 }
       { \prop_put:Nnn \l__acro_citation_pre_prop { #1 } { #2 } }
     \tl_if_empty:nF { #3 }
       { \prop_put:Nnn \l__acro_citation_post_prop { #1 } { #3 } }
   }
+
+% TODO:
+% add index entries, by default \index{<sort>@<short>}
+% index: overwrite default <sort>@<short> entry completely
+% index-sort: overwrite the <sort> part of <sort>@<short> entry
+
+% need to take care of custom index cmd, at least
+%  - \index{}
+%  - \index[]{}
+% question is, though, if it should be the same one for all acronyms?
+% I go for yes but would also add a `post' key that allows to add arbitrary
+% TeX code after an acronym is typeset
+
+% index:
+\cs_new:Npn \__acro_declare_index:nn #1#2
+  {
+    \__acro_key_check:nn { #1 } { index }
+    \prop_put:Nnn \l__acro_index_prop { #1 } { #2 }
+  }
+\cs_generate_variant:Nn \__acro_declare_index:nn { V }
+
+% index-sort:
+\cs_new:Npn \__acro_declare_index_sort:nn #1#2
+  {
+    \__acro_key_check:nn { #1 } { index-sort }
+    \prop_put:Nnn \l__acro_index_sort_prop { #1 } { #2 }
+  }
+\cs_generate_variant:Nn \__acro_declare_index_sort:nn { V }
+
+% index-cmd:
+\cs_new:Npn \__acro_declare_index_cmd:nn #1#2
+  {
+    \__acro_key_check:nn { #1 } { index-cmd }
+    \prop_put:Nnn \l__acro_index_cmd_prop { #1 } { #2 }
+  }
+\cs_generate_variant:Nn \__acro_declare_index_cmd:nn { V }
 
 % --------------------------------------------------------------------------
 % the keys of \DeclareAcronym
@@ -266,13 +315,17 @@
     class        .code:n =
       \__acro_declare_class:Vn \l__acro_current_key_tl { #1 } ,
     cite         .code:n =
-      \exp_args:NV
-        \__acro_declare_citation:nw \l__acro_current_key_tl #1 [][] \scan_stop: \acro_stop: ,
+      \__acro_declare_citation:Vw \l__acro_current_key_tl #1 [][] \scan_stop: \acro_stop: ,
     pdfstring    .code:n =
-      \exp_args:NV
-        \__acro_declare_pdfstring:nw \l__acro_current_key_tl #1 // \acro_stop: ,
+      \__acro_declare_pdfstring:Vw \l__acro_current_key_tl #1 // \acro_stop: ,
     accsupp      .code:n =
-      \__acro_declare_acc_supp:Vn \l__acro_current_key_tl { #1 }
+      \__acro_declare_acc_supp:Vn \l__acro_current_key_tl { #1 } ,
+    index        .code:n =
+      \__acro_declare_index:Vn \l__acro_current_key_tl { #1 } ,
+    index-sort   .code:n =
+      \__acro_declare_index_sort:Vn \l__acro_current_key_tl { #1 } ,
+    index-cmd    .code:n =
+      \__acro_declare_index_cmd:Vn \l__acro_current_key_tl { #1 }
   }
 
 \cs_new:Npn \acro_define_acronym_macro:n #1
@@ -299,9 +352,9 @@
     \acro_create_page_records:n { #1 }
     \acro_define_acronym_macro:n { #1 }
     \tl_clear:N \l__acro_current_key_tl
-    \bool_if:cF { l__acro_short_#1_set_bool }
+    \bool_if:cF { l__acro_#1_short_set_bool }
       { \msg_error:nnxx { acro } { missing } { #1 } { short } }
-    \bool_if:cF { l__acro_long_#1_set_bool }
+    \bool_if:cF { l__acro_#1_long_set_bool }
       { \msg_error:nnxx { acro } { missing } { #1 } { long } }
   }
 
