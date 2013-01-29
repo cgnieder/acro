@@ -180,15 +180,15 @@
 % declare acronyms
 \DeclareAcronym{cd}
   {
-    short  = cd ,
-    long   = Compact Disc ,
-    format = \scshape
+    short        = cd ,
+    long         = Compact Disc ,
+    short-format = \scshape
   }
 \DeclareAcronym{id}
   {
-    short  = id ,
-    long   = identification string ,
-    format = \scshape
+    short        = id ,
+    long         = identification string ,
+    short-format = \scshape
   }
 \DeclareAcronym{jpg}
   {
@@ -212,10 +212,10 @@
   }
 \DeclareAcronym{nato}
   {
-    short  = nato ,
-    long   = North Atlantic Treaty Organization ,
-    extra  = \emph{deutsch}: Organisation des Nordatlantikvertrags ,
-    format = \scshape
+    short        = nato ,
+    long         = North Atlantic Treaty Organization ,
+    extra        = \emph{deutsch}: Organisation des Nordatlantikvertrags ,
+    short-format = \scshape
   }
 \DeclareAcronym{ny}
   {
@@ -228,9 +228,9 @@
   }
 \DeclareAcronym{ot}
   {
-    short  = ot ,
-    long   = Other Test ,
-    format = \scshape
+    short        = ot ,
+    long         = Other Test ,
+    short-format = \scshape
   }
 \DeclareAcronym{pdf}
   {
@@ -404,9 +404,12 @@ are not described immediately but at appropriate places in the documentation.
  %% cite
  \Option{cite}{[<prenote>][<postnote>]\{citation keys\}}\newline
    a citation that is printed to the acronym according to an option explained later.
- %% format
- \Option{format}{<\TeX{} code>}\newline
+ %% short-format
+ \Option{short-format}{<\TeX{} code>}\newline
    the format used for the short form of the acronym.
+ %% long-format
+ \Option{long-format}{<\TeX{} code>}\newline
+   the format used for the long form of the acronym.
  %% pdfstring
  \Option{pdfstring}{<text>/<plural ending>}\newline
    used as \acs{pdf} string replacement in bookmarks when used together with the
@@ -451,9 +454,9 @@ an acronym:
 \begin{beispiel}[code only]
  % preamble:
  \DeclareAcronym{ot}{
-   short  = ot ,
-   long   = Other Test ,
-   format = \scshape
+   short        = ot ,
+   long         = Other Test ,
+   short-format = \scshape
  }
 \end{beispiel}
 The short form now looks like this: \acs{ot}.
@@ -531,9 +534,9 @@ since then the appearance in the table of contents won't mark it as used.
 \begin{beispiel}
  % preamble:
  % \DeclareAcronym{cd}{
- %   short  = cd ,
- %   long   = Compact Disc ,
- %   format = \scshape
+ %   short        = cd ,
+ %   long         = Compact Disc ,
+ %   short-format = \scshape
  % }
  first time: \ac{cd} \\
  second time: \ac{cd} \\
@@ -565,9 +568,9 @@ plural form when necessary.
 Suppose we define the following acronyms:
 \begin{beispiel}[code only]
  \DeclareAcronym{cd}{
-   short  = cd ,
-   long   = Compact Disc ,
-   format = \scshape
+   short        = cd ,
+   long         = Compact Disc ,
+   short-format = \scshape
  }
  \DeclareAcronym{ny}{
    short        = NY ,
@@ -626,10 +629,10 @@ for the impact of the following example.
 \begin{beispiel}
  % preamble:
  % \DeclareAcronym{nato}{
- %   short  = nato ,
- %   long   = North Atlantic Treaty Organization ,
- %   extra  = \textit{deutsch}: Organisation des Nordatlantikvertrags ,
- %   format = \scshape
+ %   short        = nato ,
+ %   long         = North Atlantic Treaty Organization ,
+ %   extra        = \textit{deutsch}: Organisation des Nordatlantikvertrags ,
+ %   short-format = \scshape
  % }
  The \ac{nato} is an intergovernmental military alliance based on the
  North Atlantic Treaty which was signed on 4~April 1949. \ac{nato}

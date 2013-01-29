@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2013/01/26}
-  {1.1}
+  {2013/01/29}
+  {1.1a}
   {Typeset Acronyms}
 
 % warning and error messages:
@@ -141,6 +141,7 @@
 \prop_new:N \l__acro_long_post_prop
 \prop_new:N \l__acro_extra_prop
 \prop_new:N \l__acro_format_prop
+\prop_new:N \l__acro_long_format_prop
 \prop_new:N \l__acro_citation_prop
 \prop_new:N \l__acro_citation_pre_prop
 \prop_new:N \l__acro_citation_post_prop
@@ -284,16 +285,23 @@
 \cs_generate_variant:Nn \__acro_write_short:n { V }
 
 % typeset the longform,...:
+% TODO: rethink the formatting mechanism
+% right now a custom format gets applied additionally to the global one
+% although before it
 \cs_new:Npn \__acro_write_long:Nn #1#2
   {
     \mode_if_horizontal:F { \leavevmode }
     \group_begin:
-      \exp_args:Nx #1
-        {
-          \bool_if:NTF \l__acro_first_upper_bool
-            { \exp_not:N \__acro_first_upper_case:n { \exp_not:n { #2 } } }
-            { \exp_not:n { #2 } }
-        }
+      \bool_if:NT \l__acro_custom_long_format_bool
+        { \l__acro_custom_long_format_tl }
+      {
+        \exp_args:Nx #1
+          {
+            \bool_if:NTF \l__acro_first_upper_bool
+              { \exp_not:N \__acro_first_upper_case:n { \exp_not:n { #2 } } }
+              { \exp_not:n { #2 } }
+          }
+      }
     \group_end:
   }
 \cs_generate_variant:Nn \__acro_write_long:Nn { NV,No,Nf }
@@ -1215,6 +1223,9 @@
     \__acro_make_link:nNN { #1 } \l__acro_short_tl \l__acro_tmpa_tl
     \prop_get:NnN \l__acro_short_plural_prop { #1 } \l__acro_short_plural_tl
     \prop_get:NnN \l__acro_long_prop { #1 } \l__acro_long_tl
+    \prop_get:NnNTF \l__acro_long_format_prop { #1 } \l__acro_custom_long_format_tl
+      { \bool_set_true:N  \l__acro_custom_long_format_bool }
+      { \bool_set_false:N \l__acro_custom_long_format_bool }
     \prop_get:NnNT \l__acro_long_pre_prop { #1 } \l__acro_long_pre_tl
       { \tl_put_left:NV \l__acro_long_tl \l__acro_long_pre_tl }
     \prop_get:NnN \l__acro_alt_prop { #1 } \l__acro_tmpb_tl
@@ -1847,6 +1858,9 @@
                  - new keys `long-pre' and `long-post'
                  - new keys `index', `index-sort' and `index-cmd'
                  - new options `index' and `index-cmd'
+2013/01/29 v1.1a - added `long-format' key
+                 - renamed `format' key into `short-format', kept `format' for
+                   compatibility reasons
 
 % --------------------------------------------------------------------------
 % TODO:
