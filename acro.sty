@@ -550,7 +550,7 @@
   { punct = true, brackets = false }
 
 % --------------------------------------------------------------------------
-% outputting the page numbers:
+% outputting the page numbers: (experimental, needs lots of improvements)
 \bool_new:N \l__acro_page_punct_bool
 \bool_new:N \l__acro_page_brackets_bool
 \bool_new:N \l__acro_page_display_bool
@@ -1218,6 +1218,7 @@
 
 \cs_new:Npn \acro_get:n #1
   {
+    \acro_defined:n { #1 }
     \__acro_activate_hyperref_support:
     \prop_get:NnN \l__acro_short_prop { #1 } \l__acro_tmpa_tl
     \__acro_make_link:nNN { #1 } \l__acro_short_tl \l__acro_tmpa_tl
@@ -1861,6 +1862,8 @@
 2013/01/29 v1.1a - added `long-format' key
                  - renamed `format' key into `short-format', kept `format' for
                    compatibility reasons
+2013/02/?? v1.2  - error message instead of hanging when undefined acronym is
+                   used
 
 % --------------------------------------------------------------------------
 % TODO:
@@ -1873,6 +1876,5 @@
   this probably needs a handfull of macros that give access to the entries
   without worrying about internals
 - record and list _all_ pagenumbers where an acronym occurs
-- compilation halts instead of throwing an error if an undefined acronym is used
 - add \ACF, \ACFP, \ACL and \ACLP that will print all words of the long form
   capitalized
