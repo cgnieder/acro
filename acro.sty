@@ -91,6 +91,7 @@
 \tl_new:N   \l__acro_short_format_tl
 \tl_new:N   \l__acro_list_short_format_tl
 \tl_new:N   \l__acro_long_format_tl
+\tl_new:N   \l__acro_first_long_format_tl
 \tl_new:N   \l__acro_list_long_format_tl
 \tl_new:N   \l__acro_extra_format_tl
 \tl_new:N   \l__acro_first_instance_tl
@@ -142,6 +143,7 @@
 \prop_new:N \l__acro_extra_prop
 \prop_new:N \l__acro_format_prop
 \prop_new:N \l__acro_long_format_prop
+\prop_new:N \l__acro_first_long_format_prop
 \prop_new:N \l__acro_citation_prop
 \prop_new:N \l__acro_citation_pre_prop
 \prop_new:N \l__acro_citation_post_prop
@@ -207,7 +209,10 @@
       \tl_set:Nn \l__acro_list_short_format_tl { #1 }               ,
     long-format       .code:n     =
       \tl_set:Nn \l__acro_long_format_tl { #1 }
+      \tl_set:Nn \l__acro_first_long_format_tl { #1 }
       \tl_set:Nn \l__acro_list_long_format_tl { #1 }                ,
+    first-long-format .code:n     =
+      \tl_set:Nn \l__acro_first_long_format_tl { #1 }               ,
     list-short-format .tl_set:N   = \l__acro_list_short_format_tl   ,
     list-long-format  .tl_set:N   = \l__acro_list_long_format_tl    ,
     extra-format      .tl_set:N   = \l__acro_extra_format_tl        ,
@@ -396,7 +401,7 @@
     \AssignTemplateKeys
     \bool_if:nT { !\l__acro_first_only_short_bool && !\l__acro_first_reversed_bool }
       {
-        \__acro_write_long:No \l__acro_long_format_tl { #3 }
+        \__acro_write_long:No \l__acro_first_long_format_tl { #3 }
         \tl_use:N \c_space_tl
         \tl_if_blank:VF \l__acro_first_between_tl
           {
@@ -423,7 +428,7 @@
         \bool_if:nT
           { \l__acro_first_use_brackets_bool && \l__acro_first_reversed_bool }
           { \tl_head:N \l__acro_first_brackets_tl }
-        \__acro_write_long:No \l__acro_long_format_tl { #3 }
+        \__acro_write_long:No \l__acro_first_long_format_tl { #3 }
         \bool_if:nT
           { \l__acro_first_use_brackets_bool && \l__acro_first_reversed_bool }
           { \tl_tail:N \l__acro_first_brackets_tl }
@@ -450,7 +455,7 @@
       {
         \__acro_note_command:n
           {
-            \__acro_write_long:No \l__acro_long_format_tl { #3 }
+            \__acro_write_long:No \l__acro_first_long_format_tl { #3 }
             \__acro_cite_if:Nn \l__acro_citation_first_bool { #1 }
           }
       }
@@ -1224,9 +1229,13 @@
     \__acro_make_link:nNN { #1 } \l__acro_short_tl \l__acro_tmpa_tl
     \prop_get:NnN \l__acro_short_plural_prop { #1 } \l__acro_short_plural_tl
     \prop_get:NnN \l__acro_long_prop { #1 } \l__acro_long_tl
-    \prop_get:NnNTF \l__acro_long_format_prop { #1 } \l__acro_custom_long_format_tl
+    \prop_get:NnNTF \l__acro_long_format_prop { #1 }
+      \l__acro_custom_long_format_tl
       { \bool_set_true:N  \l__acro_custom_long_format_bool }
       { \bool_set_false:N \l__acro_custom_long_format_bool }
+    \prop_get:NnNF \l__acro_first_long_format_prop { #1 }
+      \l__acro_first_long_format_tl
+      {}% to avoid hanging compilation if first-long-format hasn't been set
     \prop_get:NnNT \l__acro_long_pre_prop { #1 } \l__acro_long_pre_tl
       { \tl_put_left:NV \l__acro_long_tl \l__acro_long_pre_tl }
     \prop_get:NnN \l__acro_alt_prop { #1 } \l__acro_tmpb_tl
@@ -1353,6 +1362,19 @@
       { #1 }
       { \l__acro_short_tl }
       { \l__acro_long_tl }
+  }
+
+% output like the first time with own long version:
+\cs_new:Npn \acro_first_like:nn #1#2
+  {
+    \acro_get:n { #1 }
+    \acro_is_used:n { #1 }
+    \__acro_is_single:nT { #1 }
+      { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
+    \UseInstance { acro-first } { \l__acro_first_instance_tl }
+      { #1 }
+      { \l__acro_short_tl }
+      { #2 }
   }
 
 % ----------------------------------------------------------------------------
@@ -1682,6 +1704,26 @@
     \group_end:
   }
 
+% first-like:
+\NewDocumentCommand \acflike { smm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \acro_first_like:nn { #2 } { #3 }
+    \group_end:
+  }
+
+\NewDocumentCommand \acfplike { smm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_use_plural_bool
+      \acro_first_like:nn { #2 } { #3 }
+    \group_end:
+  }
+
 % reset outputs, they'll behave like the first time again (!not like the _only_
 % time!):
 \cs_new:Npn \acro_reset:n #1
@@ -1864,6 +1906,8 @@
                    compatibility reasons
 2013/02/?? v1.2  - error message instead of hanging when undefined acronym is
                    used
+                 - added `first-long-format' key and `first-long-format' option
+                 - added \acflike and \acfplike
 
 % --------------------------------------------------------------------------
 % TODO:

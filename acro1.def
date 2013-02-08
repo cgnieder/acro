@@ -180,13 +180,21 @@
   }
 \cs_generate_variant:Nn \__acro_declare_format:nn { V }
 
-% format:
+% long format:
 \cs_new:Npn \__acro_declare_long_format:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long-format }
     \prop_put:Nnn \l__acro_long_format_prop { #1 } { #2 }
   }
 \cs_generate_variant:Nn \__acro_declare_long_format:nn { V }
+
+% first long format:
+\cs_new:Npn \__acro_declare_first_long_format:nn #1#2
+  {
+    \__acro_key_check:nn { #1 } { first-long-format }
+    \prop_put:Nnn \l__acro_first_long_format_prop { #1 } { #2 }
+  }
+\cs_generate_variant:Nn \__acro_declare_first_long_format:nn { V }
 
 % pdfstring:
 \cs_new:Npn \__acro_declare_pdfstring:nw #1#2/#3/#4 \acro_stop:
@@ -324,6 +332,8 @@
       \__acro_declare_format:Vn \l__acro_current_key_tl { #1 } ,
     long-format  .code:n =
       \__acro_declare_long_format:Vn \l__acro_current_key_tl { #1 } ,
+    first-long-format .code:n =
+      \__acro_declare_first_long_format:Vn \l__acro_current_key_tl { #1 } ,
     class        .code:n =
       \__acro_declare_class:Vn \l__acro_current_key_tl { #1 } ,
     cite         .code:n =
