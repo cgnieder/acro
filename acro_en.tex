@@ -63,10 +63,12 @@
 \ChangeEmph{(}[-.01em,.04em]{)}[.04em,-.05em]
 
 \addcmds{
-  ac,aca,acap,acf,acfp,acl,aclp,acp,acreset,acresetall,acs,acsetup,acsp,
+  ac,aca,acap,acf,acflike,acfp,acfplike,acl,aclp,acp,acreset,acresetall,acs,
+  acsetup,acsp,
   addcolon,
   DeclareAcronym,DeclareAcronymCitation,DeclareAcronymFormat,
   DeclareAcronymPDFString,
+  iac,Iac,iaca,Iaca,iacs,Iacs,iacl,Iacl,iacf,Iacf,iacflike,Iacflike,
   linewidth,
   nato,newlist,ny,
   printacronyms,
@@ -256,6 +258,11 @@
     short = \{TeX\}.SE ,
     long  = \TeX{} StackExchange
   }
+\DeclareAcronym{ufo}{
+   short           = UFO ,
+   long            = unidentified flying object ,
+   long-indefinite = an
+}
 
 \usepackage{imakeidx}
 \makeindex[columns=2,options={-sl \jobname.ist},intoc]
@@ -381,6 +388,14 @@ are not described immediately but at appropriate places in the documentation.
  \Option{long-plural-form}{<text>}\newline
    plural long form of the acronym; replaces the long form when used instead of
    appending the plural ending.
+ %% short-indefinite
+ \Option{short-indefinite}{<text>}\Default{a}
+   \sinceversion{1.2}%
+   indefinite article for the short form.
+ %% long-indefinite
+ \Option{long-indefinite}{<text>}\Default{a}
+   \sinceversion{1.2}%
+   indefinite article for the long form.
  %% long-pre
  \Option{long-pre}{<text>}\newline
    \sinceversion{1.1}\code{<text>} is prepended to the long form in the text but
@@ -392,6 +407,10 @@ are not described immediately but at appropriate places in the documentation.
  %% alt
  \Option{alt}{<text>}\newline
    alternative short form.
+ %% alt-indefinite
+ \Option{alt-indefinite}{<text>}\Default{a}
+   \sinceversion{1.2}%
+   indefinite article for the alternative form.
  %% extra
  \Option{extra}{<text>}\newline
    extra information to be added in the list of acronyms.
@@ -410,6 +429,10 @@ are not described immediately but at appropriate places in the documentation.
  %% long-format
  \Option{long-format}{<\TeX{} code>}\newline
    the format used for the long form of the acronym.
+ %% first-long-format
+ \Option{first-long-format}{<\TeX{} code>}\newline
+   the format used for the first long form of the acronym as set with \cmd{ac},
+   \cmd{acf} or \cmd{acflike} and their uppercase, plural and indefinite forms.
  %% pdfstring
  \Option{pdfstring}{<text>/<plural ending>}\newline
    used as \acs{pdf} string replacement in bookmarks when used together with the
@@ -643,6 +666,50 @@ for the impact of the following example.
 \secidx*{Basics}
 
 \section{Additional Commands and Possibilities}\secidx{Additional Commands}
+\subsection{Indefinite Forms}\secidx[indefinite forms]{Additional Commands}
+\noindent\sinceversion{1.2}%
+Unlike many other languages\footnote{Let's better say: unlike the other
+languages where I know at least the basics.} in English the indefinite article
+is not determined by the grammatical case, gender or number but by the
+pronounciation of the following word. This means that the short and the long
+form of an acronym can have different indefinite articles. For these cases \acro
+offers the keys \key{short-indefinite}, \key{alt-indefinite} and
+\key{long-indefinite} whose default is \code{a}. For every lowercase singular
+command two alternatives exist, preceded by \code{i} and \code{I}, respectively,
+which output the lowercase and uppercase version of the corresponding indefinite
+article.
+
+\begin{beispiel}
+ % preamble:
+ % \DeclareAcronym{ufo}{
+ %   short           = UFO ,
+ %   long            = unidentified flying object ,
+ %   long-indefinite = an
+ % }
+ \Iac{ufo}; \iacs{ufo}; \iacl{ufo}
+\end{beispiel}
+
+\subsection{Simulating the First Appearance}
+\noindent\sinceversion{1.2}%
+Users told me\footnote{Well -- one, to be precise ;)} that there are cases when it
+might be useful to have the the acronym typeset according to the \key{first-style}
+but with another text than the long form. For such cases \acro offers the
+following commands.
+\begin{beschreibung}
+ \Befehl{acflike}*{<id>}\ma{<instead of long form>}
+ \Befehl{acfplike}*{<id>}\ma{<instead of long form>}
+\end{beschreibung}
+
+\begin{beispiel}
+ \acsetup{first-style=footnote}
+ \acflike{ny}{the big apple}
+\end{beispiel}
+
+The plural ending in \cmd{acfplike} is only appended to the short form. It makes
+no sense to append it to the text that is inserted manually anyway. Note that
+whatever text you're inserting might be gobbled depending on the \key{first-style}
+you're using.
+
 \subsection{Using Classes}\secidx[classes]{Additional Commands}
 The acronyms of \acro can be divided into different classes. This doesn't change
 the output but allows different acronym lists, see section~\ref{sec:print_lists}.
@@ -650,7 +717,12 @@ For this \cmd{DeclareAcronym} has an additional key:
 \begin{beschreibung}
  \Option{class}{<text>}
 \end{beschreibung}
-\begin{beispiel}[below]
+
+This might be useful if you can and want to divide your acronyms into different
+types, technical and grammatical ones, say, that shall be listed in different
+lists.
+
+\begin{beispiel}
  % preamble:
  % \DeclareAcronym{la}{
  %   short        = LA ,
@@ -670,9 +742,6 @@ For this \cmd{DeclareAcronym} has an additional key:
  \acl{la} (\acs{la}) \\
  \acl{ny} (\acs{ny})
 \end{beispiel}
-This might be useful if you can and want to divide your acronyms into different
-types, technical and grammatical ones, say, that shall be listed in different
-lists.
 
 \subsection{Reset or Mark as Used}\secidx[resetting]{Additional Commands}
 If you want for some reason to fool \acro into thinking that an acronym is used
@@ -828,6 +897,13 @@ There are a few options which change the general behaviour of \acro.
    actually used in the document are printed in the list. If \code{false}, all
    acronyms defined with \cmd{DeclareAcronym} will be written to the list.
  %%
+ \Option{mark-as-used}{first|any}\Default{any}
+   \sinceversion{1.2}%
+   This option determines wether an acronym is mark as used when the \emph{first}
+   form is used the first time (with \cmd{ac}, \cmd{acf} or \cmd{acflike} and
+   their uppercase, plural and indefinite forms) or when any of the \cmd{ac}-like
+   commands is used.   
+ %%
  \Option{macros}{\default{true}|false}\Default{false}
    If set to \code{true} this option will create a macro \cmd{<id>} for each
    acronym as a shortcut for \cmd{ac}{<id>}.  Already existing macros will
@@ -906,6 +982,11 @@ possible output forms of the acronyms.
  %%
  \Option{long-format}{<format>}\Default
    The same for the long forms.
+ %%
+ \Option{first-long-format}{<format>}\Default
+   \sinceversion{1.2}%
+   The format for the long form on first usage (with \cmd{ac}, \cmd{acf} or
+   \cmd{acflike} and their uppercase, plural and indefinite forms).
  %%
  \Option{list-short-format}{<format>}\Default
    \sinceversion{1.1}An extra format for the short entries in the list. If not
