@@ -28,7 +28,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\RequirePackage{expl3,xparse,l3keys2e,xtemplate}
+\RequirePackage{expl3,xparse,l3keys2e,xtemplate,zref-abspage}
 \ProvidesExplPackage
   {acro}
   {2013/01/29}
@@ -603,6 +603,10 @@
 
 \tl_new:N \l__acro_tmp_page_tl
 \tl_new:N \l__acro_last_page_tl
+\tl_new:N \g__acro_current_page_style_tl
+\tl_new:N \g__acro_last_page_style_tl
+
+\bool_new:N \g__acro_know_page_style_bool
 
 %TODO: this should be translated into expl3 syntax
 \cs_new:Npn \__acro_if_is_number:nTF #1
@@ -621,86 +625,124 @@
   }
 \cs_generate_variant:Nn \__acro_convert_to_arabic:n { V }
 
+\cs_new:Npn \__acro_check_for_style:n #1
+  {% TODO: translate into expl3
+    \tl_if_in:xxT { \detokenize\expandafter{ \thepage} } { \tl_to_str:n { #1 } }
+      {
+        \tl_gset:Nn \g__acro_current_page_style_tl { #1 }
+        \bool_gset_true:N \g__acro_know_page_style_bool
+      }
+  }
+\cs_generate_variant:Nn \tl_if_in:nnT { xx }
+\cs_generate_variant:Nn \tl_to_str:n { V }
+
+\cs_new:Npn \acro_check_page_style:
+  {
+    \tl_gset:Nn \g__acro_current_page_style_tl { unknown }
+    \bool_gset_false:N \g__acro_know_page_style_bool
+    \__acro_check_for_style:n { roman }
+    \__acro_check_for_style:n { Roman }
+    \__acro_check_for_style:n { arabic }
+  }
+
 \cs_new:Npn \acro_record_page_number:n #1
   {
-    \seq_if_empty:cTF { g__acro_#1_pages_seq }
-      {% no pages recorded, yet
-        \seq_gput_right:cx { g__acro_#1_pages_seq } { \thepage }
-        \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
-      }
+    \tl_gset_eq:NN \g__acro_last_page_style_tl \g__acro_current_page_style_tl
+    \acro_check_page_style:
+    \bool_if:NT \g__acro_know_page_style_bool
       {
-        \seq_get_right:cN { g__acro_#1_tmp_seq } \l__acro_tmp_page_tl
-        \seq_get_right:cN { g__acro_#1_pages_seq } \l__acro_last_page_tl
-        \tl_if_eq:NNTF \l__acro_tmp_page_tl \l__acro_last_page_tl
-          {% range may have started
-            \int_compare:nNnF
-              { \value{page} }
-                =
-              { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl }
-              {
-                \int_compare:nNnTF
-                  { \value{page} }
-                    =
-                  { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl + 1 }
-                  {% range continues
-                    \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
+        \seq_if_empty:cTF { g__acro_#1_pages_seq }
+          {% no pages recorded, yet
+            \seq_gput_right:cx { g__acro_#1_pages_seq }
+              { \use:c { \g__acro_current_page_style_tl } { page } }
+            \seq_gput_right:cx { g__acro_#1_tmp_seq }
+              { \use:c { \g__acro_current_page_style_tl } { page } }
+          }
+          {
+            \seq_get_right:cN { g__acro_#1_tmp_seq } \l__acro_tmp_page_tl
+            \seq_get_right:cN { g__acro_#1_pages_seq } \l__acro_last_page_tl
+            \tl_if_eq:NNTF \l__acro_tmp_page_tl \l__acro_last_page_tl
+              {% range may have started
+                \bool_if:nF
+                  {
+                    \int_compare_p:n
+                      { \value{page} = \__acro_convert_to_arabic:V \l__acro_tmp_page_tl }
+                      &&
+                    \tl_if_eq_p:NN
+                      \g__acro_last_page_style_tl
+                      \g__acro_current_page_style_tl
                   }
-                  {% no range (any more)
-                    \seq_gput_right:cx { g__acro_#1_pages_seq } { \acro@no@hyperpage,~ }
-                    \seq_gclear:c      { g__acro_#1_tmp_seq }
-                    \seq_gput_right:cx { g__acro_#1_tmp_seq }   { \thepage }
-                    \seq_gput_right:cx { g__acro_#1_pages_seq } { \thepage }
+                  {
+                    \int_compare:nNnTF
+                      { \value{page} }
+                        =
+                      { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl + 1 }
+                      {% range continues
+                        \seq_gput_right:cx { g__acro_#1_tmp_seq }
+                          { \use:c { \g__acro_current_page_style_tl } { page } }
+                      }
+                      {% no range (any more)
+                        \seq_gput_right:cx { g__acro_#1_pages_seq } { \acro@no@hyperpage,~ }
+                        \seq_gclear:c      { g__acro_#1_tmp_seq }
+                        \seq_gput_right:cx { g__acro_#1_tmp_seq }
+                          { \use:c { \g__acro_current_page_style_tl } { page } }
+                        \seq_gput_right:cx { g__acro_#1_pages_seq }
+                          { \use:c { \g__acro_current_page_style_tl } { page } }
+                      }
                   }
               }
-          }
-          {% we're in a range
-            \int_compare:nNnF
-              { \value{page} }
-                =
-              { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl }
-              {
-                \int_compare:nNnTF
+              {% we're in a range
+                \int_compare:nNnF
                   { \value{page} }
                     =
-                  { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl + 1 }
-                  {% range continues
-                    \seq_gput_right:cx { g__acro_#1_tmp_seq } { \thepage }
-                  }
-                  {% no range (any more)
+                  { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl }
+                  {
                     \int_compare:nNnTF
-                      { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl }
+                      { \value{abspage} +1 }
                         =
-                      { \__acro_convert_to_arabic:V \l__acro_last_page_tl +1 }
-                      {
-                        \bool_if:NTF \l__acro_page_ranges_bool
-                          {
-                            \seq_gput_right:cn { g__acro_#1_pages_seq }
-                              { \acro@no@hyperpage,~ }
-                            \seq_gput_right:cx { g__acro_#1_pages_seq }
-                              { \l__acro_tmp_page_tl }
-                          }
-                          {
-                            \seq_gput_right:cn { g__acro_#1_pages_seq }
-                              { \acro@no@hyperpage\l__acro_next_page_tl }
-                          }
+                      { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl + 1 }
+                      {% range continues
+                        \seq_gput_right:cx { g__acro_#1_tmp_seq }
+                          { \use:c { \g__acro_current_page_style_tl } { page } }
                       }
-                      {
-                        \bool_if:NTF \l__acro_page_ranges_bool
+                      {% no range (any more)
+                        \int_compare:nNnTF
+                          { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl }
+                            =
+                          { \__acro_convert_to_arabic:V \l__acro_last_page_tl +1 }
                           {
-                            \seq_gput_right:cn { g__acro_#1_pages_seq }
-                              { \acro@no@hyperpage-- }
-                            \seq_gput_right:cx { g__acro_#1_pages_seq }
-                              { \l__acro_tmp_page_tl }
+                            \bool_if:NTF \l__acro_page_ranges_bool
+                              {
+                                \seq_gput_right:cn { g__acro_#1_pages_seq }
+                                  { \acro@no@hyperpage,~ }
+                                \seq_gput_right:cx { g__acro_#1_pages_seq }
+                                  { \l__acro_tmp_page_tl }
+                              }
+                              {
+                                \seq_gput_right:cn { g__acro_#1_pages_seq }
+                                  { \acro@no@hyperpage\l__acro_next_page_tl }
+                              }
                           }
                           {
-                            \seq_gput_right:cn { g__acro_#1_pages_seq }
-                              { \acro@no@hyperpage\l__acro_next_pages_tl }
+                            \bool_if:NTF \l__acro_page_ranges_bool
+                              {
+                                \seq_gput_right:cn { g__acro_#1_pages_seq }
+                                  { \acro@no@hyperpage-- }
+                                \seq_gput_right:cx { g__acro_#1_pages_seq }
+                                  { \l__acro_tmp_page_tl }
+                              }
+                              {
+                                \seq_gput_right:cn { g__acro_#1_pages_seq }
+                                  { \acro@no@hyperpage\l__acro_next_pages_tl }
+                              }
                           }
+                        \seq_gclear:c      { g__acro_#1_tmp_seq }
+                        \seq_gput_right:cx { g__acro_#1_tmp_seq }
+                          { \use:c { \g__acro_current_page_style_tl } { page } }
+                        \seq_gput_right:cn { g__acro_#1_pages_seq } { \acro@no@hyperpage,~ }
+                        \seq_gput_right:cx { g__acro_#1_pages_seq }
+                          { \use:c { \g__acro_current_page_style_tl } { page } }
                       }
-                    \seq_gclear:c      { g__acro_#1_tmp_seq }
-                    \seq_gput_right:cx { g__acro_#1_tmp_seq }   { \thepage }
-                    \seq_gput_right:cn { g__acro_#1_pages_seq } { \acro@no@hyperpage,~ }
-                    \seq_gput_right:cx { g__acro_#1_pages_seq } { \thepage }
                   }
               }
           }
@@ -1908,6 +1950,7 @@
                    used
                  - added `first-long-format' key and `first-long-format' option
                  - added \acflike and \acfplike
+                 - improvements and bug fixes to the page recording mechanism
 
 % --------------------------------------------------------------------------
 % TODO:
