@@ -94,6 +94,10 @@
     \prop_put:Nnx \l__acro_pdfstring_prop  { #1 } { \exp_not:n { #2 } }
     \prop_put:Nnn \l__acro_short_plural_prop
       { #1 } { \l__acro_default_plural_tl }
+    \prop_put:Nnx \l__acro_short_indefinite_prop
+      { #1 } { \l__acro_default_indefinite_tl }
+    \prop_put:Nnx \l__acro_alt_indefinite_prop
+      { #1 } { \l__acro_default_indefinite_tl }
     \prop_put:Nnx \l__acro_pdfstring_plural_prop
       { #1 } { \exp_not:n { #2 } \exp_not:V \l__acro_default_plural_tl }
   }
@@ -112,6 +116,8 @@
     \__acro_key_check:nn { #1 } { long }
     \prop_put:Nnn \l__acro_replace_plural_prop { #1 } { \c_false_bool }
     \prop_put:Nnn \l__acro_long_prop { #1 } { #2 }
+    \prop_put:Nnx \l__acro_long_indefinite_prop
+      { #1 } { \l__acro_default_indefinite_tl }
     \bool_if:cF { l__acro_#1_long-plural_set_bool }
       {
         \prop_put:Nnn \l__acro_long_plural_prop
@@ -137,6 +143,22 @@
     \prop_put:Nnn \l__acro_long_plural_prop { #1 } { #2 }
   }
 \cs_generate_variant:Nn \__acro_declare_long_plural_form:nn { V }
+
+% short indefinite article:
+\cs_new:Npn \__acro_declare_short_indefinite:nn #1#2
+  {
+    \__acro_key_check:nn { #1 } { short-indefinite }
+    \prop_put:Nnn \l__acro_short_indefinite_prop { #1 } { #2 }
+  }
+\cs_generate_variant:Nn \__acro_declare_short_indefinite:nn { V }
+
+% long indefinite article:
+\cs_new:Npn \__acro_declare_long_indefinite:nn #1#2
+  {
+    \__acro_key_check:nn { #1 } { long-indefinite }
+    \prop_put:Nnn \l__acro_long_indefinite_prop { #1 } { #2 }
+  }
+\cs_generate_variant:Nn \__acro_declare_long_indefinite:nn { V }
 
 % pre long:
 \cs_new:Npn \__acro_declare_long_pre:nn #1#2
@@ -169,8 +191,18 @@
   {
     \__acro_key_check:nn { #1 } { alt }
     \prop_put:Nnn \l__acro_alt_prop { #1 } { #2 }
+    \prop_put:Nnx \l__acro_alt_indefinite_prop
+      { #1 } { \l__acro_default_indefinite_tl }
   }
 \cs_generate_variant:Nn \__acro_declare_alt:nn { V }
+
+% alt. indefinite article:
+\cs_new:Npn \__acro_declare_alt_indefinite:nn #1#2
+  {
+    \__acro_key_check:nn { #1 } { alt-indefinite }
+    \prop_put:Nnn \l__acro_alt_indefinite_prop { #1 } { #2 }
+  }
+\cs_generate_variant:Nn \__acro_declare_alt_indefinite:nn { V }
 
 % format:
 \cs_new:Npn \__acro_declare_format:nn #1#2
@@ -318,6 +350,12 @@
       \__acro_declare_long_plural:Vn \l__acro_current_key_tl { #1 } ,
     long-plural-form .code:n =
       \__acro_declare_long_plural_form:Vn \l__acro_current_key_tl { #1 } ,
+    short-indefinite .code:n =
+      \__acro_declare_short_indefinite:Vn \l__acro_current_key_tl { #1 } ,
+    alt-indefinite .code:n =
+      \__acro_declare_alt_indefinite:Vn \l__acro_current_key_tl { #1 } ,
+    long-indefinite .code:n =
+      \__acro_declare_long_indefinite:Vn \l__acro_current_key_tl { #1 } ,
     long-pre     .code:n =
       \__acro_declare_long_pre:Vn \l__acro_current_key_tl { #1 } ,
     long-post    .code:n =

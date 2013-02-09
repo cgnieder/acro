@@ -75,6 +75,8 @@
 \bool_new:N \l__acro_create_macros_bool
 \bool_new:N \l__acro_xspace_bool
 \bool_new:N \l__acro_first_upper_bool
+\bool_new:N \l__acro_indefinite_bool
+\bool_new:N \l__acro_upper_indefinite_bool
 \bool_new:N \l__acro_sort_bool
 \bool_set_true:N \l__acro_sort_bool
 \bool_new:N \l__acro_capitalize_list_bool
@@ -94,6 +96,8 @@
 \tl_new:N   \l__acro_long_format_tl
 \tl_new:N   \l__acro_first_long_format_tl
 \tl_new:N   \l__acro_list_long_format_tl
+\tl_new:N   \l__acro_default_indefinite_tl
+\tl_set:Nn  \l__acro_default_indefinite_tl { a }
 \tl_new:N   \l__acro_extra_format_tl
 \tl_new:N   \l__acro_first_instance_tl
 \tl_set:Nn  \l__acro_first_instance_tl { default }
@@ -139,6 +143,9 @@
 \prop_new:N \l__acro_replace_plural_prop
 \prop_new:N \l__acro_short_plural_prop
 \prop_new:N \l__acro_long_plural_prop
+\prop_new:N \l__acro_short_indefinite_prop
+\prop_new:N \l__acro_long_indefinite_prop
+\prop_new:N \l__acro_alt_indefinite_prop
 \prop_new:N \l__acro_long_pre_prop
 \prop_new:N \l__acro_long_post_prop
 \prop_new:N \l__acro_extra_prop
@@ -165,6 +172,7 @@
 
 \cs_new:Npn \__acro_first_upper_case:n #1
   { \tl_expandable_uppercase:n { \tl_head:n { #1 } } \tl_tail:n { #1 } }
+\cs_generate_variant:Nn \__acro_first_upper_case:n { x }
 
 \cs_new_eq:NN \acro_first_upper_case:n \__acro_first_upper_case:n
 
@@ -407,6 +415,7 @@
     \AssignTemplateKeys
     \bool_if:nT { !\l__acro_first_only_short_bool && !\l__acro_first_reversed_bool }
       {
+        \__acro_indefinite:nn { #1 } { long }
         \__acro_write_long:No \l__acro_first_long_format_tl { #3 }
         \tl_use:N \c_space_tl
         \tl_if_blank:VF \l__acro_first_between_tl
@@ -418,6 +427,9 @@
     \bool_if:nT
       { \l__acro_first_use_brackets_bool && !\l__acro_first_reversed_bool }
       { \tl_head:N \l__acro_first_brackets_tl }
+    \bool_if:nT
+      { \l__acro_first_reversed_bool || \l__acro_first_only_short_bool }
+      { \__acro_indefinite:nn { #1 } { short } }
     \__acro_acc_supp:nn { #1 } { \__acro_write_short:n { #2 } }
     \bool_if:nT
       { \l__acro_first_use_brackets_bool && !\l__acro_first_reversed_bool }
@@ -456,6 +468,7 @@
   }
   {
     \AssignTemplateKeys
+    \__acro_indefinite:nn { #1 } { short }
     \__acro_acc_supp:nn { #1 } { \__acro_write_short:n { #2 } }
     \bool_if:NT \l__acro_use_note_bool
       {
@@ -1231,6 +1244,7 @@
     \acro_is_used:nTF { #1 }
       {
         % this is not the first time
+        \__acro_indefinite:nn { #1 } { short }
         \__acro_acc_supp:nn
           { #1 }
           { \__acro_write_short:V \l__acro_short_tl }
@@ -1240,7 +1254,10 @@
         % this is the first time
         \bool_gset_true:c { g__acro_#1_first_use_bool }
         \__acro_is_single:nTF { #1 }
-          { \__acro_write_long:NV \l__acro_long_format_tl \l__acro_long_tl }
+          {
+            \__acro_indefinite:nn { #1 } { long }
+            \__acro_write_long:NV \l__acro_long_format_tl \l__acro_long_tl
+          }
           { 
             \UseInstance { acro-first } { \l__acro_first_instance_tl }
               { #1 }
@@ -1379,6 +1396,7 @@
   {
     \acro_get:n { #1 }
     \acro_is_used:n { #1 }
+    \__acro_indefinite:nn { #1 } { short }
     \__acro_is_single:nT { #1 }
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
     \__acro_acc_supp:nn
@@ -1392,6 +1410,7 @@
   {
     \acro_get:n { #1 }
     \acro_is_used:n { #1 }
+    \__acro_indefinite:nn { #1 } { alt }
     \__acro_is_single:nT { #1 }
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
     \__acro_acc_supp:nn
@@ -1405,6 +1424,7 @@
   {
     \acro_get:n { #1 }
     \acro_is_used:n { #1 }
+    \__acro_indefinite:nn { #1 } { long }
     \__acro_is_single:nT { #1 }
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
     \__acro_write_long:NV \l__acro_long_format_tl \l__acro_long_tl
@@ -1545,6 +1565,19 @@
   }
 
 % --------------------------------------------------------------------------
+% indefinite articles:
+\cs_new_protected:Npn \__acro_indefinite:nn #1#2
+  {
+    \bool_if:NT \l__acro_indefinite_bool
+      { \prop_get:cn { l__acro_#2_indefinite_prop } { #1 } ~ }
+    \bool_if:NT \l__acro_upper_indefinite_bool
+      {
+         \__acro_first_upper_case:x
+           { \prop_get:cn { l__acro_#2_indefinite_prop } { #1 } } ~
+      }
+  }
+
+% --------------------------------------------------------------------------
 % experimental sorting feature:
 \AtBeginDocument
   {
@@ -1613,6 +1646,26 @@
     \group_end:
   }
 
+\NewDocumentCommand \iac { sm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_indefinite_bool
+      \acro_use:n { #2 }
+    \group_end:
+  }
+
+\NewDocumentCommand \Iac { sm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_upper_indefinite_bool
+      \acro_use:n { #2 }
+    \group_end:
+  }
+
 \NewDocumentCommand \Ac { sm }
   {
     \group_begin:
@@ -1654,6 +1707,26 @@
     \group_end:
   }
 
+\NewDocumentCommand \iacs { sm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_indefinite_bool
+      \acro_short:n { #2 }
+    \group_end:
+  }
+
+\NewDocumentCommand \Iacs { sm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_upper_indefinite_bool
+      \acro_short:n { #2 }
+    \group_end:
+  }
+
 \NewDocumentCommand \acsp { sm }
   {
     \group_begin:
@@ -1674,6 +1747,26 @@
     \group_end:
   }
 
+\NewDocumentCommand \iaca { sm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_indefinite_bool
+      \acro_alt:n { #2 }
+    \group_end:
+  }
+
+\NewDocumentCommand \Iaca { sm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_upper_indefinite_bool
+      \acro_alt:n { #2 }
+    \group_end:
+  }
+
 \NewDocumentCommand \acap { sm }
   {
     \group_begin:
@@ -1690,6 +1783,26 @@
     \group_begin:
       \acro_defined:n { #2 }
       \acro_use_if:nn { #1 } { #2 }
+      \acro_long:n { #2 }
+    \group_end:
+  }
+
+\NewDocumentCommand \iacl { sm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_indefinite_bool
+      \acro_long:n { #2 }
+    \group_end:
+  }
+
+\NewDocumentCommand \Iacl { sm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_upper_indefinite_bool
       \acro_long:n { #2 }
     \group_end:
   }
@@ -1735,6 +1848,26 @@
     \group_end:
   }
 
+\NewDocumentCommand \iacf { sm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_indefinite_bool
+      \acro_first:n { #2 }
+    \group_end:
+  }
+
+\NewDocumentCommand \Iacf { sm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_upper_indefinite_bool
+      \acro_first:n { #2 }
+    \group_end:
+  }
+
 \NewDocumentCommand \Acf { sm }
   {
     \group_begin:
@@ -1772,6 +1905,26 @@
     \group_begin:
       \acro_defined:n { #2 }
       \acro_use_if:nn { #1 } { #2 }
+      \acro_first_like:nn { #2 } { #3 }
+    \group_end:
+  }
+
+\NewDocumentCommand \iacflike { smm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_indefinite_bool
+      \acro_first_like:nn { #2 } { #3 }
+    \group_end:
+  }
+
+\NewDocumentCommand \Iacflike { smm }
+  {
+    \group_begin:
+      \acro_defined:n { #2 }
+      \acro_use_if:nn { #1 } { #2 }
+      \bool_set_true:N \l__acro_upper_indefinite_bool
       \acro_first_like:nn { #2 } { #3 }
     \group_end:
   }
@@ -1814,13 +1967,13 @@
   { \acro_mark_all_as_used: }
 
 \NewDocumentCommand \acreset { > { \SplitList { , } } m }
-  { \ProcessList { #1 } { \acro_reset:n } }
+  { \ProcessList { #1 } { \acro_reset:n } \ignorespaces }
 
 \NewDocumentCommand \acuse { > { \SplitList { , } } m }
-  { \ProcessList { #1 } { \acro_mark_as_used:n } }
+  { \ProcessList { #1 } { \acro_mark_as_used:n } \ignorespaces }
 
-
-
+% ---------------------------------------------------------------------------
+% process options:
 \ProcessKeysOptions { acro }
 
 % ---------------------------------------------------------------------------
@@ -1970,20 +2123,20 @@
 2013/01/29 v1.1a - added `long-format' key
                  - renamed `format' key into `short-format', kept `format' for
                    compatibility reasons
-2013/02/?? v1.2  - error message instead of hanging when undefined acronym is
-                   used
+2013/02/?? v1.2  - error message instead of hanging when an undefined acronym
+                   is used
                  - added `first-long-format' key and `first-long-format' option
                  - added \acflike and \acfplike
                  - improvements and bug fixes to the page recording mechanism
                  - new option `mark-as-used'
+                 - new keys: `short-indefinite', `alt-indefinite' and
+                   `long-indefinite'
+                 - new commands: \iac, \Iac, \iacs, \Iacs, \iaca, \Iaca, \iacl,
+                   \Iacl, \iacf, \Iacf, \iacflike and \Iacflike
 
 % --------------------------------------------------------------------------
 % TODO:
 - Option `totoc'!?
-- Optionen `list-header = addsec|addchap' (acro-title instance)
-- acro-first instance `none', die nur die Kurzform verwendet
-- Option `list-short-format'
-
 - revise list styles to allow _full_ customization by creating own instances!
   this probably needs a handfull of macros that give access to the entries
   without worrying about internals
