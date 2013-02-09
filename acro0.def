@@ -72,6 +72,7 @@
       { \prop_put:Nnn \l__acro_class_prop { #2 } { #8 } }
     \IfNoValueF { #9 }
       { \prop_put:Nnn \l__acro_extra_prop { #2 } { #9 } }
+    \bool_new:c { g__acro_#2_first_use_bool }
     \bool_new:c { g__acro_#2_used_bool }
     \bool_new:c { g__acro_#2_label_bool }
     \bool_if:NT \l__acro_create_macros_bool

@@ -63,6 +63,7 @@
 
 % boolean variables:
 \bool_new:N \l__acro_mark_as_used_bool
+\bool_new:N \l__acro_mark_first_as_used_bool
 \bool_new:N \l__acro_use_single_bool
 \bool_new:N \l__acro_print_only_used_bool
 \bool_set_true:N \l__acro_print_only_used_bool
@@ -233,6 +234,11 @@
     list-table-width  .dim_set:N  = \l__acro_table_width_dim        ,
     hyperref          .bool_set:N = \l__acro_use_hyperref_bool      ,
     only-used         .bool_set:N = \l__acro_print_only_used_bool   ,
+    mark-as-used      .choice: ,
+    mark-as-used / first .code:n  =
+      \bool_set_true:N \l__acro_mark_first_as_used_bool             ,
+    mark-as-used / any   .code:n  =
+      \bool_set_false:N \l__acro_mark_first_as_used_bool            ,
     plural-ending     .tl_set:N   = \l__acro_default_plural_tl      ,
     list-caps         .bool_set:N = \l__acro_capitalize_list_bool   ,
     cite              .choice:                                      ,
@@ -569,17 +575,17 @@
     \seq_new:c { g__acro_#1_pages_seq }
   }
 
-\cs_new:Npn \acro@hyper@page #1
+\cs_new:Npn \ac@hp #1
   {
-    \tl_if_in:nnTF { #1 } { \acro@no@hyperpage }
+    \tl_if_in:nnTF { #1 } { \ac@no@hp }
       { #1 }
       { \acro_hyper_page:n { #1 } }
   }
 
-\cs_new_protected:Npn \acro@no@hyperpage {}
+\cs_new_protected:Npn \ac@no@hp {}
 
 \cs_new:Npn \__acro_safe_pages_aux:n #1
-  { \noexpand \acro@hyper@page {#1}| }
+  { \noexpand \ac@hp {#1}| }
 
 \cs_new_eq:NN \acro_hyper_page:n \use:n
 
@@ -626,8 +632,8 @@
 \cs_generate_variant:Nn \__acro_convert_to_arabic:n { V }
 
 \cs_new:Npn \__acro_check_for_style:n #1
-  {% TODO: translate into expl3
-    \tl_if_in:xxT { \detokenize\expandafter{ \thepage} } { \tl_to_str:n { #1 } }
+  {
+    \tl_if_in:xxT { \tl_to_str:V { \thepage } } { \tl_to_str:n { #1 } }
       {
         \tl_gset:Nn \g__acro_current_page_style_tl { #1 }
         \bool_gset_true:N \g__acro_know_page_style_bool
@@ -682,7 +688,7 @@
                           { \use:c { \g__acro_current_page_style_tl } { page } }
                       }
                       {% no range (any more)
-                        \seq_gput_right:cx { g__acro_#1_pages_seq } { \acro@no@hyperpage,~ }
+                        \seq_gput_right:cx { g__acro_#1_pages_seq } { \ac@no@hp,~ }
                         \seq_gclear:c      { g__acro_#1_tmp_seq }
                         \seq_gput_right:cx { g__acro_#1_tmp_seq }
                           { \use:c { \g__acro_current_page_style_tl } { page } }
@@ -714,32 +720,32 @@
                             \bool_if:NTF \l__acro_page_ranges_bool
                               {
                                 \seq_gput_right:cn { g__acro_#1_pages_seq }
-                                  { \acro@no@hyperpage,~ }
+                                  { \ac@no@hp,~ }
                                 \seq_gput_right:cx { g__acro_#1_pages_seq }
                                   { \l__acro_tmp_page_tl }
                               }
                               {
                                 \seq_gput_right:cn { g__acro_#1_pages_seq }
-                                  { \acro@no@hyperpage\l__acro_next_page_tl }
+                                  { \ac@no@hp\l__acro_next_page_tl }
                               }
                           }
                           {
                             \bool_if:NTF \l__acro_page_ranges_bool
                               {
                                 \seq_gput_right:cn { g__acro_#1_pages_seq }
-                                  { \acro@no@hyperpage-- }
+                                  { \ac@no@hp-- }
                                 \seq_gput_right:cx { g__acro_#1_pages_seq }
                                   { \l__acro_tmp_page_tl }
                               }
                               {
                                 \seq_gput_right:cn { g__acro_#1_pages_seq }
-                                  { \acro@no@hyperpage\l__acro_next_pages_tl }
+                                  { \ac@no@hp\l__acro_next_pages_tl }
                               }
                           }
                         \seq_gclear:c      { g__acro_#1_tmp_seq }
                         \seq_gput_right:cx { g__acro_#1_tmp_seq }
                           { \use:c { \g__acro_current_page_style_tl } { page } }
-                        \seq_gput_right:cn { g__acro_#1_pages_seq } { \acro@no@hyperpage,~ }
+                        \seq_gput_right:cn { g__acro_#1_pages_seq } { \ac@no@hp,~ }
                         \seq_gput_right:cx { g__acro_#1_pages_seq }
                           { \use:c { \g__acro_current_page_style_tl } { page } }
                       }
@@ -763,26 +769,26 @@
             \bool_if:NTF \l__acro_page_ranges_bool
               {
                 \seq_gput_right:cn { g__acro_#1_pages_seq }
-                  { \acro@no@hyperpage,~ }
+                  { \ac@no@hp,~ }
                 \seq_gput_right:cx { g__acro_#1_pages_seq }
                   { \l__acro_tmp_page_tl }
               }
               {
                 \seq_gput_right:cn { g__acro_#1_pages_seq }
-                  { \acro@no@hyperpage\l__acro_next_page_tl }
+                  { \ac@no@hp\l__acro_next_page_tl }
               }
           }
           {
             \bool_if:NTF \l__acro_page_ranges_bool
               {
                 \seq_gput_right:cn { g__acro_#1_pages_seq }
-                  { \acro@no@hyperpage-- }
+                  { \ac@no@hp-- }
                 \seq_gput_right:cx { g__acro_#1_pages_seq }
                   { \l__acro_tmp_page_tl }
               }
               {
                 \seq_gput_right:cn { g__acro_#1_pages_seq }
-                  { \acro@no@hyperpage\l__acro_next_pages_tl }
+                  { \ac@no@hp\l__acro_next_pages_tl }
               }
           }
       }
@@ -1232,6 +1238,7 @@
       }
       {
         % this is the first time
+        \bool_gset_true:c { g__acro_#1_first_use_bool }
         \__acro_is_single:nTF { #1 }
           { \__acro_write_long:NV \l__acro_long_format_tl \l__acro_long_tl }
           { 
@@ -1310,7 +1317,18 @@
 % style for that:
 \cs_new:Npn \acro_is_used:nTF #1#2#3
   {
-    \bool_if:cTF { g__acro_#1_used_bool }
+    \bool_if:nTF
+      {
+        \bool_if_p:c { g__acro_#1_used_bool } &&
+        (
+          (
+            \bool_if_p:c { g__acro_#1_first_use_bool } &&
+            \l__acro_mark_first_as_used_bool
+          )
+          ||
+          ! \l__acro_mark_first_as_used_bool
+        )
+      }
       { \iow_now:Nx \@auxout { \string \acro@used@twice { #1 } } #2 }
       {
         \iow_now:Nx \@auxout { \string \acro@used@once { #1 } }
@@ -1396,6 +1414,7 @@
 % output like the first time:
 \cs_new:Npn \acro_first:n #1
   {
+    \bool_gset_true:c { g__acro_#1_first_use_bool }
     \acro_get:n { #1 }
     \acro_is_used:n { #1 }
     \__acro_is_single:nT { #1 }
@@ -1409,6 +1428,7 @@
 % output like the first time with own long version:
 \cs_new:Npn \acro_first_like:nn #1#2
   {
+    \bool_gset_true:c { g__acro_#1_first_use_bool }
     \acro_get:n { #1 }
     \acro_is_used:n { #1 }
     \__acro_is_single:nT { #1 }
@@ -1769,11 +1789,15 @@
 % reset outputs, they'll behave like the first time again (!not like the _only_
 % time!):
 \cs_new:Npn \acro_reset:n #1
-  { \bool_gset_false:c { g__acro_#1_used_bool } }
+  {
+    \bool_gset_false:c { g__acro_#1_used_bool }
+    \bool_gset_false:c { g__acro_#1_first_use_bool }
+  }
 
 \cs_new:Npn \acro_mark_as_used:n #1
   {
     \bool_gset_true:c { g__acro_#1_used_bool }
+    \bool_gset_true:c { g__acro_#1_first_use_bool }
     \acro@used@once { #1 }
   }
 
@@ -1951,6 +1975,7 @@
                  - added `first-long-format' key and `first-long-format' option
                  - added \acflike and \acfplike
                  - improvements and bug fixes to the page recording mechanism
+                 - new option `mark-as-used'
 
 % --------------------------------------------------------------------------
 % TODO:

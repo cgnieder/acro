@@ -369,6 +369,7 @@
   {
     \tl_set:Nn \l__acro_current_key_tl { #1 }
     \keys_set:nn { acro / declare-acronym } { #2 }
+    \bool_new:c { g__acro_#1_first_use_bool }
     \bool_new:c { g__acro_#1_used_bool }
     \bool_new:c { g__acro_#1_label_bool }
     \acro_create_page_records:n { #1 }
