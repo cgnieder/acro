@@ -28,7 +28,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\RequirePackage{expl3,xparse,l3keys2e,xtemplate,zref-abspage}
+\RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
   {2013/01/29}
@@ -698,7 +698,7 @@
                   { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl }
                   {
                     \int_compare:nNnTF
-                      { \value{abspage} +1 }
+                      { \value{page} }
                         =
                       { \__acro_convert_to_arabic:V \l__acro_tmp_page_tl + 1 }
                       {% range continues
@@ -930,7 +930,7 @@
       {
         \clist_map_inline:nn { #2 }
           {
-            \prop_get:NnN \l__acro_class_prop { #1 } \l__acro_tmpa_tl
+            \prop_get:NnNF \l__acro_class_prop { #1 } \l__acro_tmpa_tl {}
             \tl_if_eq:nVT { ##1 } \l__acro_tmpa_tl
               { \bool_set_true:N \l__acro_is_excluded_bool }
           }
@@ -1267,10 +1267,10 @@
   {
     \acro_defined:n { #1 }
     \__acro_activate_hyperref_support:
-    \prop_get:NnN \l__acro_short_prop { #1 } \l__acro_tmpa_tl
+    \prop_get:NnNF \l__acro_short_prop { #1 } \l__acro_tmpa_tl {}
     \__acro_make_link:nNN { #1 } \l__acro_short_tl \l__acro_tmpa_tl
-    \prop_get:NnN \l__acro_short_plural_prop { #1 } \l__acro_short_plural_tl
-    \prop_get:NnN \l__acro_long_prop { #1 } \l__acro_long_tl
+    \prop_get:NnNF \l__acro_short_plural_prop { #1 } \l__acro_short_plural_tl {}
+    \prop_get:NnNF \l__acro_long_prop { #1 } \l__acro_long_tl {}
     \prop_get:NnNTF \l__acro_long_format_prop { #1 }
       \l__acro_custom_long_format_tl
       { \bool_set_true:N  \l__acro_custom_long_format_bool }
@@ -1280,7 +1280,7 @@
       {}% to avoid hanging compilation if first-long-format hasn't been set
     \prop_get:NnNT \l__acro_long_pre_prop { #1 } \l__acro_long_pre_tl
       { \tl_put_left:NV \l__acro_long_tl \l__acro_long_pre_tl }
-    \prop_get:NnN \l__acro_alt_prop { #1 } \l__acro_tmpb_tl
+    \prop_get:NnNF \l__acro_alt_prop { #1 } \l__acro_tmpb_tl {}
     \__acro_make_link:nNN { #1 } \l__acro_alt_tl \l__acro_tmpb_tl
     \prop_get:NnNTF \l__acro_format_prop { #1 } \l__acro_custom_format_tl
       { \bool_set_true:N \l__acro_custom_format_bool }
@@ -1297,7 +1297,7 @@
     \bool_if:NT \l__acro_use_plural_bool
       {
         \bool_if:nTF { \prop_get:Nn \l__acro_replace_plural_prop { #1 } }
-          { \prop_get:NnN \l__acro_long_plural_prop { #1 } \l__acro_long_tl }
+          { \prop_get:NnNF \l__acro_long_plural_prop { #1 } \l__acro_long_tl {} }
           {
             \tl_put_right:Nn \l__acro_long_tl
               { \prop_get:Nn \l__acro_long_plural_prop { #1 } }
@@ -1442,8 +1442,8 @@
       {
         \prop_get:NnNT \l__acro_citation_prop { #2 } \l__acro_tmpa_tl
           {
-            \prop_get:NnN \l__acro_citation_pre_prop { #2 } \l__acro_tmpb_tl
-            \prop_get:NnN \l__acro_citation_post_prop { #2 } \l__acro_tmpc_tl
+            \prop_get:NnNF \l__acro_citation_pre_prop { #2 } \l__acro_tmpb_tl {}
+            \prop_get:NnNF \l__acro_citation_post_prop { #2 } \l__acro_tmpc_tl {}
             \__acro_no_break:
             \tl_use:N \l__acro_citation_space_tl
             \__acro_cite:VVV
@@ -1460,9 +1460,9 @@
   {
     \bool_if:nT { #1 && \l__acro_mark_as_used_bool }
       {
-        \prop_get:NnN \l__acro_index_cmd_prop  { #2 } \l__acro_tmpa_tl
-        \prop_get:NnN \l__acro_index_sort_prop { #2 } \l__acro_tmpb_tl
-        \prop_get:NnN \l__acro_index_prop      { #2 } \l__acro_tmpc_tl
+        \prop_get:NnNF \l__acro_index_cmd_prop  { #2 } \l__acro_tmpa_tl {}
+        \prop_get:NnNF \l__acro_index_sort_prop { #2 } \l__acro_tmpb_tl {}
+        \prop_get:NnNF \l__acro_index_prop      { #2 } \l__acro_tmpc_tl {}
         \__acro_index:VnVV
           \l__acro_tmpa_tl
           { #2 }
@@ -1477,8 +1477,8 @@
 % #4: replace
 \cs_new:Npn \__acro_index:nnnn #1#2#3#4
   {
-    \prop_get:NnN \l__acro_short_prop  { #2 } \l__acro_tmpa_tl
-    \prop_get:NnN \l__acro_format_prop { #2 } \l__acro_tmpb_tl
+    \prop_get:NnNF \l__acro_short_prop  { #2 } \l__acro_tmpa_tl {}
+    \prop_get:NnNF \l__acro_format_prop { #2 } \l__acro_tmpb_tl {}
     \quark_if_no_value:VTF \l__acro_tmpb_tl
       { \tl_set:Nn \l__acro_tmpc_tl { \l__acro_short_format_tl \l__acro_tmpa_tl } }
       { \tl_set:Nn \l__acro_tmpc_tl { \l__acro_tmpb_tl \l__acro_tmpa_tl } }
@@ -1516,7 +1516,7 @@
         \cs_set:Npn \__acro_acc_supp:nn #1#2
           {
             \prop_get:NnNF \l__acro_acc_supp_prop { #1 } \l__acro_acc_supp_tl
-              { \prop_get:NnN \l__acro_short_prop { #1 } \l__acro_acc_supp_tl }
+              { \prop_get:NnNF \l__acro_short_prop { #1 } \l__acro_acc_supp_tl {} }
             \bool_if:NT \l__acro_use_plural_bool
               { \tl_put_right:NV \l__acro_acc_supp_tl \l__acro_short_plural_tl }
             \__acro_acc_supp_aux:Vn \l__acro_acc_supp_tl { #2 }
@@ -1552,7 +1552,7 @@
             \seq_map_inline:Nn \l__acro_tmpa_seq
               {
                 % get ID:
-                \prop_get:NnN \l__acro_tmpa_prop { ##1 } \l__acro_tmpa_tl
+                \prop_get:NnNF \l__acro_tmpa_prop { ##1 } \l__acro_tmpa_tl {}
                 % get prop entry of ID in #1:
                 \prop_get:NVNT #1 \l__acro_tmpa_tl \l__acro_tmpb_tl
                   {
