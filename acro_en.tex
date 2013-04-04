@@ -81,74 +81,80 @@
 \addbibresource{\jobname.bib}
 \begin{filecontents}{\jobname.bib}
 @package{abbrevs,
-  title   = {abbrevs},
-  author  = {Matt Swift},
-  date    = {2001-09-08},
-  version = {1.4},
-  url     = {http://www.ctan.org/pkg/abbrevs}
+  title    = {abbrevs},
+  author   = {Matt Swift},
+  date     = {2001-09-08},
+  version  = {1.4},
+  url      = {http://www.ctan.org/pkg/abbrevs}
 }
 @package{acromake,
-  title   = {acromake},
-  author  = {Paul A. Thompson},
-  date    = {1995-07-16},
-  version = {na},
-  url     = {http://www.ctan.org/pkg/acromake}
+  title    = {acromake},
+  author   = {Paul A. Thompson},
+  date     = {1995-07-16},
+  version  = {na},
+  url      = {http://www.ctan.org/pkg/acromake}
 }
 @package{acronym,
-  title   = {acronym -- An Acronym Environment for \LaTeXe},
-  author  = {Tobias Oetiker},
-  date    = {2012-10-29},
-  version = {1.38},
-  url     = {http://www.ctan.org/pkg/acronym}
+  title    = {acronym},
+  subtitle = {An Acronym Environment for \LaTeXe},
+  author   = {Tobias Oetiker},
+  date     = {2012-10-29},
+  version  = {1.38},
+  url      = {http://www.ctan.org/pkg/acronym}
 }
 @package{acroterm,
-  title   = {acroterm},
-  author  = {Jakob Voss},
-  date    = {2010-11-19},
-  version = {0.1},
-  url     = {http://www.ctan.org/pkg/acroterm}
+  title    = {acroterm},
+  author   = {Jakob Voss},
+  date     = {2010-11-19},
+  version  = {0.1},
+  url      = {http://www.ctan.org/pkg/acroterm}
 }
 @package{glossaries,
-  title   = {glossaries},
-  author  = {Nicola L.C. Talbot},
-  date    = {2012-11-18},
-  version = {3.04},
-  url     = {http://www.ctan.org/pkg/glossaries}
+  title    = {glossaries},
+  author   = {Nicola L.C. Talbot},
+  date     = {2012-11-18},
+  version  = {3.04},
+  url      = {http://www.ctan.org/pkg/glossaries}
 }
 @package{nomencl,
-  title   = {nomencl -- A Package to Create a Nomenclature},
-  author  = {Boris Veytsman and Bernd Schandl and Lee Netherton and C.V. Radhakrishnan},
-  date    = {2005-09-22},
-  version = {4.2},
-  url     = {http://www.ctan.org/pkg/nomencl}
+  title    = {nomencl},
+  subtitle = {A Package to Create a Nomenclature},
+  author   = {Boris Veytsman and Bernd Schandl and Lee Netherton and C.V. Radhakrishnan},
+  date     = {2005-09-22},
+  version  = {4.2},
+  url      = {http://www.ctan.org/pkg/nomencl}
 }
 @online{wikipedia,
-  author  = {Wikipedia},
-  title   = {Acronym and initialism},
-  urldate = {2012-06-21},
-  url     = {http://en.wikipedia.org/wiki/Acronyms},
-  year    = {2012}
+  author   = {Wikipedia},
+  title    = {Acronym and initialism},
+  urldate  = {2012-06-21},
+  url      = {http://en.wikipedia.org/wiki/Acronyms},
+  year     = {2012}
 }
 @online{NewYork,
-  author  = {Wikipedia},
-  title   = {New York City},
-  urldate = {2012-09-27},
-  url     = {http://en.wikipedia.org/wiki/New_York_City},
-  year    = {2012}
+  author   = {Wikipedia},
+  title    = {New York City},
+  urldate  = {2012-09-27},
+  url      = {http://en.wikipedia.org/wiki/New_York_City},
+  year     = {2012}
 }
 \end{filecontents}
 
-\begin{filecontents}{\jobname.ist}
+\usepackage{imakeidx}
+\begin{filecontents*}{\jobname.ist}
  heading_prefix "{\\bfseries "
  heading_suffix "\\hfil}\\nopagebreak\n"
  headings_flag  1
- delim_0 "\\dotfill "
- delim_1 "\\dotfill "
- delim_2 "\\dotfill "
- delim_r "\\textendash"
+ delim_0 "\\dotfill\\hyperpage{"
+ delim_1 "\\dotfill\\hyperpage{"
+ delim_2 "\\dotfill\\hyperpage{"
+ delim_r "}\\textendash\\hyperpage{"
+ delim_t "}"
  suffix_2p "\\nohyperpage{\\,f.}"
  suffix_3p "\\nohyperpage{\\,ff.}"
-\end{filecontents}
+\end{filecontents*}
+\indexsetup{noclearpage,othercode=\footnotesize}
+\makeindex[options={-s \jobname.ist},intoc,columns=3]
 
 \TitlePicture{\parbox{.75\linewidth}{%
   \acro not only allows you to create acronyms in a simple way but also lets you
@@ -264,18 +270,15 @@
    long-indefinite = an
 }
 
-\usepackage{imakeidx}
-\makeindex[columns=2,options={-sl \jobname.ist},intoc]
-
 \usepackage{marginnote}
 \makeatletter
-\newcommand*\sinceversion[1]{%
+\providecommand*\sinceversion[1]{%
   \@bsphack
   \marginnote{%
     \footnotesize\sffamily\RaggedRight
     \textcolor{black!75}{Introduced in version~#1}}%
   \@esphack}
-\newcommand*\changedversion[1]{%
+\providecommand*\changedversion[1]{%
   \@bsphack
   \marginnote{%
     \footnotesize\sffamily\RaggedRight
@@ -289,7 +292,7 @@
 \newrobustcmd\@versionstar{\raisebox{-.25em}{*}}
 \newcommand\versionstar{\texorpdfstring{\@versionstar}{*}}
 
-\newcommand*\CTANlink[1]{\href{http://www.ctan.org/pkg/#1}{#1}}
+\providecommand*\CTANlink[1]{\href{http://www.ctan.org/pkg/#1}{#1}}
 \makeatother
 
 \begin{document}
@@ -1140,9 +1143,26 @@ style you either have to use the package option \key{record-pages}{false} which
 means you will have to pass on page numbers in the list of acronyms, or you need
 to make sure that you only use the \emph{starred} versions of the \cmd{ac} commands
 on these pages so acronyms don't count as used there!
-\secidx*{Customization}
-
 \secidx*{About Page Ranges}
+
+\section{Language Support}\secidx{Language Support}
+\acro detects if packages \paket{babel} or \paket{polyglossia} are being loaded
+and tries to adapt certain strings to match the chosen language. However, due
+to my limited language knowledge only a few translations are provided. I'll
+show how the English translations are defined so you can add the translations
+to your preamble if needed. Even better would be you'd send me a short email
+at \href{mailto:contact@mychemistry.eu}{contact@mychemistry.eu} with the
+appropriate translations for your language and I'll add them to \acro.
+
+\begin{beispiel}[code only]
+ \DeclareTranslation{English}{acronym-list-name}{Acronyms}
+ \DeclareTranslation{English}{acronym-page-name}{p.}
+ \DeclareTranslation{English}{acronym-pages-name}{pp.}
+ \DeclareTranslation{English}{acronym-next-page}{f.}
+ \DeclareTranslation{English}{acronym-next-pages}{ff.}
+\end{beispiel}
+\secidx*{Language Support}
+\secidx*{Customization}
 
 \section{hyperref Support}\secidx{\paket{hyperref} support}[hyperref Support]
 The option \key{hyperref}{true} adds internal links from all short (or alternative)
@@ -1208,7 +1228,7 @@ description ask me for the documentation to version~0.6a.
 \end{beispiel}
 \printacronyms[include-classes=city,name=City Acronyms]
 
-{\RaggedRight\EmbracOff
+{\RaggedRight
 \printbibliography}
 
 \indexprologue{%

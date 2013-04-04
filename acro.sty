@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2013/02/09}
-  {1.2}
+  {2013/04/04}
+  {1.2a}
   {Typeset Acronyms}
 
 % warning and error messages:
@@ -2035,36 +2035,41 @@
 % language support
 \RequirePackage { translations }
 % Listenname
-\DeclareTranslationFallback      { acronym-list-name } { Acronyms }
-\DeclareTranslation { English  } { acronym-list-name } { Acronyms }
-\DeclareTranslation { American } { acronym-list-name } { Acronyms }
-\DeclareTranslation { British  } { acronym-list-name } { Acronyms }
-\DeclareTranslation { French   } { acronym-list-name } { Acronymes }
-\DeclareTranslation { German   } { acronym-list-name } { Abk\"urzungen }
-\DeclareTranslation { Italian  } { acronym-list-name } { Acronimi }
-\DeclareTranslation { Spanish  } { acronym-list-name } { Siglas }
-\DeclareTranslation { Catalan  } { acronym-list-name } { Sigles }
-\DeclareTranslation { Turkish  } { acronym-list-name } { K\i saltmalar }
+\DeclareTranslationFallback        { acronym-list-name } { Acronyms }
+\DeclareTranslation { English    } { acronym-list-name } { Acronyms }
+\DeclareTranslation { American   } { acronym-list-name } { Acronyms }
+\DeclareTranslation { British    } { acronym-list-name } { Acronyms }
+\DeclareTranslation { French     } { acronym-list-name } { Acronymes }
+\DeclareTranslation { German     } { acronym-list-name } { Abk\"urzungen }
+\DeclareTranslation { Italian    } { acronym-list-name } { Acronimi }
+\DeclareTranslation { Portuguese } { acronym-list-name } { Acr\'onimos }
+\DeclareTranslation { Spanish    } { acronym-list-name } { Siglas }
+\DeclareTranslation { Catalan    } { acronym-list-name } { Sigles }
+\DeclareTranslation { Turkish    } { acronym-list-name } { K\i saltmalar }
 \tl_set:Nn \l__acro_list_name_tl { \GetTranslation { acronym-list-name } }
 % Seitenname
-\DeclareTranslationFallback     { acronym-page-name } { p. }
-\DeclareTranslation { English } { acronym-page-name } { p. }
-\DeclareTranslation { German  } { acronym-page-name } { S. }
+\DeclareTranslationFallback        { acronym-page-name } { p. }
+\DeclareTranslation { English    } { acronym-page-name } { p. }
+\DeclareTranslation { German     } { acronym-page-name } { S. }
+\DeclareTranslation { Portuguese } { acronym-page-name } { p. }
 \tl_set:Nn \l__acro_page_name_tl { \GetTranslation { acronym-page-name }\@\, }
 % Seitenname - Plural
-\DeclareTranslationFallback     { acronym-pages-name } { pp. }
-\DeclareTranslation { English } { acronym-pages-name } { pp. }
-\DeclareTranslation { German  } { acronym-pages-name } { S. }
+\DeclareTranslationFallback        { acronym-pages-name } { pp. }
+\DeclareTranslation { English    } { acronym-pages-name } { pp. }
+\DeclareTranslation { German     } { acronym-pages-name } { S. }
+\DeclareTranslation { Portuguese } { acronym-pages-name } { pp. }
 \tl_set:Nn \l__acro_pages_name_tl { \GetTranslation { acronym-pages-name }\@\, }
 % einzelne folgende Seite
-\DeclareTranslationFallback     { acronym-next-page } { f. }
-\DeclareTranslation { English } { acronym-next-page } { f. }
-\DeclareTranslation { German  } { acronym-next-page } { f. }
+\DeclareTranslationFallback        { acronym-next-page } { f. }
+\DeclareTranslation { English    } { acronym-next-page } { f. }
+\DeclareTranslation { German     } { acronym-next-page } { f. }
+\DeclareTranslation { Portuguese } { acronym-next-page } { s. }
 \tl_set:Nn \l__acro_next_page_tl { \,\GetTranslation {acronym-next-page }\@ }
 % mehrere folgende Seiten
-\DeclareTranslationFallback     { acronym-next-pages } { ff. }
-\DeclareTranslation { English } { acronym-next-pages } { ff. }
-\DeclareTranslation { German  } { acronym-next-pages } { ff. }
+\DeclareTranslationFallback        { acronym-next-pages } { ff. }
+\DeclareTranslation { English    } { acronym-next-pages } { ff. }
+\DeclareTranslation { German     } { acronym-next-pages } { ff. }
+\DeclareTranslation { Portuguese } { acronym-next-pages } { ss. }
 \tl_set:Nn \l__acro_next_pages_tl { \,\GetTranslation {acronym-next-pages }\@ }
 
 % --------------------------------------------------------------------------
@@ -2135,6 +2140,7 @@
                    `long-indefinite'
                  - new commands: \iac, \Iac, \iacs, \Iacs, \iaca, \Iaca, \iacl,
                    \Iacl, \iacf, \Iacf, \iacflike and \Iacflike
+2013/04/04 v1.2a - added Portuguese translations
 
 % --------------------------------------------------------------------------
 % TODO:
