@@ -58,7 +58,7 @@
     something~different~wrong~and~I'm~lost.~You~'re~on~your~own~now.
   }
 
-\cs_new:Npn \__acro_key_check:nn #1#2
+\cs_new_protected:Npn \__acro_key_check:nn #1#2
   {
     \tl_if_blank:VT \l__acro_current_key_tl
       { \msg_error:nn { acro } { no-id } }
@@ -68,7 +68,7 @@
     \bool_set_true:c { l__acro_#1_#2_set_bool }
   }
 
-\cs_new:Npn \__acro_first_key_check:n #1
+\cs_new_protected:Npn \__acro_first_key_check:n #1
   {
     \cs_if_exist:cTF { l__acro_#1_short_set_bool }
       {
@@ -84,7 +84,7 @@
 % --------------------------------------------------------------------------
 % the internal selection functions:
 % short:
-\cs_new:Npn \__acro_declare_short:nn #1#2
+\cs_new_protected:Npn \__acro_declare_short:nn #1#2
   {
     \__acro_first_key_check:n { #1 }
     \prop_put:Nnn \l__acro_short_prop      { #1 } { #2 }
@@ -103,7 +103,7 @@
   }
 \cs_generate_variant:Nn \__acro_declare_short:nn { V }
 
-\cs_new:Npn \__acro_declare_short_plural:nn #1#2
+\cs_new_protected:Npn \__acro_declare_short_plural:nn #1#2
   {
     \__acro_key_check:nn { #1 } { short-plural }
     \prop_put:Nnn \l__acro_short_plural_prop { #1 } { #2 }
@@ -111,7 +111,7 @@
 \cs_generate_variant:Nn \__acro_declare_short_plural:nn { V }
 
 % long:
-\cs_new:Npn \__acro_declare_long:nn #1#2
+\cs_new_protected:Npn \__acro_declare_long:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long }
     \prop_put:Nnn \l__acro_replace_plural_prop { #1 } { \c_false_bool }
@@ -127,7 +127,7 @@
 \cs_generate_variant:Nn \__acro_declare_long:nn { V }
 
 % long plural:
-\cs_new:Npn \__acro_declare_long_plural:nn #1#2
+\cs_new_protected:Npn \__acro_declare_long_plural:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long-plural }
     \prop_put:Nnn \l__acro_replace_plural_prop { #1 } { \c_false_bool }
@@ -136,7 +136,7 @@
 \cs_generate_variant:Nn \__acro_declare_long_plural:nn { V }
 
 % long plural form:
-\cs_new:Npn \__acro_declare_long_plural_form:nn #1#2
+\cs_new_protected:Npn \__acro_declare_long_plural_form:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long-plural-form }
     \prop_put:Nnn \l__acro_replace_plural_prop { #1 } { \c_true_bool }
@@ -145,7 +145,7 @@
 \cs_generate_variant:Nn \__acro_declare_long_plural_form:nn { V }
 
 % short indefinite article:
-\cs_new:Npn \__acro_declare_short_indefinite:nn #1#2
+\cs_new_protected:Npn \__acro_declare_short_indefinite:nn #1#2
   {
     \__acro_key_check:nn { #1 } { short-indefinite }
     \prop_put:Nnn \l__acro_short_indefinite_prop { #1 } { #2 }
@@ -153,7 +153,7 @@
 \cs_generate_variant:Nn \__acro_declare_short_indefinite:nn { V }
 
 % long indefinite article:
-\cs_new:Npn \__acro_declare_long_indefinite:nn #1#2
+\cs_new_protected:Npn \__acro_declare_long_indefinite:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long-indefinite }
     \prop_put:Nnn \l__acro_long_indefinite_prop { #1 } { #2 }
@@ -161,7 +161,7 @@
 \cs_generate_variant:Nn \__acro_declare_long_indefinite:nn { V }
 
 % pre long:
-\cs_new:Npn \__acro_declare_long_pre:nn #1#2
+\cs_new_protected:Npn \__acro_declare_long_pre:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long-pre }
     \prop_put:Nnn \l__acro_long_pre_prop { #1 } { #2 }
@@ -169,7 +169,7 @@
 \cs_generate_variant:Nn \__acro_declare_long_pre:nn { V }
 
 % post long:
-\cs_new:Npn \__acro_declare_long_post:nn #1#2
+\cs_new_protected:Npn \__acro_declare_long_post:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long-post }
     \prop_put:Nnn \l__acro_long_post_prop { #1 } { #2 }
@@ -177,7 +177,7 @@
 \cs_generate_variant:Nn \__acro_declare_long_post:nn { V }
 
 % sort:
-\cs_new:Npn \__acro_declare_sort:nn #1#2
+\cs_new_protected:Npn \__acro_declare_sort:nn #1#2
   {
     \__acro_key_check:nn { #1 } { sort }
     \prop_put:Nnn \l__acro_sort_prop { #1 } { #2 }
@@ -187,7 +187,7 @@
 \cs_generate_variant:Nn \__acro_declare_sort:nn { V }
 
 % alternative:
-\cs_new:Npn \__acro_declare_alt:nn #1#2
+\cs_new_protected:Npn \__acro_declare_alt:nn #1#2
   {
     \__acro_key_check:nn { #1 } { alt }
     \prop_put:Nnn \l__acro_alt_prop { #1 } { #2 }
@@ -197,15 +197,23 @@
 \cs_generate_variant:Nn \__acro_declare_alt:nn { V }
 
 % alt. indefinite article:
-\cs_new:Npn \__acro_declare_alt_indefinite:nn #1#2
+\cs_new_protected:Npn \__acro_declare_alt_indefinite:nn #1#2
   {
     \__acro_key_check:nn { #1 } { alt-indefinite }
     \prop_put:Nnn \l__acro_alt_indefinite_prop { #1 } { #2 }
   }
 \cs_generate_variant:Nn \__acro_declare_alt_indefinite:nn { V }
 
+% foreign:
+\cs_new_protected:Npn \__acro_declare_foreign:nn #1#2
+  {
+    \__acro_key_check:nn { #1 } { alt }
+    \prop_put:Nnn \l__acro_foreign_prop { #1 } { #2 }
+  }
+\cs_generate_variant:Nn \__acro_declare_foreign:nn { V }
+
 % format:
-\cs_new:Npn \__acro_declare_format:nn #1#2
+\cs_new_protected:Npn \__acro_declare_format:nn #1#2
   {
     \__acro_key_check:nn { #1 } { format }
     \prop_put:Nnn \l__acro_format_prop { #1 } { #2 }
@@ -213,7 +221,7 @@
 \cs_generate_variant:Nn \__acro_declare_format:nn { V }
 
 % long format:
-\cs_new:Npn \__acro_declare_long_format:nn #1#2
+\cs_new_protected:Npn \__acro_declare_long_format:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long-format }
     \prop_put:Nnn \l__acro_long_format_prop { #1 } { #2 }
@@ -221,7 +229,7 @@
 \cs_generate_variant:Nn \__acro_declare_long_format:nn { V }
 
 % first long format:
-\cs_new:Npn \__acro_declare_first_long_format:nn #1#2
+\cs_new_protected:Npn \__acro_declare_first_long_format:nn #1#2
   {
     \__acro_key_check:nn { #1 } { first-long-format }
     \prop_put:Nnn \l__acro_first_long_format_prop { #1 } { #2 }
@@ -229,7 +237,7 @@
 \cs_generate_variant:Nn \__acro_declare_first_long_format:nn { V }
 
 % pdfstring:
-\cs_new:Npn \__acro_declare_pdfstring:nw #1#2/#3/#4 \acro_stop:
+\cs_new_protected:Npn \__acro_declare_pdfstring:nw #1#2/#3/#4 \acro_stop:
   {
     \__acro_key_check:nn { #1 } { pdfstring }
     \prop_put:Nnx \l__acro_pdfstring_prop { #1 } { #2 }
@@ -246,7 +254,7 @@
 \cs_generate_variant:Nn \__acro_declare_pdfstring:nw { V }
 
 % class:
-\cs_new:Npn \__acro_declare_class:nn #1#2
+\cs_new_protected:Npn \__acro_declare_class:nn #1#2
   {
     \__acro_key_check:nn { #1 } { class }
     \prop_put:Nnn \l__acro_class_prop { #1 } { #2 }
@@ -254,7 +262,7 @@
 \cs_generate_variant:Nn \__acro_declare_class:nn { V }
 
 % extra information:
-\cs_new:Npn \__acro_declare_extra:nn #1#2
+\cs_new_protected:Npn \__acro_declare_extra:nn #1#2
   {
     \__acro_key_check:nn { #1 } { extra }
     \prop_put:Nnn \l__acro_extra_prop { #1 } { #2 }
@@ -262,7 +270,7 @@
 \cs_generate_variant:Nn \__acro_declare_extra:nn { V }
 
 % acc supp:
-\cs_new:Npn \__acro_declare_acc_supp:nn #1#2
+\cs_new_protected:Npn \__acro_declare_acc_supp:nn #1#2
   {
     \__acro_key_check:nn { #1 } { accsupp }
     \prop_put:Nnn \l__acro_acc_supp_prop { #1 } { #2 }
@@ -270,7 +278,7 @@
 \cs_generate_variant:Nn \__acro_declare_acc_supp:nn { V }
 
 % citation:
-\cs_new:Npn \__acro_declare_citation:nw #1#2[#3]#4[#5]#6#7 \acro_stop:
+\cs_new_protected:Npn \__acro_declare_citation:nw #1#2[#3]#4[#5]#6#7 \acro_stop:
   {
     % no options: #1: ID, #2: key, #3 is blank
     % 1 option:   #1: ID, #4: key, #3: option, #5 is blank
@@ -288,7 +296,7 @@
   }
 \cs_generate_variant:Nn \__acro_declare_citation:nw { V }
 
-\cs_new:Npn \__acro_declare_citation_aux:nnnn #1#2#3#4
+\cs_new_protected:Npn \__acro_declare_citation_aux:nnnn #1#2#3#4
   {
     \__acro_key_check:nn { #1 } { cite }
     \prop_put:Nnn \l__acro_citation_prop { #1 } { #4 }
@@ -311,7 +319,7 @@
 % TeX code after an acronym is typeset
 
 % index:
-\cs_new:Npn \__acro_declare_index:nn #1#2
+\cs_new_protected:Npn \__acro_declare_index:nn #1#2
   {
     \__acro_key_check:nn { #1 } { index }
     \prop_put:Nnn \l__acro_index_prop { #1 } { #2 }
@@ -319,7 +327,7 @@
 \cs_generate_variant:Nn \__acro_declare_index:nn { V }
 
 % index-sort:
-\cs_new:Npn \__acro_declare_index_sort:nn #1#2
+\cs_new_protected:Npn \__acro_declare_index_sort:nn #1#2
   {
     \__acro_key_check:nn { #1 } { index-sort }
     \prop_put:Nnn \l__acro_index_sort_prop { #1 } { #2 }
@@ -327,7 +335,7 @@
 \cs_generate_variant:Nn \__acro_declare_index_sort:nn { V }
 
 % index-cmd:
-\cs_new:Npn \__acro_declare_index_cmd:nn #1#2
+\cs_new_protected:Npn \__acro_declare_index_cmd:nn #1#2
   {
     \__acro_key_check:nn { #1 } { index-cmd }
     \prop_put:Nnn \l__acro_index_cmd_prop { #1 } { #2 }
@@ -364,6 +372,8 @@
       \__acro_declare_sort:Vn \l__acro_current_key_tl { #1 } ,
     extra        .code:n =
       \__acro_declare_extra:Vn \l__acro_current_key_tl { #1 } ,
+    foreign      .code:n =
+      \__acro_declare_foreign:Vn \l__acro_current_key_tl { #1 } ,
     format       .code:n =
       \__acro_declare_format:Vn \l__acro_current_key_tl { #1 } ,
     short-format .code:n =
@@ -388,7 +398,7 @@
       \__acro_declare_index_cmd:Vn \l__acro_current_key_tl { #1 }
   }
 
-\cs_new:Npn \acro_define_acronym_macro:n #1
+\cs_new_protected:Npn \acro_define_acronym_macro:n #1
   {
     \bool_if:NT \l__acro_create_macros_bool
       {
@@ -403,7 +413,7 @@
 
 % --------------------------------------------------------------------------
 % internal acronym declaring function:
-\cs_new:Npn \acro_declare_acronym:nn #1#2
+\cs_new_protected:Npn \acro_declare_acronym:nn #1#2
   {
     \tl_set:Nn \l__acro_current_key_tl { #1 }
     \keys_set:nn { acro / declare-acronym } { #2 }
@@ -432,7 +442,7 @@
 \tl_new:N \l__acro_included_classes_tl
 \tl_new:N \l__acro_excluded_classes_tl
 
-\cs_new:Npn \acro_use_list_instance:nn #1#2
+\cs_new_protected:Npn \acro_use_list_instance:nn #1#2
   {
     \UseInstance { acro-list } { \l__acro_list_instance_tl }
       { \l__acro_list_type_tl } { #1 } { #2 }
@@ -441,29 +451,39 @@
 
 \keys_define:nn { acro / print-acronyms }
   {
-    include-classes .tl_set:N = \l__acro_included_classes_tl ,
-    exclude-classes .tl_set:N = \l__acro_excluded_classes_tl ,
-    name            .tl_set:N = \l__acro_list_name_tl ,
-    header          .tl_set:N = \l__acro_list_title_tl
+    include-classes .tl_set:N   = \l__acro_included_classes_tl ,
+    exclude-classes .tl_set:N   = \l__acro_excluded_classes_tl ,
+    name            .tl_set:N   = \l__acro_list_name_tl ,
+    header          .code:n     =
+      \acro_option_deprecated:nn { header } { heading }
+      \tl_set:Nn \l__acro_list_title_tl { #1 } ,
+    heading         .tl_set:N   = \l__acro_list_title_tl ,
+    sort            .bool_set:N = \l__acro_sort_bool
   }
 
-\cs_new:Npn \acro_print_acronyms:n #1
+\cs_new_protected:Npn \acro_print_acronyms:n #1
   {
-    \tl_clear:N \l__acro_included_classes_tl
-    \tl_clear:N \l__acro_excluded_classes_tl
-    \keys_set:nn { acro / print-acronyms } { #1 }
-    \iow_now:Nx \@auxout { \string \acro@print@list }
-    \bool_if:NT \l__acro_sort_bool
-      { \acro_sort_prop:N \l__acro_short_prop }
-    \UseInstance { acro-title } { \l__acro_list_title_tl }
-      { \l__acro_list_name_tl }
-    \cs_if_exist:NTF \acro@printed@list
-      {
-        \acro_use_list_instance:VV
-          \l__acro_included_classes_tl
-          \l__acro_excluded_classes_tl
-      }
-      { \@latex@warning@no@line {Rerun~to~get~acronym~list~right} }
+    \group_begin:
+      % this is a cheap trick to prevent the \@noitemerr
+      % if one forgot to delete either the aux file or
+      % remove \printacronyms -- but it's local:
+      \cs_set:Npn \@noitemerr {}
+      \tl_clear:N \l__acro_included_classes_tl
+      \tl_clear:N \l__acro_excluded_classes_tl
+      \keys_set:nn { acro / print-acronyms } { #1 }
+      \iow_now:Nx \@auxout { \string \acro@print@list }
+      \bool_if:NT \l__acro_sort_bool
+        { \acro_sort_prop:N \l__acro_short_prop }
+      \UseInstance { acro-title } { \l__acro_list_title_tl }
+        { \l__acro_list_name_tl }
+      \cs_if_exist:NTF \acro@printed@list
+        {
+          \acro_use_list_instance:VV
+            \l__acro_included_classes_tl
+            \l__acro_excluded_classes_tl
+        }
+        { \@latex@warning@no@line {Rerun~to~get~acronym~list~right} }
+    \group_end:
   }
 
 \NewDocumentCommand \printacronyms { O{} }
