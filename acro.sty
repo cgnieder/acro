@@ -1810,7 +1810,9 @@
   {
     \group_begin:
       \acro_defined:n { #2 }
-      \acro_use_if:nn { #1 } { #2 }
+      \IfBooleanTF { #1 }
+        { \acro_use_if:n { * } }
+        { \acro_use_if:n {   } }
       \bool_set_true:N \l__acro_first_upper_bool
       \acro_use:n { #2 }
     \group_end:
