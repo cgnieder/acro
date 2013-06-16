@@ -1317,7 +1317,6 @@
 % #1: id
 \cs_new_protected:Npn \acro_use:n #1
   {
-    \leavevmode
     % get the acronym and the plural settings:
     \acro_get:n { #1 }
     \acro_is_used:nTF { #1 }
@@ -1369,6 +1368,7 @@
 
 \cs_new_protected:Npn \acro_get:n #1
   {
+    \leavevmode
     \acro_defined:n { #1 }
     \__acro_activate_hyperref_support:
     \prop_get:NnNF \l__acro_short_prop { #1 } \l__acro_tmpa_tl {}
@@ -2366,7 +2366,7 @@
 2013/05/09 v1.3a - Bug fix: corrected wrong argument checking in \Ac, thanks
                    to Michel Voßkuhle
 2013/05/30 v1.3b - obey \if@filesw
-2013/06/16 v1.3c - added \leavevmode to \acro_use:n
+2013/06/16 v1.3c - added \leavevmode to \acro_get:n
 
 % --------------------------------------------------------------------------
 % TODO:
