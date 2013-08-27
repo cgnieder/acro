@@ -1,6 +1,6 @@
 % arara: pdflatex
 % !arara: biber
-% !arara: pdflatex
+% arara: pdflatex
 % !arara: pdflatex
 % --------------------------------------------------------------------------
 % the ACRO package
@@ -174,19 +174,6 @@
 \textsc{Wikipedia}}
 \newcommand*\h[1]{\textcolor{main}{\textbf{#1}}}
 
-\ExplSyntaxOn
-\NewDocumentCommand \Default {sg}
-  {
-    \hfill\llap
-      {
-        \IfNoValueTF { #2 }
-          {(initially~empty)}
-          {Default:~\code{#2}}
-      }
-    \IfBooleanF { #1 } { \newline }
-  }
-\ExplSyntaxOff
-
 % declare acronyms
 \DeclareAcronym{cd}
   {
@@ -278,22 +265,9 @@
    long-indefinite = an
 }
 
-\usepackage{marginnote}
-\makeatletter
-\providecommand*\sinceversion[1]{%
-  \@bsphack
-  \marginnote{%
-    \footnotesize\sffamily\RaggedRight
-    \textcolor{black!75}{Introduced in version~#1}}%
-  \@esphack}
-\providecommand*\changedversion[1]{%
-  \@bsphack
-  \marginnote{%
-    \footnotesize\sffamily\RaggedRight
-    \textcolor{black!75}{Changed in version~#1}}%
-  \@esphack}
 \renewcommand*\cnpkgdoctriangle{}
 
+\makeatletter
 \AtBeginDocument{%
   \ifdef\texorpdfstring{}{\let\texorpdfstring\@firstoftwo}%
 }
@@ -400,6 +374,10 @@ are not described immediately but at appropriate places in the documentation.
  \Option{long-plural-form}{<text>}\newline
    plural long form of the acronym; replaces the long form when used instead of
    appending the plural ending.
+ %% list
+ \Option{list}{<text>}\newline
+   \sinceversion{1.4}if specified this will be written in the list as
+   description instead of the long form.
  %% short-indefinite
  \Option{short-indefinite}{<text>}\Default{a}
    \sinceversion{1.2}%
@@ -740,6 +718,15 @@ article.
  \Iac{ufo}; \iacs{ufo}; \iacl{ufo}
 \end{beispiel}
 
+\subsection{Uppercasing}\secidx[uppercasing]{Additional Commands}
+\begin{beschreibung}
+  \Befehl{acfirstupper}{<token list>}\newline
+    \sinceversion{1.3e}This command uppercases the first token in \code{<token
+      list>}.  The command is less powerful than \cmd{makefirstuc} that is
+    provided by the \paket{mfirstuc} package but it is expandable.  Obvious
+    downsides are for example that it does not uppercase accented letters.
+\end{beschreibung}
+
 \subsection{Simulating the First Appearance}
 \noindent\sinceversion{1.2}%
 Users told me\footnote{Well -- one, to be precise ;)} that there are cases when it
@@ -794,12 +781,18 @@ lists.
  \acl{ny} (\acs{ny})
 \end{beispiel}
 
-\subsection{Reset or Mark as Used}\secidx[resetting]{Additional Commands}
+\subsection{Reset or Mark as Used, Test if Acronym Has Been Used}
+\secidx[resetting]{Additional Commands}\secidx[testing]{Additional Commands}
+
 If you want for some reason to fool \acro into thinking that an acronym is used
 for the first time you can call one of these commands:
 \begin{beschreibung}
  \Befehl{acreset}{<comma separated list of ids>}\sinceversion{0.5}
  \Befehl{acresetall}
+ \Befehl{acifused}{<id>}\ma{<true>}\ma{<false>}\newline
+   \sinceversion{1.3e}This command tests if the acronym with \ac{id}
+   \code{<id>} has already been used and either puts \code{<true>} or
+   \code{<false>} in the input stream.
 \end{beschreibung}
 \begin{beispiel}
  \acreset{ny}\ac{ny}
@@ -1005,11 +998,11 @@ There are a few options which change the general behaviour of \acro.
    \sinceversion{1.0}Activates the access support as provided by the 
    \paket{accsupp} package.
  %%
- \Option{uc-cmd}{<cmd>}\Default{\cmd*{acro_first_upper_case:n}}
+ \Option{uc-cmd}{<cmd>}\Default{\cmd{acfirstupper}}
    The command that is used to capitalize the first word in the \cmd{Ac} and the
-   like commands. You can change it to another one like for example
-   \cmd*{makefirstuc}\footnote{from the \paket*{mfirstuc} package} or
-   \cmd*{MakeTextUppercase}\footnote{from the \paket*{textcase} package}.\catcode`\_=8
+   like commands.  You can change it to another one like for example
+   \cmd{makefirstuc}\footnote{from the \paket*{mfirstuc} package} or
+   \cmd*{MakeTextUppercase}\footnote{from the \paket*{textcase} package}.
 \end{beschreibung}
 
 All options of this and the following sections can be set up either as package

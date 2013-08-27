@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2013/07/08}
-  {1.3d}
+  {2013/08/27}
+  {1.4}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -237,6 +237,7 @@
 \tl_new:N   \l__acro_index_short_tl
 \tl_new:N   \l__acro_index_format_tl
 \tl_new:N   \l__acro_acc_supp_tl
+\tl_new:N   \l__acro_acc_supp_options_tl
 
 % --------------------------------------------------------------------------
 % comma list variables
@@ -248,10 +249,11 @@
 \prop_new:N \l__acro_alt_prop
 \prop_new:N \l__acro_sort_prop
 \prop_new:N \l__acro_long_prop
+\prop_new:N \l__acro_list_prop
 \prop_new:N \l__acro_class_prop
-\prop_new:N \l__acro_replace_plural_prop
 \prop_new:N \l__acro_short_plural_prop
 \prop_new:N \l__acro_long_plural_prop
+\prop_new:N \l__acro_replace_long_plural_prop
 \prop_new:N \l__acro_short_indefinite_prop
 \prop_new:N \l__acro_long_indefinite_prop
 \prop_new:N \l__acro_alt_indefinite_prop
@@ -288,6 +290,9 @@
 
 \cs_new_eq:NN \acro_first_upper_case:n \__acro_first_upper_case:n
 
+\NewDocumentCommand \acfirstupper { m }
+  { \acro_first_upper_case:n { #1 } }
+
 % --------------------------------------------------------------------------
 % versioning:
 \clist_put_right:Nn \l__acro_versions_clist { 0 }
@@ -314,6 +319,7 @@
   {
     version           .code:n     = \__acro_select_version:n { #1 } ,
     accsupp           .bool_set:N = \l__acro_acc_supp_bool          ,
+    accsupp-options   .tl_set:N   = \l__acro_acc_supp_options_tl    ,
     macros            .bool_set:N = \l__acro_create_macros_bool     ,
     xspace            .bool_set:N = \l__acro_xspace_bool            ,
     strict            .bool_set:N = \l__acro_strict_bool            ,
@@ -1040,9 +1046,11 @@
         \acro_get:n { ##1 }
         \bool_if:nT
           {
+            \bool_if_p:c { g__acro_##1_used_bool } && (
             ( \l__acro_use_single_bool && \cs_if_exist_p:c { acro@##1@twice } ) ||
             ( !\l__acro_use_single_bool && \cs_if_exist_p:c { acro@##1@once } && \l__acro_print_only_used_bool ) ||
             ( !\l__acro_use_single_bool && !\l__acro_print_only_used_bool )
+            )
           }
           {
             \acro_is_excluded:nnF { ##1 } { #2 }
@@ -1113,7 +1121,11 @@
     \cs_set:Npn \acro_print_list_long:n ##1
       {
         \__acro_write_long:Nf \l__acro_list_long_format_tl
-          { \prop_get:Nn \l__acro_long_prop { ##1 } }
+          {
+            \prop_if_in:NnTF \l__acro_list_prop { ##1 }
+              { \prop_get:Nn \l__acro_list_prop { ##1 } }
+              { \prop_get:Nn \l__acro_long_prop { ##1 } }
+          }
         \__acro_cite_if:Nn \l__acro_citation_all_bool { ##1 }
       }
     \cs_set_protected:Npn \acro_print_list_extra:n ##1
@@ -1165,7 +1177,11 @@
     \cs_set:Npn \acro_print_list_long:n ##1
       {
         \__acro_write_long:Nf \l__acro_list_long_format_tl
-          { \prop_get:Nn \l__acro_long_prop { ##1 } }
+          {
+            \prop_if_in:NnTF \l__acro_list_prop { ##1 }
+              { \prop_get:Nn \l__acro_list_prop { ##1 } }
+              { \prop_get:Nn \l__acro_long_prop { ##1 } }
+          }
         \__acro_cite_if:Nn \l__acro_citation_all_bool { ##1 }
       }
     \cs_set_protected:Npn \acro_print_list_extra:n ##1
@@ -1216,7 +1232,11 @@
     \cs_set:Npn \acro_print_list_long:n ##1
       {
         \__acro_write_long:Nf \l__acro_list_long_format_tl
-          { \prop_get:Nn \l__acro_long_prop { ##1 } }
+          {
+            \prop_if_in:NnTF \l__acro_list_prop { ##1 }
+              { \prop_get:Nn \l__acro_list_prop { ##1 } }
+              { \prop_get:Nn \l__acro_long_prop { ##1 } }
+          }
         \__acro_cite_if:Nn \l__acro_citation_all_bool { ##1 }
         &
       }
@@ -1267,7 +1287,11 @@
         \bool_if:NT \l__acro_capitalize_list_bool
           { \bool_set_true:N \l__acro_first_upper_bool }
         \__acro_write_long:Nf \l__acro_long_format_tl
-          { \prop_get:Nn \l__acro_long_prop { ##1 } }
+          {
+            \prop_if_in:NnTF \l__acro_list_prop { ##1 }
+              { \prop_get:Nn \l__acro_list_prop { ##1 } }
+              { \prop_get:Nn \l__acro_long_prop { ##1 } }
+          }
         \__acro_cite_if:Nn \l__acro_citation_all_bool { ##1 }
         &
       }
@@ -1347,7 +1371,7 @@
       }
   }
 
-\prg_new_conditional:Npnn \__acro_is_single:n #1 { T,TF }
+\prg_new_conditional:Npnn \__acro_is_single:n #1 { p,T,TF }
   {
     \bool_if:nTF { !\l__acro_use_single_bool || \cs_if_exist_p:c { acro@#1@twice } }
       { \prg_return_false: } { \prg_return_true: }
@@ -1401,7 +1425,7 @@
   {
     \bool_if:NT \l__acro_use_plural_bool
       {
-        \bool_if:nTF { \prop_get:Nn \l__acro_replace_plural_prop { #1 } }
+        \bool_if:nTF { \prop_get:Nn \l__acro_replace_long_plural_prop { #1 } }
           { \prop_get:NnNF \l__acro_long_plural_prop { #1 } \l__acro_long_tl {} }
           {
             \tl_put_right:Nn \l__acro_long_tl
@@ -1694,13 +1718,13 @@
 % accessability support
 \cs_new_eq:NN \__acro_acc_supp:nn \use_ii:nn
 
-\cs_new:Npn \__acro_acc_supp_aux:nn #1#2
+\cs_new:Npn \acro_acc_supp:nnn #1#2#3
   {
-    \BeginAccSupp { ActualText = #1 }
-      #2
+    \BeginAccSupp { ActualText = #1 , #2 }
+      #3
     \EndAccSupp { }
   }
-\cs_generate_variant:Nn \__acro_acc_supp_aux:nn { V }
+\cs_generate_variant:Nn \acro_acc_supp:nnn { VV }
 
 \AtBeginDocument
   {
@@ -1713,7 +1737,10 @@
               { \prop_get:NnNF \l__acro_short_prop { #1 } \l__acro_acc_supp_tl {} }
             \bool_if:NT \l__acro_use_plural_bool
               { \tl_put_right:NV \l__acro_acc_supp_tl \l__acro_short_plural_tl }
-            \__acro_acc_supp_aux:Vn \l__acro_acc_supp_tl { #2 }
+            \acro_acc_supp:VVn
+              \l__acro_acc_supp_tl
+              \l__acro_acc_supp_options_tl
+              { #2 }
           }
       }
   }
@@ -2170,6 +2197,20 @@
 \cs_new_protected:Npn \acro_mark_all_as_used:
   { \prop_map_inline:Nn \l__acro_short_prop { \acro_mark_as_used:n { ##1 } } }
 
+\DeclareExpandableDocumentCommand \acifused { m }
+  { \acro_if_acronym_used:nTF { #1 } }
+
+\prg_new_conditional:Npnn \acro_if_acronym_used:n #1 { TF }
+  {
+    \bool_if:nTF
+      {
+        \bool_if_p:c { g__acro_#1_used_bool } &&
+        ( !\__acro_is_single_p:n { #1 } )
+      }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
 \NewDocumentCommand \acresetall {}
   { \acro_reset_all: }
 
@@ -2372,6 +2413,9 @@
 2013/06/16 v1.3c - added \leavevmode to \acro_get:n
 2013/07/08 v1.3d - corrected wrong call of \leavevmode in the list
                    (list-type=list)
+2013/08/07 v1.3e - bug fix in the list when testing for used acronyms
+                 - new commands \acifused, \acfirstupper
+2013/08/27 v1.4  - new property `list'
 
 % --------------------------------------------------------------------------
 % TODO:

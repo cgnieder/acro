@@ -103,6 +103,7 @@
   }
 \cs_generate_variant:Nn \__acro_declare_short:nn { V }
 
+% short plural:
 \cs_new_protected:Npn \__acro_declare_short_plural:nn #1#2
   {
     \__acro_key_check:nn { #1 } { short-plural }
@@ -114,7 +115,7 @@
 \cs_new_protected:Npn \__acro_declare_long:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long }
-    \prop_put:Nnn \l__acro_replace_plural_prop { #1 } { \c_false_bool }
+    \prop_put:Nnn \l__acro_replace_long_plural_prop { #1 } { \c_false_bool }
     \prop_put:Nnn \l__acro_long_prop { #1 } { #2 }
     \prop_put:Nnx \l__acro_long_indefinite_prop
       { #1 } { \l__acro_default_indefinite_tl }
@@ -126,11 +127,19 @@
   }
 \cs_generate_variant:Nn \__acro_declare_long:nn { V }
 
+% list:
+\cs_new_protected:Npn \__acro_declare_list:nn #1#2
+  {
+    \__acro_key_check:nn { #1 } { list }
+    \prop_put:Nnn \l__acro_list_prop { #1 } { #2 }
+  }
+\cs_generate_variant:Nn \__acro_declare_list:nn { V }
+
 % long plural:
 \cs_new_protected:Npn \__acro_declare_long_plural:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long-plural }
-    \prop_put:Nnn \l__acro_replace_plural_prop { #1 } { \c_false_bool }
+    \prop_put:Nnn \l__acro_replace_long_plural_prop { #1 } { \c_false_bool }
     \prop_put:Nnn \l__acro_long_plural_prop { #1 } { #2 }
   }
 \cs_generate_variant:Nn \__acro_declare_long_plural:nn { V }
@@ -139,7 +148,7 @@
 \cs_new_protected:Npn \__acro_declare_long_plural_form:nn #1#2
   {
     \__acro_key_check:nn { #1 } { long-plural-form }
-    \prop_put:Nnn \l__acro_replace_plural_prop { #1 } { \c_true_bool }
+    \prop_put:Nnn \l__acro_replace_long_plural_prop { #1 } { \c_true_bool }
     \prop_put:Nnn \l__acro_long_plural_prop { #1 } { #2 }
   }
 \cs_generate_variant:Nn \__acro_declare_long_plural_form:nn { V }
@@ -350,6 +359,8 @@
       \__acro_declare_short:Vn \l__acro_current_key_tl { #1 } ,
     short-plural .code:n =
       \__acro_declare_short_plural:Vn \l__acro_current_key_tl { #1 } ,
+%    short-plural-form .code:n =
+%      \__acro_declare_short_plural_form:Vn \l__acro_current_key_tl { #1 } ,
     alt          .code:n =
       \__acro_declare_alt:Vn \l__acro_current_key_tl { #1 } ,
     long         .code:n =
@@ -358,6 +369,8 @@
       \__acro_declare_long_plural:Vn \l__acro_current_key_tl { #1 } ,
     long-plural-form .code:n =
       \__acro_declare_long_plural_form:Vn \l__acro_current_key_tl { #1 } ,
+    list         .code:n =
+      \__acro_declare_list:Vn \l__acro_current_key_tl { #1 } ,
     short-indefinite .code:n =
       \__acro_declare_short_indefinite:Vn \l__acro_current_key_tl { #1 } ,
     alt-indefinite .code:n =
