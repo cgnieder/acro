@@ -44,8 +44,8 @@
 \cs_new:Npn \acro_new:nnnnnnnnn #1#2#3#4#5#6#7#8#9
   {
     \IfBooleanTF { #1 }
-      { \prop_put:Nnn \l__acro_replace_plural_prop { #2 } { \c_true_bool } }
-      { \prop_put:Nnn \l__acro_replace_plural_prop { #2 } { \c_false_bool } }
+      { \prop_put:Nnn \l__acro_replace_long_plural_prop { #2 } { \c_true_bool } }
+      { \prop_put:Nnn \l__acro_replace_long_plural_prop { #2 } { \c_false_bool } }
     \prop_put:Nnn \l__acro_short_prop { #2 } { #3 }
     \prop_put:Nnn \l__acro_sort_prop  { #2 } { #2 }
     \prop_put:Nnn \l__acro_pdfstring_prop { #2 } { #3 }
@@ -74,6 +74,7 @@
       { \prop_put:Nnn \l__acro_extra_prop { #2 } { #9 } }
     \bool_new:c { g__acro_#2_first_use_bool }
     \bool_new:c { g__acro_#2_used_bool }
+    \bool_new:c { g__acro_#2_in_list_bool }
     \bool_new:c { g__acro_#2_label_bool }
     \bool_if:NT \l__acro_create_macros_bool
       {

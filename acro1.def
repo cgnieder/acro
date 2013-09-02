@@ -433,6 +433,7 @@
     \bool_new:c { g__acro_#1_first_use_bool }
     \bool_new:c { g__acro_#1_used_bool }
     \bool_new:c { g__acro_#1_label_bool }
+    \bool_new:c { g__acro_#1_in_list_bool }
     \acro_create_page_records:n { #1 }
     \acro_define_acronym_macro:n { #1 }
     \tl_clear:N \l__acro_current_key_tl
@@ -446,7 +447,7 @@
 % the user command:
 \NewDocumentCommand \DeclareAcronym { mm }
   { \acro_declare_acronym:nn { #1 } { #2 } }
-\@onlypreamble\DeclareAcronym
+% \@onlypreamble\DeclareAcronym
 
 % --------------------------------------------------------------------------
 % print the list:

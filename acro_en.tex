@@ -787,7 +787,11 @@ lists.
 If you want for some reason to fool \acro into thinking that an acronym is used
 for the first time you can call one of these commands:
 \begin{beschreibung}
- \Befehl{acreset}{<comma separated list of ids>}\sinceversion{0.5}
+ \Befehl{acreset}{<comma separated list of ids>}\newline
+   \sinceversion{0.5}This will reset a used acronym such that the next use of
+   \cmd{ac} will again print it as if it were used the first time.  This will
+   \emph{not} remove an acronym from being printed in the list if it actually
+   \emph{has} been used before.
  \Befehl{acresetall}
  \Befehl{acifused}{<id>}\ma{<true>}\ma{<false>}\newline
    \sinceversion{1.3e}This command tests if the acronym with \ac{id}
@@ -800,7 +804,11 @@ for the first time you can call one of these commands:
 Beware that both commands act \emph{globally}! There are also commands that
 effectively do the opposite of \cmd{acreset}, i.e., mark acronyms as used:
 \begin{beschreibung}
- \Befehl{acuse}{<comma separated list of ids>}\sinceversion{0.5}
+ \Befehl{acuse}{<comma separated list of ids>}\newline
+   \sinceversion{0.5}This has the same effect as if an acronym had been used
+   twice, that is, further uses of \cmd{ac} will print the short form and the
+   acronym will in any case be printed in the list (as long as its class is
+   not excluded).
  \Befehl{acuseall}\sinceversion{0.6a}
 \end{beschreibung}
 
