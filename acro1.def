@@ -434,6 +434,8 @@
     \bool_new:c { g__acro_#1_used_bool }
     \bool_new:c { g__acro_#1_label_bool }
     \bool_new:c { g__acro_#1_in_list_bool }
+    \bool_if:NF \l__acro_print_only_used_bool
+      { \bool_gset_true:c { g__acro_#1_in_list_bool } }
     \acro_create_page_records:n { #1 }
     \acro_define_acronym_macro:n { #1 }
     \tl_clear:N \l__acro_current_key_tl
