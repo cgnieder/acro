@@ -1,7 +1,7 @@
 % arara: pdflatex
-% arara: biber
-% arara: pdflatex
-% arara: pdflatex
+% !arara: biber
+% !arara: pdflatex
+% !arara: pdflatex
 % arara: pdflatex
 % --------------------------------------------------------------------------
 % the ACRO package
@@ -41,6 +41,7 @@
 %
 
 \documentclass[load-preamble+,scrartcl={DIV10}]{cnltx-doc}
+\usepackage[utf8]{inputenc}
 \usepackage[single,macros,accsupp,index]{acro}
 \setcnltx{
   package  = {acro} ,
@@ -71,9 +72,7 @@
 
 \acsetup{hyperref}
 
-\microtypesetup{tracking=scshape}
-
-\defbibheading{bibliography}[\bibname]{\addsec{#1}}
+\defbibheading{bibliography}{\addsec{References}}
 
 \usepackage{csquotes}
 

@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2013/09/24}
-  {1.4b}
+  {2013/11/04}
+  {1.4c}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -421,7 +421,7 @@
       \bool_if:NTF \l__acro_custom_format_bool
         { \l__acro_custom_format_tl }
         { \l__acro_short_format_tl }
-      { \hbox:n { #1 } }
+      {  #1 }
     \group_end:
     \bool_if:NT \l__acro_use_plural_bool
       { \tl_use:N \l__acro_short_plural_tl }
@@ -468,16 +468,18 @@
 
 \cs_new_protected:Npn \__acro_make_link:nNN #1#2#3
   {
-    \tl_set:Nn #2
-       {
-         \acro_hyper_link:nn { #1 } { \phantom { #3 } }
-         \__acro_is_single:nTF { #1 } { \hbox_overlap_left:n { #3 } }
+    \bool_if:nTF
+      { \l__acro_use_hyperref_bool && \l__acro_hyperref_loaded_bool }
+      {
+        \tl_set:Nn #2
            {
-             \bool_if:nTF { \l__acro_use_hyperref_bool && \l__acro_hyperref_loaded_bool }
-               { \acro_color_link:n { \hbox_overlap_left:n { #3 } } }
+             \acro_hyper_link:nn { #1 } { \phantom { #3 } }
+             \__acro_is_single:nTF { #1 }
                { \hbox_overlap_left:n { #3 } }
+               { \acro_color_link:n { \hbox_overlap_left:n { #3 } } }
            }
        }
+       { \tl_set:Nn #2 { #3 } }
   }
 
 \cs_new:Npn \acro_color_link:n #1
@@ -2439,8 +2441,11 @@
 2013/09/02 v1.4a - bug fix: used acronyms are added to the list when the list
                    is printed before the use
                  - \DeclareAcronym may now be used after \begin{document}
-2013/??/?? v1.4b - bug fix: only-used=false works again for only declared but
+2013/09/24 v1.4b - bug fix: only-used=false works again for only declared but
                    unused acronyms (only if option single is not used)
+2013/11/04 v1.4c - remove \hbox from the written short form
+                 - changed \__acro_make_link:nNN in a way that it doesn't box
+                   its when links are deactivated
 
 % --------------------------------------------------------------------------
 % TODO:
