@@ -28,11 +28,11 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\RequirePackage{expl3,xparse,l3keys2e,xtemplate}
+\RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2013/11/04}
-  {1.4c}
+  {2013/11/22}
+  {1.4d}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -1775,7 +1775,6 @@
   {
     \bool_if:NT \l__acro_sort_bool
       {
-        \RequirePackage { l3sort }
         \cs_new_protected:Npn \acro_sort_prop:N #1
           {
             \seq_clear:N  \l__acro_tmpa_seq
@@ -1789,7 +1788,7 @@
             \seq_sort:Nn \l__acro_tmpa_seq
               {
                 \tl_to_lowercase:n {
-                  \int_compare:nTF { \pdfstrcmp { ##1 } { ##2 } = -1 }
+                  \int_compare:nTF { \pdftex_strcmp:D { ##1 } { ##2 } = -1 }
                     { \sort_ordered: }
                     { \sort_reversed: }
                 }
@@ -2446,6 +2445,9 @@
 2013/11/04 v1.4c - remove \hbox from the written short form
                  - changed \__acro_make_link:nNN in a way that it doesn't box
                    its when links are deactivated
+2013/11/22 v1.4d - require `l3sort' independently from the `sort' option
+                   instead of at begin document in order to avoid conflicts
+                   with `babel' and `french'
 
 % --------------------------------------------------------------------------
 % TODO:
