@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2013/11/22}
-  {1.4d}
+  {2013/12/18}
+  {1.5}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -171,6 +171,9 @@
 \bool_new:N      \l__acro_extra_punct_bool
 \bool_new:N      \l__acro_extra_use_brackets_bool
 \bool_new:N      \l__acro_in_list_bool
+\bool_new:N      \l__acro_place_label_bool
+\bool_new:N      \l__acro_list_all_pages_bool
+\bool_set_true:N \l__acro_list_all_pages_bool
 
 % --------------------------------------------------------------------------
 % token list variables:
@@ -238,6 +241,8 @@
 \tl_new:N   \l__acro_index_format_tl
 \tl_new:N   \l__acro_acc_supp_tl
 \tl_new:N   \l__acro_acc_supp_options_tl
+\tl_new:N   \l__acro_label_prefix_tl
+\tl_set:Nn  \l__acro_label_prefix_tl { ac: }
 
 % --------------------------------------------------------------------------
 % comma list variables
@@ -342,6 +347,14 @@
     single            .bool_set:N = \l__acro_use_single_bool        ,
     first-style       .tl_set:N   = \l__acro_first_instance_tl      ,
     extra-style       .tl_set:N   = \l__acro_extra_instance_tl      ,
+    label             .bool_set:N = \l__acro_place_label_bool       ,
+    label-prefix      .tl_set:N   = \l__acro_label_prefix_tl        ,
+    pages             .choice: ,
+    pages / all       .code:n     =
+      \bool_set_true:N \l__acro_list_all_pages_bool                 ,
+    pages / first     .code:n     =
+      \bool_set_true:N \l__acro_place_label_bool
+      \bool_set_false:N \l__acro_list_all_pages_bool                ,
     page-ref          .tl_set:N   = \l__acro_page_instance_tl       ,
     page-name         .tl_set:N   = \l__acro_page_name_tl           ,
     pages-name        .tl_set:N   = \l__acro_pages_name_tl          ,
@@ -367,9 +380,9 @@
     only-used         .bool_set:N = \l__acro_print_only_used_bool   ,
     mark-as-used      .choice: ,
     mark-as-used / first .code:n  =
-      \bool_gset_true:N \g__acro_mark_first_as_used_bool             ,
+      \bool_gset_true:N \g__acro_mark_first_as_used_bool            ,
     mark-as-used / any   .code:n  =
-      \bool_gset_false:N \g__acro_mark_first_as_used_bool            ,
+      \bool_gset_false:N \g__acro_mark_first_as_used_bool           ,
     plural-ending     .tl_set:N   = \l__acro_default_plural_tl      ,
     list-caps         .bool_set:N = \l__acro_capitalize_list_bool   ,
     cite              .choice:                                      ,
@@ -897,7 +910,12 @@
 
 \AtBeginDocument
   {
-    \tl_if_eq:NNT \l__acro_active_version_tl \l__acro_version_zero_tl
+    \bool_if:nT
+      {
+        \tl_if_eq_p:NN \l__acro_active_version_tl \l__acro_version_zero_tl
+        ||
+        !\l__acro_list_all_pages_bool
+      }
       {
         \cs_set:Npn \acro_print_page_numbers:n #1
           {
@@ -905,7 +923,7 @@
             \skip_horizontal:N \l__acro_page_space_dim
             \acro_no_break:
             \tl_use:N \l__acro_page_name_tl
-            \pageref{ac:#1}
+            \pageref{\l__acro_label_prefix_tl #1}
           }
       }
   }
@@ -1495,11 +1513,17 @@
             \bool_if:nT
               {
                 !\bool_if_p:c { g__acro_#1_label_bool } &&
-                \tl_if_eq_p:NN \l__acro_active_version_tl \l__acro_version_zero_tl
+                (
+                  \tl_if_eq_p:NN
+                    \l__acro_active_version_tl
+                    \l__acro_version_zero_tl
+                  ||
+                  \l__acro_place_label_bool
+                )
               }
               {
                 \bool_gset_true:c { g__acro_#1_label_bool }
-                \label{ac:#1}
+                \label{\l__acro_label_prefix_tl #1}
               }
             \bool_gset_true:c { g__acro_#1_used_bool }
           }
@@ -2448,6 +2472,12 @@
 2013/11/22 v1.4d - require `l3sort' independently from the `sort' option
                    instead of at begin document in order to avoid conflicts
                    with `babel' and `french'
+2013/12/18 v1.5  - new option `label=true|false' that
+                   places \label{<prefix>:<id>} the first time an acronym is
+                   used
+                 - new option `pages=first|all' that determines if in the list
+                   of acronyms all appearances are listed or only the first
+                   time; implicitly sets `label=true'
 
 % --------------------------------------------------------------------------
 % TODO:

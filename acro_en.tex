@@ -917,12 +917,22 @@ There are a few options which change the general behaviour of \acro.
     If set to \code{true} the short forms of the acronyms will be linked to
     their list entry.
   %%
+  \keybool{label}\Default{false}
+    \sinceversion{1.5}If set to \code{true} this option will place
+    \cs*{label}\Marg{\meta{prefix}\meta{id}} the first time the acronym with
+    \ac{id} \meta{id} is used.
+  %%
+  \keyval{label-prefix}{text}\Default{ac:}
+    \sinceversion{1.5}The prefix for the \cs*{label} that is placed when
+    option \keyis{label}{true} is used.
+  %%
   \keybool{record-pages}\Default{true}
     Since \acro\ can handle arabic, roman and Roman page numbers but
     \emph{not} any other kind of numbering this option allows to turn the page
     number recording off for these cases as it would lead to errors else.
     This affects the whole document and can only be set in the preamble!  It
     means you cannot have page numbers in the list of acronyms in this case.
+    Or rather: you can if you use \keyis{pages}{first}.
   %%
   \keybool{only-used}\Default{true}
     This option is \code{true} as default.  It means that only acronyms that
@@ -1086,10 +1096,15 @@ possible output forms of the acronyms.
     this is an experimental feature and might fail in quite a number of cases.
     If you notice anything please send me an email!
   %%
+  \keychoice{pages}{all,first}\Default{all}
+    \sinceversion{1.5}If the option \option{page-ref} has any value other than
+    \code{none} this option determines wether all usages of the acronyms are
+    listed or only the first time.  Implicitly sets \keyis{label}{true}.
   \keyval{page-name}{page name}\Default{p.\cs*{@}\cs*{,}}
     The ``name'' of the page label.  This is automatically translated to the
     active language. However for the time being there are many translations
     missing, yet.  Please notify me if you find your language missing.
+  %%
   \keyval{pages-name}{page name plural}\Default{pp.\cs*{@}\cs*{,}}
     \sinceversion{1.0}The ``name'' of the page label when there are more than
     one page.  This is automatically translated to the active language.
