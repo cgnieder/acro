@@ -1013,6 +1013,8 @@
   { name-format = \addchap { #1 } }
 \DeclareInstance { acro-title } { addsec      } { sectioning }
   { name-format = \addsec { #1 } }
+\DeclareInstance { acro-title } { none        } { sectioning }
+  { name-format = \use_none:n { #1 } }
 
 % --------------------------------------------------------------------------
 % outputting the whole list
