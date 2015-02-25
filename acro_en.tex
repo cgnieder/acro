@@ -13,7 +13,7 @@
 % Web:    https://bitbucket.org/cgnieder/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2011-2013 Clemens Niederberger
+% Copyright 2011-2015 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -875,7 +875,7 @@ The commands takes a few options, namely the following ones:
   \keyval{heading}{sectioning command without leading backslash}%
     \Default{section*}
     \changedversion{1.3}Sets the sectioning command for the heading of the
-    list.
+    list.  A special value is \code{none} which suppresses the heading.
   \keybool{sort}\Default{true}
     \sinceversion{1.3}Set sorting for this list only.
 \end{options}
@@ -909,6 +909,11 @@ There are a few options which change the general behaviour of \acro.
     Provide backwards compatibility for documents set with \acro\ in a version
     prior to v1.0.
   %%
+  \keychoice{messages}{silent,loud}\Default{loud}
+    \sinceversion{1.6}Setting \keyis{messages}{silent} will turn all of
+    \acro's error messages into warnings and all of \acro's warnings into info
+    messages.  Be sure to check the log file carefully if you decide to set
+    this option.
   \keybool{single}\Default{false}
     If set to \code{true} an acronym that's used only once (with \cs{ac}) in a
     document will only print the long form and will not be printed in the list.
@@ -1140,7 +1145,8 @@ possible output forms of the acronyms.
     This option let's you choose how the list is printed.  \meta{list} can be
     any valid list like \env{itemize} or \env{description}.
   %%
-  \keychoice{list-style}{list,tabular,longtable,extra-tabular,extra-longtable,extra-tabular-rev,extra-longtable-rev}\Default{list}
+  \keychoice{list-style}{list,tabular,longtable,extra-tabular,extra-longtable,%
+    extra-tabular-rev,extra-longtable-rev}\Default{list}
     If you choose \keyis{list-type}{table} you have to specify which kind of
     table should be used.  If you choose \code{longtable},
     \code{extra-longtable} or \code{extra-longtable-rev} you have to load
@@ -1148,10 +1154,12 @@ possible output forms of the acronyms.
     \code{extra-longtable-rev} put the extra information in a column of its
     own.
   %%
-  \keychoice{list-heading}{chapter,chapter*,section,section*,subsection,subsection*,addchap,addsec}\null
+  \keychoice{list-heading}{chapter,chapter*,section,section*,subsection,%
+    subsection*,addchap,addsec,none}\null
   \Default{section*}
     \changedversion{1.3}The heading type of the list. The last two only work
-    with a \KOMAScript{} class that also defines the appropriate command.
+    with a \KOMAScript{} class that also defines the appropriate command.  A
+    special value is \code{none} which suppresses the heading.
   %%
   \keyval{list-name}{list name}\Default{Acronyms}
     The name of the list.  This is what's written in the list-heading.  This
