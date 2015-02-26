@@ -31,7 +31,7 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2015/02/25}
+  {2015/02/26}
   {1.6}
   {Typeset Acronyms}
 
@@ -55,12 +55,6 @@
   {
     You've~requested~acronym~`#1'~\msg_line_context: \c_space_tl but~you~
     apparently~haven't~defined~it,~yet!~Maybe~you've~misspelled~it?
-  }
-
-\msg_new:nnn {acro} {version}
-  {
-    You've~selected~the~version~option~`#1'~which~doesn't~exist.~
-    I'm~using~option~`#2'~instead.
   }
 
 \msg_new:nnn {acro} {macro}
@@ -205,7 +199,6 @@
 \bool_new:N      \l__acro_record_pages_bool
 \bool_set_true:N \l__acro_record_pages_bool
 \bool_new:N      \l__acro_addto_index_bool
-\bool_new:N      \l__acro_version_selected_bool
 \bool_new:N      \l__acro_is_excluded_bool
 \bool_new:N      \l__acro_page_punct_bool
 \bool_new:N      \l__acro_page_brackets_bool
@@ -272,9 +265,6 @@
 \tl_new:N   \l__acro_first_between_tl
 \tl_new:N   \l__acro_citation_space_tl
 \tl_set:Nn  \l__acro_citation_space_tl { \nobreakspace }
-\tl_new:N   \l__acro_active_version_tl
-\tl_new:N   \l__acro_version_zero_tl
-\tl_set:Nn  \l__acro_version_zero_tl { 0 }
 \tl_new:N   \l__acro_extra_brackets_tl
 \tl_new:N   \l__acro_extra_punct_tl
 \tl_new:N   \l__acro_first_brackets_tl
@@ -290,41 +280,6 @@
 \tl_new:N   \l__acro_acc_supp_options_tl
 \tl_new:N   \l__acro_label_prefix_tl
 \tl_set:Nn  \l__acro_label_prefix_tl { ac: }
-
-% --------------------------------------------------------------------------
-% comma list variables
-\clist_new:N \l__acro_versions_clist
-
-% --------------------------------------------------------------------------
-% property list variables:
-\prop_new:N \l__acro_short_prop
-\prop_new:N \l__acro_alt_prop
-\prop_new:N \l__acro_sort_prop
-\prop_new:N \l__acro_long_prop
-\prop_new:N \l__acro_list_prop
-\prop_new:N \l__acro_class_prop
-\prop_new:N \l__acro_short_plural_prop
-\prop_new:N \l__acro_long_plural_prop
-\prop_new:N \l__acro_replace_long_plural_prop
-\prop_new:N \l__acro_short_indefinite_prop
-\prop_new:N \l__acro_long_indefinite_prop
-\prop_new:N \l__acro_alt_indefinite_prop
-\prop_new:N \l__acro_long_pre_prop
-\prop_new:N \l__acro_long_post_prop
-\prop_new:N \l__acro_extra_prop
-\prop_new:N \l__acro_foreign_prop
-\prop_new:N \l__acro_format_prop
-\prop_new:N \l__acro_long_format_prop
-\prop_new:N \l__acro_first_long_format_prop
-\prop_new:N \l__acro_citation_prop
-\prop_new:N \l__acro_citation_pre_prop
-\prop_new:N \l__acro_citation_post_prop
-\prop_new:N \l__acro_pdfstring_prop
-\prop_new:N \l__acro_pdfstring_plural_prop
-\prop_new:N \l__acro_acc_supp_prop
-\prop_new:N \l__acro_index_prop
-\prop_new:N \l__acro_index_sort_prop
-\prop_new:N \l__acro_index_cmd_prop
 
 % --------------------------------------------------------------------------
 % length variables:
@@ -347,30 +302,11 @@
   { \acro_first_upper_case:n {#1} }
 
 % --------------------------------------------------------------------------
-% versioning:
-\clist_put_right:Nn \l__acro_versions_clist { 0 }
-\clist_put_right:Nn \l__acro_versions_clist { 1 }
-
-\cs_new_protected:Npn \__acro_select_version:n #1
-  {
-    \clist_if_in:NnTF \l__acro_versions_clist {#1}
-      {
-        \file_input:n { acro#1.def }
-        \tl_set:Nn \l__acro_active_version_tl {#1}
-      }
-      {
-        \acro_harmless_message:nnnn {acro} {version} {#1} {1}
-        \file_input:n {acro1.def}
-        \tl_set:Nn \l__acro_active_version_tl {1}
-      }
-    \bool_set_true:N \l__acro_version_selected_bool
-  }
-
-% --------------------------------------------------------------------------
 % options:
 \keys_define:nn {acro}
   {
-    version           .code:n     = \__acro_select_version:n {#1}   ,
+    version           .code:n     = 
+      \acro_option_deprecated:nn { version } { }               ,
     messages          .choice: ,
     messages / silent .code:n     =
       \bool_set_true:N \l__acro_silence_bool ,
@@ -961,26 +897,6 @@
   }
 \cs_generate_variant:Nn \acro_determine_page_ranges:NNn { NNV }
 
-\AtBeginDocument
-  {
-    \bool_if:nT
-      {
-        \tl_if_eq_p:NN \l__acro_active_version_tl \l__acro_version_zero_tl
-        ||
-        !\l__acro_list_all_pages_bool
-      }
-      {
-        \cs_set:Npn \acro_print_page_numbers:n #1
-          {
-            \acro_no_break:
-            \skip_horizontal:N \l__acro_page_space_dim
-            \acro_no_break:
-            \tl_use:N \l__acro_page_name_tl
-            \pageref{\l__acro_label_prefix_tl #1}
-          }
-      }
-  }
-
 % --------------------------------------------------------------------------
 \DeclareObjectType { acro-page-number } { 1 }
 
@@ -1178,10 +1094,10 @@
   }
 
 % list template:
-\DeclareTemplateInterface { acro-list } { list } { 3 }
+\DeclareTemplateInterface {acro-list} {list} {3}
   { foreign-sep : tokenlist = { ~ } }
 
-\DeclareTemplateCode { acro-list } { list } { 3 }
+\DeclareTemplateCode {acro-list} {list} {3}
   { foreign-sep = \l__acro_foreign_sep_tl }
   {
     \AssignTemplateKeys
@@ -1229,7 +1145,7 @@
   }
 
 % table template:
-\DeclareTemplateInterface { acro-list } { table } { 3 }
+\DeclareTemplateInterface {acro-list} {table} {3}
   {
     table       : tokenlist = longtable         ,
     table-spec  : tokenlist = lp{\l__acro_table_width_dim} ,
@@ -1398,7 +1314,7 @@
   }
 
 % the different styles:
-\DeclareInstance { acro-list } { list }
+\DeclareInstance {acro-list} {list}
   { list }
   { }
 \DeclareInstance { acro-list } { tabular }
@@ -1507,7 +1423,7 @@
   {
     \bool_if:NT \l__acro_use_plural_bool
       {
-        \bool_if:nTF { \prop_get:Nn \l__acro_replace_long_plural_prop {#1} }
+        \bool_if:nTF { \prop_get:Nn \l__acro_long_plural_form_prop {#1} }
           { \prop_get:NnNF \l__acro_long_plural_prop {#1} \l__acro_long_tl {} }
           {
             \tl_put_right:Nn \l__acro_long_tl
@@ -1568,13 +1484,7 @@
             \bool_if:nT
               {
                 !\bool_if_p:c { g__acro_#1_label_bool } &&
-                (
-                  \tl_if_eq_p:NN
-                    \l__acro_active_version_tl
-                    \l__acro_version_zero_tl
-                  ||
-                  \l__acro_place_label_bool
-                )
+                \l__acro_place_label_bool
               }
               {
                 \bool_gset_true:c { g__acro_#1_label_bool }
@@ -2438,6 +2348,394 @@
   }
 
 % --------------------------------------------------------------------------
+% additional variables:
+\tl_new:N \l__acro_current_key_tl
+
+% --------------------------------------------------------------------------
+% key and order checking
+\msg_new:nnn {acro} {no-id}
+  { Something~has~gone~wrong,~you've~probably~forgotten~to~set~the~acronym~ID. }
+
+\msg_new:nnn {acro} {before-short}
+  {
+    You've~set~The~key~`#2'~before~the~`short'~key~for~acronym~`#1'~but~
+    needs~to~be~set~after~it.
+  }
+
+\msg_new:nnn {acro} {missing}
+  { The~`#2'~key~for~acronym~`#1'~is~missing. }
+
+\msg_new:nnn {acro} {doubled-key}
+  {
+    It~seems~to~me~you~have~used~the~`#1'~key~before.~If~you~haven't~there's~
+    something~different~wrong~and~I'm~lost.~You~'re~on~your~own~now.
+  }
+
+\cs_new_protected:Npn \__acro_key_check:nn #1#2
+  {
+    \tl_if_blank:VT \l__acro_current_key_tl
+      { \acro_serious_message:nn {acro} {no-id} }
+    \bool_if:cF { l__acro_#1_short_set_bool }
+      { \acro_serious_message:nnnn {acro} {before-short} {#1} {#2} }
+    \bool_new:c { l__acro_#1_#2_set_bool }
+    \bool_set_true:c { l__acro_#1_#2_set_bool }
+  }
+
+\cs_new_protected:Npn \__acro_first_key_check:n #1
+  {
+    \cs_if_exist:cTF { l__acro_#1_short_set_bool }
+      {
+         \bool_if:cT { l__acro_#1_short_set_bool }
+           { \acro_serious_message:nnn {acro} {doubled-key} {#1} }
+      }
+      {
+        \bool_new:c { l__acro_#1_short_set_bool }
+        \bool_set_true:c { l__acro_#1_short_set_bool }
+      }
+  }
+
+% --------------------------------------------------------------------------
+% the internal key selection functions for \DeclareAcronym:
+
+% #1: name in associated cs
+% #2: key name
+% #3: action
+\cs_new_protected:Npn \acro_declare_key_generic:nnn #1#2#3
+  {
+    \prop_new:c { l__acro_#1_prop }
+    \cs_new_protected:cpn { __acro_declare_#1:nn } ##1##2
+      {
+        #3
+      }
+    \cs_generate_variant:cn { __acro_declare_#1:nn } { V }
+    \keys_define:nn { acro / declare-acronym }
+      {
+        #2 .code:n =
+          \use:c {__acro_declare_#1:Vn} \l__acro_current_key_tl {##1}
+      }
+  }
+\cs_generate_variant:Nn \cs_generate_variant:Nn {c}
+
+% #1: name in associated cs
+% #2: key name
+% #3: action
+\cs_new_protected:Npn \acro_declare_key:nnn #1#2#3
+  {
+    \acro_declare_key_generic:nnn {#1} {#2}
+      {
+        \__acro_key_check:nn {##1} {#2}
+        \prop_put:cnn { l__acro_#1_prop } {##1} {##2}
+        #3
+      }
+  }
+
+% #1: name in associated cs
+% #2: key name
+\cs_new_protected:Npn \acro_declare_key:nn #1#2
+  { \acro_declare_key:nnn {#1} {#2} {} }
+\cs_generate_variant:Nn \acro_declare_key:nn { V }
+
+\cs_new_protected:Npn \acro_declare_simple_key:n #1
+  {
+    \tl_set:Nn \l__acro_tmpa_tl {#1}
+    \tl_replace_all:Nnn \l__acro_tmpa_tl {-} {_}
+    \acro_declare_key:Vn \l__acro_tmpa_tl {#1}
+  }
+
+% #1: new alias key
+% #2: old key
+\cs_new_protected:Npn \acro_declare_key_alias:nn #1#2
+  {
+    \keys_define:nn { acro / declare-acronym }
+      { #1 .meta:n = { #2 = {##1} } }
+  }
+
+% --------------------------------------------------------------------------
+% declare the keys for \DeclareAcronym:
+% short:
+\acro_declare_key_generic:nnn {short} {short}
+  {
+    \__acro_first_key_check:n {#1}
+    \prop_put:Nnn \l__acro_short_prop      {#1} {#2}
+    \prop_put:Nnn \l__acro_sort_prop       {#1} {#1}
+    \prop_put:Nnn \l__acro_index_sort_prop {#1} {#1}
+    \prop_put:Nnn \l__acro_alt_prop        {#1} {#2}
+    \prop_put:Nnx \l__acro_pdfstring_prop  {#1} { \exp_not:n {#2} }
+    \prop_put:Nnn \l__acro_short_plural_prop
+      {#1} { \l__acro_default_plural_tl }
+    \prop_put:Nnx \l__acro_short_indefinite_prop
+      {#1} { \l__acro_default_indefinite_tl }
+    \prop_put:Nnx \l__acro_alt_indefinite_prop
+      {#1} { \l__acro_default_indefinite_tl }
+    \prop_put:Nnx \l__acro_pdfstring_plural_prop
+      {#1} { \exp_not:n {#2} \exp_not:V \l__acro_default_plural_tl }
+  }
+
+% short plural:
+\acro_declare_simple_key:n {short-plural}
+
+% long:
+\acro_declare_key:nnn {long} {long}
+  {
+    \prop_put:Nnn \l__acro_long_plural_form_prop {#1} { \c_false_bool }
+    \prop_put:Nnx \l__acro_long_indefinite_prop
+      {#1} { \l__acro_default_indefinite_tl }
+    \bool_if:cF { l__acro_#1_long-plural_set_bool }
+      {
+        \prop_put:Nnn \l__acro_long_plural_prop
+          {#1} { \l__acro_default_plural_tl }
+      }
+  }
+
+% list:
+\acro_declare_simple_key:n {list}
+
+% long plural:
+\acro_declare_key:nnn {long_plural} {long-plural}
+  { \prop_put:Nnn \l__acro_long_plural_form_prop {#1} { \c_false_bool } }
+
+% long plural form:
+\acro_declare_key_generic:nnn {long_plural_form} {long-plural-form}
+  {
+    \__acro_key_check:nn {#1} { long-plural-form }
+    \prop_put:Nnn \l__acro_long_plural_form_prop {#1} { \c_true_bool }
+    \prop_put:Nnn \l__acro_long_plural_prop {#1} {#2}
+  }
+
+% short indefinite article:
+\acro_declare_simple_key:n {short-indefinite}
+
+% long indefinite article:
+\acro_declare_simple_key:n {long-indefinite}
+
+% pre long:
+\acro_declare_simple_key:n {long-pre}
+
+% post long:
+\acro_declare_simple_key:n {long-post}
+
+% sort:
+\acro_declare_key:nnn {sort} {sort}
+  {
+    \bool_if:cF { l__acro_#1_index-sort_set_bool }
+      { \prop_put:Nnn \l__acro_index_sort_prop {#1} {#2} }
+  }
+
+% alternative:
+\acro_declare_key:nnn {alt} {alt}
+  {
+    \prop_put:Nnx \l__acro_alt_indefinite_prop
+      {#1} { \l__acro_default_indefinite_tl }
+  }
+
+% alt. indefinite article:
+\acro_declare_simple_key:n {alt-indefinite}
+
+% foreign:
+\acro_declare_simple_key:n {foreign}
+
+% format:
+\acro_declare_simple_key:n {format}
+
+% short format:
+\acro_declare_key_alias:nn {short-format} {format}
+
+% long format:
+\acro_declare_simple_key:n {long-format}
+
+% first long format:
+\acro_declare_simple_key:n {first-long-format}
+
+% pdfstring:
+\prop_new:N \l__acro_pdfstring_prop
+\prop_new:N \l__acro_pdfstring_plural_prop
+\cs_new_protected:Npn \__acro_declare_pdfstring:nw #1#2/#3/#4 \acro_stop:
+  {
+    \__acro_key_check:nn {#1} { pdfstring }
+    \prop_put:Nnx \l__acro_pdfstring_prop {#1} {#2}
+    \tl_if_empty:nTF { #3 }
+      {
+        \prop_put:Nnx \l__acro_pdfstring_plural_prop
+          {#1} { \exp_not:n {#2} \exp_not:V \l__acro_default_plural_tl }
+      }
+      {
+        \prop_put:Nnx \l__acro_pdfstring_plural_prop
+          {#1} { \exp_not:n { #2#3 } }
+      }
+  }
+\cs_generate_variant:Nn \__acro_declare_pdfstring:nw { V }
+\keys_define:nn { acro / declare-acronym }
+  {
+    pdfstring    .code:n =
+      \__acro_declare_pdfstring:Vw \l__acro_current_key_tl #1 // \acro_stop: ,
+  }
+
+% class:
+\acro_declare_simple_key:n {class}
+
+% extra information:
+\acro_declare_simple_key:n {extra}
+
+% acc supp:
+\acro_declare_key:nn {acc_supp} {accsupp}
+
+% citation:
+\prop_new:N \l__acro_citation_prop
+\prop_new:N \l__acro_citation_pre_prop
+\prop_new:N \l__acro_citation_post_prop
+\cs_new_protected:Npn \__acro_declare_citation:nw #1#2[#3]#4[#5]#6#7 \acro_stop:
+  {
+    % no options: #1: ID, #2: key, #3 is blank
+    % 1 option:   #1: ID, #4: key, #3: option, #5 is blank
+    % 2 options:  #1: ID: #6: key, #3: first option, #5: second option
+    \tl_if_blank:nF { #2#4#6 }
+      {
+        \tl_if_empty:nTF { #3 }
+          { \__acro_declare_citation_aux:nnnn {#1} { } { } {#2} }
+          {
+            \tl_if_empty:nTF { #5 }
+              { \__acro_declare_citation_aux:nnnn {#1} { #3 } {    } { #4 } }
+              { \__acro_declare_citation_aux:nnnn {#1} { #3 } { #5 } { #6 } }
+          }
+      }
+  }
+\cs_generate_variant:Nn \__acro_declare_citation:nw { V }
+
+\keys_define:nn { acro / declare-acronym }
+  {
+    cite .code:n =
+      \__acro_declare_citation:Vw
+        \l__acro_current_key_tl #1 [][] \scan_stop: \acro_stop:
+  }
+
+\cs_new_protected:Npn \__acro_declare_citation_aux:nnnn #1#2#3#4
+  {
+    \__acro_key_check:nn {#1} { cite }
+    \prop_put:Nnn \l__acro_citation_prop {#1} { #4 }
+    \tl_if_empty:nF {#2}
+      { \prop_put:Nnn \l__acro_citation_pre_prop {#1} {#2} }
+    \tl_if_empty:nF { #3 }
+      { \prop_put:Nnn \l__acro_citation_post_prop {#1} { #3 } }
+  }
+
+% TODO:
+% add index entries, by default \index{<sort>@<short>}
+% index: overwrite default <sort>@<short> entry completely
+% index-sort: overwrite the <sort> part of <sort>@<short> entry
+
+% need to take care of custom index cmd, at least
+%  - \index{}
+%  - \index[]{}
+% question is, though, if it should be the same one for all acronyms?
+% I go for yes but would also add a `post' key that allows to add arbitrary
+% TeX code after an acronym is typeset
+
+% index:
+\acro_declare_simple_key:n {index}
+
+% index-sort:
+\acro_declare_simple_key:n {index-sort}
+
+% index-cmd:
+\acro_declare_simple_key:n {index-cmd}
+
+% --------------------------------------------------------------------------
+% acronym macros:
+\cs_new_protected:Npn \acro_define_acronym_macro:n #1
+  {
+    \bool_if:NT \l__acro_create_macros_bool
+      {
+        \cs_if_exist:cTF {#1}
+          {
+            \bool_if:NTF \l__acro_strict_bool
+              { \cs_set:cpn {#1} { \ac {#1} \acro_xspace: } }
+              { \acro_serious_message:nnn {acro} {macro} {#1} }
+          }
+          { \cs_new:cpn {#1} { \ac {#1} \acro_xspace: } }
+      }
+  }
+
+% --------------------------------------------------------------------------
+% internal acronym declaring function:
+\cs_new_protected:Npn \acro_declare_acronym:nn #1#2
+  {
+    \tl_set:Nn \l__acro_current_key_tl {#1}
+    \keys_set:nn { acro / declare-acronym } {#2}
+    \bool_new:c { g__acro_#1_first_use_bool }
+    \bool_new:c { g__acro_#1_used_bool }
+    \bool_new:c { g__acro_#1_label_bool }
+    \bool_new:c { g__acro_#1_in_list_bool }
+    \bool_if:NF \l__acro_print_only_used_bool
+      { \bool_gset_true:c { g__acro_#1_in_list_bool } }
+    \acro_create_page_records:n {#1}
+    \acro_define_acronym_macro:n {#1}
+    \tl_clear:N \l__acro_current_key_tl
+    \bool_if:cF { l__acro_#1_short_set_bool }
+      { \acro_serious_message:nnnn {acro} {missing} {#1} {short} }
+    \bool_if:cF { l__acro_#1_long_set_bool }
+      { \acro_serious_message:nnnn {acro} {missing} {#1} {long} }
+  }
+
+% --------------------------------------------------------------------------
+% the user command:
+\NewDocumentCommand \DeclareAcronym { mm }
+  { \acro_declare_acronym:nn {#1} {#2} }
+
+% --------------------------------------------------------------------------
+% print the list:
+% #1: list of classes
+% #2: list of excluded classes
+\tl_new:N \l__acro_included_classes_tl
+\tl_new:N \l__acro_excluded_classes_tl
+
+\cs_new_protected:Npn \acro_use_list_instance:nn #1#2
+  {
+    \UseInstance { acro-list } { \l__acro_list_instance_tl }
+      { \l__acro_list_type_tl } {#1} {#2}
+  }
+\cs_generate_variant:Nn \acro_use_list_instance:nn { VV }
+
+\keys_define:nn { acro / print-acronyms }
+  {
+    include-classes .tl_set:N   = \l__acro_included_classes_tl ,
+    exclude-classes .tl_set:N   = \l__acro_excluded_classes_tl ,
+    name            .tl_set:N   = \l__acro_list_name_tl ,
+    header          .code:n     =
+      \acro_option_deprecated:nn { header } { heading }
+      \tl_set:Nn \l__acro_list_title_tl {#1} ,
+    heading         .tl_set:N   = \l__acro_list_title_tl ,
+    sort            .bool_set:N = \l__acro_sort_bool
+  }
+
+\cs_new_protected:Npn \acro_print_acronyms:n #1
+  {
+    \group_begin:
+      % this is a cheap trick to prevent the \@noitemerr
+      % if one forgot to delete either the aux file or
+      % remove \printacronyms -- but it's local:
+      \cs_set:Npn \@noitemerr {}
+      \tl_clear:N \l__acro_included_classes_tl
+      \tl_clear:N \l__acro_excluded_classes_tl
+      \keys_set:nn { acro / print-acronyms } {#1}
+      \iow_now:Nx \@auxout { \string \acro@print@list }
+      \bool_if:NT \l__acro_sort_bool
+        { \acro_sort_prop:N \l__acro_short_prop }
+      \UseInstance { acro-title } { \l__acro_list_title_tl }
+        { \l__acro_list_name_tl }
+      \cs_if_exist:NTF \acro@printed@list
+        {
+          \acro_use_list_instance:VV
+            \l__acro_included_classes_tl
+            \l__acro_excluded_classes_tl
+        }
+        { \@latex@warning@no@line {Rerun~to~get~acronym~list~right} }
+    \group_end:
+  }
+
+\NewDocumentCommand \printacronyms { O{} }
+  { \acro_print_acronyms:n {#1} }
+
+% --------------------------------------------------------------------------
 % language support
 \RequirePackage { translations }
 % Listenname
@@ -2477,11 +2775,6 @@
 \DeclareTranslation { German     } { acronym-next-pages } { ff. }
 \DeclareTranslation { Portuguese } { acronym-next-pages } { ss. }
 \tl_set:Nn \l__acro_next_pages_tl { \,\GetTranslation {acronym-next-pages }\@ }
-
-% --------------------------------------------------------------------------
-% load default version
-\bool_if:NF \l__acro_version_selected_bool
-  { \__acro_select_version:n { 1 } }
 
 \tex_endinput:D
 % --------------------------------------------------------------------------
@@ -2589,13 +2882,14 @@
                  - new option `pages=first|all' that determines if in the list
                    of acronyms all appearances are listed or only the first
                    time; implicitly sets `label=true'
-2015/02/25 v1.6  - new `acro-title' instance `none'
+2015/02/26 v1.6  - new `acro-title' instance `none'
                  - change of expl3's tl uppercasing function (adapt to updates
                    of l3kernel and friends
                  - new package option `messages=silent|loud'
                  - fix issue https://bitbucket.org/cgnieder/acro/issue/23/
                  - fix issue https://bitbucket.org/cgnieder/acro/issue/24/
                  - fix issue https://bitbucket.org/cgnieder/acro/issue/28/
+                 - drop support for version 0
 
 % --------------------------------------------------------------------------
 % TODO:

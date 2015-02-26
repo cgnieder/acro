@@ -79,8 +79,62 @@
 
 % --------------------------------------------------------------------------
 % the internal selection functions:
+
+% #1: name in associated cs
+% #2: key name
+% #3: action
+\cs_new_protected:Npn \acro_declare_key_generic:nnn #1#2#3
+  {
+    \prop_new:c { l__acro_#1_prop }
+    \cs_new_protected:cpn { __acro_declare_#1:nn } ##1##2
+      {
+        #3
+      }
+    \cs_generate_variant:cn { __acro_declare_#1:nn } { V }
+    \keys_define:nn { acro / declare-acronym }
+      {
+        #2 .code:n =
+          \use:c {__acro_declare_#1:Vn} \l__acro_current_key_tl {##1}
+      }
+  }
+\cs_generate_variant:Nn \cs_generate_variant:Nn {c}
+
+% #1: name in associated cs
+% #2: key name
+% #3: action
+\cs_new_protected:Npn \acro_declare_key:nnn #1#2#3
+  {
+    \acro_declare_key_generic:nnn {#1} {#2}
+      {
+        \__acro_key_check:nn {##1} {#2}
+        \prop_put:cnn { l__acro_#1_prop } {##1} {##2}
+        #3
+      }
+  }
+
+% #1: name in associated cs
+% #2: key name
+\cs_new_protected:Npn \acro_declare_key:nn #1#2
+  { \acro_declare_key:nnn {#1} {#2} {} }
+\cs_generate_variant:Nn \acro_declare_key:nn { V }
+
+\cs_new_protected:Npn \acro_declare_simple_key:n #1
+  {
+    \tl_set:Nn \l__acro_tmpa_tl {#1}
+    \tl_replace_all:Nnn \l__acro_tmpa_tl {-} {_}
+    \acro_declare_key:Vn \l__acro_tmpa_tl {#1}
+  }
+
+% #1: new alias key
+% #2: old key
+\cs_new_protected:Npn \acro_declare_key_alias:nn #1#2
+  {
+    \keys_define:nn { acro / declare-acronym }
+      { #1 .meta:n = { #2 = {##1} } }
+  }
+
 % short:
-\cs_new_protected:Npn \__acro_declare_short:nn #1#2
+\acro_declare_key_generic:nnn {short} {short}
   {
     \__acro_first_key_check:n {#1}
     \prop_put:Nnn \l__acro_short_prop      {#1} {#2}
@@ -97,22 +151,14 @@
     \prop_put:Nnx \l__acro_pdfstring_plural_prop
       {#1} { \exp_not:n {#2} \exp_not:V \l__acro_default_plural_tl }
   }
-\cs_generate_variant:Nn \__acro_declare_short:nn { V }
 
 % short plural:
-\cs_new_protected:Npn \__acro_declare_short_plural:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { short-plural }
-    \prop_put:Nnn \l__acro_short_plural_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_short_plural:nn { V }
+\acro_declare_simple_key:n {short-plural}
 
 % long:
-\cs_new_protected:Npn \__acro_declare_long:nn #1#2
+\acro_declare_key:nnn {long} {long}
   {
-    \__acro_key_check:nn {#1} { long }
-    \prop_put:Nnn \l__acro_replace_long_plural_prop {#1} { \c_false_bool }
-    \prop_put:Nnn \l__acro_long_prop {#1} {#2}
+    \prop_put:Nnn \l__acro_long_plural_form_prop {#1} { \c_false_bool }
     \prop_put:Nnx \l__acro_long_indefinite_prop
       {#1} { \l__acro_default_indefinite_tl }
     \bool_if:cF { l__acro_#1_long-plural_set_bool }
@@ -121,127 +167,69 @@
           {#1} { \l__acro_default_plural_tl }
       }
   }
-\cs_generate_variant:Nn \__acro_declare_long:nn { V }
 
 % list:
-\cs_new_protected:Npn \__acro_declare_list:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { list }
-    \prop_put:Nnn \l__acro_list_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_list:nn { V }
+\acro_declare_simple_key:n {list}
 
 % long plural:
-\cs_new_protected:Npn \__acro_declare_long_plural:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { long-plural }
-    \prop_put:Nnn \l__acro_replace_long_plural_prop {#1} { \c_false_bool }
-    \prop_put:Nnn \l__acro_long_plural_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_long_plural:nn { V }
+\acro_declare_key:nnn {long_plural} {long-plural}
+  { \prop_put:Nnn \l__acro_long_plural_form_prop {#1} { \c_false_bool } }
 
 % long plural form:
-\cs_new_protected:Npn \__acro_declare_long_plural_form:nn #1#2
+\acro_declare_key_generic:nnn {long_plural_form} {long-plural-form}
   {
     \__acro_key_check:nn {#1} { long-plural-form }
-    \prop_put:Nnn \l__acro_replace_long_plural_prop {#1} { \c_true_bool }
+    \prop_put:Nnn \l__acro_long_plural_form_prop {#1} { \c_true_bool }
     \prop_put:Nnn \l__acro_long_plural_prop {#1} {#2}
   }
-\cs_generate_variant:Nn \__acro_declare_long_plural_form:nn { V }
 
 % short indefinite article:
-\cs_new_protected:Npn \__acro_declare_short_indefinite:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { short-indefinite }
-    \prop_put:Nnn \l__acro_short_indefinite_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_short_indefinite:nn { V }
+\acro_declare_simple_key:n {short-indefinite}
 
 % long indefinite article:
-\cs_new_protected:Npn \__acro_declare_long_indefinite:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { long-indefinite }
-    \prop_put:Nnn \l__acro_long_indefinite_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_long_indefinite:nn { V }
+\acro_declare_simple_key:n {long-indefinite}
 
 % pre long:
-\cs_new_protected:Npn \__acro_declare_long_pre:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { long-pre }
-    \prop_put:Nnn \l__acro_long_pre_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_long_pre:nn { V }
+\acro_declare_simple_key:n {long-pre}
 
 % post long:
-\cs_new_protected:Npn \__acro_declare_long_post:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { long-post }
-    \prop_put:Nnn \l__acro_long_post_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_long_post:nn { V }
+\acro_declare_simple_key:n {long-post}
 
 % sort:
-\cs_new_protected:Npn \__acro_declare_sort:nn #1#2
+\acro_declare_key:nnn {sort} {sort}
   {
-    \__acro_key_check:nn {#1} { sort }
-    \prop_put:Nnn \l__acro_sort_prop {#1} {#2}
     \bool_if:cF { l__acro_#1_index-sort_set_bool }
       { \prop_put:Nnn \l__acro_index_sort_prop {#1} {#2} }
   }
-\cs_generate_variant:Nn \__acro_declare_sort:nn { V }
 
 % alternative:
-\cs_new_protected:Npn \__acro_declare_alt:nn #1#2
+\acro_declare_key:nnn {alt} {alt}
   {
-    \__acro_key_check:nn {#1} { alt }
-    \prop_put:Nnn \l__acro_alt_prop {#1} {#2}
     \prop_put:Nnx \l__acro_alt_indefinite_prop
       {#1} { \l__acro_default_indefinite_tl }
   }
-\cs_generate_variant:Nn \__acro_declare_alt:nn { V }
 
 % alt. indefinite article:
-\cs_new_protected:Npn \__acro_declare_alt_indefinite:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { alt-indefinite }
-    \prop_put:Nnn \l__acro_alt_indefinite_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_alt_indefinite:nn { V }
+\acro_declare_simple_key:n {alt-indefinite}
 
 % foreign:
-\cs_new_protected:Npn \__acro_declare_foreign:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { alt }
-    \prop_put:Nnn \l__acro_foreign_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_foreign:nn { V }
+\acro_declare_simple_key:n {foreign}
 
 % format:
-\cs_new_protected:Npn \__acro_declare_format:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { format }
-    \prop_put:Nnn \l__acro_format_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_format:nn { V }
+\acro_declare_simple_key:n {format}
+
+% short format:
+\acro_declare_key_alias:nn {short-format} {format}
 
 % long format:
-\cs_new_protected:Npn \__acro_declare_long_format:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { long-format }
-    \prop_put:Nnn \l__acro_long_format_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_long_format:nn { V }
+\acro_declare_simple_key:n {long-format}
 
 % first long format:
-\cs_new_protected:Npn \__acro_declare_first_long_format:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { first-long-format }
-    \prop_put:Nnn \l__acro_first_long_format_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_first_long_format:nn { V }
+\acro_declare_simple_key:n {first-long-format}
 
 % pdfstring:
+\prop_new:N \l__acro_pdfstring_prop
+\prop_new:N \l__acro_pdfstring_plural_prop
 \cs_new_protected:Npn \__acro_declare_pdfstring:nw #1#2/#3/#4 \acro_stop:
   {
     \__acro_key_check:nn {#1} { pdfstring }
@@ -257,32 +245,25 @@
       }
   }
 \cs_generate_variant:Nn \__acro_declare_pdfstring:nw { V }
+\keys_define:nn { acro / declare-acronym }
+  {
+    pdfstring    .code:n =
+      \__acro_declare_pdfstring:Vw \l__acro_current_key_tl #1 // \acro_stop: ,
+  }
 
 % class:
-\cs_new_protected:Npn \__acro_declare_class:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { class }
-    \prop_put:Nnn \l__acro_class_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_class:nn { V }
+\acro_declare_simple_key:n {class}
 
 % extra information:
-\cs_new_protected:Npn \__acro_declare_extra:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { extra }
-    \prop_put:Nnn \l__acro_extra_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_extra:nn { V }
+\acro_declare_simple_key:n {extra}
 
 % acc supp:
-\cs_new_protected:Npn \__acro_declare_acc_supp:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { accsupp }
-    \prop_put:Nnn \l__acro_acc_supp_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_acc_supp:nn { V }
+\acro_declare_key:nn {acc_supp} {accsupp}
 
 % citation:
+\prop_new:N \l__acro_citation_prop
+\prop_new:N \l__acro_citation_pre_prop
+\prop_new:N \l__acro_citation_post_prop
 \cs_new_protected:Npn \__acro_declare_citation:nw #1#2[#3]#4[#5]#6#7 \acro_stop:
   {
     % no options: #1: ID, #2: key, #3 is blank
@@ -300,6 +281,13 @@
       }
   }
 \cs_generate_variant:Nn \__acro_declare_citation:nw { V }
+
+\keys_define:nn { acro / declare-acronym }
+  {
+    cite .code:n =
+      \__acro_declare_citation:Vw
+        \l__acro_current_key_tl #1 [][] \scan_stop: \acro_stop:
+  }
 
 \cs_new_protected:Npn \__acro_declare_citation_aux:nnnn #1#2#3#4
   {
@@ -324,89 +312,16 @@
 % TeX code after an acronym is typeset
 
 % index:
-\cs_new_protected:Npn \__acro_declare_index:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { index }
-    \prop_put:Nnn \l__acro_index_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_index:nn { V }
+\acro_declare_simple_key:n {index}
 
 % index-sort:
-\cs_new_protected:Npn \__acro_declare_index_sort:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { index-sort }
-    \prop_put:Nnn \l__acro_index_sort_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_index_sort:nn { V }
+\acro_declare_simple_key:n {index-sort}
 
 % index-cmd:
-\cs_new_protected:Npn \__acro_declare_index_cmd:nn #1#2
-  {
-    \__acro_key_check:nn {#1} { index-cmd }
-    \prop_put:Nnn \l__acro_index_cmd_prop {#1} {#2}
-  }
-\cs_generate_variant:Nn \__acro_declare_index_cmd:nn { V }
+\acro_declare_simple_key:n {index-cmd}
 
 % --------------------------------------------------------------------------
-% the keys of \DeclareAcronym
-\keys_define:nn { acro / declare-acronym }
-  {
-    short        .code:n =
-      \__acro_declare_short:Vn \l__acro_current_key_tl {#1} ,
-    short-plural .code:n =
-      \__acro_declare_short_plural:Vn \l__acro_current_key_tl {#1} ,
-%    short-plural-form .code:n =
-%      \__acro_declare_short_plural_form:Vn \l__acro_current_key_tl {#1} ,
-    alt          .code:n =
-      \__acro_declare_alt:Vn \l__acro_current_key_tl {#1} ,
-    long         .code:n =
-      \__acro_declare_long:Vn \l__acro_current_key_tl {#1} ,
-    long-plural  .code:n =
-      \__acro_declare_long_plural:Vn \l__acro_current_key_tl {#1} ,
-    long-plural-form .code:n =
-      \__acro_declare_long_plural_form:Vn \l__acro_current_key_tl {#1} ,
-    list         .code:n =
-      \__acro_declare_list:Vn \l__acro_current_key_tl {#1} ,
-    short-indefinite .code:n =
-      \__acro_declare_short_indefinite:Vn \l__acro_current_key_tl {#1} ,
-    alt-indefinite .code:n =
-      \__acro_declare_alt_indefinite:Vn \l__acro_current_key_tl {#1} ,
-    long-indefinite .code:n =
-      \__acro_declare_long_indefinite:Vn \l__acro_current_key_tl {#1} ,
-    long-pre     .code:n =
-      \__acro_declare_long_pre:Vn \l__acro_current_key_tl {#1} ,
-    long-post    .code:n =
-      \__acro_declare_long_post:Vn \l__acro_current_key_tl {#1} ,
-    sort         .code:n =
-      \__acro_declare_sort:Vn \l__acro_current_key_tl {#1} ,
-    extra        .code:n =
-      \__acro_declare_extra:Vn \l__acro_current_key_tl {#1} ,
-    foreign      .code:n =
-      \__acro_declare_foreign:Vn \l__acro_current_key_tl {#1} ,
-    format       .code:n =
-      \__acro_declare_format:Vn \l__acro_current_key_tl {#1} ,
-    short-format .code:n =
-      \__acro_declare_format:Vn \l__acro_current_key_tl {#1} ,
-    long-format  .code:n =
-      \__acro_declare_long_format:Vn \l__acro_current_key_tl {#1} ,
-    first-long-format .code:n =
-      \__acro_declare_first_long_format:Vn \l__acro_current_key_tl {#1} ,
-    class        .code:n =
-      \__acro_declare_class:Vn \l__acro_current_key_tl {#1} ,
-    cite         .code:n =
-      \__acro_declare_citation:Vw \l__acro_current_key_tl #1 [][] \scan_stop: \acro_stop: ,
-    pdfstring    .code:n =
-      \__acro_declare_pdfstring:Vw \l__acro_current_key_tl #1 // \acro_stop: ,
-    accsupp      .code:n =
-      \__acro_declare_acc_supp:Vn \l__acro_current_key_tl {#1} ,
-    index        .code:n =
-      \__acro_declare_index:Vn \l__acro_current_key_tl {#1} ,
-    index-sort   .code:n =
-      \__acro_declare_index_sort:Vn \l__acro_current_key_tl {#1} ,
-    index-cmd    .code:n =
-      \__acro_declare_index_cmd:Vn \l__acro_current_key_tl {#1}
-  }
-
+% acronym macros:
 \cs_new_protected:Npn \acro_define_acronym_macro:n #1
   {
     \bool_if:NT \l__acro_create_macros_bool

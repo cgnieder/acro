@@ -279,26 +279,9 @@ go with \pkg{glossaries}, then.  Are you planning to add a nomenclature?  You
 may want to choose \pkg{nomencl} (or again: \pkg{glossaries}) and so on.
 \acro\ does a good job for lists of abbreviations.
 
-\section{Updating from Version~0.\versionstar}
-Version~1.0 introduces a major syntax change.  In order to keep documents
-using a prior version compilable \acro\ introduces the option
-\keyis{version}{0}.  It provides the acronym defining commands with the old
-syntax and also all the additional commands like \cs{DeclareAcronymFormat}
-that have been dropped in version~1.0.  Also the old syntax of
-\cs{printacronyms} is restored.  Versions~0.\versionstar{} also set labels
-when an acronym was used the first time, version~1.0 doesn't do that any more.
-\keyis{version}{0} sets them as expected.
-
-Note that \keyis{version}{0} \emph{does not and will not} support new features
-of any kind, at least not explicitly.
-
-With version~1.0 acronyms are declared with a key/value syntax similar to the
-way in package \pkg{glossaries} glossary entries are defined.  This was made
-for a good reason: in the beginning the old \cs{DeclareAcronym} already had
-lots of arguments that were hard to remember.  Every new feature needed to
-introduce further commands so that in version~0.6 there have been \emph{four}
-different commands already.  All this isn't necessary any more and there is
-only one command with only two arguments.
+\section{News}
+\subsection{Version 1.6}
+Support for versions~0.* has been dropped.
 
 \section{Basics}
 \subsection{Creating New Acronyms}
@@ -905,9 +888,9 @@ There are a few options which change the general behaviour of \acro.
 \default{Underlined} values are used if no value is given.
 \begin{options}
   %%
-  \keychoice{version}{0,1}\Default{1}
-    Provide backwards compatibility for documents set with \acro\ in a version
-    prior to v1.0.
+  % \keychoice{version}{0,1}\Default{1}
+  %   Provide backwards compatibility for documents set with \acro\ in a version
+  %   prior to v1.0.
   %%
   \keychoice{messages}{silent,loud}\Default{loud}
     \sinceversion{1.6}Setting \keyis{messages}{silent} will turn all of
