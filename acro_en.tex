@@ -67,12 +67,13 @@
   } ,
   add-silent-cmds = {
     addcolon,nato,newlist,ny,setlist
-  }
+  } ,
+  index-setup = { level = \section , headers={\indexname}{\indexname} }
 }
 
 \acsetup{hyperref}
 
-\defbibheading{bibliography}{\addsec{References}}
+\defbibheading{bibliography}{\section{References}}
 
 \usepackage{csquotes}
 
@@ -1238,22 +1239,22 @@ they're on.
 
 \appendix
 
-\section{Commands provided in version~0.\versionstar}
-Prior to version~1.0 the following commands were available.  They are still
-provided if you set the option \keyis{version}{0}.  They will be mentioned
-here shortly but they won't be explained any more.  If you'd like a more
-thorough description ask me for the documentation to version~0.6a.
-\begin{commands}
-  \command{DeclareAcronym}[\sarg\marg{id}\Marg{\meta{short},\meta{pl}}%
-    \oarg{alt.}\Marg{\meta{long},\meta{pl}}\marg{extra}\oarg{class}]
-    \verbcode+% can be used only in preamble+
-  \command{DeclareAcronymFormat}[\marg{id}\marg{format}]
-    \verbcode+% can be used only in preamble+
-  \command{DeclareAcronymCitation}[\marg{id}\oarg{pre}\oarg{post}\marg{cite keys}]
-    \verbcode+% can be used only in preamble+
-  \command{DeclareAcronymPDFString}[\marg{id}\Marg{\meta{pdf entry},\meta{plural ending}}]
-    \verbcode+% can be used only in preamble+
-\end{commands}
+% \section{Commands provided in version~0.\versionstar}
+% Prior to version~1.0 the following commands were available.  They are still
+% provided if you set the option \keyis{version}{0}.  They will be mentioned
+% here shortly but they won't be explained any more.  If you'd like a more
+% thorough description ask me for the documentation to version~0.6a.
+% \begin{commands}
+%   \command{DeclareAcronym}[\sarg\marg{id}\Marg{\meta{short},\meta{pl}}%
+%     \oarg{alt.}\Marg{\meta{long},\meta{pl}}\marg{extra}\oarg{class}]
+%     \verbcode+% can be used only in preamble+
+%   \command{DeclareAcronymFormat}[\marg{id}\marg{format}]
+%     \verbcode+% can be used only in preamble+
+%   \command{DeclareAcronymCitation}[\marg{id}\oarg{pre}\oarg{post}\marg{cite keys}]
+%     \verbcode+% can be used only in preamble+
+%   \command{DeclareAcronymPDFString}[\marg{id}\Marg{\meta{pdf entry},\meta{plural ending}}]
+%     \verbcode+% can be used only in preamble+
+% \end{commands}
 
 \section{All Acronyms Used in this Documentation}\label{sec:documentation_acronyms}
 \begin{sourcecode}
