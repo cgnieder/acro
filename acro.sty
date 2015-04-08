@@ -384,7 +384,7 @@
     cite / first      .code:n     =
       \bool_set_false:N \l__acro_citation_all_bool
       \bool_set_true:N  \l__acro_citation_first_bool                ,
-    cite-all          .default:n  = all                             ,
+%     cite              .default:n  = all                             ,
     cite-cmd          .code:n     =
       \cs_set:Npn \__acro_citation_cmd:w {#1}                     ,
     cite-space        .tl_set:N   = \l__acro_citation_space_tl      ,
@@ -415,6 +415,12 @@
   { \keys_set:nn {acro} {#1} \ignorespaces }
 
 % --------------------------------------------------------------------------
+\cs_new_protected:Npn \acro_plural:
+  { \bool_set_true:N \l__acro_use_plural_bool }
+
+\cs_new_protected:Npn \acro_upper:
+  { \bool_set_true:N \l__acro_first_upper_bool }
+
 % typeset the short form:
 \cs_new:Npn \__acro_write_short:n #1
   {
@@ -1375,12 +1381,8 @@
       { \prg_return_false: } { \prg_return_true: }
   }
 
-\cs_new_protected:Npn \acro_use_if:n #1
-  {
-    \tl_if_blank:nTF {#1}
-      { \bool_set_true:N \l__acro_mark_as_used_bool }
-      { \bool_set_false:N \l__acro_mark_as_used_bool }
-  }
+\cs_new_protected:Npn \acro_use_acronym:n #1
+  { \use:c {bool_set_#1:N} \l__acro_mark_as_used_bool }
 
 % --------------------------------------------------------------------------
 % some helpers we'll need more often:
@@ -1659,6 +1661,9 @@
 % citations:
 \cs_new:Npn \__acro_citation_cmd:w { \cite } %{}
 
+\cs_new_protected:Npn \acro_cite:
+  { \bool_set_true:N \l__acro_citation_all_bool }
+
 % #1 pre
 % #2 post
 % #3 key
@@ -1708,6 +1713,9 @@
           \l__acro_tmpc_tl
       }
   }
+
+\cs_new_protected:Npn \acro_index:
+  { \bool_set_true:N \l__acro_addto_index_bool }
 
 \cs_new:Npn \__acro_index_cmd:n { \index }
 
@@ -1767,6 +1775,13 @@
 
 % --------------------------------------------------------------------------
 % indefinite articles:
+\cs_new_protected:Npn \acro_indefinite:
+  {
+    \bool_if:NTF \l__acro_first_upper_bool
+      { \bool_set_true:N \l__acro_upper_indefinite_bool }
+      { \bool_set_true:N \l__acro_indefinite_bool }
+  }
+
 \cs_new_protected:Npn \__acro_indefinite:nn #1#2
   {
     \bool_if:NT \l__acro_indefinite_bool
@@ -1867,14 +1882,21 @@
 
 % --------------------------------------------------------------------------
 % the user commands:
+% #1: ID
+% #2: true|false
+\cs_new_protected:Npn \acro_check_acronym:nn #1#2
+  {
+    \acro_defined:n {#1}
+    \acro_use_acronym:n {#2}
+  }
+
 % automatic:
 \NewDocumentCommand \ac { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
       \acro_use:n {#2}
     \group_end:
   }
@@ -1882,11 +1904,10 @@
 \NewDocumentCommand \iac { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_indefinite:
       \acro_use:n {#2}
     \group_end:
   }
@@ -1894,11 +1915,11 @@
 \NewDocumentCommand \Iac { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_upper_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_upper:
+      \acro_indefinite:
       \acro_use:n {#2}
     \group_end:
   }
@@ -1906,11 +1927,10 @@
 \NewDocumentCommand \Ac { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_first_upper_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_upper:
       \acro_use:n {#2}
     \group_end:
   }
@@ -1918,11 +1938,10 @@
 \NewDocumentCommand \acp { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_use_plural_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_plural:
       \acro_use:n {#2}
     \group_end:
   }
@@ -1930,12 +1949,11 @@
 \NewDocumentCommand \Acp { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_use_plural_bool
-      \bool_set_true:N \l__acro_first_upper_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_plural:
+      \acro_upper:
       \acro_use:n {#2}
     \group_end:
   }
@@ -1944,10 +1962,9 @@
 \NewDocumentCommand \acs { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
       \acro_short:n {#2}
     \group_end:
   }
@@ -1955,11 +1972,10 @@
 \NewDocumentCommand \iacs { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_indefinite:
       \acro_short:n {#2}
     \group_end:
   }
@@ -1967,11 +1983,11 @@
 \NewDocumentCommand \Iacs { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_upper_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_upper:
+      \acro_indefinite:
       \acro_short:n {#2}
     \group_end:
   }
@@ -1979,11 +1995,10 @@
 \NewDocumentCommand \acsp { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_use_plural_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_plural:
       \acro_short:n {#2}
     \group_end:
   }
@@ -1992,10 +2007,9 @@
 \NewDocumentCommand \aca { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
       \acro_alt:n {#2}
     \group_end:
   }
@@ -2003,11 +2017,10 @@
 \NewDocumentCommand \iaca { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_indefinite:
       \acro_alt:n {#2}
     \group_end:
   }
@@ -2015,11 +2028,11 @@
 \NewDocumentCommand \Iaca { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_upper_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_upper:
+      \acro_indefinite:
       \acro_alt:n {#2}
     \group_end:
   }
@@ -2027,11 +2040,10 @@
 \NewDocumentCommand \acap { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_use_plural_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_plural:
       \acro_alt:n {#2}
     \group_end:
   }
@@ -2040,10 +2052,9 @@
 \NewDocumentCommand \acl { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
       \acro_long:n {#2}
     \group_end:
   }
@@ -2051,11 +2062,10 @@
 \NewDocumentCommand \iacl { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_indefinite:
       \acro_long:n {#2}
     \group_end:
   }
@@ -2063,11 +2073,11 @@
 \NewDocumentCommand \Iacl { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_upper_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_upper:
+      \acro_indefinite:
       \acro_long:n {#2}
     \group_end:
   }
@@ -2075,11 +2085,10 @@
 \NewDocumentCommand \Acl { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_first_upper_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_upper:
       \acro_long:n {#2}
     \group_end:
   }
@@ -2087,11 +2096,10 @@
 \NewDocumentCommand \aclp { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_use_plural_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_plural:
       \acro_long:n {#2}
     \group_end:
   }
@@ -2099,12 +2107,11 @@
 \NewDocumentCommand \Aclp { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_use_plural_bool
-      \bool_set_true:N \l__acro_first_upper_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_plural:
+      \acro_upper:
       \acro_long:n {#2}
     \group_end:
   }
@@ -2113,10 +2120,9 @@
 \NewDocumentCommand \acf { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
       \acro_first:n {#2}
     \group_end:
   }
@@ -2124,11 +2130,10 @@
 \NewDocumentCommand \iacf { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_indefinite:
       \acro_first:n {#2}
     \group_end:
   }
@@ -2136,11 +2141,11 @@
 \NewDocumentCommand \Iacf { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_upper_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_upper:
+      \acro_indefinite:
       \acro_first:n {#2}
     \group_end:
   }
@@ -2148,11 +2153,10 @@
 \NewDocumentCommand \Acf { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_first_upper_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_upper:
       \acro_first:n {#2}
     \group_end:
   }
@@ -2160,11 +2164,10 @@
 \NewDocumentCommand \acfp { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_use_plural_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_plural:
       \acro_first:n {#2}
     \group_end:
   }
@@ -2172,12 +2175,11 @@
 \NewDocumentCommand \Acfp { sm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_use_plural_bool
-      \bool_set_true:N \l__acro_first_upper_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_plural:
+      \acro_upper:
       \acro_first:n {#2}
     \group_end:
   }
@@ -2186,10 +2188,9 @@
 \NewDocumentCommand \acflike { smm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
       \acro_first_like:nn {#2} {#3}
     \group_end:
   }
@@ -2197,11 +2198,10 @@
 \NewDocumentCommand \iacflike { smm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_indefinite:
       \acro_first_like:nn {#2} {#3}
     \group_end:
   }
@@ -2209,11 +2209,11 @@
 \NewDocumentCommand \Iacflike { smm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_upper_indefinite_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_upper:
+      \acro_indefinite:
       \acro_first_like:nn {#2} {#3}
     \group_end:
   }
@@ -2221,11 +2221,10 @@
 \NewDocumentCommand \acfplike { smm }
   {
     \group_begin:
-      \acro_defined:n {#2}
-      \IfBooleanTF {#1}
-        { \acro_use_if:n { * } }
-        { \acro_use_if:n {   } }
-      \bool_set_true:N \l__acro_use_plural_bool
+      \IfBooleanTF #1
+        { \acro_check_acronym:nn {#2} {false} }
+        { \acro_check_acronym:nn {#2} {true} }
+      \acro_plural:
       \acro_first_like:nn {#2} {#3}
     \group_end:
   }
