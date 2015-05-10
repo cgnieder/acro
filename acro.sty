@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2015/04/08}
-  {1.6a}
+  {2015/05/10}
+  {1.6b}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -774,63 +774,71 @@
   {
     \seq_if_empty:cF { g__acro_#1_pages_seq }
       {
-        % have the numbers changed?
-        \tl_set:Nx \l__acro_tmpa_tl
-          { \seq_use:cnnn { g__acro_#1_pages_seq } { | } { | } { | } }
-        \tl_if_eq:cNF { g__acro_#1_recorded_pages_tl } \l__acro_tmpa_tl
+        \bool_if:NTF \l__acro_list_all_pages_bool
           {
-            \@latex@warning@no@line
-              {Rerun~to~get~page~numbers~of~acronym~#1~in~acronym~list~right}
-          }
-        \tl_clear:N \l__acro_write_pages_tl
-        \tl_clear:N \l__acro_last_page_tl
-        \tl_clear:N \l__acro_current_page_tl
-        \seq_set_eq:Nc \l__acro_tmpb_seq { g__acro_#1_pages_seq }
-        \seq_remove_duplicates:N \l__acro_tmpb_seq
-        \seq_clear:N \l__acro_tmpa_seq
-        \cs_set_protected:Npn \acro_page_range_comma:
-          { \cs_set:Npn \acro_page_range_comma: { ,~ } }
-        % get the numbers:
-        \int_compare:nNnTF { \seq_count:N \l__acro_tmpb_seq } = { 1 }
-          {
-            \l__acro_page_name_tl
-            \seq_get_right:cN { g__acro_#1_pages_seq } \l__acro_tmpa_tl
-            \acro_get_thepage_from:N \l__acro_tmpa_tl
-          }
-          { \l__acro_pages_name_tl
-            \seq_map_inline:cn { g__acro_#1_pages_seq }
+            % have the numbers changed?
+            \tl_set:Nx \l__acro_tmpa_tl
+              { \seq_use:cnnn { g__acro_#1_pages_seq } { | } { | } { | } }
+            \tl_if_eq:cNF { g__acro_#1_recorded_pages_tl } \l__acro_tmpa_tl
               {
-                \tl_if_blank:VTF \l__acro_last_page_tl
-                  {% we're at the beginning
-                    \seq_put_right:Nn \l__acro_tmpa_seq {##1}
-                    \tl_set:Nn \l__acro_last_page_tl {##1}
-                  }
-                  {% we'at least at the second page
-                     % current page:
-                     \tl_set:Nn  \l__acro_current_page_tl {##1}
-                     % last page:
-                     \seq_get_right:NN \l__acro_tmpa_seq \l__acro_last_page_tl
-                     \tl_if_eq:NNTF \l__acro_current_page_tl \l__acro_last_page_tl
-                       {% there were more than one appearance on the current page
-                         \seq_put_right:Nn \l__acro_tmpa_seq {##1}
-                       }
-                       {% new page
-                         \acro_determine_page_ranges:NNn
-                           \l__acro_tmpa_seq
-                           \l__acro_write_pages_tl
-                           {##1}
-                       }
-                  }
+                \@latex@warning@no@line
+                  {Rerun~to~get~page~numbers~of~acronym~#1~in~acronym~list~right}
               }
-            \seq_if_empty:NF \l__acro_tmpa_seq
-              {
-                \acro_determine_page_ranges:NNV
-                  \l__acro_tmpa_seq
-                  \l__acro_write_pages_tl
-                  \l__acro_current_page_tl
-              }
-            \tl_use:N \l__acro_write_pages_tl
             \tl_clear:N \l__acro_write_pages_tl
+            \tl_clear:N \l__acro_last_page_tl
+            \tl_clear:N \l__acro_current_page_tl
+            \seq_set_eq:Nc \l__acro_tmpb_seq { g__acro_#1_pages_seq }
+            \seq_remove_duplicates:N \l__acro_tmpb_seq
+            \seq_clear:N \l__acro_tmpa_seq
+            \cs_set_protected:Npn \acro_page_range_comma:
+              { \cs_set:Npn \acro_page_range_comma: { ,~ } }
+            % get the numbers:
+            \int_compare:nNnTF { \seq_count:N \l__acro_tmpb_seq } = { 1 }
+              {
+                \tl_use:N \l__acro_page_name_tl
+                \seq_get_right:cN { g__acro_#1_pages_seq } \l__acro_tmpa_tl
+                \acro_get_thepage_from:N \l__acro_tmpa_tl
+              }
+              {
+                \tl_use:N \l__acro_pages_name_tl
+                \seq_map_inline:cn { g__acro_#1_pages_seq }
+                  {
+                    \tl_if_blank:VTF \l__acro_last_page_tl
+                      {% we're at the beginning
+                        \seq_put_right:Nn \l__acro_tmpa_seq {##1}
+                        \tl_set:Nn \l__acro_last_page_tl {##1}
+                      }
+                      {% we'at least at the second page
+                         % current page:
+                         \tl_set:Nn  \l__acro_current_page_tl {##1}
+                         % last page:
+                         \seq_get_right:NN \l__acro_tmpa_seq \l__acro_last_page_tl
+                         \tl_if_eq:NNTF \l__acro_current_page_tl \l__acro_last_page_tl
+                           {% there were more than one appearance on the current page
+                             \seq_put_right:Nn \l__acro_tmpa_seq {##1}
+                           }
+                           {% new page
+                             \acro_determine_page_ranges:NNn
+                               \l__acro_tmpa_seq
+                               \l__acro_write_pages_tl
+                               {##1}
+                           }
+                      }
+                  }
+                \seq_if_empty:NF \l__acro_tmpa_seq
+                  {
+                    \acro_determine_page_ranges:NNV
+                      \l__acro_tmpa_seq
+                      \l__acro_write_pages_tl
+                      \l__acro_current_page_tl
+                  }
+                \tl_use:N \l__acro_write_pages_tl
+                \tl_clear:N \l__acro_write_pages_tl
+              }
+          }
+          {
+            \tl_use:N \l__acro_page_name_tl
+            \pageref{\l__acro_label_prefix_tl #1}
           }
       }
     \seq_clear:N \l__acro_tmpa_seq
@@ -2260,7 +2268,7 @@
 \DeclareExpandableDocumentCommand \acifused { m }
   { \acro_if_acronym_used:nTF {#1} }
 
-\prg_new_conditional:Npnn \acro_if_acronym_used:n #1 { TF }
+\prg_new_conditional:Npnn \acro_if_acronym_used:n #1 { p,T,F,TF }
   {
     \bool_if:nTF
       {
@@ -2285,7 +2293,7 @@
 
 % ---------------------------------------------------------------------------
 % process options:
-\ProcessKeysOptions {acro}
+\ProcessKeysPackageOptions {acro}
 
 % ---------------------------------------------------------------------------
 % PDF bookmark support
@@ -2891,9 +2899,13 @@
                  - drop support for version 0
 2015/04/08 v1.6a - more generalized user command definitions, see
                    http://tex.stackexchange.com/q/236362/ for an application
+2015/05/10 v1.6b - \ProcessKeysPackageOptions ,
+                 - correct bug http://tex.stackexchange.com/q/236860/ :
+                   option `pages = first' works again
 
 % --------------------------------------------------------------------------
 % TODO:
+- issue 18: https://bitbucket.org/cgnieder/acro/issue/18
 - extend option `macros' to also define uppercase macros, possibly as a choice
 - https://bitbucket.org/cgnieder/acro/issue/18
 - options user1, user2, user3? (Genitiv lang, Akkusativ lang,...) Bsp: ``des
