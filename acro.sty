@@ -292,7 +292,7 @@
 \cs_new:Npn \acro_no_break: { \tex_penalty:D \c_ten_thousand }
 
 \cs_new_protected:Npn \__acro_first_upper_case:n #1
-  { \tl_mixed_case:n {#1} }
+  { \tl_upper_case:n { \tl_head:n {#1} } \tl_tail:n {#1} }
 \cs_generate_variant:Nn \__acro_first_upper_case:n { x }
 \cs_generate_variant:Nn \tl_mixed_case:n { x }
 
@@ -2902,6 +2902,7 @@
 2015/05/10 v1.6b - \ProcessKeysPackageOptions ,
                  - correct bug http://tex.stackexchange.com/q/236860/ :
                    option `pages = first' works again
+2015/06/12 v1.6c - fix https://bitbucket.org/cgnieder/acro/issue/36
 
 % --------------------------------------------------------------------------
 % TODO:
