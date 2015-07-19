@@ -10,7 +10,7 @@
 % 
 % --------------------------------------------------------------------------
 % Clemens Niederberger
-% Web:    https://bitbucket.org/cgnieder/acro/
+% Web:    http://www.mychemsitry.eu/forums/forum/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
 % Copyright 2011-2015 Clemens Niederberger
@@ -28,18 +28,11 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The acro package consists of the files
-%  - acro.sty, acro0.def, acro1.def, acro_en.tex, acro_en.pdf, README
+%  - acro.sty, acro_en.tex, acro_en.pdf, README
 % --------------------------------------------------------------------------
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-%
-% if you want to compile this documentation you'll need the document class
-% `cnpkgdoc' which you can get here:
-%    https://bitbucket.org/cgnieder/cnpkgdoc/
-% the class is licensed LPPL 1.3 or later
-%
-
 \documentclass[load-preamble+,scrartcl={DIV10}]{cnltx-doc}
 \usepackage[utf8]{inputenc}
 \usepackage[single,macros,accsupp,index]{acro}
@@ -392,7 +385,7 @@ documentation.
 \end{options}
 
 In its simplest form an acronym needs a short and a long form.  Please note
-that both keys \emph{must} be set and that the \key{short} key \emph{must}
+that both keys \emph{must} be set and that the \option{short} key \emph{must}
 always be the \emph{first} key that is set.
 \begin{sourcecode}
   % preamble:
@@ -445,7 +438,7 @@ The first appearance now looks as follows\footnote{The appearance of the
   citation of course depends on the citation style you're using.}: \acf{ny}.
 
 \subsection{Using the Acronyms -- the Commands}
-Acronyms are used with with one of the following commands:
+Acronyms are used with one of the following commands:
 \begin{commands}
   \command{ac}[\sarg\marg{id}]
     basic command; the first output is different from subsequent ones.
@@ -1187,6 +1180,14 @@ the acronym list:
   font=\addcolon}
 \acsetup{list-type=acronyms,extra-style=comma}
 \printacronyms
+
+If you want a \option{list-heading} which is not yet provided you can add your
+own option:
+\begin{sourcecode}
+  \DeclareInstance{acro-title}{myname}{sectioning}
+    { name-format = command that uses #1 }
+\end{sourcecode}
+After that you could use \keyis{list-heading}{myname}.
 
 \section{About Page Ranges}
 If you enable the \option{page-ref} option \acro\ adds page numbers to the list
