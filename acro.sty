@@ -196,6 +196,7 @@
 \bool_new:N      \l__acro_citation_all_bool
 \bool_new:N      \l__acro_citation_first_bool
 \bool_set_true:N \l__acro_citation_first_bool
+\bool_new:N      \l__acro_group_short_and_citation_bool
 \bool_new:N      \l__acro_acc_supp_bool
 \bool_new:N      \l__acro_following_page_bool
 \bool_new:N      \l__acro_following_pages_bool
@@ -267,7 +268,7 @@
 \tl_new:N   \l__acro_custom_format_tl
 \tl_new:N   \l__acro_first_between_tl
 \tl_new:N   \l__acro_citation_space_tl
-\tl_set:Nn  \l__acro_citation_space_tl { \nobreakspace }
+\tl_new:N   \l__acro_between_short_and_citation_tl
 \tl_new:N   \l__acro_extra_brackets_tl
 \tl_new:N   \l__acro_extra_punct_tl
 \tl_new:N   \l__acro_first_brackets_tl
@@ -389,8 +390,12 @@
       \bool_set_true:N  \l__acro_citation_first_bool                ,
 %     cite              .default:n  = all                             ,
     cite-cmd          .code:n     =
-      \cs_set:Npn \__acro_citation_cmd:w {#1}                     ,
+      \cs_set:Npn \__acro_citation_cmd:w {#1}                       ,
+    group-short-citation .bool_set:N = \l__acro_group_short_and_citation_bool ,
     cite-space        .tl_set:N   = \l__acro_citation_space_tl      ,
+    cite-space        .initial:n  = \nobreakspace ,
+    connect-short-citation .tl_set:N = \l__acro_between_short_and_citation_tl ,
+    connect-short-citation .initial:n = {,} ,
     index             .bool_set:N = \l__acro_addto_index_bool       ,
     index-cmd         .code:n     =
       \cs_set:Npn \__acro_index_cmd:n {#1} ,
@@ -551,7 +556,7 @@
     \AssignTemplateKeys
     \bool_if:nT { !\l__acro_first_only_short_bool && !\l__acro_first_reversed_bool }
       {
-        \acro_write_indefinite:nn {#1} { long }
+        \acro_write_indefinite:nn {#1} {long}
         \acro_write_long:No \l__acro_first_long_format_tl {#3}
         \tl_use:N \c_space_tl
         \tl_if_blank:VF \l__acro_first_between_tl
@@ -581,8 +586,17 @@
       }
     \bool_if:nT
       { \l__acro_first_reversed_bool || \l__acro_first_only_short_bool }
-      { \acro_write_indefinite:nn {#1} { short } }
+      { \acro_write_indefinite:nn {#1} {short} }
     \__acro_acc_supp:nn {#1} { \acro_write_short:nn {#1} {#2} }
+    \bool_if:NT \l__acro_group_short_and_citation_bool
+      {
+        \group_begin:
+          \tl_put_left:NV
+            \l__acro_citation_space_tl
+            \l__acro_between_short_and_citation_tl
+          \__acro_cite_if:Nn \l__acro_citation_first_bool {#1}
+        \group_end:
+      }
     \bool_if:nT
       { \l__acro_first_use_brackets_bool && !\l__acro_first_reversed_bool }
       { \tl_tail:N \l__acro_first_brackets_tl }
@@ -614,7 +628,8 @@
           { \l__acro_first_use_brackets_bool && \l__acro_first_reversed_bool }
           { \tl_tail:N \l__acro_first_brackets_tl }
       }
-    \__acro_cite_if:Nn \l__acro_citation_first_bool {#1}
+    \bool_if:NF \l__acro_group_short_and_citation_bool
+      { \__acro_cite_if:Nn \l__acro_citation_first_bool {#1} }
     \__acro_index_if:Nn \l__acro_addto_index_bool {#1}
   }
 
@@ -634,7 +649,7 @@
   }
   {
     \AssignTemplateKeys
-    \acro_write_indefinite:nn {#1} { short }
+    \acro_write_indefinite:nn {#1} {short}
     \__acro_acc_supp:nn {#1} { \acro_write_short:nn {#1} {#2} }
     \bool_if:NT \l__acro_use_note_bool
       {
