@@ -526,12 +526,11 @@
       {
         \acro_write_indefinite:nn {#1} {long}
         \acro_write_long:No \l__acro_first_long_format_tl {#3}
-        % \tl_use:N \c_space_tl
-        \acspace
+        \acro_space:
         \tl_if_blank:VF \l__acro_first_between_tl
           {
             \tl_use:N \l__acro_first_between_tl
-            \tl_use:N \c_space_tl
+            \acro_space:
           }
       }
     \bool_if:nT
@@ -1959,32 +1958,32 @@
   { \cs_if_exist:NF \acro@printed@list { \cs_new:Npn \acro@printed@list { printed } } }
 
 % --------------------------------------------------------------------------
-% TODO
+% TODO - trailing tokens and what to do when present
 \prop_new:N \l__acro_trailing_tokens_prop
 \seq_new:N \l__acro_trailing_tokens_seq
 
-\cs_new_protected:Npn \acro_add_trailing_action:Nnn #1#2#3
+\cs_new_protected:Npn \acro_add_trailing_action:Nn #1#2
   {
-    \prop_put:Nnn \l__acro_trailing_tokens_prop {#1} {#3}
+    \prop_put:Nnn \l__acro_trailing_tokens_prop {#1}
+      { \acro_activate_trailing_choice:n {#2} }
     \seq_put_right:Nn \l__acro_trailing_tokens_seq {#1}
-    #2
+    \acro_new_trailing_choice:n {#2}
   }
 
-\acro_add_trailing_action:Nnn .
-  {
-    \bool_new:N \l__acro_trailing_dot_bool
-    \cs_new_protected:Npn \acdot
-      { \bool_if:NF \l__acro_trailing_dot_bool {.} }
-  }
-  { \bool_set_true:N \l__acro_trailing_dot_bool }
+\cs_new_protected:Npn \acro_new_trailing_choice:n #1
+  { \bool_new:c {l__acro_trailing_#1_bool} }
+\cs_new_protected:Npn \acro_activate_trailing_choice:n #1
+  { \bool_set_true:c {l__acro_trailing_#1_bool} }
 
-\acro_add_trailing_action:Nnn -
+\prg_new_condictional:Npnn \acro_if_trailing_choice:n #1 {p,T,F,TF}
   {
-    \bool_new:N \l__acro_trailing_dash_bool
-    \cs_new_protected:Npn \acspace
-      { \bool_if:NF \l__acro_trailing_dash_bool {\space} }
+    \bool_if:cTF {l__acro_trailing_#1_bool}
+      { \prg_return_true: }
+      { \prg_return_false: }
   }
-  { \bool_set_true:N \l__acro_trailing_dash_bool }
+  
+\cs_new:Npn \aciftrailingTF #1#2#3
+  { \acro_if_trailing_choice:nTF {#1} {#2} {#3} }
 
 \cs_new_protected:Npn \acro_treat_trail:
   {
@@ -1994,6 +1993,15 @@
           { \prop_get:Nn \l__acro_trailing_tokens_prop {##1} }
       }
   }
+
+\acro_add_trailing_action:Nn . {dot}
+\acro_add_trailing_action:Nn - {dash}
+
+\cs_new_protected:Npn \acro_dot: { \acro_if_trailing_choice:nF {dot} {.} }
+\cs_new_eq:NN \acdot \acro_dot:
+
+\cs_new_protected:Npn \acro_space: { \acro_if_trailing_choice:nF {dash} {\space} }
+\cs_new_eq:NN \acspace \acro_space:
 
 % --------------------------------------------------------------------------
 % the user commands:
