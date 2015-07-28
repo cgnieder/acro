@@ -63,6 +63,13 @@
     I~encourage~you~to~remove~it~from~your~document.
   }
 
+\msg_new:nnn {acro} {substitute-short}
+  {
+    No~ short~ form~ set~ for~ acronym~ `#1'.~ Setting~ the~ short~ form~
+    equal~ to~ the~ ID~ `#1'.~ If~ that~ is~ not~ what~ you~ want~ add~ an~
+    explicit~ short~ form.
+  }
+
 % message macros:
 \bool_new:N \l__acro_silence_bool
 
@@ -228,9 +235,6 @@
 \tl_new:N   \l__acro_list_name_tl
 \tl_set:Nn  \l__acro_list_name_tl      { Acronyms }
 \tl_new:N   \l__acro_short_tl
-% \tl_new:N   \l__acro_short_plural_tl
-% \tl_new:N   \l__acro_default_plural_tl
-% \tl_set:Nn  \l__acro_default_plural_tl { s }
 \tl_new:N   \l__acro_alt_tl
 \tl_new:N   \l__acro_long_tl
 \tl_new:N   \l__acro_long_pre_tl
@@ -344,7 +348,6 @@
       \bool_gset_true:N \g__acro_mark_first_as_used_bool            ,
     mark-as-used / any   .code:n  =
       \bool_gset_false:N \g__acro_mark_first_as_used_bool           ,
-    % plural-ending     .tl_set:N   = \l__acro_default_plural_tl      ,
     list-caps         .bool_set:N = \l__acro_capitalize_list_bool   ,
     cite              .choice:                                      ,
     cite / all        .code:n     =
@@ -356,9 +359,10 @@
     cite / first      .code:n     =
       \bool_set_false:N \l__acro_citation_all_bool
       \bool_set_true:N  \l__acro_citation_first_bool                ,
-%     cite              .default:n  = all                             ,
     cite-cmd          .code:n     =
-      \cs_set:Npn \__acro_citation_cmd:w {#1}                       ,
+      \cs_set:Npn \__acro_citation_cmd:w {#1} ,
+    group-cite-cmd    .code:n     =
+      \cs_set:Npn \__acro_group_citation_cmd:w {#1} ,
     group-short-citation .bool_set:N = \l__acro_group_short_and_citation_bool ,
     cite-space        .tl_set:N   = \l__acro_citation_space_tl      ,
     cite-space        .initial:n  = \nobreakspace ,
@@ -391,9 +395,6 @@
   { \keys_set:nn {acro} {#1} \ignorespaces }
 
 % --------------------------------------------------------------------------
-% \cs_new_protected:Npn \acro_plural:
-%   { \bool_set_true:N \l__acro_plural_bool }
-
 \cs_new_protected:Npn \acro_first_upper:
   { \bool_set_true:N \l__acro_first_upper_bool }
 
@@ -410,8 +411,6 @@
       { #2 }
     \group_end:
     \acro_short_endings:n {#1}
-    % \bool_if:NT \l__acro_plural_bool
-    %   { \tl_use:N \l__acro_short_plural_tl }
   }
 \cs_generate_variant:Nn \acro_write_short:nn { nV }
 
@@ -561,10 +560,11 @@
     \bool_if:NT \l__acro_group_short_and_citation_bool
       {
         \group_begin:
+          \cs_set_eq:NN \__acro_citation_cmd:w \__acro_group_citation_cmd:w
           \tl_put_left:NV
             \l__acro_citation_space_tl
             \l__acro_between_short_and_citation_tl
-          \__acro_cite_if:Nn \l__acro_citation_first_bool {#1}
+          \acro_cite_if:Nn \l__acro_citation_first_bool {#1}
         \group_end:
       }
     \bool_if:nT
@@ -599,8 +599,8 @@
           { \tl_tail:N \l__acro_first_brackets_tl }
       }
     \bool_if:NF \l__acro_group_short_and_citation_bool
-      { \__acro_cite_if:Nn \l__acro_citation_first_bool {#1} }
-    \__acro_index_if:Nn \l__acro_addto_index_bool {#1}
+      { \acro_cite_if:Nn \l__acro_citation_first_bool {#1} }
+    \acro_index_if:Nn \l__acro_addto_index_bool {#1}
   }
 
 % template for footnotes, sidenotes, ...
@@ -639,8 +639,8 @@
                     )
                   }
               }
-            \__acro_cite_if:Nn \l__acro_citation_first_bool {#1}
-            \__acro_index_if:Nn \l__acro_addto_index_bool {#1}
+            \acro_cite_if:Nn \l__acro_citation_first_bool {#1}
+            \acro_index_if:Nn \l__acro_addto_index_bool {#1}
           }
       }
   }
@@ -1129,7 +1129,7 @@
               { \prop_item:Nn \l__acro_list_prop {##1} }
               { \prop_item:Nn \l__acro_long_prop {##1} }
           }
-        \__acro_cite_if:Nn \l__acro_citation_all_bool {##1}
+        \acro_cite_if:Nn \l__acro_citation_all_bool {##1}
       }
     \cs_set_protected:Npn \acro_print_list_extra:n ##1
       {
@@ -1185,7 +1185,7 @@
               { \prop_item:Nn \l__acro_list_prop {##1} }
               { \prop_item:Nn \l__acro_long_prop {##1} }
           }
-        \__acro_cite_if:Nn \l__acro_citation_all_bool {##1}
+        \acro_cite_if:Nn \l__acro_citation_all_bool {##1}
       }
     \cs_set_protected:Npn \acro_print_list_extra:n ##1
       {
@@ -1240,7 +1240,7 @@
               { \prop_item:Nn \l__acro_list_prop {##1} }
               { \prop_item:Nn \l__acro_long_prop {##1} }
           }
-        \__acro_cite_if:Nn \l__acro_citation_all_bool {##1}
+        \acro_cite_if:Nn \l__acro_citation_all_bool {##1}
         &
       }
     \cs_set_protected:Npn \acro_print_list_extra:n ##1
@@ -1295,7 +1295,7 @@
               { \prop_item:Nn \l__acro_list_prop {##1} }
               { \prop_item:Nn \l__acro_long_prop {##1} }
           }
-        \__acro_cite_if:Nn \l__acro_citation_all_bool {##1}
+        \acro_cite_if:Nn \l__acro_citation_all_bool {##1}
         &
       }
     \cs_set_protected:Npn \acro_print_list_long:n ##1
@@ -1364,6 +1364,7 @@
           {
             \acro_write_indefinite:nn {#1} {long}
             \acro_write_long:NV \l__acro_long_format_tl \l__acro_long_tl
+            \acro_cite:n {#1}
           }
           { 
             \UseInstance {acro-first} { \l__acro_first_instance_tl }
@@ -1393,13 +1394,10 @@
 
 \cs_new_protected:Npn \acro_get:n #1
   {
-    \bool_if:NF \l__acro_in_list_bool
-      { \leavevmode }
-    % \acro_defined:n {#1}
+    \bool_if:NF \l__acro_in_list_bool { \leavevmode }
     \__acro_activate_hyperref_support:
     \prop_get:NnNF \l__acro_short_prop {#1} \l__acro_tmpa_tl {}
     \__acro_make_link:nNN {#1} \l__acro_short_tl \l__acro_tmpa_tl
-    % \prop_get:NnNF \l__acro_short_plural_prop {#1} \l__acro_short_plural_tl {}
     \prop_get:NnNF \l__acro_long_prop {#1} \l__acro_long_tl {}
     \prop_get:NnNTF \l__acro_long_format_prop {#1}
       \l__acro_custom_long_format_tl
@@ -1415,27 +1413,13 @@
     \prop_get:NnNTF \l__acro_format_prop {#1} \l__acro_custom_format_tl
       { \bool_set_true:N \l__acro_custom_format_bool }
       { \bool_set_false:N \l__acro_custom_format_bool }
-    % \__acro_set_ending:nn {plural} {#1}
     \__acro_set_endings:n {#1}
     \prop_get:NnNT \l__acro_long_post_prop {#1} \l__acro_long_post_tl
       { \tl_put_right:NV \l__acro_long_tl \l__acro_long_post_tl }
   }
 
-% \cs_new_protected:Npn \__acro_set_plural:n #1
-%   {
-%     \bool_if:NT \l__acro_plural_bool
-%       {
-%         \bool_if:nTF { \prop_item:Nn \l__acro_long_plural_form_prop {#1} }
-%           { \prop_get:NnNF \l__acro_long_plural_prop {#1} \l__acro_long_tl {} }
-%           {
-%             \tl_put_right:Nx \l__acro_long_tl
-%               { \prop_item:Nn \l__acro_long_plural_prop {#1} }
-%           }
-%         \prop_get:NnNF \l__acro_short_plural_prop {#1} \l__acro_short_plural_tl {}
-%       }
-%   }
-
 % --------------------------------------------------------------------------
+% plural endings and similar concepts:
 \seq_new:N \l__acro_endings_seq
 
 % #1: ending
@@ -1655,8 +1639,8 @@
 % --------------------------------------------------------------------------
 \cs_new:Npn \acro_after:n #1
   {
-    \__acro_cite_if:Nn \l__acro_citation_all_bool {#1}
-    \__acro_index_if:Nn \l__acro_addto_index_bool {#1}
+    \acro_cite_if:Nn \l__acro_citation_all_bool {#1}
+    \acro_index_if:Nn \l__acro_addto_index_bool {#1}
   }
 
 % the standard internals:
@@ -1730,6 +1714,7 @@
 % ----------------------------------------------------------------------------
 % citations:
 \cs_new:Npn \__acro_citation_cmd:w { \cite } %{}
+\cs_new:Npn \__acro_group_citation_cmd:w { \cite } %{}
 
 \cs_new_protected:Npn \acro_cite:
   { \bool_set_true:N \l__acro_citation_all_bool }
@@ -1749,27 +1734,27 @@
   }
 \cs_generate_variant:Nn \__acro_cite:nnn { VVV }
 
-\cs_new_protected:Npn \__acro_cite_if:Nn #1#2
+\cs_new_protected:Npn \acro_cite:n #1
   {
-    \bool_if:NT #1
+    \prop_get:NnNT \l__acro_citation_prop {#1} \l__acro_tmpa_tl
       {
-        \prop_get:NnNT \l__acro_citation_prop {#2} \l__acro_tmpa_tl
-          {
-            \prop_get:NnN \l__acro_citation_pre_prop {#2} \l__acro_tmpb_tl
-            \prop_get:NnN \l__acro_citation_post_prop {#2} \l__acro_tmpc_tl
-            \acro_no_break:
-            \tl_use:N \l__acro_citation_space_tl
-            \__acro_cite:VVV
-              \l__acro_tmpb_tl
-              \l__acro_tmpc_tl
-              \l__acro_tmpa_tl
-          }
+        \prop_get:NnN \l__acro_citation_pre_prop {#1} \l__acro_tmpb_tl
+        \prop_get:NnN \l__acro_citation_post_prop {#1} \l__acro_tmpc_tl
+        \acro_no_break:
+        \tl_use:N \l__acro_citation_space_tl
+        \__acro_cite:VVV
+          \l__acro_tmpb_tl
+          \l__acro_tmpc_tl
+          \l__acro_tmpa_tl
       }
   }
 
+\cs_new_protected:Npn \acro_cite_if:Nn #1#2
+  { \bool_if:NT #1 { \acro_cite:n {#2} } }
+
 % ----------------------------------------------------------------------------
 % indexing:
-\cs_new_protected:Npn \__acro_index_if:Nn #1#2
+\cs_new_protected:Npn \acro_index_if:Nn #1#2
   {
     \bool_if:nT { #1 && \l__acro_mark_as_used_bool }
       {
@@ -1855,7 +1840,10 @@
 \cs_new_protected:Npn \acro_indefinite:
   {
     \bool_if:NTF \l__acro_first_upper_bool
-      { \bool_set_true:N \l__acro_upper_indefinite_bool }
+      {
+        \bool_set_true:N \l__acro_upper_indefinite_bool
+        \bool_set_false:N \l__acro_first_upper_bool
+      }
       { \bool_set_true:N \l__acro_indefinite_bool }
   }
 
@@ -1866,7 +1854,7 @@
     \bool_if:NT \l__acro_indefinite_bool
       { \prop_get:cn { l__acro_#2_indefinite_prop } {#1} ~ }
     \bool_if:NT \l__acro_upper_indefinite_bool
-      {
+      { %  \bool_set_true:N \l__acro_first_upper_bool
          \__acro_first_upper_case:x
            { \prop_get:cn { l__acro_#2_indefinite_prop } {#1} } ~
       }
@@ -2031,6 +2019,61 @@
   { \acro_if_trailing_choices:nF {dash,babel-hyphen} {\space} }
 \cs_new_eq:NN \acspace \acro_space:
 
+% ---------------------------------------------------------------------------
+% reset outputs, they'll behave like the first time again (!not like the _only_
+% time!):
+\cs_new_protected:Npn \acro_reset:n #1
+  {
+    \bool_gset_false:c { g__acro_#1_used_bool }
+    \bool_gset_false:c { g__acro_#1_first_use_bool }
+  }
+
+\cs_new_protected:Npn \acro_mark_as_used:n #1
+  {
+    \bool_gset_true:c { g__acro_#1_used_bool }
+    \bool_gset_true:c { g__acro_#1_first_use_bool }
+    \bool_gset_true:c { g__acro_#1_in_list_bool }
+    \if@filesw
+      \iow_shipout_x:Nn \@auxout
+        { \token_to_str:N \acro@used@once {#1} {} {} {} }
+      \iow_shipout_x:Nn \@auxout
+        { \token_to_str:N \acro@used@twice {#1} {} {} {} }
+    \fi
+  }
+
+
+\cs_new_protected:Npn \acro_reset_all:
+  { \prop_map_inline:Nn \l__acro_short_prop { \acro_reset:n {##1} } }
+
+\cs_new_protected:Npn \acro_mark_all_as_used:
+  { \prop_map_inline:Nn \l__acro_short_prop { \acro_mark_as_used:n {##1} } }
+
+\DeclareExpandableDocumentCommand \acifused { m }
+  { \acro_if_acronym_used:nTF {#1} }
+
+\prg_new_conditional:Npnn \acro_if_acronym_used:n #1 { p,T,F,TF }
+  {
+    \bool_if:nTF
+      {
+        \bool_if_p:c { g__acro_#1_used_bool } &&
+        ( !\__acro_is_single_p:n {#1} )
+      }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+\NewDocumentCommand \acresetall {}
+  { \acro_reset_all: }
+
+\NewDocumentCommand \acuseall {}
+  { \acro_mark_all_as_used: }
+
+\NewDocumentCommand \acreset { > { \SplitList { , } } m }
+  { \ProcessList {#1} { \acro_reset:n } \ignorespaces }
+
+\NewDocumentCommand \acuse { > { \SplitList { , } } m }
+  { \ProcessList {#1} { \acro_mark_as_used:n } \ignorespaces }
+
 % --------------------------------------------------------------------------
 % the user commands:
 
@@ -2081,6 +2124,20 @@
         \acro_begin:
           \acro_if_starred_check:nn {####1} {####2}
           \exp_not:o { \__acro_tmp_command:n {##2} }
+        \acro_end:
+      }
+  }
+
+% #1: csname
+% #2: definition where `#1' refers to the ID and `#2' to the pseudo long form
+\cs_new_protected:Npn \NewPseudoAcroCommand #1#2
+  {
+    \cs_set:Npn \__acro_tmp_command:nn ##1##2 {#2}
+    \exp_args:NNnx \NewDocumentCommand #1 {smm}
+      {
+        \acro_begin:
+          \acro_if_starred_check:nn {####1} {####2}
+          \exp_not:o { \__acro_tmp_command:nn {##2} {##3} }
         \acro_end:
       }
   }
@@ -2240,95 +2297,27 @@
   }
 
 % first-like:
-\NewDocumentCommand \acflike { smm }
+\NewPseudoAcroCommand \acflike
+  { \acro_first_like:nn {#1} {#2} }
+
+\NewPseudoAcroCommand \iacflike
   {
-    \acro_begin:
-      \acro_if_starred_check:nn {#1} {#2}
-      \acro_first_like:nn {#2} {#3}
-    \acro_end:
+    \acro_indefinite:
+    \acro_first_like:nn {#1} {#2}
   }
 
-\NewDocumentCommand \iacflike { smm }
+\NewPseudoAcroCommand \Iacflike
   {
-    \acro_begin:
-      \acro_if_starred_check:nn {#1} {#2}
-      \acro_indefinite:
-      \acro_first_like:nn {#2} {#3}
-    \acro_end:
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_first_like:nn {#1} {#2}
   }
 
-\NewDocumentCommand \Iacflike { smm }
+\NewPseudoAcroCommand \acfplike
   {
-    \acro_begin:
-      \acro_if_starred_check:nn {#1} {#2}
-      \acro_first_upper:
-      \acro_indefinite:
-      \acro_first_like:nn {#2} {#3}
-    \acro_end:
+    \acro_plural:
+    \acro_first_like:nn {#1} {#2}
   }
-
-\NewDocumentCommand \acfplike { smm }
-  {
-    \acro_begin:
-      \acro_if_starred_check:nn {#1} {#2}
-      \acro_plural:
-      \acro_first_like:nn {#2} {#3}
-    \acro_end:
-  }
-
-% reset outputs, they'll behave like the first time again (!not like the _only_
-% time!):
-\cs_new_protected:Npn \acro_reset:n #1
-  {
-    \bool_gset_false:c { g__acro_#1_used_bool }
-    \bool_gset_false:c { g__acro_#1_first_use_bool }
-  }
-
-\cs_new_protected:Npn \acro_mark_as_used:n #1
-  {
-    \bool_gset_true:c { g__acro_#1_used_bool }
-    \bool_gset_true:c { g__acro_#1_first_use_bool }
-    \bool_gset_true:c { g__acro_#1_in_list_bool }
-    \if@filesw
-      \iow_shipout_x:Nn \@auxout
-        { \token_to_str:N \acro@used@once {#1} {} {} {} }
-      \iow_shipout_x:Nn \@auxout
-        { \token_to_str:N \acro@used@twice {#1} {} {} {} }
-    \fi
-  }
-
-
-\cs_new_protected:Npn \acro_reset_all:
-  { \prop_map_inline:Nn \l__acro_short_prop { \acro_reset:n {##1} } }
-
-\cs_new_protected:Npn \acro_mark_all_as_used:
-  { \prop_map_inline:Nn \l__acro_short_prop { \acro_mark_as_used:n {##1} } }
-
-\DeclareExpandableDocumentCommand \acifused { m }
-  { \acro_if_acronym_used:nTF {#1} }
-
-\prg_new_conditional:Npnn \acro_if_acronym_used:n #1 { p,T,F,TF }
-  {
-    \bool_if:nTF
-      {
-        \bool_if_p:c { g__acro_#1_used_bool } &&
-        ( !\__acro_is_single_p:n {#1} )
-      }
-      { \prg_return_true: }
-      { \prg_return_false: }
-  }
-
-\NewDocumentCommand \acresetall {}
-  { \acro_reset_all: }
-
-\NewDocumentCommand \acuseall {}
-  { \acro_mark_all_as_used: }
-
-\NewDocumentCommand \acreset { > { \SplitList { , } } m }
-  { \ProcessList {#1} { \acro_reset:n } \ignorespaces }
-
-\NewDocumentCommand \acuse { > { \SplitList { , } } m }
-  { \ProcessList {#1} { \acro_mark_as_used:n } \ignorespaces }
 
 % ---------------------------------------------------------------------------
 % process options:
@@ -2426,7 +2415,7 @@
     \bool_if:cF { l__acro_#1_short_set_bool }
       {
         \keys_set:nn { acro / declare-acronym } { short = {#1} }
-        % \acro_serious_message:nnnn {acro} {before-short} {#1} {#2}
+        \acro_harmless_message:nnn {acro} {substitute-short} {#1}
       }
     \bool_new:c { l__acro_#1_#2_set_bool }
     \bool_set_true:c { l__acro_#1_#2_set_bool }
@@ -2512,17 +2501,14 @@
       {
         \prop_put:cnv {l__acro_short_##1_prop}
           {#1} {l__acro_default_short_##1_tl}
+        \prop_put:cnx {l__acro_pdfstring_##1_prop}
+          {#1} { \exp_not:n {#2} \exp_not:v {l__acro_default_short_##1_tl} }
       }
     \prop_put:NnV \l__acro_short_indefinite_prop
       {#1} \l__acro_default_indefinite_tl
     \prop_put:NnV \l__acro_alt_indefinite_prop
       {#1} \l__acro_default_indefinite_tl
-    \prop_put:Nnx \l__acro_pdfstring_plural_prop
-      {#1} { \exp_not:n {#2} \exp_not:V \l__acro_default_long_plural_tl }
   }
-
-% short plural:
-% \acro_declare_simple_key:n {short-plural}
 
 % long:
 \acro_declare_key:nnn {long} {long}
@@ -2542,19 +2528,9 @@
 % list:
 \acro_declare_simple_key:n {list}
 
+% defines `short-plural', `long-plural' and `long-plural-form' as well as the
+% options `plural-ending', `short-plural-ending' and `long-plural-ending':
 \acro_define_ending:nnn {plural} {s} {s}
-
-% long plural:
-% \acro_declare_key:nnn {long_plural} {long-plural}
-%   { \prop_put:Nnn \l__acro_long_plural_form_prop {#1} { \c_false_bool } }
-
-% long plural form:
-% \acro_declare_key_generic:nnn {long_plural_form} {long-plural-form}
-%   {
-%     \__acro_key_check:nn {#1} {long-plural-form}
-%     \prop_put:Nnn \l__acro_long_plural_form_prop {#1} { \c_true_bool }
-%     \prop_put:Nnn \l__acro_long_plural_prop {#1} {#2}
-%   }
 
 % short indefinite article:
 \acro_declare_simple_key:n {short-indefinite}
@@ -2953,9 +2929,11 @@
                    option `pages = first' works again
 2015/??/?? v2.0  - fix https://bitbucket.org/cgnieder/acro/issue/36
                  - implement https://bitbucket.org/cgnieder/acro/issue/39
+                 - implement https://bitbucket.org/cgnieder/acro/issue/40
                  - add ideas for https://bitbucket.org/cgnieder/acro/issue/41
                  - further generalization for defining user commands:
-                   \NewAcroCommand
+                   \NewAcroCommand, \NewPseudoAcroCommand
+                 - bug fix in indefinite versions with first-upper
 
 % --------------------------------------------------------------------------
 % TODO:
