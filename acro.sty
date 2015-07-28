@@ -36,20 +36,6 @@
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
-% check expl3 version:
-\@ifpackagelater { expl3 } { 2012/11/21 }
-  { }
-  {
-    \PackageError {acro} { Support~package~expl3~too~old }
-      {
-        You~need~to~update~your~installation~of~the~bundles~'l3kernel'~and~
-        'l3packages'.\MessageBreak
-        Loading~acro~will~abort!
-      }
-    \tex_endinput:D
-  }
-
-% --------------------------------------------------------------------------
 % warning and error messages:
 \msg_new:nnn {acro} {undefined}
   {
@@ -80,60 +66,44 @@
 % message macros:
 \bool_new:N \l__acro_silence_bool
 
-\cs_new_protected:Npn \acro_serious_message:nn
+\cs_new:Npn \__acro_remove_backslash:N #1
+  { \exp_after:wN \use_none:n \token_to_str:N #1 }
+
+\cs_new_protected:Npn \acro_new_message_commands:Nnnn #1#2#3#4
   {
-    \bool_if:NTF \l__acro_silence_bool
-      { \msg_warning:nn }
-      { \msg_error:nn }
+    \clist_map_inline:nn {#2}
+      {
+        \cs_new_protected:cpn { \__acro_remove_backslash:N #1 ##1 }
+          {
+            \bool_if:NTF \l__acro_silence_bool
+              { \use:c { \__acro_remove_backslash:N #3 ##1 } }
+              { \use:c { \__acro_remove_backslash:N #4 ##1 } }
+          }
+      }
   }
 
-\cs_new_protected:Npn \acro_serious_message:nnn
-  {
-    \bool_if:NTF \l__acro_silence_bool
-      { \msg_warning:nnn }
-      { \msg_error:nnn }
-  }
+\acro_new_message_commands:Nnnn \acro_serious_message: {nn,nnn,nnnn}
+  { \msg_warning: }
+  { \msg_error: }
 
-\cs_new_protected:Npn \acro_serious_message:nnnn
-  {
-    \bool_if:NTF \l__acro_silence_bool
-      { \msg_warning:nnnn }
-      { \msg_error:nnnn }
-  }
-
-\cs_new_protected:Npn \acro_harmless_message:nnn
-  {
-    \bool_if:NTF \l__acro_silence_bool
-      { \msg_info:nnn }
-      { \msg_warning:nnn }
-  }
-
-\cs_new_protected:Npn \acro_harmless_message:nnnn
-  {
-    \bool_if:NTF \l__acro_silence_bool
-      { \msg_info:nnnn }
-      { \msg_warning:nnnn }
-  }
-
-\cs_new_protected:Npn \acro_harmless_message:nnnnn
-  {
-    \bool_if:NTF \l__acro_silence_bool
-      { \msg_info:nnnnn }
-      { \msg_warning:nnnnn }
-  }
+\acro_new_message_commands:Nnnn \acro_harmless_message: {nn,nnn,nnnn,nnnnn}
+  { \msg_info: }
+  { \msg_warning: }
 
 \cs_new_protected:Npn \acro_option_deprecated:nn #1#2
   {
     \tl_if_blank:nTF {#2}
-      { \acro_harmless_message:nnnn  {acro} {deprecated} {option} {#1 } }
+      { \acro_harmless_message:nnnn  {acro} {deprecated} {option} {#1} }
       { \acro_harmless_message:nnnnn {acro} {replaced}   {option} {#1} {#2} }
   }
+\cs_new_protected:Npn \acro_option_deprecated:n #1
+  { \cs_new_protected:Npn \acro_option_deprecated:nn {#1} {} }
 
 \cs_new_protected:Npn \acro_command_deprecated:NN #1#2
   {
     \tl_if_blank:nTF {#2}
       {
-        \acro_harmless_message:nnnnn {acro} {deprecated}
+        \acro_harmless_message:nnnn {acro} {deprecated}
           {command}
           { \token_to_str:N #1 }
       }
@@ -309,8 +279,7 @@
 % options:
 \keys_define:nn {acro}
   {
-    version           .code:n     = 
-      \acro_option_deprecated:nn { version } { }               ,
+    version           .code:n     = \acro_option_deprecated:n {version} ,
     messages          .choice: ,
     messages / silent .code:n     =
       \bool_set_true:N \l__acro_silence_bool ,
@@ -354,18 +323,17 @@
     page-ranges       .code:n     =
       \bool_set_false:N \l__acro_following_page_bool
       \bool_set_false:N \l__acro_following_pages_bool
-      \acro_option_deprecated:nn { pages-ranges } { }               ,
+      \acro_option_deprecated:n {pages-ranges} ,
     following-page    .bool_set:N = \l__acro_following_page_bool    ,
     following-pages   .bool_set:N = \l__acro_following_pages_bool   ,
-    record-pages      .code:n     = 
-      \acro_option_deprecated:nn { record-pages } { }               ,
+    record-pages      .code:n     = \acro_option_deprecated:n {record-pages} ,
     next-page         .tl_set:N   = \l__acro_next_page_tl           ,
     next-pages        .tl_set:N   = \l__acro_next_pages_tl          ,
     list-style        .tl_set:N   = \l__acro_list_instance_tl       ,
     list-type         .tl_set:N   = \l__acro_list_type_tl           ,
     list-header       .code:n     =
-      \acro_option_deprecated:nn { list-header } { list-heading }
-      \tl_set:Nn \l__acro_list_title_tl {#1}                      ,
+      \acro_option_deprecated:nn {list-header} {list-heading}
+      \tl_set:Nn \l__acro_list_title_tl {#1} ,
     list-heading      .tl_set:N   = \l__acro_list_title_tl          ,
     list-name         .tl_set:N   = \l__acro_list_name_tl           ,
     list-table-width  .dim_set:N  = \l__acro_table_width_dim        ,
@@ -558,7 +526,8 @@
       {
         \acro_write_indefinite:nn {#1} {long}
         \acro_write_long:No \l__acro_first_long_format_tl {#3}
-        \tl_use:N \c_space_tl
+        % \tl_use:N \c_space_tl
+        \acspace
         \tl_if_blank:VF \l__acro_first_between_tl
           {
             \tl_use:N \l__acro_first_between_tl
@@ -1990,7 +1959,65 @@
   { \cs_if_exist:NF \acro@printed@list { \cs_new:Npn \acro@printed@list { printed } } }
 
 % --------------------------------------------------------------------------
+% TODO
+\prop_new:N \l__acro_trailing_tokens_prop
+\seq_new:N \l__acro_trailing_tokens_seq
+
+\cs_new_protected:Npn \acro_add_trailing_action:Nnn #1#2#3
+  {
+    \prop_put:Nnn \l__acro_trailing_tokens_prop {#1} {#3}
+    \seq_put_right:Nn \l__acro_trailing_tokens_seq {#1}
+    #2
+  }
+
+\acro_add_trailing_action:Nnn .
+  {
+    \bool_new:N \l__acro_trailing_dot_bool
+    \cs_new_protected:Npn \acdot
+      { \bool_if:NF \l__acro_trailing_dot_bool {.} }
+  }
+  { \bool_set_true:N \l__acro_trailing_dot_bool }
+
+\acro_add_trailing_action:Nnn -
+  {
+    \bool_new:N \l__acro_trailing_dash_bool
+    \cs_new_protected:Npn \acspace
+      { \bool_if:NF \l__acro_trailing_dash_bool {\space} }
+  }
+  { \bool_set_true:N \l__acro_trailing_dash_bool }
+
+\cs_new_protected:Npn \acro_treat_trail:
+  {
+    \seq_map_inline:Nn \l__acro_trailing_tokens_seq
+      {
+        \token_if_eq_meaning:NNT \l_peek_token ##1
+          { \prop_get:Nn \l__acro_trailing_tokens_prop {##1} }
+      }
+  }
+
+% --------------------------------------------------------------------------
 % the user commands:
+
+% preparation:
+\cs_new_protected:Npn \acro_begin:
+  {
+    \group_begin:
+    \__acro_check_after_end:w
+  }
+
+\cs_new_protected:Npn \__acro_check_after_end:w #1 \acro_end:
+  {
+    \cs_set:Npn \__acro_execute:
+      {
+        \acro_treat_trail:
+        #1
+        \acro_end: % this will end the group opened by \acro_begin:
+      }
+    \peek_after:Nw \__acro_execute:
+  }
+
+\cs_new_protected:Npn \acro_end: { \group_end: }
+
 % #1: ID
 % #2: true|false
 \cs_new_protected:Npn \acro_check_acronym:nn #1#2
@@ -1999,343 +2026,218 @@
     \acro_use_acronym:n {#2}
   }
 
+% #1: boolean
+% #2: ID
+\cs_new_protected:Npn \acro_if_starred_check:nn #1#2
+  {
+    \bool_if:nTF {#1}
+      { \acro_check_acronym:nn {#2} {false} }
+      { \acro_check_acronym:nn {#2} {true} }
+  }
+
+% #1: csname
+% #2: definition where `#1' refers to the ID
+\cs_new_protected:Npn \NewAcroCommand #1#2
+  {
+    \cs_set:Npn \__acro_tmp_command:n ##1 {#2}
+    \exp_args:NNnx \NewDocumentCommand #1 {sm}
+      {
+        \acro_begin:
+          \acro_if_starred_check:nn {####1} {####2}
+          \exp_not:o { \__acro_tmp_command:n {##2} }
+        \acro_end:
+      }
+  }
+
 % automatic:
-\NewDocumentCommand \ac { sm }
+\NewAcroCommand \ac
+  { \acro_use:n {#1} }
+
+\NewAcroCommand \iac
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_use:n {#2}
-    \group_end:
+    \acro_indefinite:
+    \acro_use:n {#1}
   }
 
-\NewDocumentCommand \iac { sm }
+\NewAcroCommand \Iac
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_indefinite:
-      \acro_use:n {#2}
-    \group_end:
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_use:n {#1}
   }
 
-\NewDocumentCommand \Iac { sm }
+\NewAcroCommand \Ac
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_first_upper:
-      \acro_indefinite:
-      \acro_use:n {#2}
-    \group_end:
+    \acro_first_upper:
+    \acro_use:n {#1}
   }
 
-\NewDocumentCommand \Ac { sm }
+\NewAcroCommand \acp
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_first_upper:
-      \acro_use:n {#2}
-    \group_end:
+    \acro_plural:
+    \acro_use:n {#1}
   }
 
-\NewDocumentCommand \acp { sm }
+\NewAcroCommand \Acp
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_plural:
-      \acro_use:n {#2}
-    \group_end:
-  }
-
-\NewDocumentCommand \Acp { sm }
-  {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_plural:
-      \acro_first_upper:
-      \acro_use:n {#2}
-    \group_end:
+    \acro_plural:
+    \acro_first_upper:
+    \acro_use:n {#1}
   }
 
 % short:
-\NewDocumentCommand \acs { sm }
+\NewAcroCommand \acs
+  { \acro_short:n {#1} }
+
+\NewAcroCommand \iacs
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_short:n {#2}
-    \group_end:
+    \acro_indefinite:
+    \acro_short:n {#1}
   }
 
-\NewDocumentCommand \iacs { sm }
+\NewAcroCommand \Iacs
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_indefinite:
-      \acro_short:n {#2}
-    \group_end:
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_short:n {#1}
   }
 
-\NewDocumentCommand \Iacs { sm }
+\NewAcroCommand \acsp
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_first_upper:
-      \acro_indefinite:
-      \acro_short:n {#2}
-    \group_end:
-  }
-
-\NewDocumentCommand \acsp { sm }
-  {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_plural:
-      \acro_short:n {#2}
-    \group_end:
+    \acro_plural:
+    \acro_short:n {#1}
   }
 
 % alt:
-\NewDocumentCommand \aca { sm }
+\NewAcroCommand \aca
+  { \acro_alt:n {#1} }
+
+\NewAcroCommand \iaca
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_alt:n {#2}
-    \group_end:
+    \acro_indefinite:
+    \acro_alt:n {#1}
   }
 
-\NewDocumentCommand \iaca { sm }
+\NewAcroCommand \Iaca
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_indefinite:
-      \acro_alt:n {#2}
-    \group_end:
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_alt:n {#1}
   }
 
-\NewDocumentCommand \Iaca { sm }
+\NewAcroCommand \acap
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_first_upper:
-      \acro_indefinite:
-      \acro_alt:n {#2}
-    \group_end:
-  }
-
-\NewDocumentCommand \acap { sm }
-  {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_plural:
-      \acro_alt:n {#2}
-    \group_end:
+    \acro_plural:
+    \acro_alt:n {#1}
   }
 
 % long:
-\NewDocumentCommand \acl { sm }
+\NewAcroCommand \acl
+  { \acro_long:n {#1} }
+
+\NewAcroCommand \iacl
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_long:n {#2}
-    \group_end:
+    \acro_indefinite:
+    \acro_long:n {#1}
   }
 
-\NewDocumentCommand \iacl { sm }
+\NewAcroCommand \Iacl
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_indefinite:
-      \acro_long:n {#2}
-    \group_end:
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_long:n {#1}
   }
 
-\NewDocumentCommand \Iacl { sm }
+\NewAcroCommand \Acl
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_first_upper:
-      \acro_indefinite:
-      \acro_long:n {#2}
-    \group_end:
+    \acro_first_upper:
+    \acro_long:n {#1}
   }
 
-\NewDocumentCommand \Acl { sm }
+\NewAcroCommand \aclp
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_first_upper:
-      \acro_long:n {#2}
-    \group_end:
+    \acro_plural:
+    \acro_long:n {#1}
   }
 
-\NewDocumentCommand \aclp { sm }
+\NewAcroCommand \Aclp
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_plural:
-      \acro_long:n {#2}
-    \group_end:
-  }
-
-\NewDocumentCommand \Aclp { sm }
-  {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_plural:
-      \acro_first_upper:
-      \acro_long:n {#2}
-    \group_end:
+    \acro_plural:
+    \acro_first_upper:
+    \acro_long:n {#1}
   }
 
 % first:
-\NewDocumentCommand \acf { sm }
+\NewAcroCommand \acf
+  { \acro_first:n {#1} }
+
+\NewAcroCommand \iacf
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_first:n {#2}
-    \group_end:
+    \acro_indefinite:
+    \acro_first:n {#1}
   }
 
-\NewDocumentCommand \iacf { sm }
+\NewAcroCommand \Iacf
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_indefinite:
-      \acro_first:n {#2}
-    \group_end:
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_first:n {#1}
   }
 
-\NewDocumentCommand \Iacf { sm }
+\NewAcroCommand \Acf
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_first_upper:
-      \acro_indefinite:
-      \acro_first:n {#2}
-    \group_end:
+    \acro_first_upper:
+    \acro_first:n {#1}
   }
 
-\NewDocumentCommand \Acf { sm }
+\NewAcroCommand \acfp
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_first_upper:
-      \acro_first:n {#2}
-    \group_end:
+    \acro_plural:
+    \acro_first:n {#1}
   }
 
-\NewDocumentCommand \acfp { sm }
+\NewAcroCommand \Acfp
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_plural:
-      \acro_first:n {#2}
-    \group_end:
-  }
-
-\NewDocumentCommand \Acfp { sm }
-  {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
-      \acro_plural:
-      \acro_first_upper:
-      \acro_first:n {#2}
-    \group_end:
+    \acro_plural:
+    \acro_first_upper:
+    \acro_first:n {#1}
   }
 
 % first-like:
 \NewDocumentCommand \acflike { smm }
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
+    \acro_begin:
+      \acro_if_starred_check:nn {#1} {#2}
       \acro_first_like:nn {#2} {#3}
-    \group_end:
+    \acro_end:
   }
 
 \NewDocumentCommand \iacflike { smm }
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
+    \acro_begin:
+      \acro_if_starred_check:nn {#1} {#2}
       \acro_indefinite:
       \acro_first_like:nn {#2} {#3}
-    \group_end:
+    \acro_end:
   }
 
 \NewDocumentCommand \Iacflike { smm }
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
+    \acro_begin:
+      \acro_if_starred_check:nn {#1} {#2}
       \acro_first_upper:
       \acro_indefinite:
       \acro_first_like:nn {#2} {#3}
-    \group_end:
+    \acro_end:
   }
 
 \NewDocumentCommand \acfplike { smm }
   {
-    \group_begin:
-      \IfBooleanTF #1
-        { \acro_check_acronym:nn {#2} {false} }
-        { \acro_check_acronym:nn {#2} {true} }
+    \acro_begin:
+      \acro_if_starred_check:nn {#1} {#2}
       \acro_plural:
       \acro_first_like:nn {#2} {#3}
-    \group_end:
+    \acro_end:
   }
 
 % reset outputs, they'll behave like the first time again (!not like the _only_
@@ -2475,8 +2377,10 @@
 
 \msg_new:nnn {acro} {doubled-key}
   {
-    It~seems~to~me~you~have~used~the~`#1'~key~before.~If~you~haven't~there's~
-    something~different~wrong~and~I'm~lost.~You~'re~on~your~own~now.
+    It~ seems~ to~ me~ you~ have~ used~ the~ `#2'~ key~ twice~ in~ the~
+    declaration~ of~ acronym~ `#1'.~ If~ you~ haven't~ there's~
+    something~ different~ wrong~ and~ I'm~ lost.~ You~'re~ on~ your~ own~
+    then.
   }
 
 \cs_new_protected:Npn \__acro_key_check:nn #1#2
@@ -2492,12 +2396,12 @@
     \bool_set_true:c { l__acro_#1_#2_set_bool }
   }
 
-\cs_new_protected:Npn \__acro_first_key_check:n #1
+\cs_new_protected:Npn \__acro_first_key_check:nn #1#2
   {
     \cs_if_exist:cTF { l__acro_#1_short_set_bool }
       {
          \bool_if:cT { l__acro_#1_short_set_bool }
-           { \acro_serious_message:nnn {acro} {doubled-key} {#1} }
+           { \acro_serious_message:nnnn {acro} {doubled-key} {#1} {#2} }
       }
       {
         \bool_new:c { l__acro_#1_short_set_bool }
@@ -2562,7 +2466,7 @@
 % short:
 \acro_declare_key_generic:nnn {short} {short}
   {
-    \__acro_first_key_check:n {#1}
+    \__acro_first_key_check:nn {#1} {short}
     \prop_put:Nnn \l__acro_short_prop      {#1} {#2}
     \prop_put:Nnn \l__acro_sort_prop       {#1} {#1}
     \prop_put:Nnn \l__acro_index_sort_prop {#1} {#1}
@@ -2817,7 +2721,7 @@
     exclude-classes .tl_set:N   = \l__acro_excluded_classes_tl ,
     name            .tl_set:N   = \l__acro_list_name_tl ,
     header          .code:n     =
-      \acro_option_deprecated:nn { header } { heading }
+      \acro_option_deprecated:nn {header} {heading}
       \tl_set:Nn \l__acro_list_title_tl {#1} ,
     heading         .tl_set:N   = \l__acro_list_title_tl ,
     sort            .bool_set:N = \l__acro_sort_bool
@@ -3011,15 +2915,17 @@
 2015/05/10 v1.6b - \ProcessKeysPackageOptions ,
                  - correct bug http://tex.stackexchange.com/q/236860/ :
                    option `pages = first' works again
-2015/06/12 v1.6c - fix https://bitbucket.org/cgnieder/acro/issue/36
+2015/??/?? v2.0  - fix https://bitbucket.org/cgnieder/acro/issue/36
+                 - implement https://bitbucket.org/cgnieder/acro/issue/39
+                 - add ideas for https://bitbucket.org/cgnieder/acro/issue/41
+                 - further generalization for defining user commands:
+                   \NewAcroCommand
 
 % --------------------------------------------------------------------------
 % TODO:
 - issue 18: https://bitbucket.org/cgnieder/acro/issue/18
+  and related issue 43
 - extend option `macros' to also define uppercase macros, possibly as a choice
-- https://bitbucket.org/cgnieder/acro/issue/18
-- options user1, user2, user3? (Genitiv lang, Akkusativ lang,...) Bsp: ``des
-  Bundesinstituts für Risikobewertung''
 - Option `totoc'!?
 - revise list styles to allow _full_ customization by creating own instances!
   this probably needs a handfull of macros that give access to the entries
