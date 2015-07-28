@@ -555,6 +555,8 @@
     \bool_if:nT
       { \l__acro_first_reversed_bool || \l__acro_first_only_short_bool }
       { \acro_write_indefinite:nn {#1} {short} }
+    \prop_map_inline:Nn \l__acro_trailing_choices_prop
+      { \acro_deactivate_trailing_choice:n {##2} }
     \__acro_acc_supp:nn {#1} { \acro_write_short:nn {#1} {#2} }
     \bool_if:NT \l__acro_group_short_and_citation_bool
       {
@@ -1959,48 +1961,74 @@
 
 % --------------------------------------------------------------------------
 % TODO - trailing tokens and what to do when present
-\prop_new:N \l__acro_trailing_tokens_prop
+\prop_new:N \l__acro_trailing_choices_prop
+\prop_new:N \l__acro_trailing_actions_prop
 \seq_new:N \l__acro_trailing_tokens_seq
-
-\cs_new_protected:Npn \acro_add_trailing_action:Nn #1#2
-  {
-    \prop_put:Nnn \l__acro_trailing_tokens_prop {#1}
-      { \acro_activate_trailing_choice:n {#2} }
-    \seq_put_right:Nn \l__acro_trailing_tokens_seq {#1}
-    \acro_new_trailing_choice:n {#2}
-  }
+\bool_new:N \l__acro_trailing_choices_tl
 
 \cs_new_protected:Npn \acro_new_trailing_choice:n #1
   { \bool_new:c {l__acro_trailing_#1_bool} }
 \cs_new_protected:Npn \acro_activate_trailing_choice:n #1
   { \bool_set_true:c {l__acro_trailing_#1_bool} }
+\cs_new_protected:Npn \acro_deactivate_trailing_choice:n #1
+  { \bool_set_false:c {l__acro_trailing_#1_bool} }
 
-\prg_new_condictional:Npnn \acro_if_trailing_choice:n #1 {p,T,F,TF}
+% #1: token
+% #2: name
+\cs_new_protected:Npn \acro_register_trailing_action:Nn #1#2
+  {
+    \prop_put:Nnn \l__acro_trailing_choices_prop {#1} {#2}
+    \prop_put:Nnn \l__acro_trailing_actions_prop {#1}
+      { \acro_activate_trailing_choice:n {#2} }
+    \seq_put_right:Nn \l__acro_trailing_tokens_seq {#1}
+    \acro_new_trailing_choice:n {#2}
+  }
+
+% #1: name
+\prg_new_conditional:Npnn \acro_if_trailing_choice:n #1 {p,T,F,TF}
   {
     \bool_if:cTF {l__acro_trailing_#1_bool}
       { \prg_return_true: }
       { \prg_return_false: }
   }
-  
-\cs_new:Npn \aciftrailingTF #1#2#3
-  { \acro_if_trailing_choice:nTF {#1} {#2} {#3} }
+
+% #1: csv list of names
+\prg_new_protected_conditional:Npnn \acro_if_trailing_choices:n #1 {T,F,TF}
+  {
+    \bool_set_false:N \l__acro_trailing_choices_tl
+    \clist_map_inline:nn {#1}
+      {
+        \bool_if:cT {l__acro_trailing_##1_bool}
+          {
+            \bool_set_true:N \l__acro_trailing_choices_tl
+            \clist_map_break:
+          }
+      }
+    \bool_if:NTF \l__acro_trailing_choices_tl
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+\cs_new_protected:Npn \aciftrailing { \acro_if_trailing_choices:nTF }
 
 \cs_new_protected:Npn \acro_treat_trail:
   {
     \seq_map_inline:Nn \l__acro_trailing_tokens_seq
       {
         \token_if_eq_meaning:NNT \l_peek_token ##1
-          { \prop_get:Nn \l__acro_trailing_tokens_prop {##1} }
+          { \prop_get:Nn \l__acro_trailing_actions_prop {##1} }
       }
   }
 
-\acro_add_trailing_action:Nn . {dot}
-\acro_add_trailing_action:Nn - {dash}
+\acro_register_trailing_action:Nn . {dot}
+\acro_register_trailing_action:Nn - {dash}
+\acro_register_trailing_action:Nn \babelhyphen {babel-hyphen}
 
 \cs_new_protected:Npn \acro_dot: { \acro_if_trailing_choice:nF {dot} {.} }
 \cs_new_eq:NN \acdot \acro_dot:
 
-\cs_new_protected:Npn \acro_space: { \acro_if_trailing_choice:nF {dash} {\space} }
+\cs_new_protected:Npn \acro_space:
+  { \acro_if_trailing_choices:nF {dash,babel-hyphen} {\space} }
 \cs_new_eq:NN \acspace \acro_space:
 
 % --------------------------------------------------------------------------
