@@ -161,13 +161,15 @@
 
 % --------------------------------------------------------------------------
 % variants of kernel commands
-\cs_generate_variant:Nn \quark_if_no_value:nTF { V }
-\cs_generate_variant:Nn \tl_put_right:Nn       { NV , Nv }
-\cs_generate_variant:Nn \tl_if_eq:nnT          { V }
-\cs_generate_variant:Nn \tl_if_eq:nnF          { V }
-\cs_generate_variant:Nn \seq_use:Nnnn          { c }
-\cs_generate_variant:Nn \seq_gset_split:Nnn    { c }
-\cs_generate_variant:Nn \prop_put:Nnn          { NnV }
+\cs_generate_variant:Nn \quark_if_no_value:nTF  { V }
+\cs_generate_variant:Nn \tl_put_right:Nn        { NV, Nv }
+\cs_generate_variant:Nn \tl_if_eq:nnT           { V }
+\cs_generate_variant:Nn \tl_if_eq:nnF           { V }
+\cs_generate_variant:Nn \seq_use:Nnnn           { c }
+\cs_generate_variant:Nn \seq_gset_split:Nnn     { c }
+\cs_generate_variant:Nn \prop_put:Nnn           { NnV, cnx, cnv }
+\cs_generate_variant:Nn \prop_get:NnNF          { cn, cnc }
+\cs_generate_variant:Nn \cs_generate_variant:Nn { c }
 
 % --------------------------------------------------------------------------
 % boolean variables:
@@ -1466,7 +1468,6 @@
         \prop_get:cncF {l__acro_short_#1_prop} {#2} {l__acro_short_#1_tl} {}
       }
   }
-\cs_generate_variant:Nn \prop_get:NnNF { cn, cnc }
 
 \cs_new_protected:Npn \__acro_set_endings:n #1
   {
@@ -1492,6 +1493,7 @@
     \bool_new:c {l__acro_#1_bool}
     \prop_new:c {l__acro_long_#1_prop}
     \prop_new:c {l__acro_long_#1_form_prop}
+    \prop_new:c {l__acro_pdfstring_#1_prop}
     \tl_new:c   {l__acro_short_#1_tl}
     \tl_new:c   {l__acro_default_short_#1_tl}
     \tl_set:cn  {l__acro_default_short_#1_tl} {#2}
@@ -2467,7 +2469,10 @@
     \tl_if_blank:VT \l__acro_current_key_tl
       { \acro_serious_message:nn {acro} {no-id} }
     \bool_if:cF { l__acro_#1_short_set_bool }
-      { \acro_serious_message:nnnn {acro} {before-short} {#1} {#2} }
+      {
+        \keys_set:nn { acro / declare-acronym } { short = {#1} }
+        % \acro_serious_message:nnnn {acro} {before-short} {#1} {#2}
+      }
     \bool_new:c { l__acro_#1_#2_set_bool }
     \bool_set_true:c { l__acro_#1_#2_set_bool }
   }
@@ -2494,10 +2499,7 @@
 \cs_new_protected:Npn \acro_declare_key_generic:nnn #1#2#3
   {
     \prop_clear_new:c { l__acro_#1_prop }
-    \cs_new_protected:cpn { __acro_declare_#1:nn } ##1##2
-      {
-        #3
-      }
+    \cs_new_protected:cpn { __acro_declare_#1:nn } ##1##2 {#3}
     \cs_generate_variant:cn { __acro_declare_#1:nn } { V }
     \keys_define:nn { acro / declare-acronym }
       {
@@ -2505,7 +2507,6 @@
           \use:c {__acro_declare_#1:Vn} \l__acro_current_key_tl {##1}
       }
   }
-\cs_generate_variant:Nn \cs_generate_variant:Nn {c}
 
 % #1: name in associated cs
 % #2: key name
@@ -2552,8 +2553,11 @@
     \prop_put:Nnn \l__acro_index_sort_prop {#1} {#1}
     \prop_put:Nnn \l__acro_alt_prop        {#1} {#2}
     \prop_put:Nnn \l__acro_pdfstring_prop  {#1} {#2}
-    \prop_put:NnV \l__acro_short_plural_prop
-      {#1} \l__acro_default_short_plural_tl
+    \seq_map_inline:Nn \l__acro_endings_seq
+      {
+        \prop_put:cnv {l__acro_short_##1_prop}
+          {#1} {l__acro_default_short_##1_tl}
+      }
     \prop_put:NnV \l__acro_short_indefinite_prop
       {#1} \l__acro_default_indefinite_tl
     \prop_put:NnV \l__acro_alt_indefinite_prop
@@ -2568,12 +2572,16 @@
 % long:
 \acro_declare_key:nnn {long} {long}
   {
-    \prop_put:Nnn \l__acro_long_plural_form_prop {#1} { \c_false_bool }
+    \seq_map_inline:Nn \l__acro_endings_seq
+      { \prop_put:cnn {l__acro_long_##1_form_prop} {#1} { \c_false_bool } }
     \prop_put:NnV \l__acro_long_indefinite_prop
       {#1}
       \l__acro_default_indefinite_tl
-    \bool_if:cF { l__acro_#1_long-plural_set_bool }
-      { \prop_put:NnV \l__acro_long_plural_prop {#1} \l__acro_default_long_plural_tl }
+    \seq_map_inline:Nn \l__acro_endings_seq
+      {
+        \bool_if:cF {l__acro_#1_long-##1_set_bool}
+          { \prop_put:cnv {l__acro_long_##1_prop} {#1} {l__acro_default_long_##1_tl} }
+      }
   }
 
 % list:
@@ -2639,19 +2647,21 @@
 
 % pdfstring:
 \prop_new:N \l__acro_pdfstring_prop
-\prop_new:N \l__acro_pdfstring_plural_prop
 \cs_new_protected:Npn \__acro_declare_pdfstring:nw #1#2/#3/#4 \acro_stop:
   {
     \__acro_key_check:nn {#1} { pdfstring }
     \prop_put:Nnn \l__acro_pdfstring_prop {#1} {#2}
-    \tl_if_empty:nTF {#3}
+    \seq_map_inline:Nn \l__acro_endings_seq
       {
-        \prop_put:Nnx \l__acro_pdfstring_plural_prop
-          {#1} { \exp_not:n {#2} \exp_not:V \l__acro_default_short_plural_tl }
-      }
-      {
-        \prop_put:Nnn \l__acro_pdfstring_plural_prop
-          {#1} {#2#3}
+        \tl_if_empty:nTF {#3}
+          {
+            \prop_put:cnx {l__acro_pdfstring_##1_prop}
+              {#1} { \exp_not:n {#2} \exp_not:v {l__acro_default_short_##1_tl} }
+          }
+          {
+            \prop_put:cnn {l__acro_pdfstring_##1_prop}
+              {#1} {#2#3}
+          }
       }
   }
 \cs_generate_variant:Nn \__acro_declare_pdfstring:nw { V }
