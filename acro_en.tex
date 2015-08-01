@@ -51,15 +51,22 @@
     automatically sorts the list created by \cs{printacronyms}.%
   } ,
   add-cmds = {
-    ac,aca,acap,acf,acflike,acfp,acfplike,acl,aclp,acp,acs,acsp,
-    acreset,acresetall,acsetup,
-    DeclareAcronym,DeclareAcronymCitation,DeclareAcronymFormat,
-    DeclareAcronymPDFString,
-    iac,Iac,iaca,Iaca,iacs,Iacs,iacl,Iacl,iacf,Iacf,iacflike,Iacflike,
-    printacronyms
+    ac, Ac, aca, Aca, acap, Acap, acdot, acf, Acf, acflike, acg, acfp, Acfp, 
+      acfplike, aciftrailing, acl, Acl, aclp, Aclp, acp, Acp,
+      AcroRegisterTrailing, acs, Acs, acsp, Acsp, acspace, acreset, 
+      acresetall, acsetup,
+    DeclareAcroCommand, DeclareAcronym, DeclareAcronymCitation,
+      DeclareAcronymFormat, DeclareAcronymPDFString, DeclarePseudoAcroCommand,
+    iac, Iac, iaca, Iaca, iacs, Iacs, iacl, Iacl, iacf, Iacf, iacflike,
+      Iacflike,
+    NewAcroCommand, NewPseudoAcroCommand,
+    printacronyms,
+    ProvideAcroCommand, ProvideAcroEnding, ProvidePseudoAcroCommand,
+    RenewAcroCommand, RenewPseudoAcroCommand
   } ,
   add-silent-cmds = {
-    addcolon,nato,newlist,ny,setlist
+    addcolon, DeclareInstance, babelhyphen, ExplSyntaxOff, ExplSyntaxOn, nato,
+    NewDocumentCommand, newlist, ny, setlist
   } ,
   index-setup = { level = \section , headers={\indexname}{\indexname} }
 }
@@ -100,6 +107,8 @@
 \newcommand*\wikipedia{%\libertineGlyph{W.alt}\kern-.055em
 \textsc{Wikipedia}}
 \newcommand*\h[1]{\textcolor{cnltx}{\textbf{#1}}}
+
+\ProvideAcroEnding {possessive} {'s} {'s}
 
 % declare acronyms
 \DeclareAcronym{cd}
@@ -222,6 +231,17 @@
 
 \newcommand*\latin{\textit}
 
+\makeatletter
+\newcommand*\TF{\textcolor{red}{\uline{\code{\textcolor{cs}{\textit{TF}}}}}}
+\renewenvironment{commands}
+  {%
+    \cnltx@set@catcode_{12}%
+    \let\command\cnltx@command
+    \cnltxlist
+  }
+  {\endcnltxlist}
+\makeatother
+
 \begin{document}
 \section{Licence and Requirements}
 \license
@@ -273,10 +293,6 @@ go with \pkg{glossaries}, then.  Are you planning to add a nomenclature?  You
 may want to choose \pkg{nomencl} (or again: \pkg{glossaries}) and so on.
 \acro\ does a good job for lists of abbreviations.
 
-\section{News}
-\subsection{Version 1.6}
-Support for versions~0.* has been dropped.
-
 \section{Basics}
 \subsection{Creating New Acronyms}
 \noindent\changedversion{1.0}Acronyms are created with the command
@@ -291,10 +307,15 @@ documentation.
 \begin{options}
   %% short
   \keyval{short}{text}\Default!
-    the short form of the acronym.
+    the short form of the acronym.  This option is required: an acronym must
+    have a short form.  If this is set it \emph{must} be set as first option!
+    If another option is set first and notices the \option{short} option
+    missing it assumes that the \meta{id} should be used as short version and
+    sets it accordingly.  A warning will be written to the log then.
   %% long
   \keyval{long}{text}\Default!
-    the long form of the acronym.
+    the long form of the acronym.  This option is required: an acronym must
+    have a description.
   %% short-plural
   \keyval{short-plural}{text}\Default{s}
     the plural ending appended to the short form.
@@ -437,7 +458,7 @@ citation key.
 The first appearance now looks as follows\footnote{The appearance of the
   citation of course depends on the citation style you're using.}: \acf{ny}.
 
-\subsection{Using the Acronyms -- the Commands}
+\subsection{Using the Acronyms -- the Commands}\label{sec:using-acronyms-comm}
 Acronyms are used with one of the following commands:
 \begin{commands}
   \command{ac}[\sarg\marg{id}]
@@ -958,11 +979,22 @@ There are a few options which change the general behaviour of \acro.
     citation command that takes the cite key as argument is valid, for example
     \pkg*{biblatex}'s \cs*{footcite}.
   %%
-  \keyval{cite-space}{code}\Default{\cs*{nobreakspace}}
+  \keyval{cite-connect}{code}\Default{\cs*{nobreakspace}}
     Depending on the citation command in use a space should be inserted before
     the citation or maybe not (e.g.\ \cs*{footcite}\ldots).  This option
     allows you to set this.  Actually it can be used to place arbitrary code
     right before the citation.
+  %%
+  \keybool{group-citation}\Default{false}
+    \sinceversion{2.0}If set to true the short form (or the long form) and the
+    citation of an acronym will be printed together in parentheses when an
+    acronym is used the first time.
+  %%
+  \keyval{group-cite-cmd}{control sequence}\Default{\cs*{cite}}
+    \sinceversion{2.0}This option determines which command is used for the
+    citation when an acronym is used the first time \emph{and}
+    \keyis{group-citation}{true}.  Each citation command that takes the cite
+    key as argument is valid, for example \pkg*{biblatex}'s \cs*{footcite}.
   %%
   \keybool{index}\Default{false}
     \sinceversion{1.1}If set to \code{true} an index entry will be recorded
@@ -1132,9 +1164,9 @@ possible output forms of the acronyms.
     own.
   %%
   \keychoice{list-heading}{chapter,chapter*,section,section*,subsection,%
-    subsection*,addchap,addsec,none}\null
+    subsection*,subsubsection,subsubsection*,addchap,addsec,none}\null
   \Default{section*}
-    \changedversion{1.3}The heading type of the list. The last two only work
+    \changedversion{2.0}The heading type of the list. The last two only work
     with a \KOMAScript{} class that also defines the appropriate command.  A
     special value is \code{none} which suppresses the heading.
   %%
@@ -1181,6 +1213,7 @@ the acronym list:
 \acsetup{list-type=acronyms,extra-style=comma}
 \printacronyms
 
+\subsection{Other Heading Command}
 If you want a \option{list-heading} which is not yet provided you can add your
 own option:
 \begin{sourcecode}
@@ -1188,6 +1221,98 @@ own option:
     { name-format = command that uses #1 }
 \end{sourcecode}
 After that you could use \keyis{list-heading}{myname}.
+
+\section{Trailing Tokens and Special Action}
+
+\acro\ has the possibility\sinceversion{2.0} to look ahead for certain tokens
+and switch a boolean if it finds them.  Per default \acro\ knows about three
+tokens: the \enquote{\code{dot}} (\code{.}), the \enquote{\code{dash}}
+(\code{-}) and the \enquote{\code{babel-hyphen}} (\cs*{babelhyphen}).
+
+A token is made known to \acro\ with the following macro:
+\begin{commands}
+  \command{AcroRegisterTrailing}[\meta{token}\marg{name}]
+    This registers the token \meta{token} so \acro\ looks if it follows
+    directly after an acronym macro.  \meta{name} is the internal name for
+    this token.
+\end{commands}
+The \acro\ package already registers the above mentioned tokens:
+\begin{sourcecode}
+  \AcroRegisterTrailing . {dot}
+  \AcroRegisterTrailing - {dash}
+  \AcroRegisterTrailing \babelhyphen {babel-hyphen}
+\end{sourcecode}
+
+If a token is registered it doesn't mean that \acro\ looks for it.  The token
+must first be activated for this:
+\begin{options}
+  \keyval{activate-trailing-tokens}{csv list of token names}
+    Tell \acro\ to look for trailing tokens.  This is done by giving a csv
+    list of the internal \emph{names} of the tokens.  Per default only
+    \code{dot} is activated.
+  \keyval{deactivate-trailing-tokens}{csv list of token names}
+    Tell \acro\ not to look for trailing tokens.  This is done by giving a csv
+    list of the internal \emph{names} of the tokens.
+\end{options}
+
+All the above on this own does nothing visible. However: inside of an acronym,
+\ie, for example inside the long or the short form it can be tested for those
+trailing options:
+\begin{commands}
+  \command{aciftrailing}[\marg{csv list of token
+    names}\marg{true}\marg{false}]
+    Check if one of the tokens listed in \meta{csv list of token names} is
+    following and either place \meta{true} or \meta{false} in the input
+    stream.
+\end{commands}
+\acro uses this to define to further macros:
+\begin{commands}
+  \command{acdot} Inserts a \code{.} if no \code{dot} follows.
+  \command{acspace} Inserts a \cs*{space} if no \code{dash} or
+    \code{babel-hyphen} follows.
+\end{commands}
+\begin{sourcecode}
+  \newcommand*\acdot{\aciftrailing{dot}{}{.}}
+  \newcommand*\acspace{\aciftrailing{dash,babel-hyphen}{}{\space}}
+\end{sourcecode}
+
+This could be used to define an acronym as follows:
+\begin{sourcecode}
+  \DeclareAcronym{etc}{
+    short = {\textit{etc}\acdot} ,
+    long  = {\textit{et cetera}} ,
+    short-plural = , long-plural =
+  }
+\end{sourcecode}
+If now you somewhere use
+\begin{sourcecode}
+  \ac{etc}.
+\end{sourcecode}
+there won't be two dots printed.
+
+The command \cs{acspace} is used already in the definition of the first
+appearance of a macro.  Let's say you're a German chemist and you have
+\begin{sourcecode}
+  \DeclareAcronym{PU}{
+    long = Polyurethan ,
+    long-plural = e
+  }
+\end{sourcecode}
+and you use it the first time like this:
+\begin{sourcecode}
+  \ac{PU}-Hartschaum
+\end{sourcecode}
+then according to German orthography and typesetting rules this should be
+printed as
+\begin{center}
+  \enquote{Polyurethan(PU)-Hartschaum}
+\end{center}
+\ie, with \emph{no} space between long and short form.  This is exactly what
+happens it you say
+\begin{sourcecode}
+  \acsetup{activate-trailing-tokens = {dash,babel-hyphen}}
+\end{sourcecode}
+in the preamble.
 
 \section{About Page Ranges}
 If you enable the \option{page-ref} option \acro\ adds page numbers to the list
@@ -1238,24 +1363,226 @@ list (provided they are displayed in the style chosen).  Like with an index
 the references will thus not point to the acronyms directly but to the page
 they're on.
 
-\appendix
+\section{Defining Own Acronym Macros}\label{sec:defining-own-acronym}
 
-% \section{Commands provided in version~0.\versionstar}
-% Prior to version~1.0 the following commands were available.  They are still
-% provided if you set the option \keyis{version}{0}.  They will be mentioned
-% here shortly but they won't be explained any more.  If you'd like a more
-% thorough description ask me for the documentation to version~0.6a.
-% \begin{commands}
-%   \command{DeclareAcronym}[\sarg\marg{id}\Marg{\meta{short},\meta{pl}}%
-%     \oarg{alt.}\Marg{\meta{long},\meta{pl}}\marg{extra}\oarg{class}]
-%     \verbcode+% can be used only in preamble+
-%   \command{DeclareAcronymFormat}[\marg{id}\marg{format}]
-%     \verbcode+% can be used only in preamble+
-%   \command{DeclareAcronymCitation}[\marg{id}\oarg{pre}\oarg{post}\marg{cite keys}]
-%     \verbcode+% can be used only in preamble+
-%   \command{DeclareAcronymPDFString}[\marg{id}\Marg{\meta{pdf entry},\meta{plural ending}}]
-%     \verbcode+% can be used only in preamble+
-% \end{commands}
+The commands\sinceversion{2.0}\sinceversion{2.0}\sinceversion{2.0} explained in
+section~\ref{sec:using-acronyms-comm} have all been defined with a dedicated
+command -- there is a family of dedicated commands, actually:
+\begin{commands}
+  \command{NewAcroCommand}[\marg{cs}\marg{code}]
+    Defines a new \acro\ acronym command \meta{cs}.  This sets up the
+    necessary framework needed by acronym commands and defines \meta{cs} with
+    an optional star argument and a mandatory argument for the acronym id
+    using \pkg{xparse}'s \cs*{NewDocumentCommand}. Inside \meta{code} one can
+    refer to the id with \code{\#1}.
+  \command{RenewAcroCommand}[\marg{cs}\marg{code}]
+    Defines a new \acro\ acronym command \meta{cs}.  This sets up the
+    necessary framework needed by acronym commands and defines \meta{cs} with
+    an optional star argument and a mandatory argument for the acronym id
+    using \pkg{xparse}'s \cs*{RenewDocumentCommand}. Inside \meta{code} one
+    can refer to the id with \code{\#1}.
+  \command{DeclareAcroCommand}[\marg{cs}\marg{code}]
+    Defines a new \acro\ acronym command \meta{cs}.  This sets up the
+    necessary framework needed by acronym commands and defines \meta{cs} with
+    an optional star argument and a mandatory argument for the acronym id
+    using \pkg{xparse}'s \cs*{DeclareDocumentCommand}. Inside \meta{code} one
+    can refer to the id with \code{\#1}.
+  \command{ProvideAcroCommand}[\marg{cs}\marg{code}]
+    Defines a new \acro\ acronym command \meta{cs}.  This sets up the
+    necessary framework needed by acronym commands and defines \meta{cs} with
+    an optional star argument and a mandatory argument for the acronym id
+    using \pkg{xparse}'s \cs*{ProvideDocumentCommand}. Inside \meta{code} one
+    can refer to the id with \code{\#1}.
+\end{commands}
+
+Inside these macros one can use a number of low-level expl3
+commands\footnote{Which is why you need to use them inside an expl3
+  programming environment.  This means in the preamble surround the
+  definitions with \cs*{ExplSyntaxOn} and \cs*{ExplSyntaxOff}.}.
+
+\paragraph{Acronym fetching commands}
+\begin{commands}
+  \command*{acro_use:n}[ \marg{id}]
+    Fetches the acronym using either the first or the long form depending on
+    earlier uses.
+  \command*{acro_short:n}[ \marg{id}]
+    Fetches the short form of the acronym.
+  \command*{acro_long:n}[ \marg{id}]
+    Fetches the long form of the acronym.
+  \command*{acro_alt:n}[ \marg{id}]
+    Fetches the alternative short form of the acronym.
+\end{commands}
+
+\paragraph{Acronym setup commands}
+\begin{commands}
+  \command*{acro_first_upper:}
+    \acro\ setup command which tells the macros above that we want to
+    uppercase the first letter of the long version.  Should be used
+    \emph{before} one of the acronym fetching commands.
+  \command*{acro_plural:}
+    \acro\ setup command which tells the macros above that we want to use
+    plural forms. Should be used \emph{before} one of the acronym fetching
+    commands.
+  \command*{acro_indefinite:}
+    \acro\ setup command which tells the macros above that we want to add the
+    indefinite article.  Should be used \emph{before} one of the acronym
+    fetching commands.
+  \command*{acro_cite:}
+    \acro\ setup command which tells the macros above that we want to add the
+    citation in any case independent of the option \option{cite}.  Should be
+    used \emph{before} one of the acronym fetching commands.
+  \command*{acro_no_cite:}
+    \acro\ setup command which tells the macros above that we want to have no
+    citation independent of the option \option{cite}.  Should be used
+    \emph{before} one of the acronym fetching commands.
+  \command*{acro_index:}
+    \acro\ setup command which tells the macros above that we want to add an
+    index in any case independent of the option \option{index}.  Should be
+    used \emph{before} one of the acronym fetching commands.
+\end{commands}
+
+\paragraph{Additional macros for further uses}
+\begin{commands}
+  \command*{acro_begin:}
+    When an acronym macro is defined \enquote{by hand}, \ie, not using
+    \cs{NewAcroCommand} then this should be the first macro in the code.  Must
+    have a matching \cs*{acro_end:}.
+  \command*{acro_end:}
+    When an acronym macro is defined \enquote{by hand}, \ie, not using
+    \cs{NewAcroCommand} then this should be the last macro in the code.  Must
+    have a matching \cs*{acro_begin:}.
+  \command*{acro_check_and_mark_if:nn}[ \marg{boolean expression} \marg{id}]
+    Checks if the acronym \meta{id} exists and marks it as used when
+    \meta{boolean} expression evaluates to \code{true}.  This macro is used
+    inside \cs{NewAcroCommand} and friends.
+  \command*{acro_check_acronym:nn}[ \marg{id} \Marg{true|false}]
+    Checks if the acronym \meta{id} exists and marks it as used if \code{true}
+    or doesn't.  This macro is used inside \cs*{acro_check_and_mark_if:nn}.
+  \command*{acro_use_acronym:n}[ \Marg{true|false}]
+    Mark an acronym as used or don't.  This macro is used inside
+    \cs*{acro_check_acronym:nn}.  An acronym marked as used cannot be
+    unmarked.
+  \expandable\command*{acro_if_acronym_used:n}[\TF\ \marg{id} \marg{true}
+  \marg{false}]
+    The code-level version of \cs{acifused}.
+\end{commands}
+
+\paragraph{Examples}
+The usage of above macros is best explained with a few examples.  The
+following definition is done by \acro:
+\begin{sourcecode}
+  \NewAcroCommand \ac { \acro_use:n {#1} }
+\end{sourcecode}
+An equivalent definition for \cs{ac} would be
+\begin{sourcecode}
+  \NewDocumentCommand \ac {sm}
+    {
+      \acro_begin:
+        \acro_check_and_mark_if:nn {#1} {#2}
+        \acro_use:n {#2}
+      \acro_end:
+    }
+\end{sourcecode}
+which should explain what the actual framework is which \cs{NewAcroCommand}
+adds.
+
+Other definitions by \acro\ are for example the following ones:
+\begin{sourcecode}
+  \NewAcroCommand \Ac
+    {
+      \acro_first_upper:
+      \acro_use:n {#1}
+    }
+  \NewAcroCommand \acp
+    {
+      \acro_plural:
+      \acro_use:n {#1}
+    }
+  \NewAcroCommand \Acp
+    {
+      \acro_plural:
+      \acro_first_upper:
+      \acro_use:n {#1}
+    }
+  \NewAcroCommand \Aclp
+    {
+      \acro_plural:
+      \acro_first_upper:
+      \acro_long:n {#1}
+    }
+\end{sourcecode}
+
+\section{About Plural Forms, Possessive Forms and Similar Constructs -- the
+  Concept of Endings}
+
+\acro\ has a concept of \emph{endings}.  All of \acro's plural options are
+defined by saying
+\begin{sourcecode}
+  \ProvideAcroEnding {plural} {s} {s}
+\end{sourcecode}
+The command's syntax and what it does is as follows:
+\begin{commands}
+  \command{ProvideAcroEnding}[\marg{name}\marg{short default}\marg{long default}]
+    This macro defines the options
+    \begin{itemize}
+      \item \option*{\meta{name}-ending},
+      \item \option*{short-\meta{name}-ending} and
+      \item \option*{long-\meta{name}-ending}.
+    \end{itemize}
+    It also defines the acronym properties
+    \begin{itemize}
+      \item \option*{short-\meta{name}},
+      \item \option*{long-\meta{name}} and
+      \item \option*{long-\meta{name}-form}.
+    \end{itemize}
+    Additionally it defines a setup macro as
+    described in section~\ref{sec:defining-own-acronym},
+    \cs*{acro_\meta{name}:}.  If \meta{name} contains a \code{-} it is
+    replaced by \code{\_} before \cs*{acro_\meta{name}:} is built.  So if you
+    choose \code{my-name} the corresponding macro is named
+    \cs*{acro_my_name:}.  If you use any other non-letters you are on your
+    own.
+
+    Note that you \emph{must use \cs{ProvideAcroEnding} before any acronym
+      definition}!
+\end{commands}
+
+This could be used together with the macros described in
+section~\ref{sec:defining-own-acronym} for adding support for possessive
+forms:
+\begin{example}
+  \ExplSyntaxOn
+  % this now only works because I've use the same already in the preamble so
+  % it does nothing here:
+  \ProvideAcroEnding {possessive} {'s} {'s}
+
+  \NewAcroCommand \acg
+    {
+      \acro_possessive:
+      \acro_use:n {#1}
+    }
+  \ExplSyntaxOff
+  The \acg{cd} booklet says\ldots
+\end{example}
+
+Please note that different endings are cumulative which you probably want to
+avoid! Imagine a macro
+\begin{sourcecode}
+  \NewAcroCommand \acgp
+    {
+      \acro_possessive:
+      \acro_plural:
+      \acro_use:n {#1}
+    }
+\end{sourcecode}
+This would give \enquote{\ac{cd}s's} instead of \enquote{\ac{cd}s'}.  To solve
+this you might want to consider
+\begin{sourcecode}
+    \ProvideAcroEnding {possessive-singular} {'s} {'s}
+    \ProvideAcroEnding {possessive-plural}   {s'} {s'}
+\end{sourcecode}
+
+\appendix
 
 \section{All Acronyms Used in this Documentation}\label{sec:documentation_acronyms}
 \begin{sourcecode}
