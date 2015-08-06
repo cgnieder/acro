@@ -210,6 +210,7 @@
 \bool_new:N      \l__acro_list_all_pages_bool
 \bool_set_true:N \l__acro_list_all_pages_bool
 \bool_new:N      \g__acro_first_acronym_declared_bool
+\bool_new:N      \l__acro_include_endings_format_bool
 
 % --------------------------------------------------------------------------
 % token list variables:
@@ -323,6 +324,7 @@
     first-long-format .code:n     =
       \tl_set:Nn \l__acro_first_long_format_tl {#1} ,
     first-long-format .value_required:n = true ,
+    format-include-endings .bool_set:N = \l__acro_include_endings_format_bool ,
     display-foreign   .bool_set:N = \l__acro_foreign_bool ,
     foreign-format    .tl_set:N   = \l__acro_foreign_format_tl ,
     foreign-format    .value_required:n = true ,
@@ -1538,11 +1540,21 @@
 
 \cs_new_protected:Npn \acro_endings:nn #1#2
   {
-    \seq_map_inline:Nn \l__acro_endings_seq
-      {
-        \bool_if:cT {l__acro_##1_bool}
-          { \tl_use:c {l__acro_#2_##1_tl} }
-      }
+    \group_begin:
+       \bool_if:NT \l__acro_include_endings_format_bool
+        {
+          \bool_if:NTF \l__acro_custom_format_bool
+            { \l__acro_custom_format_tl }
+            { \tl_use:c {l__acro_#2_format_tl} }
+        }
+        {
+          \seq_map_inline:Nn \l__acro_endings_seq
+            {
+              \bool_if:cT {l__acro_##1_bool}
+                { \tl_use:c {l__acro_#2_##1_tl} }
+            }
+        }
+    \group_end:
   }
 
 % #1: name
@@ -3223,12 +3235,15 @@
                  - implement https://bitbucket.org/cgnieder/acro/issue/40
                    (=> new option `group-cite-cmd')
                  - add ideas for https://bitbucket.org/cgnieder/acro/issue/41
+                 - implement https://bitbucket.org/cgnieder/acro/issue/18
+                 - implement https://bitbucket.org/cgnieder/acro/issue/43
                  - further generalization for defining user commands:
                    \NewAcroCommand, \NewPseudoAcroCommand and siblings
                  - bug fix in indefinite versions with first-upper
                  - add `short-<ending>-form' equivalent to
                    `long-<ending>-form'
                    (https://bitbucket.org/cgnieder/acro/issue/44)
+                 - implement https://bitbucket.org/cgnieder/acro/issue/35
 
 % --------------------------------------------------------------------------
 update => http://tex.stackexchange.com/questions/236362
