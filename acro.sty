@@ -216,6 +216,7 @@
 % token list variables:
 \tl_new:N   \l__acro_ignore_tl
 \tl_new:N   \l__acro_short_format_tl
+\tl_new:N   \l__acro_alt_format_tl
 \tl_new:N   \l__acro_list_short_format_tl
 \tl_new:N   \l__acro_long_format_tl
 \tl_new:N   \l__acro_first_long_format_tl
@@ -314,6 +315,7 @@
     sort              .bool_set:N = \l__acro_sort_bool ,
     short-format      .code:n     =
       \tl_set:Nn \l__acro_short_format_tl {#1}
+      \tl_set_eq:NN \l__acro_alt_format_tl \l__acro_short_format_tl
       \tl_set:Nn \l__acro_list_short_format_tl {#1} ,
     short-format      .value_required:n = true ,
     long-format       .code:n     =
@@ -448,7 +450,7 @@
 % typeset the short form:
 % #1: ID
 % #2: short form
-\cs_new:Npn \acro_write_short:nn #1#2
+\cs_new_protected:Npn \acro_write_short:nn #1#2
   {
     \mode_if_horizontal:F { \leavevmode }
     \group_begin:
@@ -457,20 +459,18 @@
         { \l__acro_short_format_tl }
       {#2}
     \group_end:
-    \acro_endings:nn {#1} {short}
   }
 \cs_generate_variant:Nn \acro_write_short:nn { nV }
 
-\cs_new:Npn \acro_write_alt:nn #1#2
+\cs_new_protected:Npn \acro_write_alt:nn #1#2
   {
     \mode_if_horizontal:F { \leavevmode }
     \group_begin:
       \bool_if:NTF \l__acro_custom_format_bool
         { \l__acro_custom_format_tl }
-        { \l__acro_short_format_tl }
+        { \l__acro_alt_format_tl }
       {#2}
     \group_end:
-    \acro_endings:nn {#1} {alt}
   }
 \cs_generate_variant:Nn \acro_write_alt:nn { nV }
 
@@ -591,6 +591,7 @@
       {
         \acro_write_indefinite:nn {#1} {long}
         \acro_write_long:No \l__acro_first_long_format_tl {#3}
+        \acro_endings:nn {#1} {long}
         \acro_space:
         \tl_if_blank:VF \l__acro_first_between_tl
           {
@@ -627,7 +628,8 @@
           \prop_map_inline:Nn \l__acro_trailing_tokens_prop
             { \acro_deactivate_trailing_action:n {##1} }
         }
-      \__acro_acc_supp:nn {#1} { \acro_write_short:nn {#1} {#2} }
+      \acro_acc_supp:nn {#1} { \acro_write_short:nn {#1} {#2} }
+      \acro_endings:nn {#1} {short}
     \group_end:
     \bool_if:nT
       { \l__acro_group_citation_bool && !\l__acro_first_reversed_bool }
@@ -689,7 +691,7 @@
   {
     \AssignTemplateKeys
     \acro_write_indefinite:nn {#1} {short}
-    \__acro_acc_supp:nn {#1} { \acro_write_short:nn {#1} {#2} }
+    \acro_acc_supp:nn {#1} { \acro_write_short:nn {#1} {#2} }
     \bool_if:NT \l__acro_use_note_bool
       {
         \__acro_note_command:n
@@ -1188,7 +1190,7 @@
             \acro_hyper_target:nn
               {##1}
               {
-                \__acro_acc_supp:nn
+                \acro_acc_supp:nn
                   {##1}
                   { \acro_write_short:nn {##1} { \l__acro_list_short_format_tl {##2} } }
               }
@@ -1244,7 +1246,7 @@
         \acro_hyper_target:nn
           {##1}
           {
-            \__acro_acc_supp:nn
+            \acro_acc_supp:nn
               {##1}
               { \acro_write_short:nn {##1} { \l__acro_list_short_format_tl {##2} } }
           }
@@ -1304,7 +1306,7 @@
         \acro_hyper_target:nn
           {##1}
           {
-            \__acro_acc_supp:nn
+            \acro_acc_supp:nn
               {##1}
               { \acro_write_short:nn {##1} { \l__acro_list_short_format_tl {##2} } }
           }
@@ -1362,7 +1364,7 @@
       {
         \acro_hyper_target:nn
           {##1}
-          { \__acro_acc_supp:nn {##1} { \acro_write_short:nn {##1} {##2} } }
+          { \acro_acc_supp:nn {##1} { \acro_write_short:nn {##1} {##2} } }
         &
       }
     \cs_set_protected:Npn \acro_print_list_extra:n ##1
@@ -1432,9 +1434,10 @@
       {
         % this is not the first time
         \acro_write_indefinite:nn {#1} {short}
-        \__acro_acc_supp:nn
+        \acro_acc_supp:nn
           {#1}
           { \acro_write_short:nV {#1} \l__acro_short_tl }
+        \acro_endings:nn {#1} {short}
         \acro_after:n {#1}
       }
       {
@@ -1444,6 +1447,7 @@
           {
             \acro_write_indefinite:nn {#1} {long}
             \acro_write_long:NV \l__acro_long_format_tl \l__acro_long_tl
+            \acro_endings:nn {#1} {long}
             \acro_cite:n {#1}
           }
           { 
@@ -1496,7 +1500,11 @@
     \prop_get:NnNTF \l__acro_format_prop {#1} \l__acro_custom_format_tl
       { \bool_set_true:N \l__acro_custom_format_bool }
       { \bool_set_false:N \l__acro_custom_format_bool }
-    \__acro_set_endings:n {#1}
+    \seq_map_inline:Nn \l__acro_endings_seq
+      {
+        \bool_if:cT {l__acro_##1_bool}
+          { \__acro_set_ending_for:nnn {##1} {#1} {long} }
+      }
     \prop_get:NnNT \l__acro_long_post_prop {#1} \l__acro_long_post_tl
       { \tl_put_right:NV \l__acro_long_tl \l__acro_long_post_tl }
     \prop_get:NnNT \l__acro_long_pre_prop {#1} \l__acro_long_pre_tl
@@ -1519,6 +1527,8 @@
       }
   }
 
+\tl_new:N \l__acro_endings_tl
+
 % #1: ending
 % #2: id
 % #3: short|alt|long
@@ -1527,7 +1537,7 @@
     \bool_if:nTF { \prop_item:cn {l__acro_#3_#1_form_prop} {#2} }
       { \prop_get:cncF {l__acro_#3_#1_prop} {#2} {l__acro_#3_tl} {} }
       {
-        \tl_put_right:cx {l__acro_#3_tl}
+        \tl_set:cx {l__acro_#3_#1_tl}
           { \prop_item:cn {l__acro_#3_#1_prop} {#2} }
       }
   }
@@ -1541,15 +1551,17 @@
 \cs_new_protected:Npn \acro_endings:nn #1#2
   {
     \group_begin:
-       \bool_if:NT \l__acro_include_endings_format_bool
+      \bool_if:NTF \l__acro_include_endings_format_bool
         {
           \bool_if:NTF \l__acro_custom_format_bool
             { \l__acro_custom_format_tl }
             { \tl_use:c {l__acro_#2_format_tl} }
         }
+        { \use:n }
         {
           \seq_map_inline:Nn \l__acro_endings_seq
             {
+              \__acro_set_ending_for:nnn {##1} {#1} {#2}
               \bool_if:cT {l__acro_##1_bool}
                 { \tl_use:c {l__acro_#2_##1_tl} }
             }
@@ -1571,22 +1583,11 @@
         \seq_put_right:Nn \l__acro_endings_seq {#1}
         \bool_new:c {l__acro_#1_bool}
         % short variables
-        \prop_new:c {l__acro_short_#1_prop}
-        \prop_new:c {l__acro_short_#1_form_prop}
-        \tl_new:c   {l__acro_short_#1_tl}
-        \tl_new:c   {l__acro_default_short_#1_tl}
-        \tl_set:cn  {l__acro_default_short_#1_tl} {#2}
+        \acro_define_and_set_ending_variables:nnn {short} {#1} {#2}
         % alt variables
-        \prop_new:c {l__acro_alt_#1_prop}
-        \prop_new:c {l__acro_alt_#1_form_prop}
-        \tl_new:c   {l__acro_alt_#1_tl}
-        \tl_new:c   {l__acro_default_alt_#1_tl}
-        \tl_set:cn  {l__acro_default_alt_#1_tl} {#2}
+        \acro_define_and_set_ending_variables:nnn {alt} {#1} {#2}
         % long variables
-        \prop_new:c {l__acro_long_#1_prop}
-        \prop_new:c {l__acro_long_#1_form_prop}
-        \tl_new:c   {l__acro_default_long_#1_tl}
-        \tl_set:cn  {l__acro_default_long_#1_tl} {#3}
+        \acro_define_and_set_ending_variables:nnn {long} {#1} {#3}
         % define setup command:
         \tl_set:Nn \l__acro_tmpa_tl {#1}
         \tl_replace_all:Nnn \l__acro_tmpa_tl {-} {_}
@@ -1668,6 +1669,18 @@
       }
   }
 
+% #1: short|alt|long
+% #2: ending
+% #3: default ending
+\cs_new_protected:Npn \acro_define_and_set_ending_variables:nnn #1#2#3
+  {
+    \prop_new:c {l__acro_#1_#2_prop}
+    \prop_new:c {l__acro_#1_#2_form_prop}
+    \tl_new:c   {l__acro_#1_#2_tl}
+    \tl_new:c   {l__acro_default_#1_#2_tl}
+    \tl_set:cn  {l__acro_default_#1_#2_tl} {#3}
+  }
+  
 \NewDocumentCommand \ProvideAcroEnding {mmm}
   { \acro_provide_ending:nnn {#1} {#2} {#3} }
 
@@ -1835,9 +1848,10 @@
     \acro_write_indefinite:nn {#1} {short}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    \__acro_acc_supp:nn
+    \acro_acc_supp:nn
       {#1}
       { \acro_write_short:nV {#1} \l__acro_short_tl }
+    \acro_endings:nn {#1} {short}
     \acro_after:n {#1}
   }
 
@@ -1850,9 +1864,10 @@
     \acro_write_indefinite:nn {#1} {alt}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    \__acro_acc_supp:nn
+    \acro_acc_supp:nn
       {#1}
       { \acro_write_alt:nV {#1} \l__acro_alt_tl }
+    \acro_endings:nn {#1} {alt}
     \acro_after:n {#1}
   }
 
@@ -1865,6 +1880,7 @@
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
     \acro_write_long:NV \l__acro_long_format_tl \l__acro_long_tl
+    \acro_endings:nn {#1} {long}
     \acro_after:n {#1}
   }
 
@@ -1989,39 +2005,46 @@
 
 % ----------------------------------------------------------------------------
 % accessability support
-\cs_new_eq:NN \__acro_acc_supp:nn \use_ii:nn
+\cs_new_eq:NN \acro_acc_supp:nn \use_ii:nn
 
-\cs_new:Npn \acro_acc_supp:nnn #1#2#3
+\cs_new_protected:Npn \acro_get_acc_supp:nn #1#2
+  {
+    \prop_get:NnNF \l__acro_acc_supp_prop {#1} \l__acro_acc_supp_tl
+      { \prop_get:NnNF \l__acro_short_prop {#1} \l__acro_acc_supp_tl {} }
+    \seq_map_inline:Nn \l__acro_endings_seq
+      {
+        \bool_if:cT {l__acro_##1_bool}
+          {
+            \tl_put_right:Nv
+              \l__acro_acc_supp_tl
+              {l__acro_short_##1_tl}
+          }
+      }
+    \acro_do_acc_supp:VVn
+      \l__acro_acc_supp_tl
+      \l__acro_acc_supp_options_tl
+      {#2}
+  }
+
+\cs_new:Npn \acro_do_acc_supp:nnn #1#2#3
   {
     \BeginAccSupp { ActualText = #1 , #2 }
       #3
     \EndAccSupp { }
   }
-\cs_generate_variant:Nn \acro_acc_supp:nnn { VV }
+\cs_generate_variant:Nn \acro_do_acc_supp:nnn { VV }
+
+% macro to redefine to adapt definition of \acro_acc_supp:nn, for cases like
+% http://tex.stackexchange.com/a/161521/
+\cs_new_protected:Npn \acro_set_accsupp:
+  { \cs_set_eq:NN \acro_acc_supp:nn \acro_get_acc_supp:nn }
 
 \AtBeginDocument
   {
     \bool_if:NT \l__acro_acc_supp_bool
       {
         \RequirePackage {accsupp}
-        \cs_set_protected:Npn \__acro_acc_supp:nn #1#2
-          {
-            \prop_get:NnNF \l__acro_acc_supp_prop {#1} \l__acro_acc_supp_tl
-              { \prop_get:NnNF \l__acro_short_prop {#1} \l__acro_acc_supp_tl {} }
-            \seq_map_inline:Nn \l__acro_endings_seq
-              {
-                \bool_if:cT {l__acro_##1_bool}
-                  {
-                    \tl_put_right:Nv
-                      \l__acro_acc_supp_tl
-                      {l__acro_short_##1_tl}
-                  }
-              }
-            \acro_acc_supp:VVn
-              \l__acro_acc_supp_tl
-              \l__acro_acc_supp_options_tl
-              {#2}
-          }
+        \acro_set_accsupp:
       }
   }
 
@@ -2784,8 +2807,6 @@
       {#1} \l__acro_default_indefinite_tl
     \prop_put:NnV \l__acro_alt_indefinite_prop
       {#1} \l__acro_default_indefinite_tl
-    \cs_set_protected:Npn \acro_alt_error:n ##1
-      { \acro_harmless_message:nn {no-alternative} {##1} }
   }
 
 % long:
@@ -2832,10 +2853,15 @@
 % alternative:
 \acro_declare_key:nnn {alt} {alt}
   {
-    \cs_set_protected:Npn \acro_alt_error:n ##1 {}
     \prop_put:Nnn \l__acro_pdfstring_alt_prop {#1} {#2}
     \prop_put:NnV \l__acro_alt_indefinite_prop
       {#1} \l__acro_default_indefinite_tl
+  }
+
+\cs_set_protected:Npn \acro_alt_error:n #1
+  {
+    \bool_if:cF {l__acro_#1_alt_set_bool} 
+      { \acro_harmless_message:nn {no-alternative} {#1} }
   }
 
 % alt. indefinite article:

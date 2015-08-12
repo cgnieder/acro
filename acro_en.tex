@@ -1464,7 +1464,7 @@ commands\footnote{Which is why you need to use them inside an expl3
     unmarked.
   \expandable\command*{acro_if_acronym_used:n}[\TF\ \marg{id} \marg{true}
   \marg{false}]
-    The code-level version of \cs{acifused}.
+    The code-level version of \cs{acifused}.  This macro is expandable.
 \end{commands}
 
 \paragraph{Examples}
@@ -1526,18 +1526,22 @@ The command's syntax and what it does is as follows:
     This macro defines the options
     \begin{itemize}
       \item \option*{\meta{name}-ending},
-      \item \option*{short-\meta{name}-ending} and
+      \item \option*{short-\meta{name}-ending},
+      \item \option*{alt-\meta{name}-ending} and
       \item \option*{long-\meta{name}-ending}.
     \end{itemize}
     It also defines the acronym properties
     \begin{itemize}
       \item \option*{short-\meta{name}},
+      \item \option*{short-\meta{name}-form},
+      \item \option*{alt-\meta{name}},
+      \item \option*{alt-\meta{name}-form},
       \item \option*{long-\meta{name}} and
       \item \option*{long-\meta{name}-form}.
     \end{itemize}
     Additionally it defines a setup macro as
     described in section~\ref{sec:defining-own-acronym},
-    \cs*{acro_\meta{name}:}.  If \meta{name} contains a \code{-} it is
+    \cs*{acro_\meta{name}:}.  If \meta{name} contains a \code{-} (dash) it is
     replaced by \code{\_} before \cs*{acro_\meta{name}:} is built.  So if you
     choose \code{my-name} the corresponding macro is named
     \cs*{acro_my_name:}.  If you use any other non-letters you are on your
