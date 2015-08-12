@@ -914,8 +914,12 @@ There are a few options which change the general behaviour of \acro.
     this option.
   \keybool{single}\Default{false}
     If set to \code{true} an acronym that's used only once (with \cs{ac}) in a
-    document will only print the long form and will not be printed in the list.
+    document will only print the acronym in a specified form and will not be
+    printed in the list.
   %%
+  \keychoice{single-form}{long,short,alt,first}\Default{long}
+    Determines how a single appearance of an acronym is printed if
+    \keyis{single}{true} has been chosen.
   \keybool{hyperref}\Default{false}
     If set to \code{true} the short forms of the acronyms will be linked to
     their list entry.
