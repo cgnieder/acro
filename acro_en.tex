@@ -918,8 +918,9 @@ There are a few options which change the general behaviour of \acro.
     printed in the list.
   %%
   \keychoice{single-form}{long,short,alt,first}\Default{long}
-    Determines how a single appearance of an acronym is printed if
-    \keyis{single}{true} has been chosen.
+    \sinceversion{2.}Determines how a single appearance of an acronym is
+    printed if \keyis{single}{true} has been chosen.
+  %%
   \keybool{hyperref}\Default{false}
     If set to \code{true} the short forms of the acronyms will be linked to
     their list entry.
@@ -1259,7 +1260,7 @@ must first be activated for this:
     list of the internal \emph{names} of the tokens.
 \end{options}
 
-All the above on this own does nothing visible. However: inside of an acronym,
+All the above on its own does nothing visible. However: inside of an acronym,
 \ie, for example inside the long or the short form it can be tested for those
 trailing options:
 \begin{commands}
@@ -1269,12 +1270,13 @@ trailing options:
     following and either place \meta{true} or \meta{false} in the input
     stream.
 \end{commands}
-\acro uses this to define to further macros:
+\acro\ uses this to define to further macros:
 \begin{commands}
   \command{acdot} Inserts a \code{.} if no \code{dot} follows.
   \command{acspace} Inserts a \cs*{space} if no \code{dash} or
     \code{babel-hyphen} follows.
 \end{commands}
+The definitions are equivalent to the following code:
 \begin{sourcecode}
   \newcommand*\acdot{\aciftrailing{dot}{}{.}}
   \newcommand*\acspace{\aciftrailing{dash,babel-hyphen}{}{\space}}

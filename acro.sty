@@ -31,7 +31,7 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2015/08/01}
+  {2015/08/16}
   {2.0}
   {Typeset Acronyms}
 
@@ -2181,7 +2181,7 @@
   { \cs_if_exist:NF \acro@printed@list { \cs_new:Npn \acro@printed@list { printed } } }
 
 % --------------------------------------------------------------------------
-% TODO - trailing tokens and what to do when present
+% trailing tokens and what to do when present
 \prop_new:N \l__acro_trailing_tokens_prop
 \prop_new:N \l__acro_trailing_actions_prop
 \bool_new:N \l__acro_trailing_tokens_bool
@@ -3287,7 +3287,7 @@
 2015/05/10 v1.6b - \ProcessKeysPackageOptions ,
                  - correct bug http://tex.stackexchange.com/q/236860/ :
                    option `pages = first' works again
-2015/08/01 v2.0  - fix https://bitbucket.org/cgnieder/acro/issue/36
+2015/08/16 v2.0  - fix https://bitbucket.org/cgnieder/acro/issue/36
                  - implement https://bitbucket.org/cgnieder/acro/issue/39
                  - implement https://bitbucket.org/cgnieder/acro/issue/40
                    (=> new option `group-cite-cmd')
@@ -3307,8 +3307,6 @@
 update => http://tex.stackexchange.com/questions/236362
 
 % TODO:
-- issue 18: https://bitbucket.org/cgnieder/acro/issue/18
-  and related issue 43
 - extend option `macros' to also define uppercase macros, possibly as a choice
 - Option `totoc'!?
 - revise list styles to allow _full_ customization by creating own instances!
