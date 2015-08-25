@@ -33,7 +33,9 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\documentclass[load-preamble+,scrartcl={DIV10}]{cnltx-doc}
+\documentclass[load-preamble+]{cnltx-doc}
+% \KOMAoptions{DIV = 10}
+
 \usepackage[utf8]{inputenc}
 \usepackage[single,macros,accsupp,index]{acro}
 \setcnltx{
@@ -295,8 +297,7 @@ may want to choose \pkg{nomencl} (or again: \pkg{glossaries}) and so on.
 
 \section{Basics}
 \subsection{Creating New Acronyms}
-\noindent\changedversion{1.0}Acronyms are created with the command
-\cs{DeclareAcronym} that can only be used in the preamble.
+Acronyms\changedversion{1.0} are created with the command \cs{DeclareAcronym}.
 \begin{commands}
   \command{DeclareAcronym}[\marg{id}\marg{list of keys}]
     The basic command for declaring an acronym.
@@ -319,13 +320,24 @@ documentation.
   %% short-plural
   \keyval{short-plural}{text}\Default{s}
     the plural ending appended to the short form.
+  %% short-plural-form
+  \keyval{short-plural-form}{text}
+    the\sinceversion{2.0}plural short form of the acronym; replaces the short
+    form when used instead of appending the plural ending.
   %% long-plural
   \keyval{long-plural}{text}\Default{s}
     the plural ending appended to the long form.
   %% long-plural-form
-    \keyval{long-plural-form}{text}
-      plural long form of the acronym; replaces the long form when used
-      instead of appending the plural ending.
+  \keyval{long-plural-form}{text}
+    plural long form of the acronym; replaces the long form when used
+    instead of appending the plural ending.
+   %% alt-plural
+  \keyval{alt-plural}{text}\Default{s}
+    the\sinceversion{2.0} plural ending appended to the alternative form.
+  %% alt-plural-form
+  \keyval{alt-plural-form}{text}
+    the\sinceversion{2.0}plural alternative form of the acronym; replaces the
+    alternative form when used instead of appending the plural ending.
   %% list
   \keyval{list}{text}
     \sinceversion{1.4}if specified this will be written in the list as
@@ -1181,7 +1193,7 @@ possible output forms of the acronyms.
     being there are many translations missing, yet.  Please notify me if you
     find your language missing.
   %%
-  \keyval{list-table-width}{dimension}\Default{.7\cs*{linewidth}}
+  \keyval{list-table-width}{dimension}\Default{.7\cs*{columnwidth}}
     This has only an effect if you chose \key{list-type}{table}.  The
     \emph{second} column (or the third if you choose one of the \code{-rev}
     styles) of the table is a \code{p} column whose width can be specified
