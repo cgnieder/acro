@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2015/08/25}
-  {2.0a}
+  {2015/08/26}
+  {2.0b}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -2377,6 +2377,15 @@
 
 \cs_new_protected:Npn \acro_end: { \group_end: }
 
+\cs_new_protected:Npn \acro_reset_specials:
+  {
+    \bool_set_false:N \l__acro_indefinite_bool
+    \bool_set_false:N \l__acro_first_upper_bool
+    \bool_set_false:N \l__acro_citation_all_bool
+    \bool_set_false:N \l__acro_citation_first_bool
+    \bool_set_false:N \l__acro_addto_index_bool
+  }
+
 % #1: ID
 % #2: true|false
 \cs_new_protected:Npn \acro_check_acronym:nn #1#2
@@ -2405,6 +2414,7 @@
         \exp_args:NNnx #2 ##1 {sm}
           {
             \acro_begin:
+              \acro_reset_specials:
               \acro_check_and_mark_if:nn {########1} {########2}
               \exp_not:o { \__acro_tmp_command:n {####2} }
             \acro_end:
@@ -2424,6 +2434,7 @@
         \exp_args:NNnx #2 ##1 {smm}
           {
             \acro_begin:
+              \acro_reset_specials:
               \acro_check_and_mark_if:nn {########1} {########2}
               \exp_not:o { \__acro_tmp_command:nn {####2} {####3} }
             \acro_end:
@@ -3322,8 +3333,9 @@
                    (https://bitbucket.org/cgnieder/acro/issue/44)
                  - implement https://bitbucket.org/cgnieder/acro/issue/35
                  - new option `single-form'
-2015/08/16 v2.0a - fix https://bitbucket.org/cgnieder/acro/issue/38 and
+2015/08/25 v2.0a - fix https://bitbucket.org/cgnieder/acro/issue/38 and
                    https://bitbucket.org/cgnieder/acro/issue/49
+2015/08/26 v2.0b - fix https://bitbucket.org/cgnieder/acro/issue/44
 
 % --------------------------------------------------------------------------
 update => http://tex.stackexchange.com/questions/236362
