@@ -635,6 +635,7 @@
           \prop_map_inline:Nn \l__acro_trailing_tokens_prop
             { \acro_deactivate_trailing_action:n {##1} }
         }
+      \acro_get_ending_form:nn {#1} {short}
       \acro_acc_supp:nn {#1} { \acro_write_short:nn {#1} {#2} }
       \acro_endings:nn {#1} {short}
     \group_end:
@@ -1441,6 +1442,7 @@
       {
         % this is not the first time
         \acro_write_indefinite:nn {#1} {short}
+        \acro_get_ending_form:nn {#1} {short}
         \acro_acc_supp:nn
           {#1}
           { \acro_write_short:nV {#1} \l__acro_short_tl }
@@ -1479,6 +1481,7 @@
         }
       }
       {
+        \acro_get_ending_form:nn {#1} {#2}
         \use:c {acro_write_#2:nv} {#1} {l__acro_#2_tl}
         \acro_endings:nn {#1} {#2}
         \acro_cite:n {#1}
@@ -1559,6 +1562,8 @@
 
 \tl_new:N \l__acro_endings_tl
 
+\bool_new:N \l__acro_use_ending_form_bool
+
 % #1: ending
 % #2: id
 % #3: short|alt|long
@@ -1577,6 +1582,16 @@
     \seq_map_inline:Nn \l__acro_endings_seq
       { \__acro_set_ending:nn {##1} {#1} }
   }
+
+\cs_new_protected:Npn \acro_get_ending_form:nn #1#2
+  {
+    \seq_map_inline:Nn \l__acro_endings_seq
+      {
+        \bool_if:nT { \prop_item:cn {l__acro_#2_##1_form_prop} {#1} }
+          { \prop_get:cncF {l__acro_#2_##1_prop} {#1} {l__acro_#2_tl} {} }
+      }
+  }
+
 
 \cs_new_protected:Npn \acro_endings:nn #1#2
   {
@@ -1878,6 +1893,8 @@
     \acro_write_indefinite:nn {#1} {short}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
+    % TODO: die nächsten drei in /eine/ Funktion zusammenfassen:
+    \acro_get_ending_form:nn {#1} {short}
     \acro_acc_supp:nn
       {#1}
       { \acro_write_short:nV {#1} \l__acro_short_tl }
@@ -1894,6 +1911,7 @@
     \acro_write_indefinite:nn {#1} {alt}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
+    \acro_get_ending_form:nn {#1} {alt}
     \acro_acc_supp:nn
       {#1}
       { \acro_write_alt:nV {#1} \l__acro_alt_tl }
@@ -1910,6 +1928,7 @@
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
     \acro_write_long:NV \l__acro_long_format_tl \l__acro_long_tl
+    % TODO: long an short und alt anpassen
     \acro_endings:nn {#1} {long}
     \acro_after:n {#1}
   }
