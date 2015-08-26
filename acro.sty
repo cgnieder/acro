@@ -1116,11 +1116,14 @@
       }
   }
 
+\cs_new_protected:Npn \acro_for_all_acronyms_do:n #1
+  { \prop_map_inline:Nn \l__acro_short_prop {#1} }
+  
 % Test, if acronyms should be printed or not; needs testing for in/excluded
 % classes and options `only-used' and `single':
 \cs_new_protected:Npn \acro_list_allow_items:nn #1#2
   {
-    \prop_map_inline:Nn \l__acro_short_prop
+    \acro_for_all_acronyms_do:n
       {
         \acro_get:n {##1}
         \bool_if:nT
@@ -1533,7 +1536,7 @@
     \prop_get:NnNTF \l__acro_format_prop {#1} \l__acro_custom_format_tl
       { \bool_set_true:N \l__acro_custom_format_bool }
       { \bool_set_false:N \l__acro_custom_format_bool }
-    \seq_map_inline:Nn \l__acro_endings_seq
+    \acro_for_endings_do:n
       {
         \bool_if:cT {l__acro_##1_bool}
           { \__acro_set_ending_for:nnn {##1} {#1} {long} }
@@ -1547,6 +1550,9 @@
 % --------------------------------------------------------------------------
 % plural endings and similar concepts:
 \seq_new:N \l__acro_endings_seq
+
+\cs_new_protected:Npn \acro_for_endings_do:n #1
+  { \seq_map_inline:Nn \l__acro_endings_seq {#1} }
 
 % #1: ending
 % #2: ID
@@ -1579,19 +1585,18 @@
 
 \cs_new_protected:Npn \__acro_set_endings:n #1
   {
-    \seq_map_inline:Nn \l__acro_endings_seq
+    \acro_for_endings_do:n
       { \__acro_set_ending:nn {##1} {#1} }
   }
 
 \cs_new_protected:Npn \acro_get_ending_form:nn #1#2
   {
-    \seq_map_inline:Nn \l__acro_endings_seq
+    \acro_for_endings_do:n
       {
         \bool_if:nT { \prop_item:cn {l__acro_#2_##1_form_prop} {#1} }
           { \prop_get:cncF {l__acro_#2_##1_prop} {#1} {l__acro_#2_tl} {} }
       }
   }
-
 
 \cs_new_protected:Npn \acro_endings:nn #1#2
   {
@@ -1604,7 +1609,7 @@
         }
         { \use:n }
         {
-          \seq_map_inline:Nn \l__acro_endings_seq
+          \acro_for_endings_do:n
             {
               \__acro_set_ending_for:nnn {##1} {#1} {#2}
               \bool_if:cT {l__acro_##1_bool}
@@ -1847,7 +1852,7 @@
         \tl_if_eq:cNF { acro@#1@twice } \l__acro_tmpa_tl
           { \bool_gset_true:N \g__acro_rerun_bool }
       }
-    \prop_map_inline:Nn \l__acro_short_prop
+    \acro_for_all_acronyms_do:n
       {
         \seq_if_empty:cF { g__acro_#1_pages_seq }
           {
@@ -2060,7 +2065,7 @@
   {
     \prop_get:NnNF \l__acro_acc_supp_prop {#1} \l__acro_acc_supp_tl
       { \prop_get:NnNF \l__acro_short_prop {#1} \l__acro_acc_supp_tl {} }
-    \seq_map_inline:Nn \l__acro_endings_seq
+    \acro_for_endings_do:n
       {
         \bool_if:cT {l__acro_##1_bool}
           {
@@ -2323,12 +2328,11 @@
     \fi
   }
 
-
 \cs_new_protected:Npn \acro_reset_all:
-  { \prop_map_inline:Nn \l__acro_short_prop { \acro_reset:n {##1} } }
+  { \acro_for_all_acronyms_do:n { \acro_reset:n {##1} } }
 
 \cs_new_protected:Npn \acro_mark_all_as_used:
-  { \prop_map_inline:Nn \l__acro_short_prop { \acro_mark_as_used:n {##1} } }
+  { \acro_for_all_acronyms_do:n { \acro_mark_as_used:n {##1} } }
 
 \DeclareExpandableDocumentCommand \acifused { m }
   { \acro_if_acronym_used:nTF {#1} }
@@ -2381,9 +2385,10 @@
   {
     \bool_set_false:N \l__acro_indefinite_bool
     \bool_set_false:N \l__acro_first_upper_bool
-    \bool_set_false:N \l__acro_citation_all_bool
-    \bool_set_false:N \l__acro_citation_first_bool
+    % \bool_set_false:N \l__acro_citation_all_bool
+    % \bool_set_false:N \l__acro_citation_first_bool
     \bool_set_false:N \l__acro_addto_index_bool
+    \acro_for_endings_do:n { \bool_set_false:c {l__acro_##1_bool} }
   }
 
 % #1: ID
@@ -2852,7 +2857,7 @@
     \prop_put:Nnn \l__acro_alt_prop        {#1} {#2}
     \prop_put:Nnn \l__acro_pdfstring_short_prop {#1} {#2}
     \prop_put:Nnn \l__acro_pdfstring_alt_prop {#1} {#2}
-    \seq_map_inline:Nn \l__acro_endings_seq
+    \acro_for_endings_do:n
       {
         \prop_put:cnv {l__acro_short_##1_prop}
           {#1} {l__acro_default_short_##1_tl}
@@ -2874,12 +2879,12 @@
 % long:
 \acro_declare_key:nnn {long} {long}
   {
-    \seq_map_inline:Nn \l__acro_endings_seq
+    \acro_for_endings_do:n
       { \prop_put:cnn {l__acro_long_##1_form_prop} {#1} { \c_false_bool } }
     \prop_put:NnV \l__acro_long_indefinite_prop
       {#1}
       \l__acro_default_indefinite_tl
-    \seq_map_inline:Nn \l__acro_endings_seq
+    \acro_for_endings_do:n
       {
         \bool_if:cF {l__acro_#1_long-##1_set_bool}
           { \prop_put:cnv {l__acro_long_##1_prop} {#1} {l__acro_default_long_##1_tl} }
@@ -2950,7 +2955,7 @@
   {
     \__acro_key_check:nn {#1} { pdfstring }
     \prop_put:Nnn \l__acro_pdfstring_short_prop {#1} {#2}
-    \seq_map_inline:Nn \l__acro_endings_seq
+    \acro_for_endings_do:n
       {
         \tl_if_empty:nTF {#3}
           {
@@ -2975,7 +2980,7 @@
   {
     \__acro_key_check:nn {#1} { pdfstring-alt }
     \prop_put:Nnn \l__acro_pdfstring_alt_prop {#1} {#2}
-    \seq_map_inline:Nn \l__acro_endings_seq
+    \acro_for_endings_do:n
       {
         \tl_if_empty:nTF {#3}
           {
@@ -3336,6 +3341,7 @@
 2015/08/25 v2.0a - fix https://bitbucket.org/cgnieder/acro/issue/38 and
                    https://bitbucket.org/cgnieder/acro/issue/49
 2015/08/26 v2.0b - fix https://bitbucket.org/cgnieder/acro/issue/44
+                 - fix https://bitbucket.org/cgnieder/acro/issue/45
 
 % --------------------------------------------------------------------------
 update => http://tex.stackexchange.com/questions/236362

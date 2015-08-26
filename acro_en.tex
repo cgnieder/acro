@@ -1392,25 +1392,25 @@ command -- there is a family of dedicated commands, actually:
     necessary framework needed by acronym commands and defines \meta{cs} with
     an optional star argument and a mandatory argument for the acronym id
     using \pkg{xparse}'s \cs*{NewDocumentCommand}. Inside \meta{code} one can
-    refer to the id with \code{\#1}.
+    refer to the \meta{id} with \code{\#1}.
   \command{RenewAcroCommand}[\marg{cs}\marg{code}]
     Defines a new \acro\ acronym command \meta{cs}.  This sets up the
     necessary framework needed by acronym commands and defines \meta{cs} with
     an optional star argument and a mandatory argument for the acronym id
     using \pkg{xparse}'s \cs*{RenewDocumentCommand}. Inside \meta{code} one
-    can refer to the id with \code{\#1}.
+    can refer to the \meta{id} with \code{\#1}.
   \command{DeclareAcroCommand}[\marg{cs}\marg{code}]
     Defines a new \acro\ acronym command \meta{cs}.  This sets up the
     necessary framework needed by acronym commands and defines \meta{cs} with
     an optional star argument and a mandatory argument for the acronym id
     using \pkg{xparse}'s \cs*{DeclareDocumentCommand}. Inside \meta{code} one
-    can refer to the id with \code{\#1}.
+    can refer to the \meta{id} with \code{\#1}.
   \command{ProvideAcroCommand}[\marg{cs}\marg{code}]
     Defines a new \acro\ acronym command \meta{cs}.  This sets up the
     necessary framework needed by acronym commands and defines \meta{cs} with
     an optional star argument and a mandatory argument for the acronym id
     using \pkg{xparse}'s \cs*{ProvideDocumentCommand}. Inside \meta{code} one
-    can refer to the id with \code{\#1}.
+    can refer to the \meta{id} with \code{\#1}.
 \end{commands}
 
 Inside these macros one can use a number of low-level expl3
@@ -1457,32 +1457,48 @@ commands\footnote{Which is why you need to use them inside an expl3
     \acro\ setup command which tells the macros above that we want to add an
     index in any case independent of the option \option{index}.  Should be
     used \emph{before} one of the acronym fetching commands.
+  \command*{acro_reset_specials:}
+    This\sinceversion{2.0b} macro is called implicitly by \cs{NewAcroCommand}
+    and \cs{NewPseudoAcroCommand}.  If you plan to define an \acro\ command by
+    yourself using \cs*{NewDocumentCommand} this should be the first macro
+    after \verbcode+\acro_begin:+.  It ensures that in nested acronyms the
+    inner acronyms don't inherit indefinite articles, uppercasing,
+    endings\ldots
 \end{commands}
 
 \paragraph{Additional macros for further uses}
 \begin{commands}
   \command*{acro_begin:}
-    When an acronym macro is defined \enquote{by hand}, \ie, not using
-    \cs{NewAcroCommand} then this should be the first macro in the code.  Must
-    have a matching \cs*{acro_end:}.
+    When an acronym macro is defined \enquote{by hand}, \ie, \emph{not using
+    \cs{NewAcroCommand}} then this must be the first macro in the code.
+    \emph{Must have a matching \cs*{acro_end:}}.
   \command*{acro_end:}
-    When an acronym macro is defined \enquote{by hand}, \ie, not using
-    \cs{NewAcroCommand} then this should be the last macro in the code.  Must
-    have a matching \cs*{acro_begin:}.
+    When an acronym macro is defined \enquote{by hand}, \ie, \emph{not using 
+    \cs{NewAcroCommand}} then this must be the last macro in the code.
+    \emph{Must have a matching \cs*{acro_begin:}}.
   \command*{acro_check_and_mark_if:nn}[ \marg{boolean expression} \marg{id}]
     Checks if the acronym \meta{id} exists and marks it as used when
     \meta{boolean} expression evaluates to \code{true}.  This macro is used
-    inside \cs{NewAcroCommand} and friends.
+    inside \cs{NewAcroCommand} and friends implicitly.
   \command*{acro_check_acronym:nn}[ \marg{id} \Marg{true|false}]
     Checks if the acronym \meta{id} exists and marks it as used if \code{true}
     or doesn't.  This macro is used inside \cs*{acro_check_and_mark_if:nn}.
   \command*{acro_use_acronym:n}[ \Marg{true|false}]
-    Mark an acronym as used or don't.  This macro is used inside
-    \cs*{acro_check_acronym:nn}.  An acronym marked as used cannot be
-    unmarked.
+    Tell \cs*{acro_use:n} and similar commands wether to mark the acronym as
+    used or not.  This macro is used inside \cs*{acro_check_acronym:nn}.  If
+    this macro is used explicitly it should be used before \cs*{acro_use:n}
+    (or a similar command) otherwise it has no effect.  An acronym marked as
+    used cannot be unmarked.
+  \command*{acro_mark_as_used:n}[ \marg{id}]
+    Explicitly use the acronym \meta{id}.  This is the expl3 macro applied to
+    all entries in \cs{acuse}.
   \expandable\command*{acro_if_acronym_used:n}[\TF\ \marg{id} \marg{true}
   \marg{false}]
     The code-level version of \cs{acifused}.  This macro is expandable.
+  \command*{acro_for_all_acronyms_do:n}[ \marg{code}]
+    Loops over all acronyms known when the macro is used.  Inside of
+    \meta{code} you can refer to the \meta{id} of an acronym with
+    \verbcode+#1+.
 \end{commands}
 
 \paragraph{Examples}
@@ -1496,6 +1512,7 @@ An equivalent definition for \cs{ac} would be
   \NewDocumentCommand \ac {sm}
     {
       \acro_begin:
+        \acro_reset_specials:
         \acro_check_and_mark_if:nn {#1} {#2}
         \acro_use:n {#2}
       \acro_end:
@@ -1509,6 +1526,11 @@ Other definitions by \acro\ are for example the following ones:
   \NewAcroCommand \Ac
     {
       \acro_first_upper:
+      \acro_use:n {#1}
+    }
+  \NewAcroCommand \iac
+    {
+      \acro_indefinite:
       \acro_use:n {#1}
     }
   \NewAcroCommand \acp
