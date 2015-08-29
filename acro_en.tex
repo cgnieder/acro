@@ -1,8 +1,8 @@
 % arara: pdflatex
-% !arara: biber
-% !arara: pdflatex
-% !arara: pdflatex
+% arara: biber
 % arara: pdflatex
+% arara: pdflatex
+% !arara: pdflatex
 % --------------------------------------------------------------------------
 % the ACRO package
 % 
@@ -34,7 +34,6 @@
 % feel free to contact me.
 % --------------------------------------------------------------------------
 \documentclass[load-preamble+]{cnltx-doc}
-% \KOMAoptions{DIV = 10}
 
 \usepackage[utf8]{inputenc}
 \usepackage[single,macros,accsupp,index]{acro}
@@ -311,7 +310,7 @@ documentation.
     the short form of the acronym.  This option is required: an acronym must
     have a short form.  If this is set it \emph{must} be set as first option!
     If another option is set first and notices the \option{short} option
-    missing it assumes that the \meta{id} should be used as short version and
+    missing it assumes that the \acs{id} should be used as short version and
     sets it accordingly.  A warning will be written to the log then.
   %% long
   \keyval{long}{text}\Default!
@@ -403,7 +402,7 @@ documentation.
   \keyval{index-sort}{text}
     \sinceversion{1.1}If you use the package option \option{index} every
     occurrence of an acronym is recorded to the index and sorted by its
-    \ac{id} or (if set) by the value of the \option{sort} key.  This key
+    \acs{id} or (if set) by the value of the \option{sort} key.  This key
     allows to set an individual sorting option for the index.  See
     section~\ref{ssec:index} for details.
   %% index
@@ -711,8 +710,8 @@ when it might be useful to have the the acronym typeset according to the
 \acro\ offers the following commands.
 \begin{commands}
   \command{acflike}[\sarg\marg{id}\marg{instead of long form}]
-    Write some alternative long form for acronym \meta{id} as if it were the
-    first time the acronym was used.
+    Write some alternative long form for acronym with \acs{id} \meta{id} as if
+    it were the first time the acronym was used.
   \command{acfplike}[\sarg\marg{id}\marg{instead of long form}]
     Plural form of \cs{acflike}.
 \end{commands}
@@ -1087,7 +1086,8 @@ possible output forms of the acronyms.
   \keyval{extra-format}{format}\Default
     The same for the extra information.
   %%
-  \keychoice{first-style}{default,plain,empty,square,short,reversed,plain-reversed,footnote,sidenote}\Default{default}
+  \keychoice{first-style}{default,plain,empty,square,short,reversed,plain-reversed,%
+    footnote,sidenote}\Default{default}
     \changedversion{1.1}The basic style of the first appearance of an
     acronym.  The value \code{sidenote} needs the command \cs*{sidenote} to be
     defined for example by the \pkg*{sidenotes} package.
@@ -1392,25 +1392,25 @@ command -- there is a family of dedicated commands, actually:
     necessary framework needed by acronym commands and defines \meta{cs} with
     an optional star argument and a mandatory argument for the acronym id
     using \pkg{xparse}'s \cs*{NewDocumentCommand}. Inside \meta{code} one can
-    refer to the \meta{id} with \code{\#1}.
+    refer to the \acs{id} \meta{id} with \code{\#1}.
   \command{RenewAcroCommand}[\marg{cs}\marg{code}]
     Defines a new \acro\ acronym command \meta{cs}.  This sets up the
     necessary framework needed by acronym commands and defines \meta{cs} with
     an optional star argument and a mandatory argument for the acronym id
     using \pkg{xparse}'s \cs*{RenewDocumentCommand}. Inside \meta{code} one
-    can refer to the \meta{id} with \code{\#1}.
+    can refer to the \acs{id} \meta{id} with \code{\#1}.
   \command{DeclareAcroCommand}[\marg{cs}\marg{code}]
     Defines a new \acro\ acronym command \meta{cs}.  This sets up the
     necessary framework needed by acronym commands and defines \meta{cs} with
     an optional star argument and a mandatory argument for the acronym id
     using \pkg{xparse}'s \cs*{DeclareDocumentCommand}. Inside \meta{code} one
-    can refer to the \meta{id} with \code{\#1}.
+    can refer to the \acs{id} \meta{id} with \code{\#1}.
   \command{ProvideAcroCommand}[\marg{cs}\marg{code}]
     Defines a new \acro\ acronym command \meta{cs}.  This sets up the
     necessary framework needed by acronym commands and defines \meta{cs} with
     an optional star argument and a mandatory argument for the acronym id
     using \pkg{xparse}'s \cs*{ProvideDocumentCommand}. Inside \meta{code} one
-    can refer to the \meta{id} with \code{\#1}.
+    can refer to the \acs{id} \meta{id} with \code{\#1}.
 \end{commands}
 
 Inside these macros one can use a number of low-level expl3
@@ -1477,12 +1477,13 @@ commands\footnote{Which is why you need to use them inside an expl3
     \cs{NewAcroCommand}} then this must be the last macro in the code.
     \emph{Must have a matching \cs*{acro_begin:}}.
   \command*{acro_check_and_mark_if:nn}[ \marg{boolean expression} \marg{id}]
-    Checks if the acronym \meta{id} exists and marks it as used when
-    \meta{boolean} expression evaluates to \code{true}.  This macro is used
-    inside \cs{NewAcroCommand} and friends implicitly.
+    Checks if the acronym with the \acs{id}  \meta{id} exists and marks it as
+    used when \meta{boolean} expression evaluates to \code{true}.  This macro
+    is used inside \cs{NewAcroCommand} and friends implicitly.
   \command*{acro_check_acronym:nn}[ \marg{id} \Marg{true|false}]
-    Checks if the acronym \meta{id} exists and marks it as used if \code{true}
-    or doesn't.  This macro is used inside \cs*{acro_check_and_mark_if:nn}.
+    Checks if the acronym with the \acs{id} \meta{id} exists and marks it as
+    used if \code{true} or doesn't.  This macro is used inside
+    \cs*{acro_check_and_mark_if:nn}.
   \command*{acro_use_acronym:n}[ \Marg{true|false}]
     Tell \cs*{acro_use:n} and similar commands wether to mark the acronym as
     used or not.  This macro is used inside \cs*{acro_check_acronym:nn}.  If
@@ -1490,14 +1491,14 @@ commands\footnote{Which is why you need to use them inside an expl3
     (or a similar command) otherwise it has no effect.  An acronym marked as
     used cannot be unmarked.
   \command*{acro_mark_as_used:n}[ \marg{id}]
-    Explicitly use the acronym \meta{id}.  This is the expl3 macro applied to
-    all entries in \cs{acuse}.
+    Explicitly use the acronym with the \acs{id} \meta{id}.  This is the expl3
+    macro applied to all entries in \cs{acuse}.
   \expandable\command*{acro_if_acronym_used:n}[\TF\ \marg{id} \marg{true}
   \marg{false}]
     The code-level version of \cs{acifused}.  This macro is expandable.
   \command*{acro_for_all_acronyms_do:n}[ \marg{code}]
     Loops over all acronyms known when the macro is used.  Inside of
-    \meta{code} you can refer to the \meta{id} of an acronym with
+    \meta{code} you can refer to the \acs{id} \meta{id} of an acronym with
     \verbcode+#1+.
 \end{commands}
 

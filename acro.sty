@@ -31,7 +31,7 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate}
 \ProvidesExplPackage
   {acro}
-  {2015/08/26}
+  {2015/08/29}
   {2.0b}
   {Typeset Acronyms}
 
@@ -452,61 +452,6 @@
   { \keys_set:nn {acro} {#1} \ignorespaces }
 
 % --------------------------------------------------------------------------
-% typeset the short form:
-% #1: ID
-% #2: short form
-\cs_new_protected:Npn \acro_write_short:nn #1#2
-  {
-    \mode_if_horizontal:F { \leavevmode }
-    \group_begin:
-      \bool_if:NTF \l__acro_custom_format_bool
-        { \l__acro_custom_format_tl }
-        { \l__acro_short_format_tl }
-      {#2}
-    \group_end:
-  }
-\cs_generate_variant:Nn \acro_write_short:nn { nV , nv }
-
-% #1: ID
-% #2: alt form
-\cs_new_protected:Npn \acro_write_alt:nn #1#2
-  {
-    \mode_if_horizontal:F { \leavevmode }
-    \group_begin:
-      \bool_if:NTF \l__acro_custom_format_bool
-        { \l__acro_custom_format_tl }
-        { \l__acro_alt_format_tl }
-      {#2}
-    \group_end:
-  }
-\cs_generate_variant:Nn \acro_write_alt:nn { nV , nv }
-
-% typeset the longform,...:
-% TODO: rethink the formatting mechanism
-% right now a custom format gets applied additionally to the global one
-% although before it
-% #1: tl holding format
-% #2: long form
-\cs_new_protected:Npn \acro_write_long:Nn #1#2
-  {
-    \mode_if_horizontal:F { \leavevmode }
-    \group_begin:
-      \bool_if:NTF \l__acro_custom_long_format_bool
-        { \l__acro_custom_long_format_tl }
-        { \use:n }
-      {
-        \exp_args:Nx #1
-          {
-            \bool_if:NTF \l__acro_first_upper_bool
-              { \exp_not:N \__acro_first_upper_case:n { \exp_not:n {#2} } }
-              { \exp_not:n {#2} }
-          }
-      }
-    \group_end:
-  }
-\cs_generate_variant:Nn \acro_write_long:Nn { NV,No,Nf }
-
-% --------------------------------------------------------------------------
 % hyperref support
 \cs_new_eq:NN \acro_hyper_target:nn \use_ii:nn
 \cs_new_eq:NN \acro_hyper_link:nn   \use_ii:nn
@@ -597,8 +542,7 @@
     \bool_if:nT { !\l__acro_first_only_short_bool && !\l__acro_first_reversed_bool }
       {
         \acro_write_indefinite:nn {#1} {long}
-        \acro_write_long:No \l__acro_first_long_format_tl {#3}
-        \acro_endings:nn {#1} {long}
+        \acro_write_expanded:nnn {#1} {first-long} {#3}
         \acro_space:
         \tl_if_blank:VF \l__acro_first_between_tl
           {
@@ -657,7 +601,7 @@
             \tl_use:N \c_space_tl
             \bool_if:NT \l__acro_first_use_brackets_bool
               { \tl_head:N \l__acro_first_brackets_tl }
-            \acro_write_long:No \l__acro_first_long_format_tl {#3}
+            \acro_write_long:Vo \l__acro_first_long_format_tl {#3}
             \bool_if:NT \l__acro_foreign_bool
               {
                 \prop_get:NnNT \l__acro_foreign_prop {#1} \l__acro_foreign_tl
@@ -704,7 +648,7 @@
       {
         \__acro_note_command:n
           {
-            \acro_write_long:No \l__acro_first_long_format_tl {#3}
+            \acro_write_long:Vo \l__acro_first_long_format_tl {#3}
             \bool_if:NT \l__acro_foreign_bool
               {
                 \prop_get:NnNT \l__acro_foreign_prop {#1} \l__acro_foreign_tl
@@ -797,7 +741,7 @@
       { \tl_use:N \l__acro_extra_punct_tl \tl_use:N \c_space_tl }
     \bool_if:NT \l__acro_extra_use_brackets_bool
       { \tl_head:N \l__acro_extra_brackets_tl }
-    \acro_write_long:Nn \l__acro_extra_format_tl {#1}
+    \acro_write_long:Vn \l__acro_extra_format_tl {#1}
     \bool_if:NT \l__acro_extra_use_brackets_bool
       { \tl_tail:N \l__acro_extra_brackets_tl }
   }
@@ -1209,7 +1153,7 @@
       }
     \cs_set:Npn \acro_print_list_long:n ##1
       {
-        \acro_write_long:Nf \l__acro_list_long_format_tl
+        \acro_write_long:Vf \l__acro_list_long_format_tl
           {
             \prop_if_in:NnTF \l__acro_list_prop {##1}
               { \prop_item:Nn \l__acro_list_prop {##1} }
@@ -1265,7 +1209,7 @@
       }
     \cs_set:Npn \acro_print_list_long:n ##1
       {
-        \acro_write_long:Nf \l__acro_list_long_format_tl
+        \acro_write_long:Vf \l__acro_list_long_format_tl
           {
             \prop_if_in:NnTF \l__acro_list_prop {##1}
               { \prop_item:Nn \l__acro_list_prop {##1} }
@@ -1325,7 +1269,7 @@
       }
     \cs_set:Npn \acro_print_list_long:n ##1
       {
-        \acro_write_long:Nf \l__acro_list_long_format_tl
+        \acro_write_long:Vf \l__acro_list_long_format_tl
           {
             \prop_if_in:NnTF \l__acro_list_prop {##1}
               { \prop_item:Nn \l__acro_list_prop {##1} }
@@ -1382,7 +1326,7 @@
       {
         \bool_if:NT \l__acro_capitalize_list_bool
           { \bool_set_true:N \l__acro_first_upper_bool }
-        \acro_write_long:Nf \l__acro_long_format_tl
+        \acro_write_long:Vf \l__acro_long_format_tl
           {
             \prop_if_in:NnTF \l__acro_list_prop {##1}
               { \prop_item:Nn \l__acro_list_prop {##1} }
@@ -1445,11 +1389,7 @@
       {
         % this is not the first time
         \acro_write_indefinite:nn {#1} {short}
-        \acro_get_ending_form:nn {#1} {short}
-        \acro_acc_supp:nn
-          {#1}
-          { \acro_write_short:nV {#1} \l__acro_short_tl }
-        \acro_endings:nn {#1} {short}
+        \acro_write_compact:nn {#1} {short}
         \acro_after:n {#1}
       }
       {
@@ -1466,14 +1406,15 @@
       }
   }
 
+% #1: ID
+% #2: long|first|<other>
 \cs_new_protected:Npn \acro_single_form:nn #1#2
   {
     \acro_write_indefinite:nn {#1} {#2}
     \str_case:nnF {#2}
       {
         {long} {
-          \acro_write_long:NV \l__acro_long_format_tl \l__acro_long_tl
-          \acro_endings:nn {#1} {#2}
+          \acro_write_expanded:nnV {#1} {long} \l__acro_long_tl
           \acro_cite:n {#1}
         }
         {first} {
@@ -1483,10 +1424,8 @@
             { \l__acro_long_tl }
         }
       }
-      {
-        \acro_get_ending_form:nn {#1} {#2}
-        \use:c {acro_write_#2:nv} {#1} {l__acro_#2_tl}
-        \acro_endings:nn {#1} {#2}
+      { % other (e.g. short)
+        \acro_write_compact:nn {#1} {#2}
         \acro_cite:n {#1}
       }
   }
@@ -1737,7 +1676,7 @@
 % --------------------------------------------------------------------------
 % enable us to know if the acronym is used only once and provide a different
 % style for that:
-\prg_new_protected_conditional:Npnn \acro_is_used:n #1 { TF }
+\prg_new_protected_conditional:Npnn \acro_is_used:n #1 { T,F,TF }
   {
     \bool_if:nTF
       {
@@ -1752,37 +1691,25 @@
         )
       }
       {
-        \if@filesw
-          \bool_if:NTF \l__acro_mark_as_used_bool
-            {
-              \iow_shipout_x:Nn \@auxout
-                {
-                  \token_to_str:N \acro@used@twice {#1}
-                    { \thepage }
-                    { \arabic{page} }
-                    { \arabic{abspage} }
-                }
-            }
-            {
-              \iow_shipout_x:Nn \@auxout
-                { \token_to_str:N \acro@used@twice {#1} {} {} {} }
-            }
-        \fi
+        \bool_if:NTF \l__acro_mark_as_used_bool
+          {
+            \__acro_aux_file:Nnnnn \acro@used@twice
+              {#1}
+              { \thepage }
+              { \arabic{page} }
+              { \arabic{abspage} }
+          }
+          { \__acro_aux_file:Nnnnn \acro@used@twice {#1} {} {} {} }
         \prg_return_true:
       }
       {
         \bool_if:NTF \l__acro_mark_as_used_bool
           {
-%            \if@filesw
-              \iow_shipout_x:Nn \@auxout
-                {
-                  \token_to_str:N \acro@used@once {#1}
-                    { \thepage }
-                    { \arabic{page} }
-                    { \arabic{abspage} }
-                }
-
-%             \fi
+            \__acro_aux_file:Nnnnn \acro@used@once
+              {#1}
+              { \thepage }
+              { \arabic{page} }
+              { \arabic{abspage} }
             \bool_if:nT
               {
                 !\bool_if_p:c { g__acro_#1_label_bool } &&
@@ -1794,12 +1721,7 @@
               }
             \bool_gset_true:c { g__acro_#1_used_bool }
           }
-          {
-            \if@filesw
-              \iow_shipout_x:Nn \@auxout
-                { \token_to_str:N \acro@used@once {#1} {} {} {} }
-            \fi
-          }
+          { \__acro_aux_file:Nnnnn \acro@used@once {#1} {} {} {} }
         \prg_return_false:
       }
   }
@@ -1807,6 +1729,15 @@
 \cs_new:Npn \acro_is_used:n #1
   { \acro_is_used:nTF {#1} { } { } }
 
+\cs_new_protected:Npn \__acro_aux_file:Nnnnn #1#2#3#4#5
+  {
+    % \if@filesw
+      \iow_shipout_x:Nn \@auxout
+        { \token_to_str:N #1 {#2} {#3} {#4} {#5} }
+    % \fi
+  }
+
+  
 % --------------------------------------------------------------------------
 % the commands for the auxiliary file:
 \cs_new_protected:Npn \acro@used@once #1#2#3#4
@@ -1884,13 +1815,98 @@
 \fi
 
 % --------------------------------------------------------------------------
+% typeset the short form:
+% #1: ID
+% #2: short form
+\cs_new_protected:Npn \acro_write_short:nn #1#2
+  {
+    \mode_if_horizontal:F { \leavevmode }
+    \group_begin:
+      \bool_if:NTF \l__acro_custom_format_bool
+        { \l__acro_custom_format_tl }
+        { \l__acro_short_format_tl }
+      {#2}
+    \group_end:
+  }
+\cs_generate_variant:Nn \acro_write_short:nn { nV , nv }
+
+% typeset the alternative form:
+% #1: ID
+% #2: alt form
+\cs_new_protected:Npn \acro_write_alt:nn #1#2
+  {
+    \mode_if_horizontal:F { \leavevmode }
+    \group_begin:
+      \bool_if:NTF \l__acro_custom_format_bool
+        { \l__acro_custom_format_tl }
+        { \l__acro_alt_format_tl }
+      {#2}
+    \group_end:
+  }
+\cs_generate_variant:Nn \acro_write_alt:nn { nV , nv }
+
+% typeset a long form:
+%   TODO: rethink the formatting mechanism
+%   right now a custom format gets applied additionally to the global one
+%   although before it
+% #1: format
+% #2: long form
+\cs_new_protected:Npn \acro_write_long:nn #1#2
+  {
+    \mode_if_horizontal:F { \leavevmode }
+    \group_begin:
+      \bool_if:NTF \l__acro_custom_long_format_bool
+        { \l__acro_custom_long_format_tl }
+        { \use:n }
+      {
+        \use:x
+          {
+            \exp_not:n {#1}
+            {
+              \bool_if:NTF \l__acro_first_upper_bool
+                { \exp_not:N \__acro_first_upper_case:n { \exp_not:n {#2} } }
+                { \exp_not:n {#2} }
+            }
+          }
+      }
+    \group_end:
+  }
+\cs_generate_variant:Nn \acro_write_long:nn { VV,Vo,Vf,Vn,vn }
+
+% --------------------------------------------------------------------------
+% #1: id
+% #2: short|alt
+\cs_new_protected:Npn \acro_write_compact:nn #1#2
+  {
+    \acro_get_ending_form:nn {#1} {#2}
+    \acro_acc_supp:nn
+      {#1}
+      { \use:c {acro_write_#2:nv} {#1} {l__acro_#2_tl} }
+    \acro_endings:nn {#1} {#2}
+  }
+  
+% #1: ID
+% #2: long|first-long|list-long|extra
+% #3: long form
+\cs_new_protected:Npn \acro_write_expanded:nnn #1#2#3
+  {
+    \tl_set:Nn \l__acro_tmpa_tl {#2}
+    \tl_replace_all:Nnn \l__acro_tmpa_tl {-} {_}
+    \acro_write_long:vn {l__acro_ \l__acro_tmpa_tl  _format_tl} {#3}
+    \acro_endings:nn {#1} {long}
+  }
+\cs_generate_variant:Nn \acro_write_expanded:nnn { nnV }
+
+% #1: id
 \cs_new:Npn \acro_after:n #1
   {
     \acro_cite_if:Nn \l__acro_citation_all_bool {#1}
     \acro_index_if:Nn \l__acro_addto_index_bool {#1}
   }
 
+% --------------------------------------------------------------------------
 % the standard internals:
+% #1: id
 \cs_new_protected:Npn \acro_short:n #1
   {
     \acro_get:n {#1}
@@ -1898,16 +1914,12 @@
     \acro_write_indefinite:nn {#1} {short}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    % TODO: die nächsten drei in /eine/ Funktion zusammenfassen:
-    \acro_get_ending_form:nn {#1} {short}
-    \acro_acc_supp:nn
-      {#1}
-      { \acro_write_short:nV {#1} \l__acro_short_tl }
-    \acro_endings:nn {#1} {short}
+    \acro_write_compact:nn {#1} {short}
     \acro_after:n {#1}
   }
 
 % get alternative entry:
+% #1: id
 \cs_new_protected:Npn \acro_alt:n #1
   {
     \acro_get:n {#1}
@@ -1916,15 +1928,12 @@
     \acro_write_indefinite:nn {#1} {alt}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    \acro_get_ending_form:nn {#1} {alt}
-    \acro_acc_supp:nn
-      {#1}
-      { \acro_write_alt:nV {#1} \l__acro_alt_tl }
-    \acro_endings:nn {#1} {alt}
+    \acro_write_compact:nn {#1} {alt}
     \acro_after:n {#1}
   }
 
 % get long entry:
+% #1: id
 \cs_new_protected:Npn \acro_long:n #1
   {
     \acro_get:n {#1}
@@ -1932,13 +1941,12 @@
     \acro_write_indefinite:nn {#1} {long}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    \acro_write_long:NV \l__acro_long_format_tl \l__acro_long_tl
-    % TODO: long an short und alt anpassen
-    \acro_endings:nn {#1} {long}
+    \acro_write_expanded:nnV {#1} {long} \l__acro_long_tl
     \acro_after:n {#1}
   }
 
 % output like the first time:
+% #1: id
 \cs_new_protected:Npn \acro_first:n #1
   {
     \bool_gset_true:c { g__acro_#1_first_use_bool }
@@ -1953,6 +1961,8 @@
   }
 
 % output like the first time with own long version:
+% #1: id
+% #2: instead of long entry
 \cs_new_protected:Npn \acro_first_like:nn #1#2
   {
     \bool_gset_true:c { g__acro_#1_first_use_bool }
@@ -3340,7 +3350,7 @@
                  - new option `single-form'
 2015/08/25 v2.0a - fix https://bitbucket.org/cgnieder/acro/issue/38 and
                    https://bitbucket.org/cgnieder/acro/issue/49
-2015/08/26 v2.0b - fix https://bitbucket.org/cgnieder/acro/issue/44
+2015/08/29 v2.0b - fix https://bitbucket.org/cgnieder/acro/issue/44
                  - fix https://bitbucket.org/cgnieder/acro/issue/45
 
 % --------------------------------------------------------------------------
