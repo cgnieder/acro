@@ -223,6 +223,7 @@
 \tl_new:N   \l__acro_list_long_format_tl
 \tl_new:N   \l__acro_default_indefinite_tl
 \tl_set:Nn  \l__acro_default_indefinite_tl { a }
+\tl_new:N   \l__acro_extra_tl
 \tl_new:N   \l__acro_extra_format_tl
 \tl_new:N   \l__acro_foreign_tl
 \tl_new:N   \l__acro_foreign_sep_tl
@@ -1464,6 +1465,10 @@
       { \tl_set_eq:NN \l__acro_alt_tl \l__acro_short_tl }
     % long:
     \prop_get:NnNF \l__acro_long_prop {#1} \l__acro_long_tl {}
+    % foreign:
+    \prop_get:NnNF \l__acro_foreign_prop {#1} \l__acro_foreign_tl {}
+    % extra:
+    \prop_get:NnNF \l__acro_extra_prop {#1} \l__acro_extra_tl {}
     % formatting
     \prop_get:NnNTF \l__acro_long_format_prop {#1}
       \l__acro_custom_long_format_tl
@@ -1943,6 +1948,36 @@
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
     \acro_write_expanded:nnV {#1} {long} \l__acro_long_tl
     \acro_after:n {#1}
+  }
+
+% get foreign entry:
+% #1: id
+\cs_new_protected:Npn \acro_foreign:n #1
+  {
+    \acro_get:n {#1}
+    \tl_if_blank:VF \l__acro_foreign_tl
+      {
+        \acro_is_used:n {#1}
+        \acro_if_is_single:nT {#1}
+          { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
+        \acro_write_long:VV \l__acro_foreign_format_tl \l__acro_foreign_tl
+        \acro_after:n {#1}
+      }
+  }
+
+% get extra entry:
+% #1: id
+\cs_new_protected:Npn \acro_extra:n #1
+  {
+    \acro_get:n {#1}
+    \tl_if_blank:VF \l__acro_extra_tl
+      {
+        \acro_is_used:n {#1}
+        \acro_if_is_single:nT {#1}
+          { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
+        \acro_write_long:VV \l__acro_extra_format_tl \l__acro_extra_tl
+        \acro_after:n {#1}
+      }
   }
 
 % output like the first time:
