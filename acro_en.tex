@@ -398,6 +398,11 @@ documentation.
   \keyval{accsupp}{text}
     sets the \code{ActualText} key as presented by the \pkg{accsupp} package
     for the acronym.
+  %% tooltip
+  \keyval{tooltip}{text}
+    sets the tooltip description for an acronym.  For actually getting
+    tooltips you also need an appropriate setting of the
+    \option{tooltip-cmd} option.
   %% index-sort
   \keyval{index-sort}{text}
     \sinceversion{1.1}If you use the package option \option{index} every
@@ -794,18 +799,20 @@ used:
     \sinceversion{0.6a}Mark all acronyms as used.
 \end{commands}
 
-\subsection{\cs*{ac} and Friends in \acs*{pdf} Bookmarks}
-\noindent\sinceversion{0.5}\acro's commands usually are not expandable which
-means they'd leave unallowed tokens in \acs{pdf} bookmarks.  \pkg{hyperref}
-offers \cs*{texorpdfstring} to circumvent that issue manually but that isn't
-really a nice solution.  What's the point of having macros to get output for
-you if you have to specify it manually after all?
+\subsection{\cs*{ac} and Friends in \acs*{pdf} Bookmarks, Accessibility
+  Support, Tooltips}
+\subsubsection{\acs*{pdf} Bookmarks}
+\acro's commands usually are not expandable which means they'd leave unallowed
+tokens in \acs{pdf} bookmarks.  \pkg{hyperref} offers \cs*{texorpdfstring} to
+circumvent that issue manually but that isn't really a nice solution.  What's
+the point of having macros to get output for you if you have to specify it
+manually after all?
 
-That is why \acro\ offers a preliminary solution for this.  In a bookmark
-every \cs{ac} like command falls back to a simple text string typesetting what
-\cs{acs} would do (or \cs{acsp} for plural forms).  These text strings both
-can accessed manually and can be modified to an output reserved for \acs{pdf}
-bookmarks.
+That is why \acro\ offers\sinceversion{0.5} a preliminary solution for this.
+In a bookmark every \cs{ac} like command falls back to a simple text string
+typesetting what \cs{acs} would do (or \cs{acsp} for plural forms).  These
+text strings both can accessed manually and can be modified to an output
+reserved for \acs{pdf} bookmarks.
 
 \begin{commands}
   \command{acpdfstring}[\marg{id}]
@@ -817,13 +824,8 @@ bookmarks.
   \keylit{pdfstring}{\Marg{\meta{pdfstring}/\meta{plural ending}}}
     Key for \cs{DeclareAcronym} to declare a custom text string for \acs{pdf}
     bookmarks.  The plural ending can be set optionally.
-  \keyval{accsupp}{text}
-    \sinceversion{1.0}Key for \cs{DeclareAcronym} to set the \code{ActualText}
-    property of \cs*{BeginAccSupp} (see \pkg{accsupp}'s documentation for
-    details) to be used for an acronym.  It only has an effect when the
-    package option \option{accsupp} is used, too.
 \end{options}
-  
+
 For example the \acs{pdf} acronym used in the title for this section is defined
 as follows:
 \begin{sourcecode}
@@ -835,14 +837,56 @@ as follows:
     accsupp   = PDF
   }
 \end{sourcecode}
- 
-This also demonstrates the \option{accsupp} key.  For this to work you need to
-use the \emph{package option} \option{accsupp}, too, which will load the
-package \pkg{accsupp}.  Then the key \option{accsupp} will set the
-\code{ActualText} property of \cs*{BeginAccSupp}.  Please refer to
-\pkg{accsupp}'s documentation for details.  To see its effect copy \ac{pdf}
-and paste it into a text file.  You should get uppercase letters instead of
-lowercase ones.
+
+\subsubsection{Accessibility Support}
+
+The last example also demonstrates the \option{accsupp} key.  The idea is to
+have something different visible in the \acs{pdf} file compared to what you
+get when you select and copy the corresponding string.  In the example visible
+string is a lowercase \code{pdf} in small caps while the string copied is an
+uppercase \code{PDF}.
+
+For this to work you need to use the \emph{package option} \option{accsupp},
+too, which will load the package \pkg{accsupp} if it isn't loaded by the user
+already.  Then the key \option{accsupp} will set the \code{ActualText}
+property of \cs*{BeginAccSupp}.  Please refer to \pkg{accsupp}'s documentation
+for details.  To see its effect copy \ac{pdf} and paste it into a text file.
+You should get uppercase letters instead of lowercase ones.
+
+\begin{options}
+  \keyval{accsupp}{text}
+    \sinceversion{1.0}Key for \cs{DeclareAcronym} to set the \code{ActualText}
+    property of \cs*{BeginAccSupp} (see \pkg{accsupp}'s documentation for
+    details) to be used for an acronym.  It only has an effect when the
+    package option \option{accsupp} is used, too.
+\end{options}
+
+\subsubsection{Tooltips}
+
+The idea of a tooltip is to have some text shown when you hover with the
+mouse over the short form of an acronym.  This is only available in some
+\acs{pdf} viewers, though.  On possibility for such tooltips is loading the
+\pkg{pdfcomment} package~\cite{pkg:pdfcomment} and using its \cs*{pdftooltip}
+macro.
+
+\begin{options}
+  \keybool{tooltip}\Default{false}
+    This options loads the \pkg{pdfcomment} package and sets the command for
+    creating tooltips to \cs*{pdftooltip}.
+  \keyval{tooltip-cmd}\Default{\cs*{@firstoftwo}}
+    This allows users using another macro for tooltips -- maybe one provided
+    by another package or some own macro.  It needs to be a macro with two
+    mandatory arguments, the first being the string typeset in the \acs{pdf},
+    the second being the tooltip description text.
+\end{options}
+
+For using this with acronyms they have a property \option{tooltip} which can
+be used inside \cs{DeclareAcronym} for specifying the description text of the
+tooltip.  If the \option{tooltip} package option is used but the property is
+not set for an acronym then the \option{long} property is used instead.
+
+If an acronym is used inside of another acronym then the tooltips of the
+``inner'' acronyms are disabled.
 
 \subsection{Adding Acronyms to the Index}\label{ssec:index}
 \noindent\sinceversion{1.1}\acro\ has the package option \option{index}.  If it is
@@ -1024,6 +1068,14 @@ There are a few options which change the general behaviour of \acro.
   \keybool{accsupp}\Default{false}
     \sinceversion{1.0}Activates the access support as provided by the
     \pkg{accsupp} package.
+  %%
+  \keybool{tooltip}\Default{false}
+    % TODO
+  %%
+  \keyval{tooltip-cmd}{control sequence}\Default{\cs*{@firstoftwo}}
+    \sinceversion{2.1}A macro taking two mandatory arguments, the first being
+    the short form of the acronym and the second being some tooltip
+    description.
   %%
   \keyval{uc-cmd}{control sequence}\Default{\cs{acfirstupper}}
     The command that is used to capitalize the first word in the \cs{Ac} and

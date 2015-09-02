@@ -23,16 +23,16 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The acro package consists of the files
-%  - acro.sty, acro0.def, acro1.def, acro_en.tex, acro_en.pdf, README
+%  - acro.sty, acro_en.tex, acro_en.pdf, README
 % --------------------------------------------------------------------------
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate}
+\RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2015/08/29}
-  {2.0b}
+  {2015/09/02}
+  {2.1-beta}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -88,8 +88,6 @@
   }
 
 % message macros:
-\bool_new:N \l__acro_silence_bool
-
 \cs_new:Npn \__acro_remove_backslash:N #1
   { \exp_after:wN \use_none:n \token_to_str:N #1 }
 
@@ -165,6 +163,7 @@
 
 % --------------------------------------------------------------------------
 % boolean variables:
+\bool_new:N      \l__acro_silence_bool
 \bool_new:N      \l__acro_mark_as_used_bool
 \bool_new:N      \g__acro_mark_first_as_used_bool
 \bool_new:N      \l__acro_use_single_bool
@@ -189,6 +188,8 @@
 \bool_set_true:N \l__acro_citation_first_bool
 \bool_new:N      \l__acro_group_citation_bool
 \bool_new:N      \l__acro_acc_supp_bool
+\bool_new:N      \l__acro_tooltip_bool
+\bool_new:N      \l__acro_inside_tooltip_bool
 \bool_new:N      \l__acro_following_page_bool
 \bool_new:N      \l__acro_following_pages_bool
 \bool_new:N      \l__acro_record_pages_bool
@@ -316,6 +317,9 @@
     messages          .value_required:n = true ,
     accsupp           .bool_set:N = \l__acro_acc_supp_bool ,
     accsupp-options   .tl_set:N   = \l__acro_acc_supp_options_tl ,
+    tooltip           .bool_set:N = \l__acro_tooltip_bool ,
+    tooltip-cmd       .code:n     = \cs_set:Npn \__acro_tooltip_cmd:nn {#1} ,
+    tooltip-cmd       .value_required:n = true ,
     macros            .bool_set:N = \l__acro_create_macros_bool ,
     xspace            .bool_set:N = \l__acro_xspace_bool ,
     strict            .bool_set:N = \l__acro_strict_bool ,
@@ -590,9 +594,6 @@
             { \acro_deactivate_trailing_action:n {##1} }
         }
       \acro_write_compact:nn {#1} {short}
-      % \acro_get_ending_form:nn {#1} {short}
-      % \acro_acc_supp:nn {#1} { \acro_write_short:nn {#1} {#2} }
-      % \acro_endings:nn {#1} {short}
     \group_end:
     \bool_if:nT
       { \l__acro_group_citation_bool && !\l__acro_first_reversed_bool }
@@ -1992,13 +1993,20 @@
 % --------------------------------------------------------------------------
 % #1: id
 % #2: short|alt
-\cs_new_protected:Npn \acro_write_compact:nn #1#2
+\cs_set_protected:Npn \acro_write_compact:nn #1#2
   {
     \acro_get_ending_form:nn {#1} {#2}
     \acro_acc_supp:nn
       {#1}
-      { \use:c {acro_write_#2:nv} {#1} {l__acro_#2_tl} }
-    \acro_endings:nn {#1} {#2}
+      {
+        \acro_write_tooltip:nnV
+          {#1}
+          {
+            \use:c {acro_write_#2:nv} {#1} {l__acro_#2_tl}
+            \acro_endings:nn {#1} {#2}
+          }
+          \l__acro_long_tl
+      }
   }
   
 % #1: ID
@@ -2244,20 +2252,53 @@
   }
 \cs_generate_variant:Nn \acro_do_acc_supp:nnn { VV }
 
-% macro to redefine to adapt definition of \acro_acc_supp:nn, for cases like
-% http://tex.stackexchange.com/a/161521/
-\cs_new_protected:Npn \acro_set_accsupp:
-  { \cs_set_eq:NN \acro_acc_supp:nn \acro_get_acc_supp:nn }
-
-\AtBeginDocument
+\AtEndPreamble
   {
     \bool_if:NT \l__acro_acc_supp_bool
       {
         \RequirePackage {accsupp}
-        \acro_set_accsupp:
+        \cs_set_eq:NN \acro_acc_supp:nn \acro_get_acc_supp:nn
+      }
+    \bool_if:NT \l__acro_tooltip_bool
+      {
+        \RequirePackage {pdfcomment}
+        \cs_if_eq:NNT \__acro_tooltip_cmd:nn \use_i:nn
+          { \cs_set:Npn \__acro_tooltip_cmd:nn { \pdftooltip } }
       }
   }
 
+% --------------------------------------------------------------------------
+% tooltips for acronyms
+
+% #1: id
+% #2: printed text
+% #3: tool tip text
+\cs_new_protected:Npn \acro_write_tooltip:nnn #1#2#3
+  {
+    \prop_get:NnNTF \l__acro_tooltip_prop {#1} \l__acro_tmpa_tl
+      { \__acro_check_tooltip:nV {#2} \l__acro_tmpa_tl }
+      { \__acro_check_tooltip:nn {#2} {#3} }
+  }
+\cs_generate_variant:Nn \acro_write_tooltip:nnn { nnV }
+
+% #1: printed text
+% #2: tool tip text
+\cs_new_protected:Npn \__acro_check_tooltip:nn #1#2
+  {
+    \bool_if:NTF \l__acro_inside_tooltip_bool
+      {#1}
+      {
+        \bool_set_true:N \l__acro_inside_tooltip_bool
+        \__acro_tooltip_cmd:nn {#1} {#2}
+      }
+  }
+\cs_generate_variant:Nn \__acro_check_tooltip:nn { nV }
+
+% use whatever command you like for creating tooltips here:
+% #1: printed text
+% #2: tool tip text
+\cs_new_eq:NN \__acro_tooltip_cmd:nn \use_i:nn
+  
 % --------------------------------------------------------------------------
 % indefinite articles:
 
@@ -3162,6 +3203,9 @@
 % acc supp:
 \acro_declare_key:nn {acc_supp} {accsupp}
 
+% tooltip:
+\acro_declare_simple_key:n {tooltip}
+
 % citation:
 \prop_new:N \l__acro_citation_prop
 \prop_new:N \l__acro_citation_pre_prop
@@ -3502,6 +3546,7 @@
 2015/??/?? v2.1  - add list object type `list-of' that prints the list like a
                    toc or lof, new option `list-short-width',
                  - correct bug in the `plain' extra style
+                 - implemented `tooltip' property
 
 % --------------------------------------------------------------------------
 update => http://tex.stackexchange.com/questions/236362
