@@ -2370,11 +2370,15 @@
               }
             \seq_sort:Nn \l__acro_tmpa_seq
               {
-                \tl_to_lowercase:n {
-                  \int_compare:nTF { \acro_strcmp:nn {##1} { ##2 } = -1 }
-                    { \sort_ordered: }
-                    { \sort_reversed: }
-                }
+                \int_compare:nTF
+                  {
+                    \acro_strcmp:nn
+                      { \str_fold_case:n {##1} }
+                      { \str_fold_case:n {##2} }
+                        = \c_minus_one
+                  }
+                  { \sort_ordered: }
+                  { \sort_reversed: }
               }
             \seq_map_inline:Nn \l__acro_tmpa_seq
               {
