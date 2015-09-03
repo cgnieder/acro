@@ -530,10 +530,10 @@
 % #1: id
 % #2: short
 % #3: long
-\DeclareObjectType { acro-first } { 3 }
+\DeclareObjectType {acro-first} {3}
 
 % template for inline appearance:
-\DeclareTemplateInterface { acro-first } { inline } { 3 }
+\DeclareTemplateInterface {acro-first} {inline} {3}
   {
     brackets      : boolean   = true  ,
     brackets-type : tokenlist = ()    ,
@@ -542,7 +542,7 @@
     between       : tokenlist         ,
     foreign-sep   : tokenlist = { , ~ }
   }
-\DeclareTemplateCode { acro-first } { inline } { 3 }
+\DeclareTemplateCode {acro-first} {inline} {3}
   {
     brackets      = \l__acro_first_use_brackets_bool ,
     brackets-type = \l__acro_first_brackets_tl       ,
@@ -2108,10 +2108,14 @@
     \acro_is_used:n {#1}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    \UseInstance {acro-first} { \l__acro_first_instance_tl }
-      {#1}
-      { \l__acro_short_tl }
-      { \l__acro_long_tl }
+    \use:x
+      {
+        \UseInstance {acro-first}
+          { \exp_not:V \l__acro_first_instance_tl }
+          { \exp_not:n {#1} }
+          { \exp_not:V \l__acro_short_tl }
+          { \exp_not:V \l__acro_long_tl }
+      }
   }
 
 % output like the first time with own long version:
