@@ -400,9 +400,10 @@ documentation.
     for the acronym.
   %% tooltip
   \keyval{tooltip}{text}
-    sets the tooltip description for an acronym.  For actually getting
-    tooltips you also need an appropriate setting of the
-    \option{tooltip-cmd} option.
+    \sinceversion{2.1}sets the tooltip description for an acronym.  For
+    actually getting tooltips you also need an appropriate setting of the
+    \option{tooltip-cmd} option or to set the package option
+    \option{tooltip}.
   %% index-sort
   \keyval{index-sort}{text}
     \sinceversion{1.1}If you use the package option \option{index} every
@@ -415,7 +416,7 @@ documentation.
     \sinceversion{1.1}This key allows to overwrite the automatic index entry
     with an arbitrary one.  See section~\ref{ssec:index} for details.
  %% index-cmd
-  \keyval{index-cmd}{text}
+  \keyval{index-cmd}{control sequence}
     \sinceversion{1.1}This key let's you set an individual index creating
     command for this acronym.  It should be a command that takes one mandatory
     argument.  See section~\ref{ssec:index} for details.
@@ -871,13 +872,13 @@ macro.
 
 \begin{options}
   \keybool{tooltip}\Default{false}
-    This options loads the \pkg{pdfcomment} package and sets the command for
-    creating tooltips to \cs*{pdftooltip}.
-  \keyval{tooltip-cmd}\Default{\cs*{@firstoftwo}}
-    This allows users using another macro for tooltips -- maybe one provided
-    by another package or some own macro.  It needs to be a macro with two
-    mandatory arguments, the first being the string typeset in the \acs{pdf},
-    the second being the tooltip description text.
+    This\sinceversion{2.1} options loads the \pkg{pdfcomment} package and sets
+    the command for creating tooltips to \cs*{pdftooltip}.
+  \keyval{tooltip-cmd}{control sequence}\Default{\cs*{@firstoftwo}}
+    This\sinceversion{2.1} allows users using another macro for tooltips --
+    maybe one provided by another package or some own macro.  It needs to be a
+    macro with two mandatory arguments, the first being the string typeset in
+    the \acs{pdf}, the second being the tooltip description text.
 \end{options}
 
 For using this with acronyms they have a property \option{tooltip} which can
@@ -1070,7 +1071,8 @@ There are a few options which change the general behaviour of \acro.
     \pkg{accsupp} package.
   %%
   \keybool{tooltip}\Default{false}
-    % TODO
+    \sinceversion{2.1}Activates tooltip support for \acro\ using the
+    \pkg{pdfcomment} package.
   %%
   \keyval{tooltip-cmd}{control sequence}\Default{\cs*{@firstoftwo}}
     \sinceversion{2.1}A macro taking two mandatory arguments, the first being
