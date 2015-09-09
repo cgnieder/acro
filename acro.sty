@@ -87,6 +87,11 @@
     form~ instead.
   }
 
+\msg_new:nnn {acro} {unknown-list-style}
+  {
+    You're~ trying~ to~ use~ the~ list~ style~ `#1'~ which~ isn't~ defined.
+  }
+
 % message macros:
 \cs_new:Npn \__acro_remove_backslash:N #1
   { \exp_after:wN \use_none:n \token_to_str:N #1 }
@@ -160,6 +165,7 @@
 \cs_generate_variant:Nn \prop_put:Nnn           { NnV, cnx, cnv }
 \cs_generate_variant:Nn \prop_get:NnNF          { cn, cnc }
 \cs_generate_variant:Nn \cs_generate_variant:Nn { c }
+\cs_generate_variant:Nn \str_case:nnF           { V }
 
 % --------------------------------------------------------------------------
 % boolean variables:
@@ -527,6 +533,13 @@
 % output style of the first time an acronym is used
 \cs_new:Npn \__acro_note_command:n #1 {#1}
 
+\cs_new_protected:Npn \acro_instance:nnnnn #1#2#3#4#5
+  { \UseInstance {#1} {#2} {#3} {#4} {#5} }
+\cs_generate_variant:Nn \acro_instance:nnnnn {nVnV,nVV,nVnVV}
+\cs_new_protected:Npn \acro_instance:nnn #1#2#3
+  { \UseInstance {#1} {#2} {#3} }
+\cs_generate_variant:Nn \acro_instance:nnn {nV,nVV}
+
 % #1: id
 % #2: short
 % #3: long
@@ -639,14 +652,14 @@
   }
 
 % template for footnotes, sidenotes, ...
-\DeclareTemplateInterface { acro-first } { note } { 3 }
+\DeclareTemplateInterface {acro-first} {note} {3}
   {
     use-note     : boolean    = true ,
     note-command : function 1 = \footnote {#1} ,
     foreign-sep  : tokenlist  = ~
   }
 
-\DeclareTemplateCode { acro-first } { note } { 3 }
+\DeclareTemplateCode {acro-first} {note} {3}
   {
     use-note     = \l__acro_use_note_bool ,
     note-command = \__acro_note_command:n ,
@@ -1185,14 +1198,15 @@
       {
         \prop_get:NnNT \l__acro_extra_prop {##1} \l__acro_tmpa_tl
           {
-            \UseInstance {acro-extra} { \l__acro_extra_instance_tl }
-              { \l__acro_tmpa_tl }
+            \acro_instance:nVV {acro-extra}
+              \l__acro_extra_instance_tl
+              \l__acro_tmpa_tl
           }
       }
     \cs_set_protected:Npn \acro_print_list_page:n ##1
       {
         \bool_if:nT { \cs_if_exist_p:c { acro@##1@once } }
-          { \UseInstance {acro-page-number} { \l__acro_page_instance_tl } {##1} }
+          { \acro_instance:nVn {acro-page-number} \l__acro_page_instance_tl {##1} }
       }
     \begin {#1}
       \acro_list_allow_items:nn {#2} {#3}
@@ -1218,7 +1232,7 @@
     \tl_set:Nn \l__acro_page_name_tl {}
     \tl_set:Nn \l__acro_pages_name_tl {}
     \acro_activate_hyperref_support:
-    \srt_case:NnF \l__acro_list_of_style
+    \str_case:VnF \l__acro_list_of_style
       {
         {toc}
         { % similar to the table of contents
@@ -1245,7 +1259,7 @@
             }
         }
       }
-      { \ERROR }
+      { \msg_error:nnn {acro} {list-style} {\l__acro_list_of_style} }
     \cs_set_protected:Npn \acro_print_list_short:nn ##1##2
       {
         \acro_hyper_target:nn
@@ -1270,14 +1284,15 @@
       {
         \prop_get:NnNT \l__acro_extra_prop {##1} \l__acro_tmpa_tl
           {
-            \UseInstance {acro-extra} { \l__acro_extra_instance_tl }
-              { \l__acro_tmpa_tl }
+            \acro_instance:nVV {acro-extra}
+              \l__acro_extra_instance_tl
+              \l__acro_tmpa_tl
           }
       }
     \cs_set_protected:Npn \acro_print_list_page:n ##1
       {
         \bool_if:nT { \cs_if_exist_p:c {acro@##1@once} }
-          { \UseInstance {acro-page-number} { \l__acro_page_instance_tl } {##1} }
+          { \acro_instance:nVn {acro-page-number} \l__acro_page_instance_tl {##1} }
       }
     % \begin {#1}
       \acro_list_allow_items:nn {#2} {#3}
@@ -1327,14 +1342,15 @@
       {
         \prop_get:NnNT \l__acro_extra_prop {##1} \l__acro_tmpa_tl
           {
-            \UseInstance {acro-extra} { \l__acro_extra_instance_tl }
-              { \l__acro_tmpa_tl }
+            \acro_instance:nVV {acro-extra}
+              \l__acro_extra_instance_tl
+              \l__acro_tmpa_tl
           }
       }
     \cs_set_protected:Npn \acro_print_list_page:n ##1
       {
         \bool_if:nT { \cs_if_exist_p:c { acro@##1@once } }
-          { \UseInstance {acro-page-number} { \l__acro_page_instance_tl } {##1} }
+          { \acro_instance:nVn {acro-page-number} \l__acro_page_instance_tl {##1} }
         \tabularnewline
       }
     \use:x
@@ -1388,15 +1404,16 @@
       {
         \prop_get:NnNT \l__acro_extra_prop {##1} \l__acro_tmpa_tl
           {
-            \UseInstance {acro-extra} { \l__acro_extra_instance_tl }
-              { \l__acro_tmpa_tl }
+            \acro_instance:nVV {acro-extra}
+              \l__acro_extra_instance_tl
+              \l__acro_tmpa_tl
           }
         &
       }
     \cs_set_protected:Npn \acro_print_list_page:n ##1
       {
         \bool_if:nT { \cs_if_exist_p:c { acro@##1@once } }
-          { \UseInstance {acro-page-number} { \l__acro_page_instance_tl } {##1} }
+          { \acro_instance:nVn {acro-page-number} \l__acro_page_instance_tl {##1} }
         \tabularnewline
       }
     \exp_args:Noo
@@ -1446,15 +1463,16 @@
       {
         \prop_get:NnNT \l__acro_extra_prop {##1} \l__acro_tmpa_tl
           {
-            \UseInstance {acro-extra} { \l__acro_extra_instance_tl }
-              { \l__acro_tmpa_tl }
+            \acro_instance:nVV {acro-extra}
+              \l__acro_extra_instance_tl
+              \l__acro_tmpa_tl
           }
         &
       }
     \cs_set_protected:Npn \acro_print_list_page:n ##1
       {
         \bool_if:nT { \cs_if_exist_p:c { acro@##1@once } }
-          { \UseInstance {acro-page-number} { \l__acro_page_instance_tl } {##1} }
+          { \acro_instance:nVn {acro-page-number} \l__acro_page_instance_tl {##1} }
         \tabularnewline
       }
     \exp_args:Noo \begin { \l__acro_list_table_tl } { \l__acro_list_table_spec_tl }
@@ -1494,6 +1512,7 @@
 % --------------------------------------------------------------------------
 % automatic typesetting, the internals of \ac:
 % #1: id
+  
 \cs_new_protected:Npn \acro_use:n #1
   {
     % get the acronym and the plural settings:
@@ -1511,10 +1530,11 @@
         \acro_if_is_single:nTF {#1}
           { \acro_single:n {#1} }
           { 
-            \UseInstance {acro-first} { \l__acro_first_instance_tl }
+            \acro_instance:nVnVV {acro-first}
+              \l__acro_first_instance_tl
               {#1}
-              { \l__acro_short_tl }
-              { \l__acro_long_tl }
+              \l__acro_short_tl
+              \l__acro_long_tl
           }
       }
   }
@@ -1531,10 +1551,11 @@
           \acro_cite:n {#1}
         }
         {first} {
-          \UseInstance {acro-first} { \l__acro_first_instance_tl }
+          \acro_instance:nVnVV {acro-first}
+            \l__acro_first_instance_tl
             {#1}
-            { \l__acro_short_tl }
-            { \l__acro_long_tl }
+            \l__acro_short_tl
+            \l__acro_long_tl
         }
       }
       { % other (e.g. short)
@@ -2108,14 +2129,11 @@
     \acro_is_used:n {#1}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    \use:x
-      {
-        \UseInstance {acro-first}
-          { \exp_not:V \l__acro_first_instance_tl }
-          { \exp_not:n {#1} }
-          { \exp_not:V \l__acro_short_tl }
-          { \exp_not:V \l__acro_long_tl }
-      }
+    \acro_instance:nVnVV {acro-first}
+      \l__acro_first_instance_tl
+      {#1}
+      \l__acro_short_tl
+      \l__acro_long_tl
   }
 
 % output like the first time with own long version:
@@ -2128,9 +2146,10 @@
     \acro_is_used:n {#1}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    \UseInstance { acro-first } { \l__acro_first_instance_tl }
+    \acro_instance:nVnVn {acro-first}
+      \l__acro_first_instance_tl
       {#1}
-      { \l__acro_short_tl }
+      \l__acro_short_tl
       {#2}
   }
 
@@ -3326,8 +3345,11 @@
 
 \cs_new_protected:Npn \acro_use_list_instance:nn #1#2
   {
-    \UseInstance {acro-list} { \l__acro_list_instance_tl }
-      { \l__acro_list_type_tl } {#1} {#2}
+    \acro_instance:nVVnn {acro-list}
+      \l__acro_list_instance_tl
+      \l__acro_list_type_tl
+      {#1}
+      {#2}
   }
 \cs_generate_variant:Nn \acro_use_list_instance:nn { VV }
 
@@ -3356,8 +3378,9 @@
       \iow_now:Nx \@auxout { \string \acro@print@list }
       \bool_if:NT \l__acro_sort_bool
         { \acro_sort_prop:N \l__acro_short_prop }
-      \UseInstance {acro-title} { \l__acro_list_title_tl }
-        { \l__acro_list_name_tl }
+      \acro_instance:nVV {acro-title}
+        \l__acro_list_title_tl
+        \l__acro_list_name_tl
       \cs_if_exist:NTF \acro@printed@list
         {
           \acro_use_list_instance:VV
@@ -3556,6 +3579,8 @@
                  - correct bug in the `plain' extra style
                  - implemented `tooltip' property
                  - remove \tl_to_lowercase:n
+2015/09/08 v2.1a - fix https://bitbucket.org/cgnieder/acro/issue/52
+                 - fix typo in `list-of' object
 
 % --------------------------------------------------------------------------
 update => http://tex.stackexchange.com/questions/236362
