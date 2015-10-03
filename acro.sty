@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2015/09/09}
-  {2.2beta}
+  {2015/10/03}
+  {2.2}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -1223,8 +1223,8 @@
     foreign-sep : tokenlist = {~} ,
     list        : tokenlist = {description} ,
     reverse     : boolean   = false ,
-    before      : tokenlist ,
-    after       : tokenlist
+    before      : tokenlist = ,
+    after       : tokenlist =
   }
 
 \DeclareTemplateCode {acro-list} {list} {2}
@@ -1264,8 +1264,8 @@
     foreign-sep : tokenlist = {~} ,
     style       : tokenlist = {toc} ,
     reverse     : boolean   = false ,
-    before      : tokenlist ,
-    after       : tokenlist
+    before      : tokenlist = ,
+    after       : tokenlist =
   }
 
 \DeclareTemplateCode {acro-list} {list-of} {2}
@@ -1354,8 +1354,8 @@
     table-spec  : tokenlist = lp{.7\linewidth} ,
     foreign-sep : tokenlist = {~} ,
     reverse     : boolean   = false ,
-    before      : tokenlist ,
-    after       : tokenlist
+    before      : tokenlist = ,
+    after       : tokenlist = 
   }
 
 \DeclareTemplateCode {acro-list} {table} {2}
@@ -1397,8 +1397,8 @@
     table-spec  : tokenlist = llll ,
     foreign-sep : tokenlist = {~} ,
     reverse     : boolean   = false ,
-    before      : tokenlist ,
-    after       : tokenlist
+    before      : tokenlist = ,
+    after       : tokenlist = 
   }
 
 \DeclareTemplateCode {acro-list} {extra-table} {2}
@@ -2631,12 +2631,13 @@
     \cs_new_protected:Npn #1 ##1##2
       {
         \cs_set:Npn \__acro_tmp_command:n ####1 {##2}
-        \exp_args:NNnx #2 ##1 {sm}
+        \exp_args:NNnx #2 ##1 {sO{}m}
           {
             \acro_begin:
               \acro_reset_specials:
-              \acro_check_and_mark_if:nn {########1} {########2}
-              \exp_not:o { \__acro_tmp_command:n {####2} }
+              \keys_set:nn {acro} {########2}
+              \acro_check_and_mark_if:nn {########1} {########3}
+              \exp_not:o { \__acro_tmp_command:n {####3} }
             \acro_end:
           }
       }
@@ -3419,7 +3420,16 @@
 
 % --------------------------------------------------------------------------
 % allow for a configuration file:
-\file_if_exist:nT {acro.cfg} { \file_input:n {acro.cfg} }
+\tl_const:Nn \c_acro_config_file_name_tl      {acro}
+\tl_const:Nn \c_acro_config_file_extension_tl {cfg}
+
+\file_if_exist:nT
+  { \c_acro_config_file_name_tl .\c_acro_config_file_extension_tl }
+  {
+    \@onefilewithoptions
+      {\c_acro_config_file_name_tl} [] []
+      \c_acro_config_file_extension_tl
+  }
 
 \tex_endinput:D
 % --------------------------------------------------------------------------
@@ -3565,11 +3575,12 @@
                  - correct bug in the `plain' extra style
                  - implemented `tooltip' property
                  - remove \tl_to_lowercase:n
-2015/09/09 v2.2  - fix https://bitbucket.org/cgnieder/acro/issue/52
+2015/10/03 v2.2  - fix https://bitbucket.org/cgnieder/acro/issue/52
                  - fix typo in `list-of' object
                  - \DeclareAcroListStyle
                  - \DeclareAcroListHeading
                  - input `acro.cfg' if present
+                 - all acro commands have an optional argument: \ac*[]{}
 
 % --------------------------------------------------------------------------
 update => http://tex.stackexchange.com/questions/236362

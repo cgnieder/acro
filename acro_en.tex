@@ -1673,7 +1673,7 @@ forms:
   % it does nothing here:
   \ProvideAcroEnding {possessive} {'s} {'s}
 
-  \NewAcroCommand \acg
+  \ProvideAcroCommand \acg
     {
       \acro_possessive:
       \acro_use:n {#1}
@@ -1846,18 +1846,10 @@ As an example here is how the value \code{section} is defined:
 \section{Configuration Files}
 If\sinceversion{2.2} you repeatedly have the same setup and definitions for
 \acro\ in your preamble you might want to place those in a configuration file.
-If \acro\ finds a file \code{acro.cfg} present it inputs it at the end of the
-package.  The only thing to be aware of is that this file is input in an expl3
-programming environment.  This means spaces are ignored and must be input
-explicitly with \code{\textasciitilde}.  The characters \code{:} and \code{\_}
-have category code~12, \ie, they are letters and can be part of macro names.
-Since the file is included in the package also \code{@} has category code~12.
-
-Details on expl3 can be found in~\cite{interface3}.  Most likely you can find
-it on your system:
-\begin{bash}
-  texdoc interface3
-\end{bash}
+If \acro\ finds a file named \code{acro.cfg} present it inputs it at the end
+of the package.  The only thing to be aware of is that this file is input like
+a package which means that \code{@} is treated as a letterhas (category
+code~12).
 
 \appendix
 
