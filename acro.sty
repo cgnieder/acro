@@ -23,16 +23,16 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The acro package consists of the files
-%  - acro.sty, acro0.def, acro1.def, acro_en.tex, acro_en.pdf, README
+%  - acro.sty, acro_en.tex, acro_en.pdf, README
 % --------------------------------------------------------------------------
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate}
+\RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2015/08/29}
-  {2.0b}
+  {2015/10/03}
+  {2.2}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -87,9 +87,13 @@
     form~ instead.
   }
 
-% message macros:
-\bool_new:N \l__acro_silence_bool
+\msg_new:nnn {acro} {unknown-list-style}
+  {
+    You're~ trying~ to~ use~ the~ list~ style~ `#1'~ which~ isn't~ defined.~
+    Using~ `#2'~ instead.
+  }
 
+% message macros:
 \cs_new:Npn \__acro_remove_backslash:N #1
   { \exp_after:wN \use_none:n \token_to_str:N #1 }
 
@@ -121,7 +125,7 @@
       { \acro_harmless_message:nnnn {replaced}   {option} {#1} {#2} }
   }
 \cs_new_protected:Npn \acro_option_deprecated:n #1
-  { \cs_new_protected:Npn \acro_option_deprecated:nn {#1} {} }
+  { \acro_option_deprecated:nn {#1} {} }
 
 \cs_new_protected:Npn \acro_command_deprecated:NN #1#2
   {
@@ -162,9 +166,11 @@
 \cs_generate_variant:Nn \prop_put:Nnn           { NnV, cnx, cnv }
 \cs_generate_variant:Nn \prop_get:NnNF          { cn, cnc }
 \cs_generate_variant:Nn \cs_generate_variant:Nn { c }
+\cs_generate_variant:Nn \str_case:nn            { V }
 
 % --------------------------------------------------------------------------
-% boolean variables:
+% variables:
+\bool_new:N      \l__acro_silence_bool
 \bool_new:N      \l__acro_mark_as_used_bool
 \bool_new:N      \g__acro_mark_first_as_used_bool
 \bool_new:N      \l__acro_use_single_bool
@@ -189,6 +195,8 @@
 \bool_set_true:N \l__acro_citation_first_bool
 \bool_new:N      \l__acro_group_citation_bool
 \bool_new:N      \l__acro_acc_supp_bool
+\bool_new:N      \l__acro_tooltip_bool
+\bool_new:N      \l__acro_inside_tooltip_bool
 \bool_new:N      \l__acro_following_page_bool
 \bool_new:N      \l__acro_following_pages_bool
 \bool_new:N      \l__acro_record_pages_bool
@@ -211,9 +219,8 @@
 \bool_set_true:N \l__acro_list_all_pages_bool
 \bool_new:N      \g__acro_first_acronym_declared_bool
 \bool_new:N      \l__acro_include_endings_format_bool
+\bool_new:N      \l__acro_list_reverse_long_extra_bool
 
-% --------------------------------------------------------------------------
-% token list variables:
 \tl_new:N   \l__acro_ignore_tl
 \tl_new:N   \l__acro_short_format_tl
 \tl_new:N   \l__acro_alt_format_tl
@@ -245,13 +252,15 @@
 \tl_new:N   \l__acro_next_pages_tl
 \tl_set:Nn  \l__acro_next_pages_tl     { \,ff.\@ }
 \tl_new:N   \l__acro_list_instance_tl
-\tl_set:Nn  \l__acro_list_instance_tl  { list }
+\tl_set:Nn  \l__acro_list_instance_tl  {description}
 \tl_new:N   \l__acro_list_type_tl
-\tl_set:Nn  \l__acro_list_type_tl      { description }
+\tl_new:N   \l__acro_list_tl
 \tl_new:N   \l__acro_list_title_tl
 \tl_set:Nn  \l__acro_list_title_tl     { section* }
 \tl_new:N   \l__acro_list_name_tl
 \tl_set:Nn  \l__acro_list_name_tl      { Acronyms }
+\tl_new:N   \l__acro_list_before_tl
+\tl_new:N   \l__acro_list_after_tl
 \tl_new:N   \l__acro_short_tl
 \tl_new:N   \l__acro_alt_tl
 \tl_new:N   \l__acro_long_tl
@@ -279,15 +288,12 @@
 \tl_new:N   \l__acro_single_form_tl
 \tl_set:Nn  \l__acro_single_form_tl {long}
 
-% --------------------------------------------------------------------------
-% length variables:
-\dim_new:N  \l__acro_table_width_dim
-\AtBeginDocument
-  { \dim_set:Nn \l__acro_table_width_dim { .7\columnwidth } }
 \dim_new:N  \l__acro_page_space_dim
 
-\dim_new:N \l__acro_short_width_dim
+\dim_new:N  \l__acro_short_width_dim
 \dim_set:Nn \l__acro_short_width_dim {3em}
+
+\prop_new:N \l__acro_list_styles_prop
 
 % --------------------------------------------------------------------------
 % small commands for use at various places
@@ -316,6 +322,9 @@
     messages          .value_required:n = true ,
     accsupp           .bool_set:N = \l__acro_acc_supp_bool ,
     accsupp-options   .tl_set:N   = \l__acro_acc_supp_options_tl ,
+    tooltip           .bool_set:N = \l__acro_tooltip_bool ,
+    tooltip-cmd       .code:n     = \cs_set:Npn \__acro_tooltip_cmd:nn {#1} ,
+    tooltip-cmd       .value_required:n = true ,
     macros            .bool_set:N = \l__acro_create_macros_bool ,
     xspace            .bool_set:N = \l__acro_xspace_bool ,
     strict            .bool_set:N = \l__acro_strict_bool ,
@@ -381,14 +390,9 @@
     next-page         .value_required:n = true ,
     next-pages        .tl_set:N   = \l__acro_next_pages_tl ,
     next-pages        .value_required:n = true ,
-    % TODO: get rid of list-type (set it implicitly?)
-    % proposed syntax: list-style = table : longtable
-    % with             list-style = longtable
-    % being an alias if it is unique
-    list-style        .tl_set:N   = \l__acro_list_instance_tl ,
+    list-style        .code:n     = \acro_set_list_style:n {#1} ,
     list-style        .value_required:n = true ,
-    list-type         .tl_set:N   = \l__acro_list_type_tl ,
-    list-type         .value_required:n = true ,
+    list-type         .code:n     = \acro_option_deprecated:n {list-type} ,
     list-header       .code:n     =
       \acro_option_deprecated:nn {list-header} {list-heading}
       \tl_set:Nn \l__acro_list_title_tl {#1} ,
@@ -396,8 +400,8 @@
     list-heading      .value_required:n = true ,
     list-name         .tl_set:N   = \l__acro_list_name_tl ,
     list-name         .value_required:n = true ,
-    list-table-width  .dim_set:N  = \l__acro_table_width_dim ,
-    list-table-width  .value_required:n = true ,
+    list-table-width  .code:n     =
+      \acro_option_deprecated:n {list-table-width} ,
     hyperref          .bool_set:N = \l__acro_use_hyperref_bool ,
     only-used         .bool_set:N = \l__acro_print_only_used_bool ,
     mark-as-used      .choice: ,
@@ -461,6 +465,34 @@
 \NewDocumentCommand \acsetup { m }
   { \keys_set:nn {acro} {#1} \ignorespaces }
 
+% --------------------------------------------------------------------------
+% we use xtemplate for different object types and with a different number of
+% arguments; let's declare functions for usage later so we don't have to
+% bother
+
+% objects with one argument:
+\cs_new_protected:Npn \acro_page_number_instance:nn #1#2
+  { \UseInstance {acro-page-number} {#1} {#2} }
+\cs_generate_variant:Nn \acro_page_number_instance:nn {V}
+
+\cs_new_protected:Npn \acro_extra_instance:nn #1#2
+  { \UseInstance {acro-extra} {#1} {#2} }
+\cs_generate_variant:Nn \acro_extra_instance:nn {VV}
+
+\cs_new_protected:Npn \acro_title_instance:nn #1#2
+  { \UseInstance {acro-title} {#1} {#2} }
+\cs_generate_variant:Nn \acro_title_instance:nn {VV}
+
+% objects with two arguments:
+\cs_new_protected:Npn \acro_list_instance:nnn #1#2#3
+  { \UseInstance {acro-list} {#1} {#2} {#3} }
+\cs_generate_variant:Nn \acro_list_instance:nnn {VVV}
+
+% objects with three arguments:
+\cs_new_protected:Npn \acro_first_instance:nnnn #1#2#3#4
+  { \UseInstance {acro-first} {#1} {#2} {#3} {#4} }
+\cs_generate_variant:Nn \acro_first_instance:nnnn {VnV,VnVV}
+  
 % --------------------------------------------------------------------------
 % hyperref support
 \cs_new_eq:NN \acro_hyper_target:nn \use_ii:nn
@@ -526,10 +558,10 @@
 % #1: id
 % #2: short
 % #3: long
-\DeclareObjectType { acro-first } { 3 }
+\DeclareObjectType {acro-first} {3}
 
 % template for inline appearance:
-\DeclareTemplateInterface { acro-first } { inline } { 3 }
+\DeclareTemplateInterface {acro-first} {inline} {3}
   {
     brackets      : boolean   = true  ,
     brackets-type : tokenlist = ()    ,
@@ -538,7 +570,7 @@
     between       : tokenlist         ,
     foreign-sep   : tokenlist = { , ~ }
   }
-\DeclareTemplateCode { acro-first } { inline } { 3 }
+\DeclareTemplateCode {acro-first} {inline} {3}
   {
     brackets      = \l__acro_first_use_brackets_bool ,
     brackets-type = \l__acro_first_brackets_tl       ,
@@ -590,9 +622,6 @@
             { \acro_deactivate_trailing_action:n {##1} }
         }
       \acro_write_compact:nn {#1} {short}
-      % \acro_get_ending_form:nn {#1} {short}
-      % \acro_acc_supp:nn {#1} { \acro_write_short:nn {#1} {#2} }
-      % \acro_endings:nn {#1} {short}
     \group_end:
     \bool_if:nT
       { \l__acro_group_citation_bool && !\l__acro_first_reversed_bool }
@@ -638,14 +667,14 @@
   }
 
 % template for footnotes, sidenotes, ...
-\DeclareTemplateInterface { acro-first } { note } { 3 }
+\DeclareTemplateInterface {acro-first} {note} {3}
   {
     use-note     : boolean    = true ,
     note-command : function 1 = \footnote {#1} ,
     foreign-sep  : tokenlist  = ~
   }
 
-\DeclareTemplateCode { acro-first } { note } { 3 }
+\DeclareTemplateCode {acro-first} {note} {3}
   {
     use-note     = \l__acro_use_note_bool ,
     note-command = \__acro_note_command:n ,
@@ -1001,37 +1030,33 @@
     \acro_list_title_format:n {#1}
   }
 
+\cs_new_protected:Npn \acro_declare_list_heading:nn #1#2
+  {
+    \DeclareInstance {acro-title} {#1} {sectioning}
+      { name-format = #2 {##1} }
+  }
+
+\NewDocumentCommand \DeclareAcroListHeading {mm}
+  { \acro_declare_list_heading:nn {#1} {#2} }
+
 % the different styles:
-\DeclareInstance {acro-title} {chapter*}       {sectioning}
-  { name-format = \chapter* {#1} }
-\DeclareInstance {acro-title} {part*}          {sectioning}
-  { name-format = \part* {#1} }
-\DeclareInstance {acro-title} {section*}       {sectioning}
-  { name-format = \section* {#1} }
-\DeclareInstance {acro-title} {subsection*}    {sectioning}
-  { name-format = \subsection* {#1} }
-\DeclareInstance {acro-title} {subsubsection*} {sectioning}
-  { name-format = \subsubsection* {#1} }
-\DeclareInstance {acro-title} {chapter}        {sectioning}
-  { name-format = \chapter {#1} }
-\DeclareInstance {acro-title} {part}           {sectioning}
-  { name-format = \part {#1} }
-\DeclareInstance {acro-title} {section}        {sectioning}
-  { name-format = \section {#1} }
-\DeclareInstance {acro-title} {subsection}     {sectioning}
-  { name-format = \subsection {#1} }
-\DeclareInstance {acro-title} {subsubsection}  {sectioning}
-  { name-format = \subsubsection {#1} }
-\DeclareInstance {acro-title} {addchap}        {sectioning}
-  { name-format = \addchap {#1} }
-\DeclareInstance {acro-title} {addsec}         {sectioning}
-  { name-format = \addsec {#1} }
-\DeclareInstance {acro-title} {none}           {sectioning}
-  { name-format = \use_none:n {#1} }
+\acro_declare_list_heading:nn {part}           {\part}
+\acro_declare_list_heading:nn {part*}          {\part*}
+\acro_declare_list_heading:nn {chapter}        {\chapter}
+\acro_declare_list_heading:nn {chapter*}       {\chapter*}
+\acro_declare_list_heading:nn {addchap}        {\addchap}
+\acro_declare_list_heading:nn {section}        {\section}
+\acro_declare_list_heading:nn {section*}       {\section*}
+\acro_declare_list_heading:nn {addsec}         {\addsec}
+\acro_declare_list_heading:nn {subsection}     {\subsection}
+\acro_declare_list_heading:nn {subsection*}    {\subsection*}
+\acro_declare_list_heading:nn {subsubsection}  {\subsubsection}
+\acro_declare_list_heading:nn {subsubsection*} {\subsubsection*}
+\acro_declare_list_heading:nn {none}           {\use_none:n}
 
 % --------------------------------------------------------------------------
-% outputting the whole list
-\DeclareObjectType {acro-list} {3}
+% typesetting the acronym list
+\DeclareObjectType {acro-list} {2}
 
 % #1: id
 % #2: excluded classes
@@ -1052,11 +1077,68 @@
       }
   }
 
-% build the list, dummy functions to be redefined in the template code:
-\cs_new:Npn \acro_print_list_short:nn #1#2 { }
-\cs_new:Npn \acro_print_list_long:n   #1   { }
-\cs_new:Npn \acro_print_list_extra:n  #1   { }
-\cs_new:Npn \acro_print_list_page:n   #1   { }
+% build the list: default functions, may be redefined in the template code
+\cs_new_protected:Npn \acro_print_list_short:nn #1#2
+  { \acro_list_short_entry:nn {#1} {#2} }
+\cs_new_protected:Npn \acro_print_list_long:n #1
+  { \acro_list_long_entry:n {#1} }
+\cs_new_protected:Npn \acro_print_list_extra:n #1
+  { \acro_list_extra_entry:n {#1} }
+\cs_new_protected:Npn \acro_print_list_page:n #1
+  { \acro_list_page_entry:n {#1} }
+
+% macros for standard retrieval of items in the list:
+\cs_new_protected:Npn \acro_list_short_entry:nn #1#2
+  {
+    \acro_hyper_target:nn
+      {#1}
+      {
+        \acro_acc_supp:nn
+          {#1}
+          { \acro_write_short:nn {#1} { \l__acro_list_short_format_tl {#2} } }
+      }
+  }
+
+\cs_set_protected:Npn \acro_list_long_entry:n #1
+  {
+    \group_begin:
+      \bool_if:NT \l__acro_capitalize_list_bool
+        { \bool_set_true:N \l__acro_first_upper_bool }
+      \acro_write_long:Vf \l__acro_list_long_format_tl
+        { \prop_item:Nn \l__acro_long_prop {#1} }
+    \group_end:
+    \bool_if:NT \l__acro_foreign_bool
+      { \acro_get_foreign:n {#1} }
+    \acro_cite_if:Nn \l__acro_citation_all_bool {#1}
+  }
+
+\cs_set_protected:Npn \acro_list_extra_entry:n #1
+  {
+    \prop_get:NnNT \l__acro_extra_prop {#1} \l__acro_tmpa_tl
+      {
+        \acro_extra_instance:VV
+          \l__acro_extra_instance_tl
+          \l__acro_tmpa_tl
+      }
+  }
+
+\cs_set_protected:Npn \acro_list_page_entry:n #1
+  {
+    \bool_if:nT { \cs_if_exist_p:c { acro@#1@once } }
+      {
+        \acro_page_number_instance:Vn
+          \l__acro_page_instance_tl
+          {#1}
+      }
+  }
+
+% this macro may be redefined in templates:
+% #1: short
+% #2: long
+% #3: extra
+% #4: page number(s)
+\cs_new_protected:Npn \acro_print_list_entry:nnnn #1#2#3#4
+  { #1 #2 #3 #4 }
 
 \cs_new:Npn \acroenparen #1 { ( #1 ) }
 
@@ -1075,9 +1157,10 @@
 \cs_new_protected:Npn \acro_for_all_acronyms_do:n #1
   { \prop_map_inline:Nn \l__acro_short_prop {#1} }
   
-% Test, if acronyms should be printed or not; needs testing for in/excluded
-% classes and options `only-used' and `single':
-\cs_new_protected:Npn \acro_list_allow_items:nn #1#2
+% test, if acronyms should be printed or not; needs testing for in/excluded
+% classes and options `only-used' and `single' -- this macro should be used in
+% the template code for retrieving the list
+\cs_new_protected:Npn \acro_list_items:nn #1#2
   {
     \acro_for_all_acronyms_do:n
       {
@@ -1102,17 +1185,10 @@
               {
                 \tl_if_blank:nTF {#1}
                   {
-                    \acro_print_list_entry:nnn
+                    \acro_print_list_entry:nnnn
                       { \acro_print_list_short:nn {##1} {##2} }
-                      {
-                        \bool_if:NT \l__acro_capitalize_list_bool
-                          { \bool_set_true:N \l__acro_first_upper_bool }
-                        \acro_print_list_long:n {##1}
-                        \bool_set_false:N \l__acro_first_upper_bool
-                        \bool_if:NT \l__acro_foreign_bool
-                          { \acro_get_foreign:n {##1} }
-                        \acro_print_list_extra:n {##1}
-                      }
+                      { \acro_print_list_long:n {##1} }
+                      { \acro_print_list_extra:n {##1} }
                       { \acro_print_list_page:n {##1} }
                   }
                   {
@@ -1125,17 +1201,10 @@
                             \tl_trim_spaces:N \l__acro_tmpb_tl
                             \tl_if_eq:NNT \l__acro_tmpa_tl \l__acro_tmpb_tl
                               {
-                                \acro_print_list_entry:nnn
+                                \acro_print_list_entry:nnnn
                                   { \acro_print_list_short:nn {##1} {##2} }
-                                  {
-                                    \bool_if:NT \l__acro_capitalize_list_bool
-                                      { \bool_set_true:N \l__acro_first_upper_bool }
-                                    \acro_print_list_long:n {##1}
-                                    \bool_set_false:N \l__acro_first_upper_bool
-                                    \bool_if:NT \l__acro_foreign_bool
-                                      { \acro_get_foreign:n {##1} }
-                                    \acro_print_list_extra:n {##1}
-                                  }
+                                  { \acro_print_list_long:n {##1} }
+                                  { \acro_print_list_extra:n {##1} }
                                   { \acro_print_list_page:n {##1} }
                               }
                           }
@@ -1146,68 +1215,66 @@
       }
   }
 
+% --------------------------------------------------------------------------
+% declare templates for the list:
 % list template:
-\DeclareTemplateInterface {acro-list} {list} {3}
-  { foreign-sep : tokenlist = { ~ } }
+\DeclareTemplateInterface {acro-list} {list} {2}
+  {
+    foreign-sep : tokenlist = {~} ,
+    list        : tokenlist = {description} ,
+    reverse     : boolean   = false ,
+    before      : tokenlist = ,
+    after       : tokenlist =
+  }
 
-\DeclareTemplateCode {acro-list} {list} {3}
-  { foreign-sep = \l__acro_foreign_sep_tl }
+\DeclareTemplateCode {acro-list} {list} {2}
+  {
+    foreign-sep = \l__acro_foreign_sep_tl ,
+    list        = \l__acro_list_tl ,
+    reverse     = \l__acro_list_reverse_long_extra_bool ,
+    before      = \l__acro_list_before_tl ,
+    after       = \l__acro_list_after_tl
+  }
   {
     \AssignTemplateKeys
     \bool_set_true:N \l__acro_in_list_bool
     \acro_activate_hyperref_support:
-    \cs_set_eq:NN \acro_print_list_entry:nnn \use:nnn
-    \cs_set_protected:Npn \acro_print_list_short:nn ##1##2
+    \bool_if:NTF \l__acro_list_reverse_long_extra_bool
       {
-        \item
-          [
-            \acro_hyper_target:nn
-              {##1}
-              {
-                \acro_acc_supp:nn
-                  {##1}
-                  { \acro_write_short:nn {##1} { \l__acro_list_short_format_tl {##2} } }
-              }
-          ]
+        \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+          { \item [##1] ##3 ##2 ##4 }
       }
-    \cs_set_protected:Npn \acro_print_list_long:n ##1
       {
-        \acro_write_long:Vf \l__acro_list_long_format_tl
-          {
-            \prop_if_in:NnTF \l__acro_list_prop {##1}
-              { \prop_item:Nn \l__acro_list_prop {##1} }
-              { \prop_item:Nn \l__acro_long_prop {##1} }
-          }
-        \acro_cite_if:Nn \l__acro_citation_all_bool {##1}
+        \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+          { \item [##1] ##2 ##3 ##4 }
       }
-    \cs_set_protected:Npn \acro_print_list_extra:n ##1
+    \use:x
       {
-        \prop_get:NnNT \l__acro_extra_prop {##1} \l__acro_tmpa_tl
-          {
-            \UseInstance {acro-extra} { \l__acro_extra_instance_tl }
-              { \l__acro_tmpa_tl }
-          }
+        \exp_not:V \l__acro_list_before_tl
+        \exp_not:N \begin { \exp_not:V \l__acro_list_tl }
+          \exp_not:n { \acro_list_items:nn {#1} {#2} }
+        \exp_not:N \end { \exp_not:V \l__acro_list_tl }
+        \exp_not:V \l__acro_list_after_tl
       }
-    \cs_set_protected:Npn \acro_print_list_page:n ##1
-      {
-        \bool_if:nT { \cs_if_exist_p:c { acro@##1@once } }
-          { \UseInstance {acro-page-number} { \l__acro_page_instance_tl } {##1} }
-      }
-    \begin {#1}
-      \acro_list_allow_items:nn {#2} {#3}
-    \end {#1}
   }
 
-\DeclareTemplateInterface {acro-list} {list-of} {3}
+% list-of template:
+\DeclareTemplateInterface {acro-list} {list-of} {2}
   {
-    foreign-sep : tokenlist = { ~ } ,
-    style       : tokenlist = {toc}
+    foreign-sep : tokenlist = {~} ,
+    style       : tokenlist = {toc} ,
+    reverse     : boolean   = false ,
+    before      : tokenlist = ,
+    after       : tokenlist =
   }
 
-\DeclareTemplateCode {acro-list} {list-of} {3}
+\DeclareTemplateCode {acro-list} {list-of} {2}
   {
     foreign-sep = \l__acro_foreign_sep_tl ,
-    style       = \l__acro_list_of_style
+    style       = \l__acro_list_of_style ,
+    reverse     = \l__acro_list_reverse_long_extra_bool ,
+    before      = \l__acro_list_before_tl ,
+    after       = \l__acro_list_after_tl
   }
   {
     \AssignTemplateKeys
@@ -1217,20 +1284,43 @@
     \tl_set:Nn \l__acro_page_name_tl {}
     \tl_set:Nn \l__acro_pages_name_tl {}
     \acro_activate_hyperref_support:
-    \srt_case:NnF \l__acro_list_of_style
+    \str_case:Vn \l__acro_list_of_style
       {
         {toc}
         { % similar to the table of contents
-          \cs_set_protected:Npn \acro_print_list_entry:nnn ##1##2##3
+          \bool_if:NTF \l__acro_list_reverse_long_extra_bool
             {
               \cs_if_exist:NTF \chapter
                 {
-                  \contentsline{chapter}{##1}{}{}
-                  \contentsline{section}{##2}{##3}{}
+                  \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+                    {
+                      \contentsline{chapter}{##1}{}{}
+                      \contentsline{section}{##3##2}{##4}{}
+                    } 
                 }
                 {
-                  \contentsline{section}{##2}{##3}{}
-                  \contentsline{subsection}{##2}{##3}{}
+                  \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+                    {
+                      \contentsline{section}{##1}{}{}
+                      \contentsline{subsection}{##3##2}{##4}{}
+                    }
+                }
+            }
+            {
+              \cs_if_exist:NTF \chapter
+                {
+                  \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+                    {
+                      \contentsline{chapter}{##1}{}{}
+                      \contentsline{section}{##2##3}{##4}{}
+                    } 
+                }
+                {
+                  \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+                    {
+                      \contentsline{section}{##1}{}{}
+                      \contentsline{subsection}{##2##3}{##4}{}
+                    }
                 }
             }
         }
@@ -1238,261 +1328,182 @@
         { % similar to the list of figures
           \cs_set_protected:Npn \l@acro
             { \@dottedtocline {1} {1.5em} {\l__acro_short_width_dim} }
-          \cs_set_protected:Npn \acro_print_list_entry:nnn ##1##2##3
+          \bool_if:NTF \l__acro_list_reverse_long_extra_bool
             {
-              \contentsline{acro}{\numberline{##1}{##2}}{##3}{}
+              \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+                { \contentsline{acro}{\numberline{##1}{##3##2}}{##4}{} }
+            }
+            {
+              \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+                { \contentsline{acro}{\numberline{##1}{##2##3}}{##4}{} }
             }
         }
       }
-      { \ERROR }
-    \cs_set_protected:Npn \acro_print_list_short:nn ##1##2
+    \use:x
       {
-        \acro_hyper_target:nn
-          {##1}
-          {
-            \acro_acc_supp:nn
-              {##1}
-              { \acro_write_short:nn {##1} { \l__acro_list_short_format_tl {##2} } }
-          }
+        \exp_not:V \l__acro_list_before_tl
+        \exp_not:n { \acro_list_items:nn {#1} {#2} }
+        \exp_not:V \l__acro_list_before_tl
       }
-    \cs_set_protected:Npn \acro_print_list_long:n ##1
-      {
-        \acro_write_long:Vf \l__acro_list_long_format_tl
-          {
-            \prop_if_in:NnTF \l__acro_list_prop {##1}
-              { \prop_item:Nn \l__acro_list_prop {##1} }
-              { \prop_item:Nn \l__acro_long_prop {##1} }
-          }
-        \acro_cite_if:Nn \l__acro_citation_all_bool {##1}
-      }
-    \cs_set_protected:Npn \acro_print_list_extra:n ##1
-      {
-        \prop_get:NnNT \l__acro_extra_prop {##1} \l__acro_tmpa_tl
-          {
-            \UseInstance {acro-extra} { \l__acro_extra_instance_tl }
-              { \l__acro_tmpa_tl }
-          }
-      }
-    \cs_set_protected:Npn \acro_print_list_page:n ##1
-      {
-        \bool_if:nT { \cs_if_exist_p:c {acro@##1@once} }
-          { \UseInstance {acro-page-number} { \l__acro_page_instance_tl } {##1} }
-      }
-    % \begin {#1}
-      \acro_list_allow_items:nn {#2} {#3}
-    % \end {#1}
   }
   
 % table template:
-\DeclareTemplateInterface {acro-list} {table} {3}
+\DeclareTemplateInterface {acro-list} {table} {2}
   {
-    table       : tokenlist = longtable         ,
-    table-spec  : tokenlist = lp{\l__acro_table_width_dim} ,
-    foreign-sep : tokenlist = { ~ }
+    table       : tokenlist = tabular ,
+    table-spec  : tokenlist = lp{.7\linewidth} ,
+    foreign-sep : tokenlist = {~} ,
+    reverse     : boolean   = false ,
+    before      : tokenlist = ,
+    after       : tokenlist = 
   }
 
-\DeclareTemplateCode {acro-list} {table} {3}
+\DeclareTemplateCode {acro-list} {table} {2}
   {
     table       = \l__acro_list_table_tl      ,
     table-spec  = \l__acro_list_table_spec_tl ,
-    foreign-sep = \l__acro_foreign_sep_tl
+    foreign-sep = \l__acro_foreign_sep_tl ,
+    reverse     = \l__acro_list_reverse_long_extra_bool ,
+    before      = \l__acro_list_before_tl ,
+    after       = \l__acro_list_after_tl
   }
   {
     \AssignTemplateKeys
     \acro_activate_hyperref_support:
-    \cs_set_eq:NN \acro_print_list_entry:nnn \use:nnn
-    \cs_set_protected:Npn \acro_print_list_short:nn ##1##2
+    \bool_if:NTF \l__acro_list_reverse_long_extra_bool
       {
-        \acro_hyper_target:nn
-          {##1}
-          {
-            \acro_acc_supp:nn
-              {##1}
-              { \acro_write_short:nn {##1} { \l__acro_list_short_format_tl {##2} } }
-          }
-        &
+        \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+          { ##1 & ##3 ##2 ##4 \tabularnewline }
       }
-    \cs_set_protected:Npn \acro_print_list_long:n ##1
       {
-        \acro_write_long:Vf \l__acro_list_long_format_tl
-          {
-            \prop_if_in:NnTF \l__acro_list_prop {##1}
-              { \prop_item:Nn \l__acro_list_prop {##1} }
-              { \prop_item:Nn \l__acro_long_prop {##1} }
-          }
-        \acro_cite_if:Nn \l__acro_citation_all_bool {##1}
-      }
-    \cs_set_protected:Npn \acro_print_list_extra:n ##1
-      {
-        \prop_get:NnNT \l__acro_extra_prop {##1} \l__acro_tmpa_tl
-          {
-            \UseInstance {acro-extra} { \l__acro_extra_instance_tl }
-              { \l__acro_tmpa_tl }
-          }
-      }
-    \cs_set_protected:Npn \acro_print_list_page:n ##1
-      {
-        \bool_if:nT { \cs_if_exist_p:c { acro@##1@once } }
-          { \UseInstance {acro-page-number} { \l__acro_page_instance_tl } {##1} }
-        \tabularnewline
+        \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+          { ##1 & ##2 ##3 ##4 \tabularnewline }
       }
     \use:x
       {
+        \exp_not:V \l__acro_list_before_tl
         \exp_not:N \begin { \exp_not:V \l__acro_list_table_tl }
           { \exp_not:V \l__acro_list_table_spec_tl }
-        \exp_not:n { \acro_list_allow_items:nn {#2} {#3} }
+        \exp_not:n { \acro_list_items:nn {#1} {#2} }
         \exp_not:N \end { \exp_not:V \l__acro_list_table_tl }
+        \exp_not:V \l__acro_list_after_tl
       }
   }
 
 % extra-table template:
-\DeclareTemplateInterface {acro-list} {extra-table} {3}
+\DeclareTemplateInterface {acro-list} {extra-table} {2}
   {
-    table      : tokenlist = longtable         ,
-    table-spec : tokenlist = lp{\l__acro_table_width_dim}ll
+    table       : tokenlist = tabular ,
+    table-spec  : tokenlist = llll ,
+    foreign-sep : tokenlist = {~} ,
+    reverse     : boolean   = false ,
+    before      : tokenlist = ,
+    after       : tokenlist = 
   }
 
-\DeclareTemplateCode {acro-list} {extra-table} {3}
+\DeclareTemplateCode {acro-list} {extra-table} {2}
   {
-    table      = \l__acro_list_table_tl      ,
-    table-spec = \l__acro_list_table_spec_tl
+    table       = \l__acro_list_table_tl      ,
+    table-spec  = \l__acro_list_table_spec_tl ,
+    foreign-sep = \l__acro_foreign_sep_tl ,
+    reverse     = \l__acro_list_reverse_long_extra_bool ,
+    before      = \l__acro_list_before_tl ,
+    after       = \l__acro_list_after_tl
   }
   {
     \AssignTemplateKeys
     \acro_activate_hyperref_support:
-    \cs_set_eq:NN \acro_print_list_entry:nnn \use:nnn
-    \cs_set_protected:Npn \acro_print_list_short:nn ##1##2
+    \bool_if:NTF \l__acro_list_reverse_long_extra_bool
       {
-        \acro_hyper_target:nn
-          {##1}
-          {
-            \acro_acc_supp:nn
-              {##1}
-              { \acro_write_short:nn {##1} { \l__acro_list_short_format_tl {##2} } }
-          }
-        &
+        \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+          { ##1 & ##3 & ##2 & ##4 \tabularnewline }
       }
-    \cs_set_protected:Npn \acro_print_list_long:n ##1
       {
-        \acro_write_long:Vf \l__acro_list_long_format_tl
-          {
-            \prop_if_in:NnTF \l__acro_list_prop {##1}
-              { \prop_item:Nn \l__acro_list_prop {##1} }
-              { \prop_item:Nn \l__acro_long_prop {##1} }
-          }
-        \acro_cite_if:Nn \l__acro_citation_all_bool {##1}
-        &
+        \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
+          { ##1 & ##2 & ##3 & ##4 \tabularnewline }
       }
-    \cs_set_protected:Npn \acro_print_list_extra:n ##1
+    \use:x
       {
-        \prop_get:NnNT \l__acro_extra_prop {##1} \l__acro_tmpa_tl
-          {
-            \UseInstance {acro-extra} { \l__acro_extra_instance_tl }
-              { \l__acro_tmpa_tl }
-          }
-        &
+        \exp_not:V \l__acro_list_before_tl
+        \exp_not:N \begin { \exp_not:V \l__acro_list_table_tl }
+          { \exp_not:V \l__acro_list_table_spec_tl }
+        \exp_not:n { \acro_list_items:nn {#1} {#2} }
+        \exp_not:N \end { \exp_not:V \l__acro_list_table_tl }
+        \exp_not:V \l__acro_list_after_tl
       }
-    \cs_set_protected:Npn \acro_print_list_page:n ##1
-      {
-        \bool_if:nT { \cs_if_exist_p:c { acro@##1@once } }
-          { \UseInstance {acro-page-number} { \l__acro_page_instance_tl } {##1} }
-        \tabularnewline
-      }
-    \exp_args:Noo
-    \begin { \l__acro_list_table_tl } { \l__acro_list_table_spec_tl }
-      \acro_list_allow_items:nn {#2} {#3}
-    \exp_args:No
-    \end { \l__acro_list_table_tl }
   }
 
-% extra-table-rev template:
-\DeclareTemplateInterface {acro-list} {extra-table-rev} {3}
+% --------------------------------------------------------------------------
+% declare new list styles:
+\cs_new_protected:Npn \acro_declare_list_style:nnn #1#2#3
   {
-    table      : tokenlist = longtable         ,
-    table-spec : tokenlist = llp{\l__acro_table_width_dim}l
+    \DeclareInstance {acro-list} {#1} {#2} {#3}
+    \prop_put:Nnn \l__acro_list_styles_prop  {#1} {#2}
   }
 
-\DeclareTemplateCode {acro-list} {extra-table-rev} {3}
+% #1: name
+% #2: template
+% #3: settings
+\NewDocumentCommand \DeclareAcroListStyle {mmm}
+  { \acro_declare_list_style:nnn {#1} {#2} {#3} }
+
+% set a list style
+\cs_new_protected:Npn \acro_set_list_style:n #1
   {
-    table      = \l__acro_list_table_tl      ,
-    table-spec = \l__acro_list_table_spec_tl
-  }
-  {
-    \AssignTemplateKeys
-    \acro_activate_hyperref_support:
-    \cs_set_eq:NN \acro_print_list_entry:nnn \use:nnn
-    \cs_set_protected:Npn \acro_print_list_short:nn ##1##2
+    \prop_if_in:NnTF \l__acro_list_styles_prop {#1}
+      { \__acro_set_list_style:n {#1} }
       {
-        \acro_hyper_target:nn
-          {##1}
-          { \acro_acc_supp:nn {##1} { \acro_write_short:nn {##1} {##2} } }
-        &
+        \msg_warning:nnnn {acro} {unknown-list-style} {#1} {description}
+        \__acro_set_list_style:n {description}
       }
-    \cs_set_protected:Npn \acro_print_list_extra:n ##1
-      {
-        \bool_if:NT \l__acro_capitalize_list_bool
-          { \bool_set_true:N \l__acro_first_upper_bool }
-        \acro_write_long:Vf \l__acro_long_format_tl
-          {
-            \prop_if_in:NnTF \l__acro_list_prop {##1}
-              { \prop_item:Nn \l__acro_list_prop {##1} }
-              { \prop_item:Nn \l__acro_long_prop {##1} }
-          }
-        \acro_cite_if:Nn \l__acro_citation_all_bool {##1}
-        &
-      }
-    \cs_set_protected:Npn \acro_print_list_long:n ##1
-      {
-        \prop_get:NnNT \l__acro_extra_prop {##1} \l__acro_tmpa_tl
-          {
-            \UseInstance {acro-extra} { \l__acro_extra_instance_tl }
-              { \l__acro_tmpa_tl }
-          }
-        &
-      }
-    \cs_set_protected:Npn \acro_print_list_page:n ##1
-      {
-        \bool_if:nT { \cs_if_exist_p:c { acro@##1@once } }
-          { \UseInstance {acro-page-number} { \l__acro_page_instance_tl } {##1} }
-        \tabularnewline
-      }
-    \exp_args:Noo \begin { \l__acro_list_table_tl } { \l__acro_list_table_spec_tl }
-      \acro_list_allow_items:nn {#2} {#3}
-    \exp_args:No \end { \l__acro_list_table_tl }
   }
 
-% the different styles:
-\DeclareInstance {acro-list} {list}
-  { list }
+\cs_new_protected:Npn \__acro_set_list_style:n #1
+  {
+    \tl_set:Nn \l__acro_list_instance_tl {#1}
+    \tl_set:Nx \l__acro_list_type_tl
+      { \prop_item:Nn \l__acro_list_styles_prop {#1} }
+  }
+
+% --------------------------------------------------------------------------
+% predefined list styles:
+\DeclareAcroListStyle {description} {list}
   { }
-\DeclareInstance {acro-list} {toc}
-  { list-of }
+
+\DeclareAcroListStyle {toc} {list-of}
   { }
-\DeclareInstance {acro-list} {lof}
-  { list-of }
+
+\DeclareAcroListStyle {lof} {list-of}
   { style = lof }
-\DeclareInstance {acro-list} {tabular}
-  { table }
+
+\DeclareAcroListStyle {tabular} {table}
   { table = tabular }
-\DeclareInstance {acro-list} {longtable}
-  { table }
+
+\DeclareAcroListStyle {longtable} {table}
   { table = longtable }
-\DeclareInstance {acro-list} {extra-longtable}
-  { extra-table }
-  { table = longtable }
-\DeclareInstance {acro-list} {extra-tabular}
-  { extra-table }
+
+\DeclareAcroListStyle {extra-tabular} {extra-table}
   { table = tabular }
-\DeclareInstance {acro-list} {extra-longtable-rev}
-  { extra-table-rev }
+
+\DeclareAcroListStyle {extra-longtable} {extra-table}
   { table = longtable }
-\DeclareInstance {acro-list} {extra-tabular-rev}
-  { extra-table-rev }
-  { table = tabular }
+
+\DeclareAcroListStyle {extra-tabular-rev} {extra-table}
+  {
+    table   = tabular ,
+    reverse = true
+  }
+
+\DeclareAcroListStyle {extra-longtable-rev} {extra-table}
+  {
+    table   = longtable ,
+    reverse = true
+  }
 
 % --------------------------------------------------------------------------
 % automatic typesetting, the internals of \ac:
 % #1: id
+  
 \cs_new_protected:Npn \acro_use:n #1
   {
     % get the acronym and the plural settings:
@@ -1510,10 +1521,11 @@
         \acro_if_is_single:nTF {#1}
           { \acro_single:n {#1} }
           { 
-            \UseInstance {acro-first} { \l__acro_first_instance_tl }
+            \acro_first_instance:VnVV
+              \l__acro_first_instance_tl
               {#1}
-              { \l__acro_short_tl }
-              { \l__acro_long_tl }
+              \l__acro_short_tl
+              \l__acro_long_tl
           }
       }
   }
@@ -1530,10 +1542,11 @@
           \acro_cite:n {#1}
         }
         {first} {
-          \UseInstance {acro-first} { \l__acro_first_instance_tl }
+          \acro_first_instance:VnVV
+            \l__acro_first_instance_tl
             {#1}
-            { \l__acro_short_tl }
-            { \l__acro_long_tl }
+            \l__acro_short_tl
+            \l__acro_long_tl
         }
       }
       { % other (e.g. short)
@@ -1992,13 +2005,20 @@
 % --------------------------------------------------------------------------
 % #1: id
 % #2: short|alt
-\cs_new_protected:Npn \acro_write_compact:nn #1#2
+\cs_set_protected:Npn \acro_write_compact:nn #1#2
   {
     \acro_get_ending_form:nn {#1} {#2}
     \acro_acc_supp:nn
       {#1}
-      { \use:c {acro_write_#2:nv} {#1} {l__acro_#2_tl} }
-    \acro_endings:nn {#1} {#2}
+      {
+        \acro_write_tooltip:nnV
+          {#1}
+          {
+            \use:c {acro_write_#2:nv} {#1} {l__acro_#2_tl}
+            \acro_endings:nn {#1} {#2}
+          }
+          \l__acro_long_tl
+      }
   }
   
 % #1: ID
@@ -2100,10 +2120,11 @@
     \acro_is_used:n {#1}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    \UseInstance {acro-first} { \l__acro_first_instance_tl }
+    \acro_first_instance:VnVV
+      \l__acro_first_instance_tl
       {#1}
-      { \l__acro_short_tl }
-      { \l__acro_long_tl }
+      \l__acro_short_tl
+      \l__acro_long_tl
   }
 
 % output like the first time with own long version:
@@ -2116,9 +2137,10 @@
     \acro_is_used:n {#1}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    \UseInstance { acro-first } { \l__acro_first_instance_tl }
+    \acro_first_instance:VnVn
+      \l__acro_first_instance_tl
       {#1}
-      { \l__acro_short_tl }
+      \l__acro_short_tl
       {#2}
   }
 
@@ -2244,20 +2266,53 @@
   }
 \cs_generate_variant:Nn \acro_do_acc_supp:nnn { VV }
 
-% macro to redefine to adapt definition of \acro_acc_supp:nn, for cases like
-% http://tex.stackexchange.com/a/161521/
-\cs_new_protected:Npn \acro_set_accsupp:
-  { \cs_set_eq:NN \acro_acc_supp:nn \acro_get_acc_supp:nn }
-
-\AtBeginDocument
+\AtEndPreamble
   {
     \bool_if:NT \l__acro_acc_supp_bool
       {
         \RequirePackage {accsupp}
-        \acro_set_accsupp:
+        \cs_set_eq:NN \acro_acc_supp:nn \acro_get_acc_supp:nn
+      }
+    \bool_if:NT \l__acro_tooltip_bool
+      {
+        \RequirePackage {pdfcomment}
+        \cs_if_eq:NNT \__acro_tooltip_cmd:nn \use_i:nn
+          { \cs_set:Npn \__acro_tooltip_cmd:nn { \pdftooltip } }
       }
   }
 
+% --------------------------------------------------------------------------
+% tooltips for acronyms
+
+% #1: id
+% #2: printed text
+% #3: tool tip text
+\cs_new_protected:Npn \acro_write_tooltip:nnn #1#2#3
+  {
+    \prop_get:NnNTF \l__acro_tooltip_prop {#1} \l__acro_tmpa_tl
+      { \__acro_check_tooltip:nV {#2} \l__acro_tmpa_tl }
+      { \__acro_check_tooltip:nn {#2} {#3} }
+  }
+\cs_generate_variant:Nn \acro_write_tooltip:nnn { nnV }
+
+% #1: printed text
+% #2: tool tip text
+\cs_new_protected:Npn \__acro_check_tooltip:nn #1#2
+  {
+    \bool_if:NTF \l__acro_inside_tooltip_bool
+      {#1}
+      {
+        \bool_set_true:N \l__acro_inside_tooltip_bool
+        \__acro_tooltip_cmd:nn {#1} {#2}
+      }
+  }
+\cs_generate_variant:Nn \__acro_check_tooltip:nn { nV }
+
+% use whatever command you like for creating tooltips here:
+% #1: printed text
+% #2: tool tip text
+\cs_new_eq:NN \__acro_tooltip_cmd:nn \use_i:nn
+  
 % --------------------------------------------------------------------------
 % indefinite articles:
 
@@ -2459,7 +2514,7 @@
   }
 
 % some user macros:
-\cs_new_protected:Npn \acro_dot: { \aciftrailing {dot} {} {.} }
+\cs_new_protected:Npn \acro_dot: { \aciftrailing {dot} {} {.\@} }
 \cs_new_eq:NN \acdot \acro_dot:
 
 \cs_new_protected:Npn \acro_space:
@@ -2576,12 +2631,13 @@
     \cs_new_protected:Npn #1 ##1##2
       {
         \cs_set:Npn \__acro_tmp_command:n ####1 {##2}
-        \exp_args:NNnx #2 ##1 {sm}
+        \exp_args:NNnx #2 ##1 {sO{}m}
           {
             \acro_begin:
               \acro_reset_specials:
-              \acro_check_and_mark_if:nn {########1} {########2}
-              \exp_not:o { \__acro_tmp_command:n {####2} }
+              \keys_set:nn {acro} {########2}
+              \acro_check_and_mark_if:nn {########1} {########3}
+              \exp_not:o { \__acro_tmp_command:n {####3} }
             \acro_end:
           }
       }
@@ -3166,6 +3222,9 @@
 % acc supp:
 \acro_declare_key:nn {acc_supp} {accsupp}
 
+% tooltip:
+\acro_declare_simple_key:n {tooltip}
+
 % citation:
 \prop_new:N \l__acro_citation_prop
 \prop_new:N \l__acro_citation_pre_prop
@@ -3276,13 +3335,6 @@
 \tl_new:N \l__acro_included_classes_tl
 \tl_new:N \l__acro_excluded_classes_tl
 
-\cs_new_protected:Npn \acro_use_list_instance:nn #1#2
-  {
-    \UseInstance {acro-list} { \l__acro_list_instance_tl }
-      { \l__acro_list_type_tl } {#1} {#2}
-  }
-\cs_generate_variant:Nn \acro_use_list_instance:nn { VV }
-
 \keys_define:nn { acro / print-acronyms }
   {
     include-classes .tl_set:N   = \l__acro_included_classes_tl ,
@@ -3308,11 +3360,13 @@
       \iow_now:Nx \@auxout { \string \acro@print@list }
       \bool_if:NT \l__acro_sort_bool
         { \acro_sort_prop:N \l__acro_short_prop }
-      \UseInstance {acro-title} { \l__acro_list_title_tl }
-        { \l__acro_list_name_tl }
+      \acro_title_instance:VV
+        \l__acro_list_title_tl
+        \l__acro_list_name_tl
       \cs_if_exist:NTF \acro@printed@list
         {
-          \acro_use_list_instance:VV
+          \acro_list_instance:VVV
+            \l__acro_list_instance_tl
             \l__acro_included_classes_tl
             \l__acro_excluded_classes_tl
         }
@@ -3363,6 +3417,19 @@
 \DeclareTranslation { German     } { acronym-next-pages } { ff. }
 \DeclareTranslation { Portuguese } { acronym-next-pages } { ss. }
 \tl_set:Nn \l__acro_next_pages_tl { \,\GetTranslation {acronym-next-pages }\@ }
+
+% --------------------------------------------------------------------------
+% allow for a configuration file:
+\tl_const:Nn \c_acro_config_file_name_tl      {acro}
+\tl_const:Nn \c_acro_config_file_extension_tl {cfg}
+
+\file_if_exist:nT
+  { \c_acro_config_file_name_tl .\c_acro_config_file_extension_tl }
+  {
+    \@onefilewithoptions
+      {\c_acro_config_file_name_tl} [] []
+      \c_acro_config_file_extension_tl
+  }
 
 \tex_endinput:D
 % --------------------------------------------------------------------------
@@ -3503,9 +3570,17 @@
 2015/08/29 v2.0b - fix https://bitbucket.org/cgnieder/acro/issue/44
                  - fix https://bitbucket.org/cgnieder/acro/issue/45
                  - implement https://bitbucket.org/cgnieder/acro/issue/42
-2015/??/?? v2.1  - add list object type `list-of' that prints the list like a
+2015/09/05 v2.1  - add list object type `list-of' that prints the list like a
                    toc or lof, new option `list-short-width',
                  - correct bug in the `plain' extra style
+                 - implemented `tooltip' property
+                 - remove \tl_to_lowercase:n
+2015/10/03 v2.2  - fix https://bitbucket.org/cgnieder/acro/issue/52
+                 - fix typo in `list-of' object
+                 - \DeclareAcroListStyle
+                 - \DeclareAcroListHeading
+                 - input `acro.cfg' if present
+                 - all acro commands have an optional argument: \ac*[]{}
 
 % --------------------------------------------------------------------------
 update => http://tex.stackexchange.com/questions/236362
