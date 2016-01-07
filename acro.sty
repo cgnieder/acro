@@ -1719,7 +1719,7 @@
           {
             \prop_put:cnn {l__acro_short_#1_form_prop} {##1} { \c_false_bool }
             \prop_put:cnx {l__acro_pdfstring_short_#1_prop}
-              {##1} { \prop_get:Nn \l__acro_short_prop {##1} \exp_not:n {##2} }
+              {##1} { \prop_item:Nn \l__acro_short_prop {##1} \exp_not:n {##2} }
           }
         % short-<ending>-form:
         \acro_declare_key_generic:nnn {short_#1_form} {short-#1-form}
@@ -1734,7 +1734,7 @@
           {
             \prop_put:cnn {l__acro_alt_#1_form_prop} {##1} { \c_false_bool }
             \prop_put:cnx {l__acro_pdfstring_alt_#1_prop}
-              {##1} { \prop_get:Nn \l__acro_alt_prop {##1} \exp_not:n {##2} }
+              {##1} { \prop_item:Nn \l__acro_alt_prop {##1} \exp_not:n {##2} }
           }
         % alt-<ending>-form:
         \acro_declare_key_generic:nnn {alt_#1_form} {alt-#1-form}
@@ -2323,11 +2323,11 @@
 \cs_new_protected:Npn \acro_write_indefinite:nn #1#2
   {
     \bool_if:NT \l__acro_indefinite_bool
-      { \prop_get:cn { l__acro_#2_indefinite_prop } {#1} ~ }
+      { \prop_item:cn { l__acro_#2_indefinite_prop } {#1} ~ }
     \bool_if:NT \l__acro_upper_indefinite_bool
       { %  \bool_set_true:N \l__acro_first_upper_bool
          \__acro_first_upper_case:x
-           { \prop_get:cn { l__acro_#2_indefinite_prop } {#1} } ~
+           { \prop_item:cn { l__acro_#2_indefinite_prop } {#1} } ~
       }
   }
 
@@ -2496,7 +2496,7 @@
     \tl_map_inline:Nn \l__acro_trailing_tokens_tl
       {
         \token_if_eq_meaning:NNT \l_peek_token ##1
-          { \prop_get:Nn \l__acro_trailing_actions_prop {##1} }
+          { \prop_item:Nn \l__acro_trailing_actions_prop {##1} }
       }
   }
 
