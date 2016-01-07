@@ -6,10 +6,9 @@
 \usepackage[ngerman]{babel}
 \usepackage{acro}
 \acsetup{
-  page-ref    = paren,% Seitennummer in Klammern
-  extra-style = comma,% extra-Informationen mit Komma anhängen
-  only-used   = false,% für das Beispiel auch die nicht verwendeten in die Liste aufnehmen
-  sort        = true  % Liste sortieren
+  page-ref    = paren , % Seitennummer in Klammern
+  extra-style = comma , % extra-Informationen mit Komma anhängen
+  only-used   = false   % für das Beispiel auch die nicht verwendeten in die Liste aufnehmen
 }
 
 \usepackage{longtable,siunitx}
@@ -59,21 +58,33 @@
   class = physics
 }
 
+\DeclareAcroListStyle{physics}{extra-table}{
+  table   = longtable ,
+  table-spec = @{}lll@{\extracolsep{\fill}}l@{} ,
+  reverse = true ,
+  before =
+    \setlength\LTleft{0pt}%
+    \setlength\LTright{0pt}%
+    \acsetup{
+      extra-style = plain ,
+      page-ref = plain ,
+      pages = all
+    }%
+}
+
 \begin{document}
 
 erstes Mal: \ac{ecm}
 
 zweites Mal: \ac{ecm}
 
+\ac{F}
+
 % alle außer der Klasse 'physics' auflisten:
 \printacronyms[exclude-classes=physics, name=Abkürzungsverzeichnis]
 
 % nur die Klasse 'physics' auflisten:
-\acsetup{
-  list-type   = table,
-  list-style  = extra-longtable-rev,
-  extra-style = plain
-}
+\acsetup{list-style = physics}
 \printacronyms[include-classes=physics, name=Formelverzeichnis]
 
 \end{document}

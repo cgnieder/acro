@@ -975,7 +975,7 @@
     punct-symbol  : tokenlist = {,}   ,
     brackets      : boolean   = false ,
     brackets-type : tokenlist = ()    ,
-    space         : length    = .3ex
+    space         : length    = .333em
   }
 
 \DeclareTemplateCode {acro-page-number} {default} {1}
@@ -993,7 +993,9 @@
       {
         \bool_if:NT \l__acro_page_punct_bool
           { \tl_use:N \l__acro_page_punct_tl }
-        \tl_use:N \c_space_tl
+        % \tl_use:N \c_space_tl
+        \dim_compare:nNnF { \l__acro_page_space_dim } = { 0pt }
+          { \skip_horizontal:N \l__acro_page_space_dim }
         \bool_if:NT \l__acro_page_brackets_bool
           { \tl_head:N \l__acro_page_brackets_tl }
         \acro_print_page_numbers:n {#1}
@@ -2498,11 +2500,6 @@
       }
   }
 
-% register some tokens to be checked for:
-\AcroRegisterTrailing . {dot}
-\AcroRegisterTrailing - {dash}
-\AcroRegisterTrailing \babelhyphen {babel-hyphen}
-
 % options for activating actions:
 \keys_define:nn {acro}
   {
@@ -2513,13 +2510,20 @@
       \clist_map_inline:nn {#1} { \acro_deactivate_trailing_token:n {##1} }
   }
 
-% some user macros:
-\cs_new_protected:Npn \acro_dot: { \aciftrailing {dot} {} {.\@} }
-\cs_new_eq:NN \acdot \acro_dot:
+% register some tokens to be checked for:
+\AcroRegisterTrailing . {dot}
+\AcroRegisterTrailing - {dash}
+\AcroRegisterTrailing \babelhyphen {babel-hyphen}
 
-\cs_new_protected:Npn \acro_space:
+% some user macros:
+\NewDocumentCommand \acdot {}
+  { \aciftrailing {dot} {} {.\@} }
+
+\NewDocumentCommand \acspace {}
   { \aciftrailing {dash,babel-hyphen} {} {\space} }
-\cs_new_eq:NN \acspace \acro_space:
+
+\cs_new_eq:NN \acro_dot:   \acdot
+\cs_new_eq:NN \acro_space: \acspace
 
 % ---------------------------------------------------------------------------
 % reset outputs, they'll behave like the first time again (!not like the _only_
