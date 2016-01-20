@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/01/07}
-  {2.2a}
+  {2016/01/20}
+  {2.2b}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -1646,8 +1646,8 @@
 \cs_new_protected:Npn \__acro_set_ending_for:nnn #1#2#3
   {
     \bool_if:nTF { \prop_item:cn {l__acro_#3_#1_form_prop} {#2} }
-      { \prop_get:cnc {l__acro_#3_#1_form_prop} {#2} {l__acro_#3_tl} }
-      { \prop_get:cnc {l__acro_#3_#1_prop} {#2} {l__acro_#3_#1_tl} }
+      { \prop_get:cnc {l__acro_#3_#1_prop} {#2} {l__acro_#3_tl}  }
+      { \prop_get:cnc {l__acro_#3_#1_prop} {#2} {l__acro_#3_#1_tl}  }
   }
 
 \cs_new_protected:Npn \__acro_set_endings:n #1
@@ -2752,7 +2752,11 @@
     \acro_use:n {#1}
   }
 
-\NewAcroCommand \acsingle { \acro_get:n {#1} \acro_single:n {#1} }
+\NewAcroCommand \acsingle
+  {
+    \acro_get:n {#1}
+    \acro_single:n {#1}
+  }
 
 % short:
 \NewAcroCommand \acs
@@ -3583,6 +3587,7 @@
                  - input `acro.cfg' if present
                  - all acro commands have an optional argument: \ac*[]{}
 2016/01/07 v2.2a - \prop_get:Nn => \prop_item:Nn
+2016/01/21 v2.2b - fix issue #59
 
 % --------------------------------------------------------------------------
 update => http://tex.stackexchange.com/questions/236362

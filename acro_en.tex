@@ -1489,7 +1489,7 @@ commands\footnote{Which is why you need to use them inside an expl3
 \paragraph{Acronym fetching commands}
 \begin{commands}
   \command*{acro_use:n}[ \marg{id}]
-    Fetches the acronym using either the first or the long form depending on
+    Fetches the acronym using either the first or the short form depending on
     earlier uses.
   \command*{acro_short:n}[ \marg{id}]
     Fetches the short form of the acronym.
@@ -1527,8 +1527,8 @@ commands\footnote{Which is why you need to use them inside an expl3
     \emph{before} one of the acronym fetching commands.
   \command*{acro_index:}
     \acro\ setup command which tells the macros above that we want to add an
-    index in any case independent of the option \option{index}.  Should be
-    used \emph{before} one of the acronym fetching commands.
+    index entry in any case independent of the option \option{index}.  Should
+    be used \emph{before} one of the acronym fetching commands.
   \command*{acro_reset_specials:}
     This\sinceversion{2.0b} macro is called implicitly by \cs{NewAcroCommand}
     and \cs{NewPseudoAcroCommand}.  If you plan to define an \acro\ command by
