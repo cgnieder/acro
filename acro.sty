@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/01/20}
-  {2.2b}
+  {2016/02/02}
+  {2.2c}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -1108,7 +1108,11 @@
       \bool_if:NT \l__acro_capitalize_list_bool
         { \bool_set_true:N \l__acro_first_upper_bool }
       \acro_write_long:Vf \l__acro_list_long_format_tl
-        { \prop_item:Nn \l__acro_long_prop {#1} }
+        {
+          \prop_if_in:NnTF \l__acro_list_prop {#1}
+            { \prop_item:Nn \l__acro_list_prop {#1} }
+            { \prop_item:Nn \l__acro_long_prop {#1} }
+        }
     \group_end:
     \bool_if:NT \l__acro_foreign_bool
       { \acro_get_foreign:n {#1} }
@@ -3588,6 +3592,7 @@
                  - all acro commands have an optional argument: \ac*[]{}
 2016/01/07 v2.2a - \prop_get:Nn => \prop_item:Nn
 2016/01/21 v2.2b - fix issue #59
+2016/02/02 v2.2c - fix issue #60
 
 % --------------------------------------------------------------------------
 update => http://tex.stackexchange.com/questions/236362
