@@ -642,7 +642,8 @@
             \bool_if:NT \l__acro_first_use_brackets_bool
               { \tl_head:N \l__acro_first_brackets_tl }
             \acro_write_long:Vo \l__acro_first_long_format_tl {#3}
-            \acroenparen { \acro_write_foreign:n {#1} }
+            \acro_if_foreign:nT {#1}
+              { \acroenparen { \acro_write_foreign:n {#1} } }
           }
         \bool_if:nT
           { \l__acro_group_citation_bool && !\l__acro_first_reversed_bool }

@@ -423,6 +423,11 @@ documentation.
   \keyval{foreign}{original long form}
     \sinceversion{1.3}can be useful when dealing with acronyms in foreign
     languages, see section~\vref{ssec:foreign} for details.
+  %% single
+  \keyval{single}{text}
+    \sinceversion{2.3}if provided \meta{text} will be used instead of the long
+    form if the acronym is only used a single time \emph{and} the option
+    \keyis{single}{true} is active.
   %% sort
   \keyval{sort}{text}
     if used the acronym will be sorted according to this key instead of its
@@ -444,6 +449,15 @@ documentation.
   \keyval{first-long-format}{\TeX{} code}
     the format used for the first long form of the acronym as set with \cs{ac},
     \cs{acf} or \cs{acflike} and their uppercase, plural and indefinite forms.
+  %% single-format
+  \keyval{single-format}{\TeX{} code}
+    \sinceversion{2.3}the format used for the acronym if the acronym is only
+    used a single time.
+  %% first-style
+  \keychoice{first-style}{default,plain,empty,square,short,reversed,plain-reversed,%
+    footnote,sidenote}
+    \sinceversion{2.3}the style of the first appearance of the acronym, see
+    also section~\ref{sec:opti-regard-acronyms}.
   %% pdfstring
   \keylit{pdfstring}{\Marg{\meta{text}/\meta{plural ending}}}
     used as \acs{pdf} string replacement in bookmarks when used together with the
@@ -1154,7 +1168,7 @@ options or via the setup command:
   we could have used these before: \nato, \ny
 \end{example}
 
-\subsection{Options Regarding Acronyms}
+\subsection{Options Regarding Acronyms}\label{sec:opti-regard-acronyms}
 The options described in this section all influence the layout of one of the
 possible output forms of the acronyms.
 \begin{options}
@@ -1171,6 +1185,11 @@ possible output forms of the acronyms.
     \sinceversion{1.3}%
     The format for the \option{foreign} entry when it appears as part of the
     first appearance of an acronym.
+  %%
+  \keyval{single-format}{format}\Default
+    \sinceversion{2.3}%
+    The format for the acronym when it is used only once.  If not specified
+    the formatting according to \option{single-form} is used.
   %%
   \keyval{first-long-format}{format}\Default
     \sinceversion{1.2}%
