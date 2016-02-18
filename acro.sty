@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/02/02}
-  {2.2c}
+  {2016/02/18}
+  {2.3-beta}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -229,6 +229,7 @@
 \tl_new:N   \l__acro_long_format_tl
 \tl_new:N   \l__acro_first_long_format_tl
 \tl_new:N   \l__acro_list_long_format_tl
+\tl_new:N   \l__acro_single_format_tl
 \tl_new:N   \l__acro_default_indefinite_tl
 \tl_set:Nn  \l__acro_default_indefinite_tl { a }
 \tl_new:N   \l__acro_extra_tl
@@ -240,6 +241,7 @@
 \tl_set:Nn  \l__acro_foreign_list_format_tl { \acroenparen }
 \tl_new:N   \l__acro_first_instance_tl
 \tl_set:Nn  \l__acro_first_instance_tl { default }
+\tl_new:N   \l__acro_first_style_tl
 \tl_new:N   \l__acro_extra_instance_tl
 \tl_set:Nn  \l__acro_extra_instance_tl { default }
 \tl_new:N   \l__acro_page_instance_tl
@@ -265,6 +267,7 @@
 \tl_new:N   \l__acro_short_tl
 \tl_new:N   \l__acro_alt_tl
 \tl_new:N   \l__acro_long_tl
+\tl_new:N   \l__acro_single_tl
 \tl_new:N   \l__acro_long_pre_tl
 \tl_new:N   \l__acro_long_post_tl
 \tl_new:N   \l__acro_custom_format_tl
@@ -343,6 +346,8 @@
     first-long-format .code:n     =
       \tl_set:Nn \l__acro_first_long_format_tl {#1} ,
     first-long-format .value_required:n = true ,
+    single-format     .tl_set:N   = \l__acro_single_format_tl ,
+    single-format     .value_required:n = true ,
     format-include-endings .bool_set:N = \l__acro_include_endings_format_bool ,
     display-foreign   .bool_set:N = \l__acro_foreign_bool ,
     foreign-format    .tl_set:N   = \l__acro_foreign_format_tl ,
@@ -603,14 +608,8 @@
         !\l__acro_first_only_short_bool
       }
       {
-        \prop_get:NnNT \l__acro_foreign_prop {#1} \l__acro_foreign_tl
-          {
-            \group_begin:
-              \tl_use:N \l__acro_foreign_format_tl
-              \tl_use:N \l__acro_foreign_tl
-            \group_end:
-            \tl_use:N \l__acro_foreign_sep_tl
-          }
+        \acro_write_foreign:n {#1}
+        \acro_if_foreign:nT {#1} { \tl_use:N \l__acro_foreign_sep_tl }
       }
     \bool_if:nT
       { \l__acro_first_reversed_bool || \l__acro_first_only_short_bool }
@@ -643,17 +642,7 @@
             \bool_if:NT \l__acro_first_use_brackets_bool
               { \tl_head:N \l__acro_first_brackets_tl }
             \acro_write_long:Vo \l__acro_first_long_format_tl {#3}
-            \bool_if:NT \l__acro_foreign_bool
-              {
-                \prop_get:NnNT \l__acro_foreign_prop {#1} \l__acro_foreign_tl
-                  {
-                    \tl_use:N \l__acro_foreign_sep_tl
-                    \group_begin:
-                      \tl_use:N \l__acro_foreign_format_tl
-                      \tl_use:N \l__acro_foreign_tl
-                    \group_end:
-                  }
-              }
+            \acroenparen { \acro_write_foreign:n {#1} }
           }
         \bool_if:nT
           { \l__acro_group_citation_bool && !\l__acro_first_reversed_bool }
@@ -690,18 +679,10 @@
         \__acro_note_command:n
           {
             \acro_write_long:Vo \l__acro_first_long_format_tl {#3}
-            \bool_if:NT \l__acro_foreign_bool
+            \acro_if_foreign:nT {#1}
               {
-                \prop_get:NnNT \l__acro_foreign_prop {#1} \l__acro_foreign_tl
-                  {
-                    \tl_use:N \l__acro_foreign_sep_tl
-                    (
-                    \group_begin:
-                      \tl_use:N \l__acro_foreign_format_tl
-                      \tl_use:N \l__acro_foreign_tl
-                    \group_end:
-                    )
-                  }
+                \tl_use:N \l__acro_foreign_sep_tl
+                \acroenparen { \acro_write_foreign:n {#1} }
               }
             \acro_cite_if:Nn \l__acro_citation_first_bool {#1}
             \acro_index_if:Nn \l__acro_addto_index_bool {#1}
@@ -1526,7 +1507,13 @@
         \bool_gset_true:c { g__acro_#1_first_use_bool }
         \acro_if_is_single:nTF {#1}
           { \acro_single:n {#1} }
-          { 
+          {
+            \tl_if_blank:VF \l__acro_first_style_tl
+              {
+                \tl_set_eq:NN
+                  \l__acro_first_instance_tl
+                  \l__acro_first_style_tl
+              }
             \acro_first_instance:VnVV
               \l__acro_first_instance_tl
               {#1}
@@ -1536,6 +1523,13 @@
       }
   }
 
+% single appearances:
+\cs_new_protected:Npn \acro_single:n #1
+  {
+    \acro_single_form:nV {#1} \l__acro_single_form_tl
+    \acro_after:n {#1}
+  }
+  
 % #1: ID
 % #2: long|first|<other>
 \cs_new_protected:Npn \acro_single_form:nn #1#2
@@ -1544,26 +1538,49 @@
     \str_case:nnF {#2}
       {
         {long} {
-          \acro_write_expanded:nnV {#1} {long} \l__acro_long_tl
-          \acro_cite:n {#1}
+          \tl_if_blank:VT \l__acro_single_format_tl
+            {
+              \bool_if:NTF \l__acro_custom_long_format_bool
+                {
+                  \tl_set_eq:NN
+                    \l__acro_single_format_tl
+                    \l__acro_custom_long_format_tl
+                }
+                {
+                  \tl_set_eq:NN
+                    \l__acro_single_format_tl
+                    \l__acro_long_format_tl
+                }
+            }
+          \tl_if_blank:VT \l__acro_single_tl
+            { \tl_set_eq:NN \l__acro_single_tl \l__acro_long_tl }
+          \acro_write_long:VV \l__acro_single_format_tl \l__acro_single_tl
         }
         {first} {
+          \tl_if_blank:VF \l__acro_single_format_tl
+            {
+              \tl_set_eq:NN
+                \l__acro_first_long_format_tl
+                \l__acro_single_format_tl
+            }
+          \tl_if_blank:VT \l__acro_single_tl
+            { \tl_set_eq:NN \l__acro_single_tl \l__acro_long_tl }
           \acro_first_instance:VnVV
             \l__acro_first_instance_tl
             {#1}
             \l__acro_short_tl
-            \l__acro_long_tl
+            \l__acro_single_tl
         }
       }
       { % other (e.g. short)
+        \tl_if_blank:VF \l__acro_single_tl
+          { \tl_set_eq:cN {l__acro_#2_tl} \l__acro_single_tl }
+        \tl_if_blank:VF \l__acro_single_format_tl
+          { \tl_set_eq:cN {l__acro_#2_format_tl} \l__acro_single_format_tl }
         \acro_write_compact:nn {#1} {#2}
-        \acro_cite:n {#1}
       }
   }
 \cs_generate_variant:Nn \acro_single_form:nn {nV}
-
-\cs_new_protected:Npn \acro_single:n #1
-  { \acro_single_form:nV {#1} \l__acro_single_form_tl }
 
 \prg_new_conditional:Npnn \acro_if_is_single:n #1 { p,T,TF }
   {
@@ -1599,6 +1616,10 @@
     \prop_get:NnNF \l__acro_foreign_prop {#1} \l__acro_foreign_tl {}
     % extra:
     \prop_get:NnNF \l__acro_extra_prop {#1} \l__acro_extra_tl {}
+    % single:
+    \prop_get:NnNF \l__acro_single_prop {#1} \l__acro_single_tl {}
+    % single:
+    \prop_get:NnNF \l__acro_first_style_prop {#1} \l__acro_first_style_tl {}
     % formatting
     \prop_get:NnNTF \l__acro_long_format_prop {#1}
       \l__acro_custom_long_format_tl
@@ -1610,6 +1631,9 @@
     \prop_get:NnNTF \l__acro_format_prop {#1} \l__acro_custom_format_tl
       { \bool_set_true:N \l__acro_custom_format_bool }
       { \bool_set_false:N \l__acro_custom_format_bool }
+    \prop_get:NnNF \l__acro_single_format_prop {#1}
+      \l__acro_single_format_tl
+      {}
     \acro_for_endings_do:n
       {
         \bool_if:cT {l__acro_##1_bool}
@@ -2005,6 +2029,33 @@
   }
 \cs_generate_variant:Nn \acro_write_long:nn { VV,Vo,Vf,Vn,vn }
 
+\prg_new_conditional:Npnn \acro_if_foreign:n #1 {T,F,TF}
+  {
+    \bool_if:nTF
+      {
+        \l__acro_foreign_bool
+        &&
+        \prop_if_in_p:Nn \l__acro_foreign_prop {#1}
+      }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+\cs_new_protected:Npn \acro_write_foreign:n #1
+  {
+    \acro_if_foreign:nT {#1}
+      {
+        \prop_get:NnNT \l__acro_foreign_prop {#1} \l__acro_foreign_tl
+          {
+            \group_begin:
+              \tl_use:N \l__acro_foreign_format_tl
+              { \tl_use:N \l__acro_foreign_tl }
+            \group_end:
+            % \tl_use:N \l__acro_foreign_sep_tl
+          }
+      }
+  }
+
 % --------------------------------------------------------------------------
 % #1: id
 % #2: short|alt
@@ -2123,6 +2174,12 @@
     \acro_is_used:n {#1}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
+    \tl_if_blank:VF \l__acro_first_style_tl
+      {
+        \tl_set_eq:NN
+          \l__acro_first_instance_tl
+          \l__acro_first_style_tl
+      }
     \acro_first_instance:VnVV
       \l__acro_first_instance_tl
       {#1}
@@ -2762,6 +2819,13 @@
     \acro_single:n {#1}
   }
 
+\NewAcroCommand \Acsingle
+  {
+    \acro_get:n {#1}
+    \acro_first_upper:
+    \acro_single:n {#1}
+  }
+
 % short:
 \NewAcroCommand \acs
   { \acro_short:n {#1} }
@@ -2789,6 +2853,12 @@
 \NewAcroCommand \aca
   { \acro_alt:n {#1} }
 
+\NewAcroCommand \Aca
+  {
+    \acro_first_upper:
+    \acro_alt:n {#1}
+  }
+  
 \NewAcroCommand \iaca
   {
     \acro_indefinite:
@@ -3116,6 +3186,8 @@
       }
   }
 
+\acro_declare_simple_key:n{first-style}
+
 % list:
 \acro_declare_simple_key:n {list}
 
@@ -3227,6 +3299,12 @@
 
 % extra information:
 \acro_declare_simple_key:n {extra}
+
+% single appearances:
+\acro_declare_simple_key:n {single}
+
+% single format:
+\acro_declare_simple_key:n {single-format}
 
 % acc supp:
 \acro_declare_key:nn {acc_supp} {accsupp}
@@ -3593,6 +3671,12 @@
 2016/01/07 v2.2a - \prop_get:Nn => \prop_item:Nn
 2016/01/21 v2.2b - fix issue #59
 2016/02/02 v2.2c - fix issue #60
+2016/??/?? v2.3  - foreign-format may be a macro taking an argument
+                 - \Aca, \Acsingle
+                 - properties `single' and `single-format', option
+                   `single-format' => issue #62
+                 - property `first-style' => issue #61
+                 
 
 % --------------------------------------------------------------------------
 update => http://tex.stackexchange.com/questions/236362
