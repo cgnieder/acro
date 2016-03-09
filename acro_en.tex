@@ -187,7 +187,8 @@
   {
     short   = ECU ,
     long    = Steuerger\"at ,
-    foreign = Electronic Control Unit
+    foreign = Electronic Control Unit ,
+    foreign-lang = english
   }
 \DeclareAcronym{id}
   {
@@ -423,6 +424,11 @@ documentation.
   \keyval{foreign}{original long form}
     \sinceversion{1.3}can be useful when dealing with acronyms in foreign
     languages, see section~\vref{ssec:foreign} for details.
+  %% foreign-lang
+  \keyval{foreign-lang}{language}
+    \sinceversion{2.3}the \pkg{babel} or \pkg{polyglossia} language of the
+    foreign form.  This language is used to wrap the entry with
+    \cs*{foreignlanguage}\marg{language}.
   %% single
   \keyval{single}{text}
     \sinceversion{2.3}if provided \meta{text} will be used instead of the long
@@ -717,11 +723,15 @@ document:
   \ac{ecu}\\
   \ac{ecu}
 \end{example}
-That's why I decided to add the following key:
+That's why I decided to add the following properties:
 \begin{options}
   \keyval{foreign}{original long form}
     A description for an acronym originating in another language than the
     document language.
+  \keyval{foreign-lang}{language}
+    \sinceversion{2.3}The \pkg{babel} or \pkg{polyglossia} language of the
+    foreign form.  This language is used to wrap the entry with
+    \cs*{foreignlanguage}\marg{language}.
 \end{options}
 
 Here is the definition of the above mentioned \ac{ecu} acronym:
@@ -729,7 +739,8 @@ Here is the definition of the above mentioned \ac{ecu} acronym:
   \DeclareAcronym{ecu}{
     short   = ECU ,
     long    = Steuerger\"at ,
-    foreign = Electronic Control Unit
+    foreign = Electronic Control Unit ,
+    foreign-lang = english
   }
 \end{sourcecode}
 As you have seen this adds the \option{foreign} entry to the first appearance
@@ -1200,6 +1211,10 @@ possible output forms of the acronyms.
     \sinceversion{1.1}An extra format for the short entries in the list.  If
     not used this is the same as \option{short-format}.  Please be aware that
     a call of \option{short-format} after this one will overwrite it again.
+  %%
+  \keyval{list-short-width}{dim}\Default{3em}
+    \sinceversion{2.1}This option controls the width reserved for the short
+    forms of the acronyms in the \code{lof} list style.
   %%
   \keyval{list-long-format}{format}\Default
     An extra format for the long entries in the list.  If not used this is the

@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/02/18}
-  {2.3-beta-a}
+  {2016/03/09}
+  {2.3-beta-b}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -239,6 +239,7 @@
 \tl_new:N   \l__acro_foreign_format_tl
 \tl_new:N   \l__acro_foreign_list_format_tl
 \tl_set:Nn  \l__acro_foreign_list_format_tl { \acroenparen }
+\tl_new:N   \l__acro_foreign_lang_tl
 \tl_new:N   \l__acro_first_instance_tl
 \tl_set:Nn  \l__acro_first_instance_tl { default }
 \tl_new:N   \l__acro_first_style_tl
@@ -645,8 +646,7 @@
             \acro_if_foreign:nT {#1}
               { \acroenparen { \acro_write_foreign:n {#1} } }
           }
-        \bool_if:nT
-          { \l__acro_group_citation_bool && !\l__acro_first_reversed_bool }
+        \bool_if:NT \l__acro_group_citation_bool
           { \acro_group_cite:n {#1} }
         \bool_if:nT
           { \l__acro_first_use_brackets_bool && !\l__acro_first_only_short_bool }
@@ -1129,20 +1129,6 @@
 \cs_new_protected:Npn \acro_print_list_entry:nnnn #1#2#3#4
   { #1 #2 #3 #4 }
 
-\cs_new:Npn \acroenparen #1 { ( #1 ) }
-
-\cs_new_protected:Npn \acro_get_foreign:n #1
-  {
-    \prop_get:NnNT \l__acro_foreign_prop {#1} \l__acro_foreign_tl
-      {
-        \tl_use:N \l__acro_foreign_sep_tl
-        \group_begin:
-          \tl_use:N \l__acro_foreign_list_format_tl
-          { \tl_use:N \l__acro_foreign_tl }
-        \group_end:
-      }
-  }
-
 \cs_new_protected:Npn \acro_for_all_acronyms_do:n #1
   { \prop_map_inline:Nn \l__acro_short_prop {#1} }
   
@@ -1206,7 +1192,7 @@
 
 % --------------------------------------------------------------------------
 % declare templates for the list:
-% list template:
+% `list' template:
 \DeclareTemplateInterface {acro-list} {list} {2}
   {
     foreign-sep : tokenlist = {~} ,
@@ -1247,7 +1233,7 @@
       }
   }
 
-% list-of template:
+% `list-of' template:
 \DeclareTemplateInterface {acro-list} {list-of} {2}
   {
     foreign-sep : tokenlist = {~} ,
@@ -1336,7 +1322,7 @@
       }
   }
   
-% table template:
+% `table' template:
 \DeclareTemplateInterface {acro-list} {table} {2}
   {
     table       : tokenlist = tabular ,
@@ -1379,7 +1365,7 @@
       }
   }
 
-% extra-table template:
+% `extra-table' template:
 \DeclareTemplateInterface {acro-list} {extra-table} {2}
   {
     table       : tokenlist = tabular ,
@@ -1615,6 +1601,13 @@
     \prop_get:NnNF \l__acro_long_prop {#1} \l__acro_long_tl {}
     % foreign:
     \prop_get:NnNF \l__acro_foreign_prop {#1} \l__acro_foreign_tl {}
+    % foreign:
+    \prop_get:NnNF \l__acro_foreign_lang_prop {#1} \l__acro_foreign_lang_tl {}
+    % \tl_if_blank:VF \l__acro_foreign_lang_tl
+    %   {
+    %     \tl_set:Nx \l__acro_foreign_lang_tl
+    %       { \baselanguage \l__acro_foreign_lang_tl }
+    %   }
     % extra:
     \prop_get:NnNF \l__acro_extra_prop {#1} \l__acro_extra_tl {}
     % single:
@@ -1640,8 +1633,8 @@
         \bool_if:cT {l__acro_##1_bool}
           { \__acro_set_ending_for:nnn {##1} {#1} {long} }
       }
-    \prop_get:NnNT \l__acro_long_post_prop {#1} \l__acro_long_post_tl
-      { \tl_put_right:NV \l__acro_long_tl \l__acro_long_post_tl }
+    \prop_get:NnNF \l__acro_long_post_prop {#1} \l__acro_long_post_tl
+      { \tl_clear:N \l__acro_long_post_tl }
     \prop_get:NnNT \l__acro_long_pre_prop {#1} \l__acro_long_pre_tl
       { \tl_put_left:NV \l__acro_long_tl \l__acro_long_pre_tl }
   }
@@ -2042,6 +2035,24 @@
       { \prg_return_false: }
   }
 
+\cs_new_protected:Npn \acro_foreign_language:nn #1#2 {}
+\AtBeginDocument{
+  \cs_if_exist:NTF \foreignlanguage
+    {
+      \cs_set_protected:Npn \acro_foreign_language:nn #1#2
+        {
+          \tl_if_blank:nTF {#1}
+            {#2}
+            { \foreignlanguage {#1} {#2} }
+        }
+    }
+    {
+      \cs_set_protected:Npn \acro_foreign_language:nn #1#2
+        { \use_ii:nn {#1} {#2} }
+    }
+}
+\cs_generate_variant:Nn \acro_foreign_language:nn {VV}
+
 \cs_new_protected:Npn \acro_write_foreign:n #1
   {
     \acro_if_foreign:nT {#1}
@@ -2050,10 +2061,31 @@
           {
             \group_begin:
               \tl_use:N \l__acro_foreign_format_tl
-              { \tl_use:N \l__acro_foreign_tl }
+              {
+                \acro_foreign_language:VV
+                  \l__acro_foreign_lang_tl
+                  \l__acro_foreign_tl
+              }
             \group_end:
-            % \tl_use:N \l__acro_foreign_sep_tl
           }
+      }
+  }
+
+\cs_new:Npn \acroenparen #1 { ( #1 ) }
+
+\cs_new_protected:Npn \acro_get_foreign:n #1
+  {
+    \prop_get:NnNT \l__acro_foreign_prop {#1} \l__acro_foreign_tl
+      {
+        \tl_use:N \l__acro_foreign_sep_tl
+        \group_begin:
+          \tl_use:N \l__acro_foreign_list_format_tl
+          {
+            \acro_foreign_language:VV
+              \l__acro_foreign_lang_tl
+              \l__acro_foreign_tl
+          }
+        \group_end:
       }
   }
 
@@ -2085,6 +2117,8 @@
     \tl_replace_all:Nnn \l__acro_tmpa_tl {-} {_}
     \acro_write_long:vn {l__acro_ \l__acro_tmpa_tl  _format_tl} {#3}
     \acro_endings:nn {#1} {long}
+    \tl_if_in:nnT {#2} {long}
+      { \l__acro_long_post_tl }
   }
 \cs_generate_variant:Nn \acro_write_expanded:nnn { nnV }
 
@@ -3235,6 +3269,9 @@
 % foreign:
 \acro_declare_simple_key:n {foreign}
 
+% foreign:
+\acro_declare_simple_key:n {foreign-lang}
+
 % format:
 \acro_declare_simple_key:n {format}
 
@@ -3251,7 +3288,7 @@
 \prop_new:N \l__acro_pdfstring_short_prop
 \cs_new_protected:Npn \__acro_declare_pdfstring:nw #1#2/#3/#4 \acro_stop:
   {
-    \__acro_key_check:nn {#1} { pdfstring }
+    \__acro_key_check:nn {#1} {pdfstring}
     \prop_put:Nnn \l__acro_pdfstring_short_prop {#1} {#2}
     \acro_for_endings_do:n
       {
@@ -3672,11 +3709,14 @@
 2016/01/07 v2.2a - \prop_get:Nn => \prop_item:Nn
 2016/01/21 v2.2b - fix issue #59
 2016/02/02 v2.2c - fix issue #60
-2016/??/?? v2.3  - foreign-format may be a macro taking an argument
+2016/03/?? v2.3  - foreign-format may be a macro taking an argument
                  - \Aca, \Acsingle
                  - properties `single' and `single-format', option
                    `single-format' => issue #62
                  - property `first-style' => issue #61
+                 - fix issue #64: long-post entry is now added *after* the
+                   endings
+                 - property `foreign-lang'
                  
 
 % --------------------------------------------------------------------------
