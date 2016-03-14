@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/03/09}
-  {2.3-beta-b}
+  {2016/03/14}
+  {2.3}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -1682,7 +1682,12 @@
   {
     \acro_for_endings_do:n
       {
-        \bool_if:nT { \prop_item:cn {l__acro_#2_##1_form_prop} {#1} }
+        \bool_if:nT
+          {
+            \prop_item:cn {l__acro_#2_##1_form_prop} {#1}
+            &&
+            \use:c {l__acro_##1_bool}
+          }
           { \prop_get:cncF {l__acro_#2_##1_prop} {#1} {l__acro_#2_tl} {} }
       }
   }
@@ -3709,7 +3714,7 @@
 2016/01/07 v2.2a - \prop_get:Nn => \prop_item:Nn
 2016/01/21 v2.2b - fix issue #59
 2016/02/02 v2.2c - fix issue #60
-2016/03/?? v2.3  - foreign-format may be a macro taking an argument
+2016/03/14 v2.3  - foreign-format may be a macro taking an argument
                  - \Aca, \Acsingle
                  - properties `single' and `single-format', option
                    `single-format' => issue #62
@@ -3717,7 +3722,7 @@
                  - fix issue #64: long-post entry is now added *after* the
                    endings
                  - property `foreign-lang'
-                 
+                 - fix issue #65
 
 % --------------------------------------------------------------------------
 update => http://tex.stackexchange.com/questions/236362
