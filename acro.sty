@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/03/14}
-  {2.3}
+  {2016/03/23}
+  {2.4-beta}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -163,6 +163,8 @@
 \cs_generate_variant:Nn \tl_if_eq:nnF           { V }
 \cs_generate_variant:Nn \seq_use:Nnnn           { c }
 \cs_generate_variant:Nn \seq_gset_split:Nnn     { c }
+\cs_generate_variant:Nn \seq_set_split:Nnn      { NnV }
+\cs_generate_variant:Nn \seq_if_in:NnT          { NV }
 \cs_generate_variant:Nn \prop_put:Nnn           { NnV, cnx, cnv }
 \cs_generate_variant:Nn \prop_get:NnNF          { cn, cnc }
 \cs_generate_variant:Nn \prop_get:NnN           { cnc }
@@ -204,6 +206,7 @@
 \bool_set_true:N \l__acro_record_pages_bool
 \bool_new:N      \l__acro_addto_index_bool
 \bool_new:N      \l__acro_is_excluded_bool
+\bool_new:N      \l__acro_is_included_bool
 \bool_new:N      \l__acro_page_punct_bool
 \bool_new:N      \l__acro_page_brackets_bool
 \bool_new:N      \l__acro_page_display_bool
@@ -1045,23 +1048,49 @@
 
 % #1: id
 % #2: excluded classes
-% #3: continue if not excluded
-\cs_new_protected:Npn \acro_is_excluded:nnF #1#2#3
+\prg_new_protected_conditional:Npnn \acro_if_is_excluded:nn #1#2 {T,F,TF}
   {
     \bool_set_false:N \l__acro_is_excluded_bool
-    \tl_if_empty:nTF {#2}
-      {#3}
+    \tl_if_blank:nF {#2}
       {
         \clist_map_inline:nn {#2}
           {
-            \prop_get:NnNF \l__acro_class_prop {#1} \l__acro_tmpa_tl {}
-            \tl_if_eq:VnT \l__acro_tmpa_tl {##1}
-              { \bool_set_true:N \l__acro_is_excluded_bool }
+            \prop_get:NnNT \l__acro_class_prop {#1} \l__acro_tmpa_tl
+              {
+                \seq_set_split:NnV \l__acro_tmpa_seq {,} \l__acro_tmpa_tl
+                \seq_if_in:NnT \l__acro_tmpa_seq {##1}
+                  { \bool_set_true:N \l__acro_is_excluded_bool }
+              }
           }
-        \bool_if:NF \l__acro_is_excluded_bool {#3}
       }
+    \bool_if:NTF \l__acro_is_excluded_bool
+      { \prg_return_true: }
+      { \prg_return_false: }
   }
 
+% #1: id
+% #2: included classes
+\prg_new_protected_conditional:Npnn \acro_if_is_included:nn #1#2 {T,F,TF}
+  {
+    \bool_set_true:N \l__acro_is_included_bool
+    \tl_if_blank:nF {#2}
+      {
+        \clist_map_inline:nn {#2}
+          {
+            \prop_get:NnNTF \l__acro_class_prop {#1} \l__acro_tmpa_tl
+              {
+                \seq_set_split:NnV \l__acro_tmpa_seq {,} \l__acro_tmpa_tl
+                \seq_if_in:NnF \l__acro_tmpa_seq {##1}
+                  { \bool_set_false:N \l__acro_is_included_bool }
+              }
+              { \bool_set_false:N \l__acro_is_included_bool }
+          }
+      }
+    \bool_if:NTF \l__acro_is_included_bool
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+  
 % build the list: default functions, may be redefined in the template code
 \cs_new_protected:Npn \acro_print_list_short:nn #1#2
   { \acro_list_short_entry:nn {#1} {#2} }
@@ -1135,6 +1164,9 @@
 % test, if acronyms should be printed or not; needs testing for in/excluded
 % classes and options `only-used' and `single' -- this macro should be used in
 % the template code for retrieving the list
+%
+% #1: included classes
+% #2: excluded classes
 \cs_new_protected:Npn \acro_list_items:nn #1#2
   {
     \acro_for_all_acronyms_do:n
@@ -1156,34 +1188,15 @@
             ( !\l__acro_use_single_bool && !\l__acro_print_only_used_bool )
           }
           {
-            \acro_is_excluded:nnF {##1} {#2}
+            \acro_if_is_excluded:nnF {##1} {#2}
               {
-                \tl_if_blank:nTF {#1}
+                \acro_if_is_included:nnT {##1} {#1}
                   {
                     \acro_print_list_entry:nnnn
                       { \acro_print_list_short:nn {##1} {##2} }
                       { \acro_print_list_long:n {##1} }
                       { \acro_print_list_extra:n {##1} }
                       { \acro_print_list_page:n {##1} }
-                  }
-                  {
-                    \clist_map_inline:nn {#1}
-                      {
-                        \prop_get:NnNT \l__acro_class_prop {##1} \l__acro_tmpa_tl
-                          {
-                            \tl_set:Nn \l__acro_tmpb_tl {####1}
-                            \tl_trim_spaces:N \l__acro_tmpa_tl
-                            \tl_trim_spaces:N \l__acro_tmpb_tl
-                            \tl_if_eq:NNT \l__acro_tmpa_tl \l__acro_tmpb_tl
-                              {
-                                \acro_print_list_entry:nnnn
-                                  { \acro_print_list_short:nn {##1} {##2} }
-                                  { \acro_print_list_long:n {##1} }
-                                  { \acro_print_list_extra:n {##1} }
-                                  { \acro_print_list_page:n {##1} }
-                              }
-                          }
-                      }
                   }
               }
           }
@@ -3723,10 +3736,9 @@
                    endings
                  - property `foreign-lang'
                  - fix issue #65
+2016/03/?? v2.4  - extend class mechanism: classes can be used like tags
 
 % --------------------------------------------------------------------------
-update => http://tex.stackexchange.com/questions/236362
-
 % TODO:
 - extend option `macros' to also define uppercase macros, possibly as a choice
 - Option `totoc'!?

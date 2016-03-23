@@ -54,8 +54,8 @@
   add-cmds = {
     ac, Ac, aca, Aca, acap, Acap, acdot, acf, Acf, acflike, acg, acfp, Acfp, 
       acfplike, aciftrailing, acl, Acl, aclp, Aclp, acp, Acp,
-      AcroRegisterTrailing, acs, Acs, acsp, Acsp, acspace, acreset, 
-      acresetall, acsetup,
+      AcroRegisterTrailing, acs, Acs, acsingle, Acsingle, acsp, Acsp, acspace,
+      acreset, acresetall, acsetup,
     DeclareAcroCommand, DeclareAcronym, DeclareAcroListHeading,
       DeclareAcroListStyle, DeclarePseudoAcroCommand,
     iac, Iac, iaca, Iaca, iacs, Iacs, iacl, Iacl, iacf, Iacf, iacflike,
@@ -792,12 +792,11 @@ corresponding indefinite article.
      accented letters.
 \end{commands}
 
-\subsection{Simulating the First Appearance}
-\noindent\sinceversion{1.2}%
-Users told me\footnote{Well -- one, to be precise ;)} that there are cases
-when it might be useful to have the the acronym typeset according to the
-\option{first-style} but with another text than the long form.  For such cases
-\acro\ offers the following commands.
+\subsection{Simulating the First Appearance}\label{sec:simul-first-appe}
+Users\sinceversion{1.2} told me\footnote{Well -- one, to be precise ;)} that
+there are cases when it might be useful to have the the acronym typeset
+according to the \option{first-style} but with another text than the long
+form.  For such cases \acro\ offers the following commands.
 \begin{commands}
   \command{acflike}[\sarg\marg{id}\marg{instead of long form}]
     Write some alternative long form for acronym with \acs{id} \meta{id} as if
@@ -815,6 +814,21 @@ The plural ending in \cs{acfplike} is only appended to the short form.  It
 makes no sense to append it to the text that is inserted manually anyway.
 Note that whatever text you're inserting might be gobbled depending on the
 \option{first-style} you're using.
+
+\subsection{Fetching the Single Appearance}
+There\sinceversion{2.3} are macros that fetch the \emph{single} appearance of
+an acronym even if it has been used more than once and the \option{single}
+option is active.
+\begin{commands}
+  \command{acsingle}[\sarg\marg{id}]
+    Write acronym as if it were used only a single time.
+  \command{Acsingle}[\sarg\marg{id}]
+    Uppercase form of \cs{acsingle}.
+\end{commands}
+
+\begin{example}[side-by-side]
+  \acsingle{ny}
+\end{example}
 
 \subsection{Using Classes}
 The acronyms of \acro\ can be divided into different classes.  This doesn't
