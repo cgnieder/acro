@@ -32,7 +32,7 @@
 \ProvidesExplPackage
   {acro}
   {2016/03/23}
-  {2.4-beta}
+  {2.4-beta-2}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -234,7 +234,7 @@
 \tl_new:N   \l__acro_list_long_format_tl
 \tl_new:N   \l__acro_single_format_tl
 \tl_new:N   \l__acro_default_indefinite_tl
-\tl_set:Nn  \l__acro_default_indefinite_tl { a }
+\tl_set:Nn  \l__acro_default_indefinite_tl {a}
 \tl_new:N   \l__acro_extra_tl
 \tl_new:N   \l__acro_extra_format_tl
 \tl_new:N   \l__acro_foreign_tl
@@ -244,28 +244,28 @@
 \tl_set:Nn  \l__acro_foreign_list_format_tl { \acroenparen }
 \tl_new:N   \l__acro_foreign_lang_tl
 \tl_new:N   \l__acro_first_instance_tl
-\tl_set:Nn  \l__acro_first_instance_tl { default }
+\tl_set:Nn  \l__acro_first_instance_tl {default}
 \tl_new:N   \l__acro_first_style_tl
 \tl_new:N   \l__acro_extra_instance_tl
-\tl_set:Nn  \l__acro_extra_instance_tl { default }
+\tl_set:Nn  \l__acro_extra_instance_tl {default}
 \tl_new:N   \l__acro_page_instance_tl
-\tl_set:Nn  \l__acro_page_instance_tl  { none }
+\tl_set:Nn  \l__acro_page_instance_tl  {none}
 \tl_new:N   \l__acro_page_name_tl
-\tl_set:Nn  \l__acro_page_name_tl      { p.\@\, }
+\tl_set:Nn  \l__acro_page_name_tl      {p.\@\,}
 \tl_new:N   \l__acro_pages_name_tl
-\tl_set:Nn  \l__acro_pages_name_tl     { pp.\@\, }
+\tl_set:Nn  \l__acro_pages_name_tl     {pp.\@\,}
 \tl_new:N   \l__acro_next_page_tl
-\tl_set:Nn  \l__acro_next_page_tl      { \,f.\@ }
+\tl_set:Nn  \l__acro_next_page_tl      {\,f.\@}
 \tl_new:N   \l__acro_next_pages_tl
-\tl_set:Nn  \l__acro_next_pages_tl     { \,ff.\@ }
+\tl_set:Nn  \l__acro_next_pages_tl     {\,ff.\@}
 \tl_new:N   \l__acro_list_instance_tl
 \tl_set:Nn  \l__acro_list_instance_tl  {description}
 \tl_new:N   \l__acro_list_type_tl
 \tl_new:N   \l__acro_list_tl
-\tl_new:N   \l__acro_list_title_tl
-\tl_set:Nn  \l__acro_list_title_tl     { section* }
+\tl_new:N   \l__acro_list_heading_cmd_tl
+\tl_set:Nn  \l__acro_list_heading_cmd_tl     {section*}
 \tl_new:N   \l__acro_list_name_tl
-\tl_set:Nn  \l__acro_list_name_tl      { Acronyms }
+\tl_set:Nn  \l__acro_list_name_tl      {Acronyms}
 \tl_new:N   \l__acro_list_before_tl
 \tl_new:N   \l__acro_list_after_tl
 \tl_new:N   \l__acro_short_tl
@@ -405,8 +405,8 @@
     list-type         .code:n     = \acro_option_deprecated:n {list-type} ,
     list-header       .code:n     =
       \acro_option_deprecated:nn {list-header} {list-heading}
-      \tl_set:Nn \l__acro_list_title_tl {#1} ,
-    list-heading      .tl_set:N   = \l__acro_list_title_tl ,
+      \tl_set:Nn \l__acro_list_heading_cmd_tl {#1} ,
+    list-heading      .tl_set:N   = \l__acro_list_heading_cmd_tl ,
     list-heading      .value_required:n = true ,
     list-name         .tl_set:N   = \l__acro_list_name_tl ,
     list-name         .value_required:n = true ,
@@ -812,14 +812,14 @@
 
 \cs_new_protected:Npn \acro_print_page_numbers:n #1
   {
-    \seq_if_empty:cF { g__acro_#1_pages_seq }
+    \seq_if_empty:cF {g__acro_#1_pages_seq}
       {
         \bool_if:NTF \l__acro_list_all_pages_bool
           {
             % have the numbers changed?
             \tl_set:Nx \l__acro_tmpa_tl
-              { \seq_use:cnnn { g__acro_#1_pages_seq } { | } { | } { | } }
-            \tl_if_eq:cNF { g__acro_#1_recorded_pages_tl } \l__acro_tmpa_tl
+              { \seq_use:cn {g__acro_#1_pages_seq} {|} }
+            \tl_if_eq:cNF {g__acro_#1_recorded_pages_tl} \l__acro_tmpa_tl
               {
                 \@latex@warning@no@line
                   {Rerun~to~get~page~numbers~of~acronym~#1~in~acronym~list~right}
@@ -1191,12 +1191,26 @@
             \acro_if_is_excluded:nnF {##1} {#2}
               {
                 \acro_if_is_included:nnT {##1} {#1}
-                  {
-                    \acro_print_list_entry:nnnn
-                      { \acro_print_list_short:nn {##1} {##2} }
-                      { \acro_print_list_long:n {##1} }
-                      { \acro_print_list_extra:n {##1} }
-                      { \acro_print_list_page:n {##1} }
+                  { % TODO: avoid code duplication
+                    \bool_if:NTF \l__acro_use_barrier_bool
+                      {
+                        \acro_if_in_barrier:nxT {##1}
+                          { \int_use:N \g__acro_barrier_int }
+                          {
+                            \acro_print_list_entry:nnnn
+                              { \acro_print_list_short:nn {##1} {##2} }
+                              { \acro_print_list_long:n {##1} }
+                              { \acro_print_list_extra:n {##1} }
+                              { \acro_print_list_page:n {##1} }
+                          }
+                      }
+                      {
+                        \acro_print_list_entry:nnnn
+                          { \acro_print_list_short:nn {##1} {##2} }
+                          { \acro_print_list_long:n {##1} }
+                          { \acro_print_list_extra:n {##1} }
+                          { \acro_print_list_page:n {##1} }
+                      }
                   }
               }
           }
@@ -1521,6 +1535,7 @@
               \l__acro_long_tl
           }
       }
+    \acro_record_barrier:n {#1}
   }
 
 % single appearances:
@@ -1864,8 +1879,8 @@
             \__acro_aux_file:Nnnnn \acro@used@twice
               {#1}
               { \thepage }
-              { \arabic{page} }
-              { \arabic{abspage} }
+              { \arabic {page} }
+              { \arabic {abspage} }
           }
           { \__acro_aux_file:Nnnnn \acro@used@twice {#1} {} {} {} }
         \prg_return_true:
@@ -1876,8 +1891,8 @@
             \__acro_aux_file:Nnnnn \acro@used@once
               {#1}
               { \thepage }
-              { \arabic{page} }
-              { \arabic{abspage} }
+              { \arabic {page} }
+              { \arabic {abspage} }
             \bool_if:nT
               {
                 !\bool_if_p:c { g__acro_#1_label_bool } &&
@@ -1905,25 +1920,27 @@
     % \fi
   }
 
+\cs_new_protected:Npn \__acro_aux_file:n #1
+  { \iow_shipout_x:Nn \@auxout {#1} }
   
 % --------------------------------------------------------------------------
 % the commands for the auxiliary file:
 \cs_new_protected:Npn \acro@used@once #1#2#3#4
   {
-    \cs_gset_nopar:cpn { acro@#1@once } {#1}
-    \bool_gset_true:c { g__acro_#1_in_list_bool }
-    \tl_if_empty:nF { #2#3#4 }
-      { \seq_gput_right:cn { g__acro_#1_pages_seq } { {#2}{#3}{#4} } }
+    \cs_gset_nopar:cpn {acro@#1@once} {#1}
+    \bool_gset_true:c {g__acro_#1_in_list_bool}
+    \tl_if_empty:nF {#2#3#4}
+      { \seq_gput_right:cn {g__acro_#1_pages_seq} { {#2}{#3}{#4} } }
   }
 \cs_new_protected:Npn \acro@used@twice #1#2#3#4
   {
-    \cs_gset_nopar:cpn { acro@#1@twice } {#1}
-    \tl_if_empty:nF { #2#3#4 }
-      { \seq_gput_right:cn { g__acro_#1_pages_seq } { {#2}{#3}{#4} } }
+    \cs_gset_nopar:cpn {acro@#1@twice} {#1}
+    \tl_if_empty:nF {#2#3#4}
+      { \seq_gput_right:cn {g__acro_#1_pages_seq} { {#2}{#3}{#4} } }
   }
 
 \cs_new_protected:Npn \acro@pages #1#2
-  { \tl_gset:cn { g__acro_#1_recorded_pages_tl } {#2} }
+  { \tl_gset:cn {g__acro_#1_recorded_pages_tl} {#2} }
 
 \bool_new:N \g__acro_rerun_bool
 
@@ -1942,42 +1959,46 @@
     \cs_gset_protected:Npn \acro@used@once #1#2#3#4
       {
         \tl_set:Nn \l__acro_tmpa_tl {#1}
-        \tl_if_eq:cNF { acro@#1@once } \l__acro_tmpa_tl
+        \tl_if_eq:cNF {acro@#1@once} \l__acro_tmpa_tl
           { \bool_gset_true:N \g__acro_rerun_bool }
       }
     \cs_gset_protected:Npn \acro@used@twice #1#2#3#4
       {
         \tl_set:Nn \l__acro_tmpa_tl {#1}
-        \tl_if_eq:cNF { acro@#1@twice } \l__acro_tmpa_tl
+        \tl_if_eq:cNF {acro@#1@twice} \l__acro_tmpa_tl
           { \bool_gset_true:N \g__acro_rerun_bool }
       }
     \acro_for_all_acronyms_do:n
       {
-        \seq_if_empty:cF { g__acro_#1_pages_seq }
+        \seq_if_empty:cF {g__acro_#1_pages_seq}
           {
             \if@filesw
-              \iow_shipout_x:Nn \@auxout
+              \__acro_aux_file:n
                 {
                   \token_to_str:N \acro@pages {#1}
-                    { \seq_use:cnnn { g__acro_#1_pages_seq } { | } { | } { | } }
+                    { \seq_use:cn {g__acro_#1_pages_seq} {|} } ^^J
+                  \token_to_str:N \acro@barriers {#1}
+                    { \seq_use:cn {g__acro_#1_barriers_seq} {,} }
                 }
             \fi
           }
+        \acro_check_barriers:n {#1}
       }
-    \iow_shipout_x:Nn \@auxout { \acro@rerun@check }
+    \__acro_aux_file:n { \acro@rerun@check }
   }
 
 % if `acro' is deactivated prevent unnecessary errors from aux file:
 \if@filesw
 \AtBeginDocument
   {
-    \iow_now:Nx \@auxout
+    \__acro_aux_file:n
       {
         \token_to_str:N \providecommand \token_to_str:N \acro@used@once [4] {} ^^J
         \token_to_str:N \providecommand \token_to_str:N \acro@used@twice [4] {} ^^J
         \token_to_str:N \providecommand \token_to_str:N \acro@pages [2] {} ^^J
         \token_to_str:N \providecommand \token_to_str:N \acro@rerun@check {} ^^J
-        \token_to_str:N \providecommand \token_to_str:N \acro@print@list {}
+        \token_to_str:N \providecommand \token_to_str:N \acro@print@list {} ^^J
+        \token_to_str:N \providecommand \token_to_str:N \acro@barriers [2] {}
       }
   }
 \fi
@@ -2651,9 +2672,9 @@
     \bool_gset_true:c { g__acro_#1_first_use_bool }
     \bool_gset_true:c { g__acro_#1_in_list_bool }
     \if@filesw
-      \iow_shipout_x:Nn \@auxout
+      \__acro_aux_file:n
         { \token_to_str:N \acro@used@once {#1} {} {} {} }
-      \iow_shipout_x:Nn \@auxout
+      \__acro_aux_file:n
         { \token_to_str:N \acro@used@twice {#1} {} {} {} }
     \fi
   }
@@ -2689,6 +2710,65 @@
 
 \NewDocumentCommand \acuse { > { \SplitList { , } } m }
   { \ProcessList {#1} { \acro_mark_as_used:n } \ignorespaces }
+
+% --------------------------------------------------------------------------
+% acronym barriers: allow local lists of only those acronyms used between two
+% barriers
+
+\int_new:N \g__acro_barrier_int
+\bool_new:N \g__acro_reset_at_barrier_bool
+\bool_new:N \l__acro_use_barrier_bool
+
+\keys_define:nn {acro}
+  {
+    reset-at-barriers .bool_gset:N = \g__acro_reset_at_barrier_bool
+  }
+
+\cs_new_protected:Npn \acro_barrier:
+  {
+    \int_gincr:N \g__acro_barrier_int
+    \bool_if:NT \g__acro_reset_at_barrier_bool
+      { \acro_reset_all: }
+  }
+
+\NewDocumentCommand \acbarrier {}
+  { \acro_barrier: }
+
+\cs_new_protected:Npn \acro_check_barriers:n #1
+  {
+    \tl_set:Nx \l__acro_tmpa_tl
+      { \seq_use:cn {g__acro_#1_barriers_seq} {} }
+    \tl_set:Nx \l__acro_tmpb_tl
+      { \seq_use:cn {g__acro_#1_recorded_barriers_seq} {} }
+    \tl_if_eq:NNF \l__acro_tmpa_tl \l__acro_tmpb_tl
+      {
+        \@latex@warning@no@line
+          {Rerun~to~get~barriers~of~acronym~#1~right}
+      }
+  }
+
+\cs_new_protected:Npn \acro_record_barrier:n #1
+  {
+    \seq_if_in:cxF {g__acro_#1_barriers_seq}
+      { \int_use:N \g__acro_barrier_int }
+      {
+        \seq_gput_right:cx  {g__acro_#1_barriers_seq}
+          { \int_use:N \g__acro_barrier_int }
+      }
+  }
+
+% #1: id
+% #2: barrier number
+\prg_new_conditional:Npnn \acro_if_in_barrier:nn #1#2 {T,F,TF}
+  {
+    \seq_if_in:cnTF {g__acro_#1_recorded_barriers_seq} {#2}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\cs_generate_variant:Nn \acro_if_in_barrier:nnT {nx}
+
+\cs_new:Npn \acro@barriers #1#2
+  { \seq_gset_split:cnn {g__acro_#1_recorded_barriers_seq} {,} {#2} }
 
 % --------------------------------------------------------------------------
 % the user commands -- preparation:
@@ -3451,24 +3531,26 @@
     \bool_gset_true:N \g__acro_first_acronym_declared_bool
     \tl_set:Nn \l__acro_current_key_tl {#1}
     \keys_set:nn { acro / declare-acronym } {#2}
-    \bool_new:c { g__acro_#1_first_use_bool }
-    \bool_new:c { g__acro_#1_used_bool }
-    \bool_new:c { g__acro_#1_label_bool }
-    \bool_new:c { g__acro_#1_in_list_bool }
+    \bool_new:c {g__acro_#1_first_use_bool}
+    \bool_new:c {g__acro_#1_used_bool}
+    \bool_new:c {g__acro_#1_label_bool}
+    \bool_new:c {g__acro_#1_in_list_bool}
+    \seq_new:c  {g__acro_#1_barriers_seq}
+    \seq_new:c  {g__acro_#1_recorded_barriers_seq}
     \bool_if:NF \l__acro_print_only_used_bool
-      { \bool_gset_true:c { g__acro_#1_in_list_bool } }
+      { \bool_gset_true:c {g__acro_#1_in_list_bool} }
     \acro_create_page_records:n {#1}
     \acro_define_acronym_macro:n {#1}
     \tl_clear:N \l__acro_current_key_tl
-    \bool_if:cF { l__acro_#1_short_set_bool }
+    \bool_if:cF {l__acro_#1_short_set_bool}
       { \acro_serious_message:nnn {missing} {#1} {short} }
-    \bool_if:cF { l__acro_#1_long_set_bool }
+    \bool_if:cF {l__acro_#1_long_set_bool}
       { \acro_serious_message:nnn {missing} {#1} {long} }
   }
 
 % --------------------------------------------------------------------------
 % the user command:
-\NewDocumentCommand \DeclareAcronym { mm }
+\NewDocumentCommand \DeclareAcronym {mm}
   { \acro_declare_acronym:nn {#1} {#2} }
 
 % --------------------------------------------------------------------------
@@ -3480,14 +3562,15 @@
 
 \keys_define:nn { acro / print-acronyms }
   {
-    include-classes .tl_set:N   = \l__acro_included_classes_tl ,
-    exclude-classes .tl_set:N   = \l__acro_excluded_classes_tl ,
-    name            .tl_set:N   = \l__acro_list_name_tl ,
-    header          .code:n     =
+    include-classes   .tl_set:N   = \l__acro_included_classes_tl ,
+    exclude-classes   .tl_set:N   = \l__acro_excluded_classes_tl ,
+    name              .tl_set:N   = \l__acro_list_name_tl ,
+    header            .code:n     =
       \acro_option_deprecated:nn {header} {heading}
-      \tl_set:Nn \l__acro_list_title_tl {#1} ,
-    heading         .tl_set:N   = \l__acro_list_title_tl ,
-    sort            .bool_set:N = \l__acro_sort_bool
+      \tl_set:Nn \l__acro_list_heading_cmd_tl {#1} ,
+    heading           .tl_set:N   = \l__acro_list_heading_cmd_tl ,
+    sort              .bool_set:N = \l__acro_sort_bool ,
+    local-to-barriers .bool_set:N = \l__acro_use_barrier_bool
   }
 
 \cs_new_protected:Npn \acro_print_acronyms:n #1
@@ -3500,11 +3583,11 @@
       \tl_clear:N \l__acro_included_classes_tl
       \tl_clear:N \l__acro_excluded_classes_tl
       \keys_set:nn { acro / print-acronyms } {#1}
-      \iow_now:Nx \@auxout { \string \acro@print@list }
+      \__acro_aux_file:n { \token_to_str:N \acro@print@list }
       \bool_if:NT \l__acro_sort_bool
         { \acro_sort_prop:N \l__acro_short_prop }
       \acro_title_instance:VV
-        \l__acro_list_title_tl
+        \l__acro_list_heading_cmd_tl
         \l__acro_list_name_tl
       \cs_if_exist:NTF \acro@printed@list
         {
@@ -3737,6 +3820,10 @@
                  - property `foreign-lang'
                  - fix issue #65
 2016/03/?? v2.4  - extend class mechanism: classes can be used like tags
+                 - add idea of `barriers' and list local to those barriers
+                   => new option `reset-at-barriers'
+                   => new option `local-to-barriers' for \printacronyms
+                   => new command \acbarrier
 
 % --------------------------------------------------------------------------
 % TODO:
