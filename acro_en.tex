@@ -1,6 +1,6 @@
-% arara: pdflatex
-% arara: biber
-% arara: pdflatex
+% !arara: pdflatex
+% !arara: biber
+% !arara: pdflatex
 % arara: pdflatex
 % arara: pdflatex
 % --------------------------------------------------------------------------
@@ -52,8 +52,8 @@
     automatically sorts the list created by \cs{printacronyms}.%
   } ,
   add-cmds = {
-    ac, Ac, aca, Aca, acap, Acap, acdot, acf, Acf, acflike, acg, acfp, Acfp, 
-      acfplike, aciftrailing, acl, Acl, aclp, Aclp, acp, Acp,
+    ac, Ac, aca, Aca, acap, Acap, acbarrier, acdot, acf, Acf, acflike, acg,
+      acfp, Acfp, acfplike, aciftrailing, acl, Acl, aclp, Aclp, acp, Acp,
       AcroRegisterTrailing, acs, Acs, acsingle, Acsingle, acsp, Acsp, acspace,
       acreset, acresetall, acsetup,
     DeclareAcroCommand, DeclareAcronym, DeclareAcroListHeading,
@@ -299,6 +299,8 @@
   {\endcnltxlist}
 \makeatother
 
+\newcommand*\mailto[1]{\texttt{\href{mailto:#1}{#1}}}
+
 \begin{document}
 \section{Licence and Requirements}
 \license
@@ -442,8 +444,8 @@ documentation.
     if used the acronym will be sorted according to this key instead of its
     \acs{id}.
   %% class
-  \keyval{class}{text}
-    the class the acronym belongs to.
+  \keyval{class}{csv list}
+    the\changedversion{2.4} class(es) the acronym belongs to.
   %% cite
   \keylit{cite}{\oarg{prenote}\oarg{postnote}\marg{citation keys}}
     a citation that is printed to the acronym according to an option explained
@@ -836,13 +838,14 @@ change the output but allows different acronym lists, see
 section~\vref{sec:print_lists}.  For this \cs{DeclareAcronym} has an additional
 key:
 \begin{options}
-  \keyval{class}{text}
-    Associated class for an acronym.
+  \keyval{class}{csv list}
+    Associated\changedversion{2.4} class(es) for an acronym.
 \end{options}
 
 This might be useful if you can and want to divide your acronyms into
 different types, technical and grammatical ones, say, that shall be listed in
-different lists.
+different lists.  Since every acronym can get a list of associated classes
+those classes can effectively be used like tags for filtering acronyms.
 
 \begin{example}[side-by-side]
   % preamble:
@@ -1030,17 +1033,17 @@ The commands takes a few options, namely the following ones:
     list.  A special value is \code{none} which suppresses the heading.
   \keybool{sort}\Default{true}
     \sinceversion{1.3}Set sorting for this list only.
+  \keybool{local-to-barriers}\Default{false}
+    This\sinceversion{2.4} option can be used to create a list of only the
+    acronyms of the current \enquote{barrier group}, see
+    section~\ref{sec:divid-your-docum}.
 \end{options}
-\begin{sourcecode}
+\begin{example}
   \acsetup{extra-style=comma}
   \printacronyms[exclude-classes=city]
  
   \printacronyms[include-classes=city,name={City Acronyms}]
-\end{sourcecode}
-\acsetup{extra-style=comma}
-\printacronyms[exclude-classes=city]
-
-\printacronyms[include-classes=city,name={City Acronyms}]
+\end{example}
 
 You can see that the default layout is a \code{description} list with a
 \cs*{section}\sarg\ title.  Both can be changed, see
@@ -1468,6 +1471,33 @@ least two compilation runs until changes in the options or the actual page
 numbers affect it.  This is due to the fact that the updated sequence is first
 written to the \code{aux} file and only read in during the next run.
 
+\section{Dividing Your Document Into Pieces -- Creating Local
+  Lists}\label{sec:divid-your-docum}
+
+\acro\sinceversion{2.4} introduces the concept of \emph{barriers} which can
+divide the document into parts. It is possible to create lists of only those
+acronyms used between two such barriers.
+\begin{commands}
+  \command{acbarrier}
+    Sets a barrier at the point of use in the document.  The begin and the end
+    of the document mark implicit barriers.
+\end{commands}
+\begin{options}
+  \keybool{local-to-barriers}\Default{false}
+    This option can be used as option to the \cs{printacronyms} command to
+    create a list of only the acronyms of the current \enquote{barrier group}.
+\end{options}
+\begin{example}
+  \acbarrier
+  \printacronyms[local-to-barriers]
+  \ac{ctan} and \ac{lppl}
+  \acbarrier
+\end{example}
+\begin{options}
+  \keybool{reset-at-barriers}\Default{false}
+    If this option is set to \code{true} \cs{acbarrier} implicitly calls
+    \cs{acresetall}.
+\end{options}
 
 \section{Language Support}
 \acro\ detects if packages \pkg{babel}~\cite{pkg:babel} or
@@ -1475,9 +1505,9 @@ written to the \code{aux} file and only read in during the next run.
 strings to match the chosen language.  However, due to my limited language
 knowledge only a few translations are provided.  I'll show how the English
 translations are defined so you can add the translations to your preamble if
-needed.  Even better would be you'd send me a short email at
-\href{mailto:contact@mychemistry.eu}{contact@mychemistry.eu} with the
-appropriate translations for your language and I'll add them to \acro.
+needed.  Even better would be you'd send me a short email to
+\mailto{contact@mychemistry.eu} with the appropriate translations for your
+language and I'll add them to \acro.
 
 \begin{sourcecode}
   \DeclareTranslation{English}{acronym-list-name}{Acronyms}
@@ -1625,6 +1655,8 @@ commands\footnote{Which is why you need to use them inside an expl3
     Loops over all acronyms known when the macro is used.  Inside of
     \meta{code} you can refer to the \acs{id} \meta{id} of an acronym with
     \verbcode+#1+.
+  \command*{acro_barrier:}
+    The code-level version of \cs{acbarrier}.
 \end{commands}
 
 \paragraph{Examples}
