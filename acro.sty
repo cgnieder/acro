@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/03/25}
-  {2.4}
+  {2016/04/13}
+  {2.4a}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -500,7 +500,10 @@
 
 % objects with three arguments:
 \cs_new_protected:Npn \acro_first_instance:nnnn #1#2#3#4
-  { \UseInstance {acro-first} {#1} {#2} {#3} {#4} }
+  {
+    \acro_if_defined:nT {#1}
+      { \UseInstance {acro-first} {#1} {#2} {#3} {#4} }
+  }
 \cs_generate_variant:Nn \acro_first_instance:nnnn {VnV,VnVV}
   
 % --------------------------------------------------------------------------
@@ -1608,9 +1611,16 @@
 
 % --------------------------------------------------------------------------
 % some helpers we'll need more often:
+\prg_new_conditional:Npnn \acro_if_defined:n #1 {p,T,F,TF}
+  {
+    \prop_if_in:NnTF \l__acro_short_prop {#1}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
 \cs_new_protected:Npn \acro_defined:n #1
   {
-    \prop_if_in:NnF \l__acro_short_prop {#1}
+    \acro_if_defined:nF {#1}
       { \acro_serious_message:nn {undefined} {#1} }
   }
 
@@ -3605,44 +3615,50 @@
 
 % --------------------------------------------------------------------------
 % language support
-\RequirePackage { translations }
-% Listenname
-\DeclareTranslationFallback        { acronym-list-name } { Acronyms }
-\DeclareTranslation { English    } { acronym-list-name } { Acronyms }
-\DeclareTranslation { American   } { acronym-list-name } { Acronyms }
-\DeclareTranslation { British    } { acronym-list-name } { Acronyms }
-\DeclareTranslation { French     } { acronym-list-name } { Acronymes }
-\DeclareTranslation { German     } { acronym-list-name } { Abk\"urzungen }
-\DeclareTranslation { Italian    } { acronym-list-name } { Acronimi }
-\DeclareTranslation { Portuguese } { acronym-list-name } { Acr\'onimos }
-\DeclareTranslation { Spanish    } { acronym-list-name } { Siglas }
-\DeclareTranslation { Catalan    } { acronym-list-name } { Sigles }
-\DeclareTranslation { Turkish    } { acronym-list-name } { K\i saltmalar }
-\tl_set:Nn \l__acro_list_name_tl { \GetTranslation { acronym-list-name } }
-% Seitenname
-\DeclareTranslationFallback        { acronym-page-name } { p. }
-\DeclareTranslation { English    } { acronym-page-name } { p. }
-\DeclareTranslation { German     } { acronym-page-name } { S. }
-\DeclareTranslation { Portuguese } { acronym-page-name } { p. }
-\tl_set:Nn \l__acro_page_name_tl { \GetTranslation { acronym-page-name }\@\, }
-% Seitenname - Plural
-\DeclareTranslationFallback        { acronym-pages-name } { pp. }
-\DeclareTranslation { English    } { acronym-pages-name } { pp. }
-\DeclareTranslation { German     } { acronym-pages-name } { S. }
-\DeclareTranslation { Portuguese } { acronym-pages-name } { pp. }
-\tl_set:Nn \l__acro_pages_name_tl { \GetTranslation { acronym-pages-name }\@\, }
-% einzelne folgende Seite
-\DeclareTranslationFallback        { acronym-next-page } { f. }
-\DeclareTranslation { English    } { acronym-next-page } { f. }
-\DeclareTranslation { German     } { acronym-next-page } { f. }
-\DeclareTranslation { Portuguese } { acronym-next-page } { s. }
-\tl_set:Nn \l__acro_next_page_tl { \,\GetTranslation {acronym-next-page }\@ }
-% mehrere folgende Seiten
-\DeclareTranslationFallback        { acronym-next-pages } { ff. }
-\DeclareTranslation { English    } { acronym-next-pages } { ff. }
-\DeclareTranslation { German     } { acronym-next-pages } { ff. }
-\DeclareTranslation { Portuguese } { acronym-next-pages } { ss. }
-\tl_set:Nn \l__acro_next_pages_tl { \,\GetTranslation {acronym-next-pages }\@ }
+\RequirePackage {translations}
+% list name
+\DeclareTranslationFallback      {acronym-list-name} {Acronyms}
+\DeclareTranslation {English}    {acronym-list-name} {Acronyms}
+\DeclareTranslation {American}   {acronym-list-name} {Acronyms}
+\DeclareTranslation {British}    {acronym-list-name} {Acronyms}
+\DeclareTranslation {French}     {acronym-list-name} {Acronymes}
+\DeclareTranslation {German}     {acronym-list-name} {Abk\"urzungen}
+\DeclareTranslation {Italian}    {acronym-list-name} {Acronimi}
+\DeclareTranslation {Portuguese} {acronym-list-name} {Acr\'onimos}
+\DeclareTranslation {Spanish}    {acronym-list-name} {Siglas}
+\DeclareTranslation {Catalan}    {acronym-list-name} {Sigles}
+\DeclareTranslation {Turkish}    {acronym-list-name} {K\i saltmalar}
+
+% page name
+\DeclareTranslationFallback      {acronym-page-name} {p.}
+\DeclareTranslation {English}    {acronym-page-name} {p.}
+\DeclareTranslation {German}     {acronym-page-name} {S.}
+\DeclareTranslation {Portuguese} {acronym-page-name} {p.}
+
+% pages name
+\DeclareTranslationFallback      {acronym-pages-name} {pp.}
+\DeclareTranslation {English}    {acronym-pages-name} {pp.}
+\DeclareTranslation {German}     {acronym-pages-name} {S.}
+\DeclareTranslation {Portuguese} {acronym-pages-name} {pp.}
+
+% following page
+\DeclareTranslationFallback      {acronym-next-page} {f.}
+\DeclareTranslation {English}    {acronym-next-page} {f.}
+\DeclareTranslation {German}     {acronym-next-page} {f.}
+\DeclareTranslation {Portuguese} {acronym-next-page} {s.}
+
+% following pages
+\DeclareTranslationFallback      {acronym-next-pages} {ff.}
+\DeclareTranslation {English}    {acronym-next-pages} {ff.}
+\DeclareTranslation {German}     {acronym-next-pages} {ff.}
+\DeclareTranslation {Portuguese} {acronym-next-pages} {ss.}
+
+% tokenlists using the translations:
+\tl_set:Nn \l__acro_list_name_tl  { \GetTranslation {acronym-list-name} }
+\tl_set:Nn \l__acro_page_name_tl  { \GetTranslation {acronym-page-name}\@\, }
+\tl_set:Nn \l__acro_pages_name_tl { \GetTranslation {acronym-pages-name}\@\, }
+\tl_set:Nn \l__acro_next_page_tl  { \,\GetTranslation {acronym-next-page}\@ }
+\tl_set:Nn \l__acro_next_pages_tl { \,\GetTranslation {acronym-next-pages}\@ }
 
 % --------------------------------------------------------------------------
 % allow for a configuration file:
@@ -3819,11 +3835,13 @@
                    endings
                  - property `foreign-lang'
                  - fix issue #65
-2016/03/?? v2.4  - extend class mechanism: classes can be used like tags
+2016/03/25 v2.4  - extend class mechanism: classes can be used like tags
                  - add idea of `barriers' and list local to those barriers
                    => new option `reset-at-barriers'
                    => new option `local-to-barriers' for \printacronyms
                    => new command \acbarrier
+2016/04/13 v2.4a - if undefined acronym is used and `messages = silent' is
+                   active don't through error
 
 % --------------------------------------------------------------------------
 % TODO:

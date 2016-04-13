@@ -1754,7 +1754,7 @@ section~\vref{sec:defining-own-acronym} for adding support for possessive
 forms:
 \begin{example}
   \ExplSyntaxOn
-  % this now only works because I've use the same already in the preamble so
+  % this now only works because I've used the same already in the preamble so
   % it does nothing here:
   \ProvideAcroEnding {possessive} {'s} {'s}
 
@@ -1933,8 +1933,7 @@ If\sinceversion{2.2} you repeatedly have the same setup and definitions for
 \acro\ in your preamble you might want to place those in a configuration file.
 If \acro\ finds a file named \code{acro.cfg} present it inputs it at the end
 of the package.  The only thing to be aware of is that this file is input like
-a package which means that \code{@} is treated as a letterhas (category
-code~12).
+a package which means that \code{@} is treated as a letter (category code~11).
 
 \appendix
 
