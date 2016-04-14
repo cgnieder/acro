@@ -465,8 +465,7 @@ documentation.
     \sinceversion{2.3}the format used for the acronym if the acronym is only
     used a single time.
   %% first-style
-  \keychoice{first-style}{default,plain,empty,square,short,reversed,plain-reversed,%
-    footnote,sidenote}
+  \keychoice{first-style}{default,empty,square,short,long,reversed,footnote,sidenote}
     \sinceversion{2.3}the style of the first appearance of the acronym, see
     also section~\ref{sec:opti-regard-acronyms}.
   %% pdfstring
@@ -1250,8 +1249,8 @@ possible output forms of the acronyms.
   \keyval{extra-format}{format}\Default
     The same for the extra information.
   %%
-  \keychoice{first-style}{default,plain,empty,square,short,reversed,plain-reversed,%
-    footnote,sidenote}\Default{default}
+  \keychoice{first-style}{default,empty,square,short,long,reversed,footnote,sidenote}%
+  \Default{default}
     \changedversion{1.1}The basic style of the first appearance of an
     acronym.  The value \code{sidenote} needs the command \cs*{sidenote} to be
     defined for example by the \pkg*{sidenotes} package.
@@ -1267,19 +1266,17 @@ possible output forms of the acronyms.
   % (Keep in mind that we're in
   % a minipage here!)
   \acsetup{first-style=empty}
-  \acf{ny} \\
+  empty: \acf{ny} \\
   \acsetup{first-style=footnote}
-  \acf{ny} \\
+  footnote: \acf{ny} \\
   \acsetup{first-style=square}
-  \acf{ny} \\
+  square: \acf{ny} \\
   \acsetup{first-style=short}
-  \acf{ny} \\
+  short: \acf{ny} \\
+  \acsetup{first-style=long}
+  long: \acf{ny} \\
   \acsetup{first-style=reversed}
-  \acf{ny} \\
-  \acsetup{first-style=plain}
-  \acf{ny} \\
-  \acsetup{first-style=plain-reversed}
-  \acf{ny}
+  reversed: \acf{ny}
 \end{example}
 
 \subsection{Options Regarding the List}

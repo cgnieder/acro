@@ -31,7 +31,7 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/04/13}
+  {2016/04/14}
   {2.4a}
   {Typeset Acronyms}
 
@@ -213,6 +213,7 @@
 \bool_new:N      \l__acro_new_page_numbering_bool
 \bool_new:N      \l__acro_first_use_brackets_bool
 \bool_new:N      \l__acro_first_only_short_bool
+\bool_new:N      \l__acro_first_only_long_bool
 \bool_new:N      \l__acro_first_reversed_bool
 \bool_new:N      \l__acro_use_note_bool
 \bool_new:N      \l__acro_extra_punct_bool
@@ -501,7 +502,7 @@
 % objects with three arguments:
 \cs_new_protected:Npn \acro_first_instance:nnnn #1#2#3#4
   {
-    \acro_if_defined:nT {#1}
+    \acro_if_defined:nT {#2}
       { \UseInstance {acro-first} {#1} {#2} {#3} {#4} }
   }
 \cs_generate_variant:Nn \acro_first_instance:nnnn {VnV,VnVV}
@@ -579,6 +580,7 @@
     brackets      : boolean   = true  ,
     brackets-type : tokenlist = ()    ,
     only-short    : boolean   = false ,
+    only-long     : boolean   = false ,
     reversed      : boolean   = false ,
     between       : tokenlist         ,
     foreign-sep   : tokenlist = { , ~ }
@@ -588,76 +590,128 @@
     brackets      = \l__acro_first_use_brackets_bool ,
     brackets-type = \l__acro_first_brackets_tl       ,
     only-short    = \l__acro_first_only_short_bool   ,
+    only-long     = \l__acro_first_only_long_bool    ,
     reversed      = \l__acro_first_reversed_bool     ,
     between       = \l__acro_first_between_tl        ,
     foreign-sep   = \l__acro_foreign_sep_tl
   }
   {
     \AssignTemplateKeys
-    \bool_if:nT { !\l__acro_first_only_short_bool && !\l__acro_first_reversed_bool }
-      {
-        \acro_write_indefinite:nn {#1} {long}
-        \acro_write_expanded:nnn {#1} {first-long} {#3}
-        \acro_space:
-        \tl_if_blank:VF \l__acro_first_between_tl
+    \bool_if:NTF \l__acro_first_reversed_bool
+      { % zuerst kurze Form, dann lange Form:
+        \bool_if:NF \l__acro_first_only_long_bool
           {
-            \tl_use:N \l__acro_first_between_tl
-            \acro_space:
+            \acro_write_indefinite:nn {#1} {short}
+            \group_begin:
+              \acro_for_all_trailing_tokens_do:n
+                { \acro_deactivate_trailing_action:n {##1} }
+              \acro_write_compact:nn {#1} {short}
+            \group_end:
+            \bool_if:NF \l__acro_first_only_short_bool
+              {
+                \acro_space:
+                \tl_if_blank:VF \l__acro_first_between_tl
+                  {
+                    \tl_use:N \l__acro_first_between_tl
+                    \acro_space:
+                  }
+              }
           }
-      }
-    \bool_if:nT
-      { \l__acro_first_use_brackets_bool && !\l__acro_first_reversed_bool }
-      { \tl_head:N \l__acro_first_brackets_tl }
-    \bool_if:nT
-      {
-         \l__acro_foreign_bool &&
-        !\l__acro_first_reversed_bool &&
-        !\l__acro_first_only_short_bool
-      }
-      {
-        \acro_write_foreign:n {#1}
-        \acro_if_foreign:nT {#1} { \tl_use:N \l__acro_foreign_sep_tl }
-      }
-    \bool_if:nT
-      { \l__acro_first_reversed_bool || \l__acro_first_only_short_bool }
-      { \acro_write_indefinite:nn {#1} {short} }
-    \group_begin:
-      \bool_if:nT
-        { !\l__acro_first_reversed_bool && !\l__acro_first_only_short_bool }
-        {
-          \prop_map_inline:Nn \l__acro_trailing_tokens_prop
-            { \acro_deactivate_trailing_action:n {##1} }
-        }
-      \acro_write_compact:nn {#1} {short}
-    \group_end:
-    \bool_if:nT
-      { \l__acro_group_citation_bool && !\l__acro_first_reversed_bool }
-      { \acro_group_cite:n {#1} }
-    \bool_if:nT
-      { \l__acro_first_use_brackets_bool && !\l__acro_first_reversed_bool }
-      { \tl_tail:N \l__acro_first_brackets_tl }
-    \bool_if:NT \l__acro_first_reversed_bool
-      {
+        % öffnende Klammer:
+        \bool_if:nT
+          {
+            \l__acro_first_use_brackets_bool &&
+            !\l__acro_first_only_short_bool &&
+            !\l__acro_first_only_long_bool
+          }
+          { \tl_head:N \l__acro_first_brackets_tl }
+        % fremdsprachige Form:
+        \bool_if:nT
+          {
+             \l__acro_foreign_bool &&
+            !\l__acro_first_only_short_bool &&
+            !\l__acro_first_only_long_bool
+          }
+          {
+            \acro_write_foreign:n {#1}
+            \acro_if_foreign:nT {#1} { \tl_use:N \l__acro_foreign_sep_tl }
+          }
+        % Artikel der Langform und Langform:
         \bool_if:NF \l__acro_first_only_short_bool
           {
-            \tl_if_blank:VF \l__acro_first_between_tl
-              {
-                \tl_use:N \c_space_tl
-                \tl_use:N \l__acro_first_between_tl
-              }
-            \tl_use:N \c_space_tl
-            \bool_if:NT \l__acro_first_use_brackets_bool
-              { \tl_head:N \l__acro_first_brackets_tl }
-            \acro_write_long:Vo \l__acro_first_long_format_tl {#3}
-            \acro_if_foreign:nT {#1}
-              { \acroenparen { \acro_write_foreign:n {#1} } }
+            \acro_write_indefinite:nn {#1} {long}
+            \acro_write_expanded:nnn {#1} {first-long} {#3}
           }
+        % Zitat:
         \bool_if:NT \l__acro_group_citation_bool
           { \acro_group_cite:n {#1} }
+        % schließende Klammer:
         \bool_if:nT
-          { \l__acro_first_use_brackets_bool && !\l__acro_first_only_short_bool }
+          {
+            \l__acro_first_use_brackets_bool &&
+            !\l__acro_first_only_short_bool &&
+            !\l__acro_first_only_long_bool
+          }
           { \tl_tail:N \l__acro_first_brackets_tl }
       }
+      { % zuerst lange Form, dann kurze Form:
+        % Artikel + lange Form:
+        \bool_if:NF \l__acro_first_only_short_bool
+          {
+            \acro_write_indefinite:nn {#1} {long}
+            \acro_write_expanded:nnn {#1} {first-long} {#3}
+            \bool_if:NF \l__acro_first_only_long_bool
+              {
+                \acro_space:
+                \tl_if_blank:VF \l__acro_first_between_tl
+                  {
+                    \tl_use:N \l__acro_first_between_tl
+                    \acro_space:
+                  }
+              }
+          }
+        % öffnende Klammer:
+        \bool_if:nT
+          {
+            \l__acro_first_use_brackets_bool &&
+            !\l__acro_first_only_short_bool &&
+            !\l__acro_first_only_long_bool
+          }
+          { \tl_head:N \l__acro_first_brackets_tl }
+        % fremdsprachige Form:
+        \bool_if:nT
+          {
+             \l__acro_foreign_bool &&
+            !\l__acro_first_only_short_bool &&
+            !\l__acro_first_only_long_bool
+          }
+          {
+            \acro_write_foreign:n {#1}
+            \acro_if_foreign:nT {#1} { \tl_use:N \l__acro_foreign_sep_tl }
+          }
+        % Artikel der Kurzform und Kurzform:
+        \bool_if:NF \l__acro_first_only_long_bool
+          {
+            \acro_write_indefinite:nn {#1} {short}
+            \group_begin:
+              \acro_for_all_trailing_tokens_do:n
+                { \acro_deactivate_trailing_action:n {##1} }
+              \acro_write_compact:nn {#1} {short}
+            \group_end:
+          }
+        % Zitat:
+        \bool_if:NT \l__acro_group_citation_bool
+          { \acro_group_cite:n {#1} }
+        % schließende Klammer:
+        \bool_if:nT
+          {
+            \l__acro_first_use_brackets_bool &&
+            !\l__acro_first_only_short_bool &&
+            !\l__acro_first_only_long_bool
+          }
+          { \tl_tail:N \l__acro_first_brackets_tl }
+      }
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \bool_if:NF \l__acro_group_citation_bool
       { \acro_cite_if:Nn \l__acro_citation_first_bool {#1} }
     \acro_index_if:Nn \l__acro_addto_index_bool {#1}
@@ -738,6 +792,13 @@
   { inline }
   {
     only-short = true ,
+    brackets = false
+  }
+\DeclareInstance {acro-first}
+  { long }
+  { inline }
+  {
+    only-long = true ,
     brackets = false
   }
 \DeclareInstance {acro-first}
@@ -1611,9 +1672,11 @@
 
 % --------------------------------------------------------------------------
 % some helpers we'll need more often:
+\seq_new:N \g__acro_declared_acronyms_seq
+
 \prg_new_conditional:Npnn \acro_if_defined:n #1 {p,T,F,TF}
   {
-    \prop_if_in:NnTF \l__acro_short_prop {#1}
+    \seq_if_in:NnTF \g__acro_declared_acronyms_seq {#1}
       { \prg_return_true: }
       { \prg_return_false: }
   }
@@ -2588,9 +2651,12 @@
       { \acro_activate_trailing_action:n {#2} }
     \acro_new_trailing_token:n {#2}
   }
-
+  
 \NewDocumentCommand \AcroRegisterTrailing {mm}
   { \acro_register_trailing_token:Nn #1 {#2} }
+
+\cs_new_protected:Npn \acro_for_all_trailing_tokens_do:n #1
+  { \prop_map_inline:Nn \l__acro_trailing_tokens_prop {#1} }
 
 % activate a token:
 \cs_new_protected:Npn \acro_activate_trailing_token:n #1
@@ -3538,6 +3604,7 @@
 % internal acronym declaring function:
 \cs_new_protected:Npn \acro_declare_acronym:nn #1#2
   {
+    \seq_gput_right:Nn \g__acro_declared_acronyms_seq {#1}
     \bool_gset_true:N \g__acro_first_acronym_declared_bool
     \tl_set:Nn \l__acro_current_key_tl {#1}
     \keys_set:nn { acro / declare-acronym } {#2}
@@ -3840,7 +3907,7 @@
                    => new option `reset-at-barriers'
                    => new option `local-to-barriers' for \printacronyms
                    => new command \acbarrier
-2016/04/13 v2.4a - if undefined acronym is used and `messages = silent' is
+2016/04/14 v2.4a - if undefined acronym is used and `messages = silent' is
                    active don't through error
 
 % --------------------------------------------------------------------------
