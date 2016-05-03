@@ -311,47 +311,6 @@
 \pkg{zref-abspage}\footnote{\CTANurl{oberdiek}} and
 \needpackage{translations}~\cite{pkg:translations}.
 
-% \section{About}
-% \begin{cnltxquote}[\cite{wikipedia}]
-%   Acronyms and initialisms are abbreviations formed from the initial
-%   components in a phrase or a word.  These components may be individual
-%   letters (as in CEO) or parts of words (as in Benelux and Ameslan).  There is
-%   no universal agreement on the precise definition of the various terms nor on
-%   written usage.
-% \end{cnltxquote}
-% After \wikipedia{} told us what acronyms are and we won't confuse them with
-% units or other kinds of abbreviations -- why would we need another package for
-% them?  There are several already: \pkg{acronym}~\cite{pkg:acronym},
-% \pkg{acromake}~\cite{pkg:acromake}, \pkg{acroterm}~\cite{pkg:acroterm}, the
-% abbreviations package \pkg{abbrevs}~\cite{pkg:abbrevs} (the current version
-% 1.4 has a bug\footnote{see \url{http://tex.stackexchange.com/q/59840/5049} for
-%   solutions.}, though), the nomenclature package
-% \pkg{nomencl}~\cite{pkg:nomencl}, and of course the mighty
-% \pkg{glossaries}~\cite{pkg:glossaries}. So there is really no \emph{need} for
-% a new package.
-
-% On the other hand \pkg{acronym}, the best of the acronym specific packages,
-% has one or two shortcomings and sometimes using \pkg{glossaries} seems a bit
-% of an overkill (or simply inconvenient as one has to run
-% \code{makeglossaries}, \code{makeindex} or \code{xindy}, then\footnote{Rumour
-%   has it there is going to be a version that can be used without running an
-%   external program}). So \acro\ stands somewhere in between (but closer to
-% \pkg{acronym}).
-
-% The main reason for the existance of \acro\ is a question on \acs{tex.sx}%
-% \footnote{\url{http://tex.stackexchange.com/q/59449/5049}} which intrigued me
-% and in consequence led to \acro\ and it's option \option{single}.
-
-% \acro\ has many similarities with the \pkg{acronym} package.  In fact, quite
-% some macros have the same name and meaning\footnote{\emph{Not} in the sense of
-%   \cs*{meaning}!}.
-
-% Please take a minute to think and decide which package will suit your needs
-% best.  Are you planning to add a glossary to your book?  You should probably
-% go with \pkg{glossaries}, then.  Are you planning to add a nomenclature?  You
-% may want to choose \pkg{nomencl} (or again: \pkg{glossaries}) and so on.
-% \acro\ does a good job for lists of abbreviations.
-
 \section{Basics}
 \subsection{Creating New Acronyms}
 Acronyms\changedversion{1.0} are created with the command \cs{DeclareAcronym}.
@@ -469,10 +428,11 @@ documentation.
     \sinceversion{2.3}the style of the first appearance of the acronym, see
     also section~\ref{sec:opti-regard-acronyms}.
   %% pdfstring
-  \keylit{pdfstring}{\Marg{\meta{text}/\meta{plural ending}}}
-    used as \acs{pdf} string replacement in bookmarks when used together with the
-    \pkg{hyperref} package.  The appended plural ending is optional.  If you
-   leave it (\emph{and} the \code{/}) the default ending is used.
+  \keylit{pdfstring}{\meta{text}/\meta{plural ending}}
+    \changedversion{2.4b}used as \acs{pdf} string replacement in bookmarks
+    when used together with the \pkg{hyperref} package.  The appended plural
+    ending is optional.  If you leave it (\emph{and} the \code{/}) the default
+    ending is used.  \meta{text} is expanded before it is saved.
   %% accsupp
   \keyval{accsupp}{text}
     sets the \code{ActualText} key as presented by the \pkg{accsupp} package
@@ -1132,8 +1092,10 @@ There are a few options which change the general behaviour of \acro.
     \pkg{l3experimental} bundle) and can only be set in the preamble.
   %%
   \keychoice{cite}{\default{all},first,none}\Default{first}
-    This option decides whether citations that are added via \option{cite} are
-    added to each first, every or no appearance of an acronym.
+    \changedversion{2.4b}This option decides whether citations that are added
+    via \option{cite} are added to each first, every or no appearance of an
+    acronym.  If \code{first} is chosen, the option \keyis{single}{true} is
+    active and an acronym appears only once it still will get the citation.
   %%
   \keyval{cite-cmd}{control sequence}\Default{\cs*{cite}}
     This option determines which command is used for the citation.  Each
@@ -1258,8 +1220,11 @@ possible output forms of the acronyms.
   \keychoice{extra-style}{default,plain,comma,paren,bracket}\Default{default}
     Defines the way the extra information is printed in the list.
   %%
-  \keyval{plural-ending}{tokenlist}\Default{s}
-    With this option the default plural ending can be set.
+  \keylit{plural-ending}{\meta{short}/\meta{long}}\Default{s/s}
+    \changedversion{2.4b}With this option the default plural ending can be
+    set.  The appended \meta{long} ending is optional.  If you leave it
+    (\emph{and} the \code{/}) the \meta{short} ending is used for both short
+    and long versions.
 \end{options}
  
 \begin{example}[side-by-side]
@@ -1740,7 +1705,8 @@ The command's syntax and what it does is as follows:
     replaced by \code{\_} before \cs*{acro_\meta{name}:} is built.  So if you
     choose \code{my-name} the corresponding macro is named
     \cs*{acro_my_name:}.  If you use any other non-letters you are on your
-    own.
+    own. \changedversion{2.4b}If you use the command with the same \meta{name}
+    a second time the command only resets the defaults.
 
     Note that you \emph{must use \cs{ProvideAcroEnding} before any acronym
       definition}!

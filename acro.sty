@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/04/14}
-  {2.4a}
+  {2016/05/03}
+  {2.4b}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -71,7 +71,8 @@
   }
 \msg_new:nnn {acro} {ending-exists}
   {
-    An~ ending~ with~ the~ name~ `#1'~ already~ exists.~ I'm~ doing~ nothing.
+    An~ ending~ with~ the~ name~ `#1'~ already~ exists.~ I'm~ overwriting~
+    the~ defaults.
   }
 
 \msg_new:nnn {acro} {ending-before-acronyms}
@@ -713,8 +714,8 @@
       }
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \bool_if:NF \l__acro_group_citation_bool
-      { \acro_cite_if:Nn \l__acro_citation_first_bool {#1} }
-    \acro_index_if:Nn \l__acro_addto_index_bool {#1}
+      { \acro_cite_if:nn { \l__acro_citation_first_bool } {#1} }
+    \acro_index_if:nn { \l__acro_addto_index_bool } {#1}
   }
 
 % template for footnotes, sidenotes, ...
@@ -745,8 +746,8 @@
                 \tl_use:N \l__acro_foreign_sep_tl
                 \acroenparen { \acro_write_foreign:n {#1} }
               }
-            \acro_cite_if:Nn \l__acro_citation_first_bool {#1}
-            \acro_index_if:Nn \l__acro_addto_index_bool {#1}
+            \acro_cite_if:nn { \l__acro_citation_first_bool } {#1}
+            \acro_index_if:nn { \l__acro_addto_index_bool } {#1}
           }
       }
   }
@@ -1191,7 +1192,7 @@
     \group_end:
     \bool_if:NT \l__acro_foreign_bool
       { \acro_get_foreign:n {#1} }
-    \acro_cite_if:Nn \l__acro_citation_all_bool {#1}
+    \acro_cite_if:nn { \l__acro_citation_all_bool } {#1}
   }
 
 \cs_set_protected:Npn \acro_list_extra_entry:n #1
@@ -1605,6 +1606,7 @@
 % single appearances:
 \cs_new_protected:Npn \acro_single:n #1
   {
+    \acro_cite:
     \acro_single_form:nV {#1} \l__acro_single_form_tl
     \acro_after:n {#1}
   }
@@ -1814,13 +1816,28 @@
     \group_end:
   }
 
+\prg_new_conditional:Npnn \acro_if_ending_exist:n #1 {p,T,F,TF}
+  {
+    \seq_if_in:NnTF \l__acro_endings_seq {#1}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+  
 % #1: name
 % #2: default short
 % #3: default long
 \cs_new_protected:Npn \acro_provide_ending:nnn #1#2#3
   {
-    \seq_if_in:NnTF \l__acro_endings_seq {#1}
-      { \acro_harmless_message:nn {ending-exists} {#1} }
+    \acro_if_ending_exist:nTF {#1}
+      {
+        \acro_harmless_message:nn {ending-exists} {#1}
+        % short variables
+        \acro_set_ending_variables:nnn {short} {#1} {#2}
+        % alt variables
+        \acro_set_ending_variables:nnn {alt} {#1} {#2}
+        % long variables
+        \acro_set_ending_variables:nnn {long} {#1} {#3}
+      }
       {
         % registering:
         \bool_if:NT \g__acro_first_acronym_declared_bool
@@ -1890,9 +1907,7 @@
             alt-#1-ending   .tl_set:c = {l__acro_default_alt_#1_tl} ,
             long-#1-ending  .tl_set:c = {l__acro_default_long_#1_tl} ,
             #1-ending       .code:n   =
-              \tl_set:cn {l__acro_default_short_#1_tl} {##1}
-              \tl_set:cn {l__acro_default_alt_#1_tl} {##1}
-              \tl_set:cn {l__acro_default_long_#1_tl}  {##1}
+              { \__acro_read_ending_settings:nww {#1} ##1// \acro_stop: }
           }
         % pdfstrings:
         \prop_new:c {l__acro_pdfstring_short_#1_prop}
@@ -1915,17 +1930,42 @@
   }
 
 % #1: short|alt|long
-% #2: ending
+% #2: ending name
 % #3: default ending
 \cs_new_protected:Npn \acro_define_and_set_ending_variables:nnn #1#2#3
+  {
+    \acro_define_ending_variables:nn {#1} {#2}
+    \acro_set_ending_variables:nnn {#1} {#2} {#3}
+  }
+
+% #1: short|alt|long
+% #2: ending name
+\cs_new_protected:Npn \acro_define_ending_variables:nn #1#2
   {
     \prop_new:c {l__acro_#1_#2_prop}
     \prop_new:c {l__acro_#1_#2_form_prop}
     \tl_new:c   {l__acro_#1_#2_tl}
     \tl_new:c   {l__acro_default_#1_#2_tl}
-    \tl_set:cn  {l__acro_default_#1_#2_tl} {#3}
   }
-  
+
+% #1: short|alt|long
+% #2: ending name
+% #3: default ending
+\cs_new_protected:Npn \acro_set_ending_variables:nnn #1#2#3
+  { \tl_set:cn  {l__acro_default_#1_#2_tl} {#3} }
+
+% #1: ending name
+% #2: short (and long if #4 is blank)
+% #3: long
+\cs_new_protected:Npn \__acro_read_ending_settings:nww #1#2/#3/#4 \acro_stop:
+  {
+    \acro_set_ending_variables:nnn {short} {#1} {#2}
+    \acro_set_ending_variables:nnn {alt} {#1} {#2}
+    \tl_if_blank:nTF {#4}
+      { \acro_set_ending_variables:nnn {long} {#1} {#3} }
+      { \acro_set_ending_variables:nnn {long} {#1} {#2} }
+  }
+
 \NewDocumentCommand \ProvideAcroEnding {mmm}
   { \acro_provide_ending:nnn {#1} {#2} {#3} }
 
@@ -2237,8 +2277,8 @@
 % #1: id
 \cs_new:Npn \acro_after:n #1
   {
-    \acro_cite_if:Nn \l__acro_citation_all_bool {#1}
-    \acro_index_if:Nn \l__acro_addto_index_bool {#1}
+    \acro_cite_if:nn { \l__acro_citation_all_bool } {#1}
+    \acro_index_if:nn { \l__acro_addto_index_bool } {#1}
   }
 
 % --------------------------------------------------------------------------
@@ -2393,18 +2433,18 @@
       \tl_set_eq:NN
         \l__acro_citation_connect_tl
         \l__acro_between_group_connect_citation_tl
-      \acro_cite_if:Nn \l__acro_citation_first_bool {#1}
+      \acro_cite_if:nn { \l__acro_citation_first_bool } {#1}
     \group_end:
   }
 
-\cs_new_protected:Npn \acro_cite_if:Nn #1#2
-  { \bool_if:NT #1 { \acro_cite:n {#2} } }
+\cs_new_protected:Npn \acro_cite_if:nn #1#2
+  { \bool_if:nT {#1} { \acro_cite:n {#2} } }
 
 % ----------------------------------------------------------------------------
 % indexing:
-\cs_new_protected:Npn \acro_index_if:Nn #1#2
+\cs_new_protected:Npn \acro_index_if:nn #1#2
   {
-    \bool_if:nT { #1 && \l__acro_mark_as_used_bool }
+    \bool_if:nT { (#1) && \l__acro_mark_as_used_bool }
       {
         \prop_get:NnN \l__acro_index_cmd_prop  {#2} \l__acro_tmpa_tl
         \prop_get:NnN \l__acro_index_sort_prop {#2} \l__acro_tmpb_tl
@@ -3219,7 +3259,7 @@
 
 \AtBeginDocument
   {
-    \@ifpackageloaded { hyperref }
+    \@ifpackageloaded {hyperref}
       {
         \bool_set_true:N \l__acro_hyperref_loaded_bool
         \pdfstringdefDisableCommands
@@ -3463,10 +3503,10 @@
 \cs_new_protected:Npn \__acro_declare_pdfstring:nw #1#2/#3/#4 \acro_stop:
   {
     \__acro_key_check:nn {#1} {pdfstring}
-    \prop_put:Nnn \l__acro_pdfstring_short_prop {#1} {#2}
+    \prop_put:Nnx \l__acro_pdfstring_short_prop {#1} {#2}
     \acro_for_endings_do:n
       {
-        \tl_if_empty:nTF {#3}
+        \tl_if_blank:nTF {#4}
           {
             \prop_put:cnx {l__acro_pdfstring_short_##1_prop}
               {#1} { \exp_not:n {#2} \exp_not:v {l__acro_default_short_##1_tl} }
@@ -3909,6 +3949,15 @@
                    => new command \acbarrier
 2016/04/14 v2.4a - if undefined acronym is used and `messages = silent' is
                    active don't through error
+2016/05/03 v2.4b - expand `pdfstring' property before saving => issue #69
+                 - \ProvideAcroEnding can be used twice – it then just sets
+                   the defaults
+                 - the option <ending>-ending has a new syntax:
+                   * <ending>-ending = <val> sets all endings to <val>
+                   * <ending>-ending = <val1>/<val2> sets short endings to
+                     <val1> and long endings to <val2>
+                 - a single appearance should be treated like a first
+                   appearance as far as citations are concerned
 
 % --------------------------------------------------------------------------
 % TODO:
