@@ -39,25 +39,29 @@
 \usepackage[single,macros,accsupp,index]{acro}
 \setcnltx{
   package  = {acro} ,
+  info     = {Typeset Acronyms and other Abbreviations} ,
   authors  = Clemens Niederberger ,
   email    = contact@mychemistry.eu ,
   url      = https://bitbucket.org/cgnieder/acro/ ,
   abstract = {%
-    \acro\ not only allows you to create acronyms in a simple way but also lets
-    you add them to different classes of acronyms. Lists can be created of
-    separate classes wherever you want the list to appear.\par
-    \acro\ also provides an option \option{single} which ignores acronyms that are
-    used only once in the whole document.\par
+    \acro\ allows you to define and use abbreviations in a simple way.
+    Abbreviations can be divided into different classes of abbreviations.
+    Lists of abbreviations can be created (also of separate classes of
+    abbreviations) and printed wherever you want the lists to appear.\par
+    \acro\ provides an option \option{single} which ignores abbreviations that
+    are used only once in the whole document.\par
     As an experimental feature \acro\ also offers the option \option{sort} which
-    automatically sorts the list created by \cs{printacronyms}.%
+    automatically sorts the list created by \cs{printacronyms}.\par
+    \acro\ also has the feature of creating \emph{local} lists
   } ,
   add-cmds = {
     ac, Ac, aca, Aca, acap, Acap, acbarrier, acdot, acf, Acf, acflike, acg,
       acfp, Acfp, acfplike, aciftrailing, acl, Acl, aclp, Aclp, acp, Acp,
       AcroRegisterTrailing, acs, Acs, acsingle, Acsingle, acsp, Acsp, acspace,
       acreset, acresetall, acsetup,
-    DeclareAcroCommand, DeclareAcronym, DeclareAcroListHeading,
-      DeclareAcroListStyle, DeclarePseudoAcroCommand,
+    DeclareAcroCommand, DeclareAcronym, DeclareAcroExtraStyle,
+      DeclareAcroFirstStyle, DeclareAcroListHeading, 
+      DeclareAcroListStyle, DeclareAcroPageStyle, DeclarePseudoAcroCommand,
     iac, Iac, iaca, Iaca, iacs, Iacs, iacl, Iacl, iacf, Iacf, iacflike,
       Iacflike,
     NewAcroCommand, NewPseudoAcroCommand,
@@ -72,7 +76,11 @@
   index-setup = { level = \section , headers={\indexname}{\indexname} }
 }
 
-\acsetup{hyperref}
+\acsetup{
+  use-barriers = true ,
+  hyperref     = true ,
+  log
+}
 
 \usepackage{varioref}
 
@@ -199,6 +207,7 @@
 \DeclareAcronym{jpg}
   {
     short = JPEG ,
+    sort  = jpeg ,
     alt   = JPG ,
     long  = Joint Photographic Experts Group
   }
@@ -313,7 +322,7 @@
 
 \section{Basics}
 \subsection{Creating New Acronyms}
-Acronyms\changedversion{1.0} are created with the command \cs{DeclareAcronym}.
+Acronyms are created with the command \cs{DeclareAcronym}.
 \begin{commands}
   \command{DeclareAcronym}[\marg{id}\marg{list of keys}]
     The basic command for declaring an acronym.
@@ -324,70 +333,70 @@ documentation.
 \begin{options}
   %% short
   \keyval{short}{text}\Default!
-    the short form of the acronym.  This option is required: an acronym must
+    The short form of the acronym.  This option is required: an acronym must
     have a short form.  If this is set it \emph{must} be set as first option!
     If another option is set first and notices the \option{short} option
     missing it assumes that the \acs{id} should be used as short version and
     sets it accordingly.  A warning will be written to the log then.
   %% long
   \keyval{long}{text}\Default!
-    the long form of the acronym.  This option is required: an acronym must
+    The long form of the acronym.  This option is required: an acronym must
     have a description.
   %% short-plural
   \keyval{short-plural}{text}\Default{s}
-    the plural ending appended to the short form.
+    The plural ending appended to the short form.
   %% short-plural-form
   \keyval{short-plural-form}{text}
-    the\sinceversion{2.0}plural short form of the acronym; replaces the short
+    The\sinceversion{2.0}plural short form of the acronym; replaces the short
     form when used instead of appending the plural ending.
   %% long-plural
   \keyval{long-plural}{text}\Default{s}
-    the plural ending appended to the long form.
+    The plural ending appended to the long form.
   %% long-plural-form
   \keyval{long-plural-form}{text}
-    plural long form of the acronym; replaces the long form when used
+    Plural long form of the acronym; replaces the long form when used
     instead of appending the plural ending.
    %% alt-plural
   \keyval{alt-plural}{text}\Default{s}
-    the\sinceversion{2.0} plural ending appended to the alternative form.
+    The\sinceversion{2.0} plural ending appended to the alternative form.
   %% alt-plural-form
   \keyval{alt-plural-form}{text}
-    the\sinceversion{2.0}plural alternative form of the acronym; replaces the
+    The\sinceversion{2.0}plural alternative form of the acronym; replaces the
     alternative form when used instead of appending the plural ending.
   %% list
   \keyval{list}{text}
-    \sinceversion{1.4}if specified this will be written in the list as
-    description instead of the long form.
+    If specified this will be written in the list as description instead of
+    the long form.
   %% short-indefinite
   \keyval{short-indefinite}{text}\Default{a}
-    \sinceversion{1.2}indefinite article for the short form.
+    Indefinite article for the short form.
   %% long-indefinite
   \keyval{long-indefinite}{text}\Default{a}
-    \sinceversion{1.2}indefinite article for the long form.
+    Indefinite article for the long form.
   %% long-pre
   \keyval{long-pre}{text}
-    \sinceversion{1.1}\meta{text} is prepended to the long form in the text
-    but not in the list of acronyms.
+    \meta{text} is prepended to the long form in the text but not in the list
+    of acronyms.
   %% long-post
   \keyval{long-post}{text}
-    \sinceversion{1.1}\meta{text} is appended to the long form in the text but
-    not in the list of acronyms.
+    \meta{text} is appended to the long form in the text but not in the list
+    of acronyms.
   %% alt
   \keyval{alt}{text}
-    alternative short form.
+    Alternative short form.
   %% alt-indefinite
   \keyval{alt-indefinite}{text}\Default{a}
-    \sinceversion{1.2}indefinite article for the alternative form.
+    Indefinite article for the alternative form.
   %% extra
   \keyval{extra}{text}
-    extra information to be added in the list of acronyms.
+    Extra information to be added in the list of acronyms.
   %% foreign
   \keyval{foreign}{original long form}
-    \sinceversion{1.3}can be useful when dealing with acronyms in foreign
-    languages, see section~\vref{ssec:foreign} for details.
+    Can be useful when dealing with acronyms in foreign languages, see
+    section~\vref{ssec:foreign} for details.
   %% foreign-lang
   \keyval{foreign-lang}{language}
-    \sinceversion{2.3}the \pkg{babel}~\cite{pkg:babel} or
+    \sinceversion{2.3}The \pkg{babel}~\cite{pkg:babel} or
     \pkg{polyglossia}~\cite{pkg:polyglossia} language of the foreign form.
     This language is used to wrap the entry with
     \cs*{foreignlanguage}\marg{language} if either \pkg{babel} or
@@ -395,70 +404,70 @@ documentation.
     corresponding language is loaded by \pkg{babel} or \pkg{polyglossia}.
   %% single
   \keyval{single}{text}
-    \sinceversion{2.3}if provided \meta{text} will be used instead of the long
+    \sinceversion{2.3}If provided \meta{text} will be used instead of the long
     form if the acronym is only used a single time \emph{and} the option
     \keyis{single}{true} is active.
   %% sort
   \keyval{sort}{text}
-    if used the acronym will be sorted according to this key instead of its
+    If used the acronym will be sorted according to this key instead of its
     \acs{id}.
   %% class
   \keyval{class}{csv list}
-    the\changedversion{2.4} class(es) the acronym belongs to.
+    The\changedversion{2.4} class(es) the acronym belongs to.
   %% cite
   \keylit{cite}{\oarg{prenote}\oarg{postnote}\marg{citation keys}}
-    a citation that is printed to the acronym according to an option explained
+    A citation that is printed to the acronym according to an option explained
     later.
   %% short-format
   \keyval{short-format}{\TeX{} code}
-    the format used for the short form of the acronym.
+    The format used for the short form of the acronym.
   %% long-format
   \keyval{long-format}{\TeX{} code}
-    the format used for the long form of the acronym.
+    The format used for the long form of the acronym.
   %% first-long-format
   \keyval{first-long-format}{\TeX{} code}
-    the format used for the first long form of the acronym as set with \cs{ac},
+    The format used for the first long form of the acronym as set with \cs{ac},
     \cs{acf} or \cs{acflike} and their uppercase, plural and indefinite forms.
   %% single-format
   \keyval{single-format}{\TeX{} code}
-    \sinceversion{2.3}the format used for the acronym if the acronym is only
+    \sinceversion{2.3}The format used for the acronym if the acronym is only
     used a single time.
   %% first-style
-  \keychoice{first-style}{default,empty,square,short,long,reversed,footnote,sidenote}
-    \sinceversion{2.3}the style of the first appearance of the acronym, see
+  \keychoice{first-style}{default,empty,square,short,long,reversed,footnote,sidenote,%
+    footnote-reversed,sidenote-reversed}
+    \sinceversion{2.3}The style of the first appearance of the acronym, see
     also section~\ref{sec:opti-regard-acronyms}.
   %% pdfstring
   \keylit{pdfstring}{\meta{text}/\meta{plural ending}}
-    \changedversion{2.4b}used as \acs{pdf} string replacement in bookmarks
+    \changedversion{2.4b}Used as \acs{pdf} string replacement in bookmarks
     when used together with the \pkg{hyperref} package.  The appended plural
     ending is optional.  If you leave it (\emph{and} the \code{/}) the default
     ending is used.  \meta{text} is expanded before it is saved.
   %% accsupp
   \keyval{accsupp}{text}
-    sets the \code{ActualText} key as presented by the \pkg{accsupp} package
+    Sets the \code{ActualText} key as presented by the \pkg{accsupp} package
     for the acronym.
   %% tooltip
   \keyval{tooltip}{text}
-    \sinceversion{2.1}sets the tooltip description for an acronym.  For
+    \sinceversion{2.1}Sets the tooltip description for an acronym.  For
     actually getting tooltips you also need an appropriate setting of the
     \option{tooltip-cmd} option or to set the package option
     \option{tooltip}.
   %% index-sort
   \keyval{index-sort}{text}
-    \sinceversion{1.1}If you use the package option \option{index} every
-    occurrence of an acronym is recorded to the index and sorted by its
-    \acs{id} or (if set) by the value of the \option{sort} key.  This key
-    allows to set an individual sorting option for the index.  See
-    section~\vref{ssec:index} for details.
+    If you use the package option \option{index} every occurrence of an
+    acronym is recorded to the index and sorted by its \acs{id} or (if set) by
+    the value of the \option{sort} key.  This key allows to set an individual
+    sorting option for the index.  See section~\vref{ssec:index} for details.
   %% index
   \keyval{index}{text}
-    \sinceversion{1.1}This key allows to overwrite the automatic index entry
-    with an arbitrary one.  See section~\vref{ssec:index} for details.
+    This key allows to overwrite the automatic index entry with an arbitrary
+    one.  See section~\vref{ssec:index} for details.
  %% index-cmd
   \keyval{index-cmd}{control sequence}
-    \sinceversion{1.1}This key let's you set an individual index creating
-    command for this acronym.  It should be a command that takes one mandatory
-    argument.  See section~\vref{ssec:index} for details.
+    This key let's you set an individual index creating command for this
+    acronym.  It should be a command that takes one mandatory argument.  See
+    section~\vref{ssec:index} for details. 
 \end{options}
 
 In its simplest form an acronym needs a short and a long form.  Please note
@@ -514,6 +523,35 @@ citation key.
 The first appearance now looks as follows\footnote{The appearance of the
   citation of course depends on the citation style you're using.}: \acf{ny}.
 
+\subsection{Logging of Acronyms}
+When you activate \acro's option\sinceversion{2.5} \option{log} \acro' writes
+information about the acronyms it defines to the log file.
+\begin{options}
+  \keychoice{log}{\default{true},false,silent,verbose}\Default{false}
+    When set to \code{true}/\code{silent} \acro{} writes the main properties
+    of an acronym to the log file.  When set to \code{verbose} \acro' writes
+    \emph{all}  properties of an acronym to the log file.
+\end{options}
+
+This is an example of the logging info with \keyis{log}{true} or
+\keyis{log}{silent}.
+\begin{sourcecode}
+  =================================================
+  | acro info -- defining new acronym:
+  |   ID = {jpg}
+  |   short = {JPEG}
+  |   long = {Joint Photographic Experts Group}
+  |   alt = {JPG}
+  |   sort = {jpeg}
+  |   class = {}
+  |   list = {}
+  |   extra = {}
+  |   foreign = {}
+  |   pdfstring = {}
+  |   cite = {}
+  =================================================
+\end{sourcecode}
+
 \subsection{Using the Acronyms -- the Commands}\label{sec:using-acronyms-comm}
 Acronyms are used with one of the following commands:
 \begin{commands}
@@ -557,10 +595,9 @@ subsequent uses.  To be clear on this: the first time!  If the acronym has
 been used with \emph{any} of the output commands before it is \emph{not} the
 first time any more.
 
-\sinceversion{0.5}If you use the starred variant an acronym will not be marked
-as used.  This proves useful if an acronym is typeset in a section title, for
-example, since then the appearance in the table of contents won't mark it as
-used.
+If you use the starred variant an acronym will not be marked as used.  This
+proves useful if an acronym is typeset in a section title, for example, since
+then the appearance in the table of contents won't mark it as used.
 
 \begin{example}[side-by-side]
   % preamble:
@@ -643,6 +680,7 @@ For some acronyms it might be useful to have alternative forms.  For this
   % preamble:
   % \DeclareAcronym{jpg}{
   %   short = JPEG ,
+  %   sort  = jpeg ,
   %   alt   = JPG ,
   %   long  = Joint Photographic Experts Group
   % }
@@ -679,10 +717,9 @@ section~\vref{sec:print_lists} for the impact of the following example.
 \end{example}
 
 \subsection{Foreign Language Acronyms}\label{ssec:foreign}
-\noindent\sinceversion{1.3}I repeatedly read the wish for being able to add
-translations to acronyms when the acronyms stem from another language than the
-document language, \latin{i.e.}, something like the following in a German 
-document:
+I repeatedly read the wish for being able to add translations to acronyms when
+the acronyms stem from another language than the document language,
+\latin{i.e.}, something like the following in a German document:
 \begin{example}[side-by-side]
   \ac{ecu}\\
   \ac{ecu}
@@ -721,7 +758,7 @@ following command:
 
 \section{Additional Commands and Possibilities}
 \subsection{Indefinite Forms}
-\noindent\sinceversion{1.2}%
+
 Unlike many other languages\footnote{Let's better say: unlike the other
   languages where I know at least the basics.} in English the indefinite
 article is not determined by the grammatical case, gender or number but by the
@@ -746,18 +783,17 @@ corresponding indefinite article.
 \subsection{Uppercasing}
 \begin{commands}
   \command{acfirstupper}[\marg{token list}]
-     \sinceversion{1.3e}This command uppercases the first token in \meta{token
-       list}.  The command is less powerful than \cs{makefirstuc} that is
-     provided by the \pkg{mfirstuc} package~\cite{pkg:mfirstuc} but it is
-     expandable.  Obvious downsides are for example that it does not uppercase
-     accented letters.
+     This command uppercases the first token in \meta{token list}.  The
+     command is less powerful than \cs{makefirstuc} that is provided by the
+     \pkg{mfirstuc} package~\cite{pkg:mfirstuc} but it is expandable.  Obvious
+     downsides are for example that it does not uppercase accented letters.
 \end{commands}
 
 \subsection{Simulating the First Appearance}\label{sec:simul-first-appe}
-Users\sinceversion{1.2} told me\footnote{Well -- one, to be precise ;)} that
-there are cases when it might be useful to have the the acronym typeset
-according to the \option{first-style} but with another text than the long
-form.  For such cases \acro\ offers the following commands.
+Users told me\footnote{Well -- one, to be precise ;)} that there are cases
+when it might be useful to have the the acronym typeset according to the
+\option{first-style} but with another text than the long form.  For such cases
+\acro\ offers the following commands.
 \begin{commands}
   \command{acflike}[\sarg\marg{id}\marg{instead of long form}]
     Write some alternative long form for acronym with \acs{id} \meta{id} as if
@@ -833,16 +869,15 @@ If you want for some reason to fool \acro\ into thinking that an acronym is
 used for the first time you can call one of these commands:
 \begin{commands}
   \command{acreset}[\marg{comma separated list of ids}]
-    \sinceversion{0.5}This will reset a used acronym such that the next use of
-    \cs{ac} will again print it as if it were used the first time.  This will
-    \emph{not} remove an acronym from being printed in the list if it actually
-    \emph{has} been used before.
+    This will reset a used acronym such that the next use of \cs{ac} will
+    again print it as if it were used the first time.  This will \emph{not}
+    remove an acronym from being printed in the list if it actually \emph{has}
+    been used before.
   \command{acresetall}
     Reset all acronyms.
   \command{acifused}[\marg{id}\marg{true}\marg{false}]
-    \sinceversion{1.3e}This command tests if the acronym with \ac{id}
-    \meta{id} has already been used and either puts \code{true} or
-    \code{false} in the input stream.
+    This command tests if the acronym with \ac{id} \meta{id} has already been
+    used and either puts \code{true} or \code{false} in the input stream.
 \end{commands}
 \begin{example}[side-by-side]
   \acreset{ny}\ac{ny}
@@ -852,12 +887,11 @@ effectively do the opposite of \cs{acreset}, \latin{i.e.}, mark acronyms as
 used:
 \begin{commands}
   \command{acuse}[\marg{comma separated list of ids}]
-    \sinceversion{0.5}This has the same effect as if an acronym had been used
-    twice, that is, further uses of \cs{ac} will print the short form and the 
-    acronym will in any case be printed in the list (as long as its class is
-    not excluded).
+    This has the same effect as if an acronym had been used twice, that is,
+    further uses of \cs{ac} will print the short form and the acronym will in
+    any case be printed in the list (as long as its class is not excluded).
   \command{acuseall}
-    \sinceversion{0.6a}Mark all acronyms as used.
+    Mark all acronyms as used.
 \end{commands}
 
 \subsection{\cs*{ac} and Friends in \acs*{pdf} Bookmarks, Accessibility
@@ -869,11 +903,11 @@ circumvent that issue manually but that isn't really a nice solution.  What's
 the point of having macros to get output for you if you have to specify it
 manually after all?
 
-That is why \acro\ offers\sinceversion{0.5} a preliminary solution for this.
-In a bookmark every \cs{ac} like command falls back to a simple text string
-typesetting what \cs{acs} would do (or \cs{acsp} for plural forms).  These
-text strings both can accessed manually and can be modified to an output
-reserved for \acs{pdf} bookmarks.
+That is why \acro\ offers a preliminary solution for this.  In a bookmark
+every \cs{ac} like command falls back to a simple text string typesetting what
+\cs{acs} would do (or \cs{acsp} for plural forms).  These text strings both
+can accessed manually and can be modified to an output reserved for \acs{pdf}
+bookmarks.
 
 \begin{commands}
   \command{acpdfstring}[\marg{id}]
@@ -916,10 +950,10 @@ You should get uppercase letters instead of lowercase ones.
 
 \begin{options}
   \keyval{accsupp}{text}
-    \sinceversion{1.0}Key for \cs{DeclareAcronym} to set the \code{ActualText}
-    property of \cs*{BeginAccSupp} (see \pkg{accsupp}'s documentation for
-    details) to be used for an acronym.  It only has an effect when the
-    package option \option{accsupp} is used, too.
+    Key for \cs{DeclareAcronym} to set the \code{ActualText} property of
+    \cs*{BeginAccSupp} (see \pkg{accsupp}'s documentation for details) to be
+    used for an acronym.  It only has an effect when the package option
+    \option{accsupp} is used, too.
 \end{options}
 
 \subsubsection{Tooltips}
@@ -950,9 +984,9 @@ If an acronym is used inside of another acronym then the tooltips of the
 ``inner'' acronyms are disabled.
 
 \subsection{Adding Acronyms to the Index}\label{ssec:index}
-\noindent\sinceversion{1.1}\acro\ has the package option \option{index}.  If it is
-used an index entry will be recorded every time an \emph{unstarred} acronym
-command is used.  The index entry will be \code{\meta{id}@\meta{short}},
+\acro\ has the package option \option{index}.  If it is used an index entry
+will be recorded every time an \emph{unstarred} acronym command is used.  The
+index entry will be \code{\meta{id}@\meta{short}},
 \code{\meta{sort}@\meta{short}} if the \option{sort} key has been set,
 \code{\meta{index-sort}@\meta{short}} if the \option{index-sort} has been set,
 or \meta{index} if the key \option{index} has been set for the specific
@@ -970,8 +1004,8 @@ they do if it is flexible enough.  If you have any thoughts on this I'd
 appreciate an email.
 
 \section{Printing the List}\label{sec:print_lists}
-\noindent\changedversion{1.0}Printing the whole list of acronyms is easy: just
-place \cs{printacronyms} where ever you want the list to be.
+Printing the whole list of acronyms is easy: just place \cs{printacronyms}
+where ever you want the list to be.
 \begin{commands}
   \command{printacronyms}[\oarg{options}]
     Print the list of acronyms.
@@ -983,15 +1017,17 @@ The commands takes a few options, namely the following ones:
     the list.
   \keyval{exclude-classes}{list of classes}
     Takes a comma-separated list of the classes of acronyms that should
-    \emph{not} be in the list.
+    \emph{not} be in the list.  \emph{Note that this list overwrites any
+      entries in \option{include-classes}!} If a class is both included and
+    excluded then the corresponding acronyms will not be added to the list.
   \keyval{name}{name of the list}
     sets the name for the list.
   \keyval{heading}{sectioning command without leading backslash}%
     \Default{section*}
-    \changedversion{1.3}Sets the sectioning command for the heading of the
-    list.  A special value is \code{none} which suppresses the heading.
+    Sets the sectioning command for the heading of the list.  A special value
+    is \code{none} which suppresses the heading. 
   \keybool{sort}\Default{true}
-    \sinceversion{1.3}Set sorting for this list only.
+    Set sorting for this list only.
   \keybool{local-to-barriers}\Default{false}
     This\sinceversion{2.4} option can be used to create a list of only the
     acronyms of the current \enquote{barrier group}, see
@@ -1024,17 +1060,16 @@ There are a few options which change the general behaviour of \acro.
   %   prior to v1.0.
   %%
   \keychoice{messages}{silent,loud}\Default{loud}
-    \sinceversion{1.6}Setting \keyis{messages}{silent} will turn all of
-    \acro's error messages into warnings and all of \acro's warnings into info
-    messages.  Be sure to check the log file carefully if you decide to set
-    this option.
+    Setting \keyis{messages}{silent} will turn all of \acro's error messages
+    into warnings and all of \acro's warnings into info messages.  Be sure to
+    check the log file carefully if you decide to set this option.
   \keybool{single}\Default{false}
     If set to \code{true} an acronym that's used only once (with \cs{ac}) in a
     document will only print the acronym in a specified form and will not be
     printed in the list.
   %%
   \keychoice{single-form}{long,short,alt,first}\Default{long}
-    \sinceversion{2.}Determines how a single appearance of an acronym is
+    \sinceversion{2.0}Determines how a single appearance of an acronym is
     printed if \keyis{single}{true} has been chosen.
   %%
   \keybool{hyperref}\Default{false}
@@ -1042,21 +1077,13 @@ There are a few options which change the general behaviour of \acro.
     their list entry.
   %%
   \keybool{label}\Default{false}
-    \sinceversion{1.5}If set to \code{true} this option will place
+    If set to \code{true} this option will place
     \cs*{label}\Marg{\meta{prefix}\meta{id}} the first time the acronym with
-    \ac{id} \meta{id} is used.
+    \ac{id} \meta{id} is used. 
   %%
   \keyval{label-prefix}{text}\Default{ac:}
-    \sinceversion{1.5}The prefix for the \cs*{label} that is placed when
-    option \keyis{label}{true} is used.
-  %%
-  \keybool{record-pages}\Default{true}
-    Since \acro\ can handle arabic, roman and Roman page numbers but
-    \emph{not} any other kind of numbering this option allows to turn the page
-    number recording off for these cases as it would lead to errors else.
-    This affects the whole document and can only be set in the preamble!  It
-    means you cannot have page numbers in the list of acronyms in this case.
-    Or rather: you can if you use \keyis{pages}{first}.
+    The prefix for the \cs*{label} that is placed when option
+    \keyis{label}{true} is used.
   %%
   \keybool{only-used}\Default{true}
     This option is \code{true} as default.  It means that only acronyms that
@@ -1065,7 +1092,6 @@ There are a few options which change the general behaviour of \acro.
     written to the list.
   %%
   \keychoice{mark-as-used}{first,any}\Default{any}
-    \sinceversion{1.2}%
     This option determines wether an acronym is mark as used when the
     \emph{first} form is used the first time (with \cs{ac}, \cs{acf} or
     \cs{acflike} and their uppercase, plural and indefinite forms) or when any
@@ -1077,9 +1103,9 @@ There are a few options which change the general behaviour of \acro.
     will \emph{not} be overwritten.
   %%
   \keybool{xspace}\Default{false}
-    \sinceversion{0.6}If set to \code{true} this option will append
-    \cs*{xspace} from the \pkg*{xspace} package to the commands created with
-    the \option{macros} option.
+    If set to \code{true} this option will append \cs*{xspace} from the
+    \pkg*{xspace} package to the commands created with the \option{macros}
+    option.
   %%
   \keybool{strict}\Default{false}
     If set to \code{true} and the option \keyis{macros}{true} is in effect
@@ -1120,17 +1146,15 @@ There are a few options which change the general behaviour of \acro.
     key as argument is valid, for example \pkg*{biblatex}'s \cs*{footcite}.
   %%
   \keybool{index}\Default{false}
-    \sinceversion{1.1}If set to \code{true} an index entry will be recorded
-    every time an \emph{unstarred} acronym command is used for the
-    corresponding acronym.
+    If set to \code{true} an index entry will be recorded every time an
+    \emph{unstarred} acronym command is used for the corresponding acronym.
   %%
   \keyval{index-cmd}{control sequence}\Default{\cs*{index}}
-    \sinceversion{1.1}Chooses the index command that is used when option
-    \option{index} has been set to \code{true}.
+    Chooses the index command that is used when option \option{index} has been
+    set to \code{true}.
   %%
   \keybool{accsupp}\Default{false}
-    \sinceversion{1.0}Activates the access support as provided by the
-    \pkg{accsupp} package.
+    Activates the access support as provided by the \pkg{accsupp} package.
   %%
   \keybool{tooltip}\Default{false}
     \sinceversion{2.1}Activates tooltip support for \acro\ using the
@@ -1175,7 +1199,6 @@ possible output forms of the acronyms.
     The same for the long forms.
   %%
   \keyval{foreign-format}{format}\Default
-    \sinceversion{1.3}%
     The format for the \option{foreign} entry when it appears as part of the
     first appearance of an acronym.
   %%
@@ -1185,14 +1208,13 @@ possible output forms of the acronyms.
     the formatting according to \option{single-form} is used.
   %%
   \keyval{first-long-format}{format}\Default
-    \sinceversion{1.2}%
     The format for the long form on first usage (with \cs{ac}, \cs{acf} or
     \cs{acflike} and their uppercase, plural and indefinite forms).
   %%
   \keyval{list-short-format}{format}\Default
-    \sinceversion{1.1}An extra format for the short entries in the list.  If
-    not used this is the same as \option{short-format}.  Please be aware that
-    a call of \option{short-format} after this one will overwrite it again.
+    An extra format for the short entries in the list.  If not used this is
+    the same as \option{short-format}.  Please be aware that a call of
+    \option{short-format} after this one will overwrite it again.
   %%
   \keyval{list-short-width}{dim}\Default{3em}
     \sinceversion{2.1}This option controls the width reserved for the short
@@ -1211,11 +1233,11 @@ possible output forms of the acronyms.
   \keyval{extra-format}{format}\Default
     The same for the extra information.
   %%
-  \keychoice{first-style}{default,empty,square,short,long,reversed,footnote,sidenote}%
-  \Default{default}
-    \changedversion{1.1}The basic style of the first appearance of an
-    acronym.  The value \code{sidenote} needs the command \cs*{sidenote} to be
-    defined for example by the \pkg*{sidenotes} package.
+  \keychoice{first-style}{default,empty,square,short,long,reversed,footnote,sidenote,%
+    footnote-reversed,sidenote-reversed}\Default{default}
+    The basic style of the first appearance of an acronym.  The value
+    \code{sidenote} needs the command \cs*{sidenote} to be defined (for
+    example by the \pkg*{sidenotes} package).
   %%
   \keychoice{extra-style}{default,plain,comma,paren,bracket}\Default{default}
     Defines the way the extra information is printed in the list.
@@ -1241,55 +1263,65 @@ possible output forms of the acronyms.
   \acsetup{first-style=long}
   long: \acf{ny} \\
   \acsetup{first-style=reversed}
-  reversed: \acf{ny}
+  reversed: \acf{ny} \\
+  \acsetup{
+    first-style = footnote-reversed
+  }
+  footnote-reversed: \acf{ny}
 \end{example}
 
 \subsection{Options Regarding the List}
 \begin{options}
   %%
-  \keychoice{page-ref}{none,plain,comma,paren}\Default{none}
+  \keychoice{page-style}{none,plain,comma,paren}\Default{none}
     If this option is set to a value other than \code{none} the page numbers
     of the an acronym appeared on are printed in the list.  Please note that
     this is an experimental feature and might fail in quite a number of cases.
     If you notice anything please send me an email!
   %%
   \keychoice{pages}{all,first}\Default{all}
-    \sinceversion{1.5}If the option \option{page-ref} has any value other than
-    \code{none} this option determines wether all usages of the acronyms are
-    listed or only the first time.  Implicitly sets \keyis{label}{true}.
+    If the option \option{page-style} has any value other than \code{none}
+    this option determines wether all usages of the acronyms are listed or
+    only the first time.  Implicitly sets \keyis{label}{true}.
+  %%
   \keyval{page-name}{page name}\Default{p.\cs*{@}\cs*{,}}
     The ``name'' of the page label.  This is automatically translated to the
     active language. However for the time being there are many translations
     missing, yet.  Please notify me if you find your language missing.
   %%
   \keyval{pages-name}{page name plural}\Default{pp.\cs*{@}\cs*{,}}
-    \sinceversion{1.0}The ``name'' of the page label when there are more than
-    one page.  This is automatically translated to the active language.
-    However for the time being there are many translations missing, yet.
-    Please notify me if you find your language missing.
+    The ``name'' of the page label when there are more than one page.  This is
+    automatically translated to the active language.  However for the time
+    being there are many translations missing, yet.  Please notify me if you
+    find your language missing. 
   %%
   \keybool{following-page}\Default{false}
-    \sinceversion{1.3}If set to \code{true} a page range in the list of
-    acronyms that consists of two pages will be written by the first page and
-    an appended \code{f}. This depends on the option \option{next-page}.
+    If set to \code{true} a page range in the list of acronyms that consists
+    of two pages will be written by the first page and an appended
+    \code{f}. This depends on the option \option{next-page}. 
   %%
   \keybool{following-pages}\Default{false}
-    \sinceversion{1.3}If set to \code{true} a page range in the list of
-    acronyms that set consists of more than two pages will be written by the
-    first page and an appended \code{ff}. This depends on the option
-    \option{next-pages}.
+    If set to \code{true} a page range in the list of acronyms that set
+    consists of more than two pages will be written by the first page and an
+    appended \code{ff}. This depends on the option \option{next-pages}.
+  %%
+  \keybool{following-pages*}\Default{false}
+    \sinceversion{2.5}If set to \code{true} this sets both options
+    \keyis{following-page}{true} and \keyis{following-pages}{true}.
+    \code{false} sets \keyis{following-page}{false} and
+    \keyis{following-pages}{false}.
   %%
   \keyval{next-page}{text}\Default{\cs*{,}f.\cs*{@}}
-    \sinceversion{1.0}Appended to a page number when \option{following-page}
-    is set to \code{true} and the range is only 2 pages long.  This is
-    automatically translated to the active language.  However, for the time
-    being there are many translations missing, yet.  Please notify me if you
-    find your language missing.
+    Appended to a page number when \option{following-page} is set to
+    \code{true} and the range is only 2 pages long.  This is automatically
+    translated to the active language.  However, for the time being there are
+    many translations missing, yet.  Please notify me if you find your
+    language missing.
   %%
   \keyval{next-pages}{text}\Default{\cs*{,}ff.\cs*{@}}
-    \sinceversion{1.0}Appended to a page number when \option{following-pages}
-    is set to \code{true} and the range is more than 2 pages long.  This is
-    automatically translated to the active language.  However, for the time
+    Appended to a page number when \option{following-pages} is set to
+    \code{true} and the range is more than 2 pages long.  This is
+    automatically translated to the active language.  However, for the time 
     being there are many translations missing, yet.  Please notify me if you
     find your language missing.
   %%
@@ -1304,7 +1336,7 @@ possible output forms of the acronyms.
     own.  \emph{Be aware that per default \emph{all} \code{extra-table} styles
       only use \code{l} columns.  Since acronym descriptions can easily get
       longer that a line you should probably define your own style if you want
-      to use them.}  See section~\vref{sec:more-list-cust} for details.
+      to use them.}  See section~\vref{sec:lists} for details.
   %%
   \keychoice{list-heading}{chapter,chapter*,section,section*,subsection,%
     subsection*,subsubsection,subsubsection*,addchap,addsec,none}%
@@ -1418,7 +1450,7 @@ happens it you say
 in the preamble.
 
 \section{About Page Ranges}
-If you enable the \option{page-ref} option \acro\ adds page numbers to the list
+If you enable the \option{page-style} option \acro\ adds page numbers to the list
 of acronyms.  In version~0.\versionstar{} it would add a page reference for an
 acronym in the list of acronyms that used \cs*{pageref} to refer to the first
 appearance of an acronym.  This is retained using \keyis{pages}{first}.
@@ -1427,7 +1459,7 @@ will list \emph{all} pages an acronym appeared on.  With \pkg{hyperref} the
 pages are referenced using \cs*{hyperpage}.
 
 There are some options that control how this list will be typeset, e.g.,
-\option{following-page}, \option{next-pages} or the option \option{page-ref}
+\option{following-page}, \option{next-pages} or the option \option{page-style}
 itself.  It is important to mention that the page list will always take at
 least two compilation runs until changes in the options or the actual page
 numbers affect it.  This is due to the fact that the updated sequence is first
@@ -1445,21 +1477,26 @@ acronyms used between two such barriers.
     of the document mark implicit barriers.
 \end{commands}
 \begin{options}
+  \keybool{use-barriers}\Default{false}
+    \sinceversion{2.5}If you want to use barriers and local lists you have to
+    activate the feature first.  This should be set in the preamble in order
+    to work reliably.  Make sure to watch out for log file messages asking you
+    to rerun.
+  \keybool{reset-at-barriers}\Default{false}
+    If this option is set to \code{true} \cs{acbarrier} implicitly calls
+    \cs{acresetall}.
   \keybool{local-to-barriers}\Default{false}
-    This option can be used as option to the \cs{printacronyms} command to
-    create a list of only the acronyms of the current \enquote{barrier group}.
+    This option can \emph{only} be used as option to the \cs{printacronyms}
+    command. It then prints a list of only the acronyms of the current
+    \enquote{barrier group}.
 \end{options}
+
 \begin{example}
   \acbarrier
   \printacronyms[local-to-barriers]
   \ac{ctan} and \ac{lppl}
   \acbarrier
 \end{example}
-\begin{options}
-  \keybool{reset-at-barriers}\Default{false}
-    If this option is set to \code{true} \cs{acbarrier} implicitly calls
-    \cs{acresetall}.
-\end{options}
 
 \section{Language Support}
 \acro\ detects if packages \pkg{babel}~\cite{pkg:babel} or
@@ -1747,8 +1784,24 @@ this you might want to consider
     \ProvideAcroEnding {possessive-plural}   {s'} {s'}
 \end{sourcecode}
 
-\section{More on List Customization}\label{sec:more-list-cust}
-\subsection{Own List Style}
+\section{More on Customization}\label{sec:more-custom}
+\subsection{Background Information}
+Several of \acro's objects are customized using templates.  For each of these
+objects it is possible to define own templates\footnote{This requires some
+knowledge of \pkg{xtemplate} and expl3.  Plans are to provide a documented
+interface for users of \acro{} in the future.}.  Possibly more interesting: it
+is easily possible to define further instances of an object using a certain
+template.  How this works is explained in the following sections. However, the
+basics are always the same.  There is a command
+\begin{commands}
+  \command*{DeclareAcro\meta{object
+      type}Style}[\marg{name}\marg{template}\marg{options}]
+    which allows to define a new style (\ie, instance) for the object
+    \meta{object type} using the template \marg{template}.
+\end{commands}
+
+\subsection{Lists}\label{sec:lists}
+\subsubsection{Own List Style}
 
 The different existing list styles are all built from four different
 templates, \code{list}, \code{list-of}, \code{table} and \code{extra-table}.
@@ -1762,11 +1815,11 @@ styles now are defined via the following macro:
     Declares a new \acro\ list style \meta{name}.  \meta{name} will be the
     value which can be chosen in the option \option{list-style}.
     \meta{template} is the name of the template to be used by the style.
-    Available styles are listed in table~\ref{tab:list-templates}.
+    Available templates are listed in table~\ref{tab:list-templates}.
     \meta{options} are the option settings for the corresponding template.
 \end{commands}
 
-\begin{table}
+\begin{table}[hbp]
   \centering
   \caption{Available List Templates and Their Options}\label{tab:list-templates}
   \begin{tabular}{*{4}{>{\ttfamily}l}}
@@ -1875,7 +1928,7 @@ This would look as follows:
 \acsetup{list-style=mystyle,hyperref=false}
 \printacronyms
 
-\subsection{Own List Heading Command}
+\subsubsection{Own List Heading Command}
 
 With the option \option{list-heading} you can choose which command prints the
 heading of the list.  If you need a different choice than what's already
@@ -1891,17 +1944,167 @@ As an example here is how the value \code{section} is defined:
   \DeclareAcroListHeading{section}{\section}
 \end{sourcecode}
 
-\section{Configuration Files}
+\subsection{First Styles}
+The first styles define how an acronym is typeset when it is used for the
+first time.  It is set with the option \option{first-style}.  Legal values for
+this option are defined with the following command:
+\begin{commands}
+  \command{DeclareAcroFirstStyle}[\marg{name}\marg{template}\marg{options}]
+    Declares a new \acro\ first style \meta{name}.  \meta{name} will be the
+    value which can be chosen in the option \option{first-style}.
+    \meta{template} is the name of the template to be used by the style.
+    Available templates are listed in table~\ref{tab:first-templates}.
+    \meta{options} are the option settings for the corresponding template.
+\end{commands}
+
+Here are two examples of the already available styles and how they are
+defined:
+\begin{sourcecode}
+  \DeclareAcroFirstStyle{short}{inline}{
+    only-short = true ,
+    brackets   = false
+  }
+  \DeclareAcroFirstStyle{sidenote-reversed}{note}{
+    note-command = \sidenote{#1} ,
+    reversed     = true
+  }
+\end{sourcecode}
+
+\begin{table}[hbp]
+  \centering
+  \caption{Available First Style Templates and Their Options}\label{tab:first-templates}
+  \begin{tabular}{*{4}{>{\ttfamily}l}}
+    \toprule
+      \normalfont\bfseries Template & \normalfont\bfseries Option &
+      \normalfont\bfseries Option Type & \normalfont\bfseries Default \\
+    \midrule
+      inline      & brackets      & boolean   & true \\
+                  & brackets-type & tokenlist & () \\
+                  & only-short    & boolean   & false \\
+                  & only-long     & boolean   & false \\
+                  & reversed      & boolean   & false \\
+                  & between       & tokenlist \\
+                  & foreign-sep   & tokenlist & ,\textasciitilde \\
+    \midrule
+      note        & use-note     & boolean   & true \\
+                  & note-command & function  & \cs*{footnote}\Marg{\#1} \\
+                  & reversed     & boolean   & false \\
+                  & foreign-sep  & tokenlist & ,\textasciitilde \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Extra Styles}
+The extra styles define how the extra information of an acronym is typeset in
+the list.  It is set with the option \option{extra-style}.  Legal values for
+this option are defined with the following command:
+\begin{commands}
+  \command{DeclareAcroExtraStyle}[\marg{name}\marg{template}\marg{options}]
+    Declares a new \acro\ extra style \meta{name}.  \meta{name} will be the
+    value which can be chosen in the option \option{extra-style}.
+    \meta{template} is the name of the template to be used by the style.
+    Available templates are listed in table~\ref{tab:extra-templates}.
+    \meta{options} are the option settings for the corresponding template.
+\end{commands}
+
+Here are two examples of the already available styles and how they are
+defined:
+\begin{sourcecode}
+  \DeclareAcroExtraStyle{default}{inline}{
+    brackets     = false ,
+    punct        = true ,
+    punct-symbol = .
+  }
+  \DeclareAcroExtraStyle{paren}{inline}{
+    brackets     = true ,
+    punct        = true ,
+    punct-symbol =
+  }
+\end{sourcecode}
+
+\begin{table}
+  \centering
+  \caption{Available Extra Style Templates and Their Options}\label{tab:extra-templates}
+  \begin{tabular}{*{4}{>{\ttfamily}l}}
+    \toprule
+      \normalfont\bfseries Template & \normalfont\bfseries Option &
+      \normalfont\bfseries Option Type & \normalfont\bfseries Default \\
+    \midrule
+      inline      & punct         & boolean   & true \\
+                  & punct-symbol  & tokenlist & , \\
+                  & brackets      & boolean   & true \\
+                  & brackets-type & tokenlist & () \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Page Number Styles}
+The page number styles define how the page numbers where acronyms have been
+used are typeset in the list.  It is set with the option \option{page-style}.
+Legal values for this option are defined with the following command:
+\begin{commands}
+  \command{DeclareAcroPageStyle}[\marg{name}\marg{template}\marg{options}]
+    Declares a new \acro\ extra style \meta{name}.  \meta{name} will be the
+    value which can be chosen in the option \option{page-style}.
+    \meta{template} is the name of the template to be used by the style.
+    Available templates are listed in table~\ref{tab:page-templates}.
+    \meta{options} are the option settings for the corresponding template.
+\end{commands}
+
+Here are two examples of the already available styles and how they are
+defined:
+\begin{sourcecode}
+  \DeclareAcroPageStyle{default}{inline}{
+    punct = true ,
+    punct-symbol = .
+  }
+  \DeclareAcroPageStyle{paren}{inline}{
+    brackets=true ,
+    punct-symbol = ~
+  }
+\end{sourcecode}
+
+\begin{table}[hbp]
+  \centering
+  \caption{Available Page Number Style Templates and Their
+    Options}\label{tab:page-templates}
+  \begin{tabular}{*{3}{>{\ttfamily}l}>{\ttfamily}p{.25\linewidth}}
+    \toprule
+      \normalfont\bfseries Template & \normalfont\bfseries Option &
+      \normalfont\bfseries Option Type & \normalfont\bfseries Default \\
+    \midrule
+      inline & display       & boolean   & true \\
+             & punct         & boolean   & false \\
+             & punct-symbol  & tokenlist & , \\
+             & brackets      & boolean   & false \\
+             & brackets-type & tokenlist & () \\
+             & space         & skip      & .333333em plus .166666em minus
+                                           .111111em \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Configuration Files}
 If\sinceversion{2.2} you repeatedly have the same setup and definitions for
-\acro\ in your preamble you might want to place those in a configuration file.
-If \acro\ finds a file named \code{acro.cfg} present it inputs it at the end
-of the package.  The only thing to be aware of is that this file is input like
-a package which means that \code{@} is treated as a letter (category code~11).
+\acro\ in your preamble\footnote{For example defining new endings, \acro{}
+  commands, list styles, \ldots} you might want to place those in a
+configuration file.  If \acro\ finds a file named \code{acro.cfg} present it
+inputs it at the end of the package.  The only thing to be aware of is that
+this file is input like a package which means that \code{@} is treated as a
+letter (category code~11).
 
 \appendix
 
-\section{All Acronyms Used in this Documentation}\label{sec:documentation_acronyms}
-\printacronyms[name=All Acronyms,heading=none]
+\acsetup{
+  list-style       = description ,
+  list-heading     = section ,
+  list-name        = All Acronyms Used in this Documentation ,
+  page-style       = comma ,
+  following-pages* = true ,
+  extra-style      = comma
+}
+
+\printacronyms
 
 \end{document}
 
