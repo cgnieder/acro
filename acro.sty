@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/05/26}
-  {2.5a}
+  {2016/05/30}
+  {2.5b}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -3294,6 +3294,7 @@
   {
     \bool_set_false:N \l__acro_indefinite_bool
     \bool_set_false:N \l__acro_first_upper_bool
+    \bool_set_false:N \l__acro_upper_indefinite_bool
     % \bool_set_false:N \l__acro_citation_all_bool
     % \bool_set_false:N \l__acro_citation_first_bool
     \bool_set_false:N \l__acro_addto_index_bool
@@ -4411,6 +4412,7 @@
                  - new option `following-pages*'
                  - option `page-ref' replaced by option `page-style'
 2016/05/26 v2.5a - bug fix: remove erroneous group in `<ending>-ending' option
+2016/05/30 v2.5b - fix issue #72
 
 % --------------------------------------------------------------------------
 % TODO:
