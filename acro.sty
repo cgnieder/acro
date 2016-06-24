@@ -341,6 +341,8 @@
 \bool_new:N      \g__acro_first_acronym_declared_bool
 \bool_new:N      \l__acro_include_endings_format_bool
 \bool_new:N      \l__acro_list_reverse_long_extra_bool
+\bool_new:N      \l__acro_use_acronyms_bool
+\bool_set_true:N \l__acro_use_acronyms_bool
 
 \tl_new:N   \l__acro_ignore_tl
 \tl_new:N   \l__acro_short_format_tl
@@ -1456,18 +1458,18 @@
 % #2: included classes
 \prg_new_protected_conditional:Npnn \acro_if_is_included:nn #1#2 {T,F,TF}
   {
-    \bool_set_true:N \l__acro_is_included_bool
-    \tl_if_blank:nF {#2}
+    \bool_set_false:N \l__acro_is_included_bool
+    \tl_if_blank:nTF {#2}
+      { \bool_set_true:N \l__acro_is_included_bool }
       {
         \clist_map_inline:nn {#2}
           {
-            \prop_get:NnNTF \l__acro_class_prop {#1} \l__acro_tmpa_tl
+            \prop_get:NnNT \l__acro_class_prop {#1} \l__acro_tmpa_tl
               {
                 \seq_set_split:NnV \l__acro_tmpa_seq {,} \l__acro_tmpa_tl
-                \seq_if_in:NnF \l__acro_tmpa_seq {##1}
-                  { \bool_set_false:N \l__acro_is_included_bool }
+                \seq_if_in:NnT \l__acro_tmpa_seq {##1}
+                  { \bool_set_true:N \l__acro_is_included_bool }
               }
-              { \bool_set_false:N \l__acro_is_included_bool }
           }
       }
     \bool_if:NTF \l__acro_is_included_bool
@@ -2290,6 +2292,7 @@
               \__acro_read_ending_settings:nww {#1} ##1// \acro_stop:
           }
         % pdfstrings:
+        % TODO: add long forms:
         \prop_new:c {l__acro_pdfstring_short_#1_prop}
         \cs_new:cpn {acro_pdf_string_short_#1:n} ##1
           {
@@ -2421,7 +2424,10 @@
     \cs_gset_nopar:cpn {acro@#1@once} {#1}
     \bool_gset_true:c {g__acro_#1_in_list_bool}
     \tl_if_empty:nF {#2#3#4}
-      { \seq_gput_right:cn {g__acro_#1_pages_seq} { {#2}{#3}{#4} } }
+      {
+        % \bool_gset_true:c { g__acro_#1_used_bool }
+        \seq_gput_right:cn {g__acro_#1_pages_seq} { {#2}{#3}{#4} }
+      }
   }
 \cs_new_protected:Npn \acro@used@twice #1#2#3#4
   {
@@ -3313,10 +3319,17 @@
 % #2: ID
 \cs_new_protected:Npn \acro_check_and_mark_if:nn #1#2
   {
-    \bool_if:nTF {#1}
+    \bool_if:nTF
+      { (#1) || !\l__acro_use_acronyms_bool }
       { \acro_check_acronym:nn {#2} {false} }
       { \acro_check_acronym:nn {#2} {true} }
   }
+
+\cs_new_protected:Npn \acro_switch_off:
+  { \bool_set_false:N \l__acro_use_acronyms_bool }
+
+\NewDocumentCommand \acswitchoff {}
+  { \acro_switch_off: }
 
 % commands for (re)defining \ac-like macros:
 \cs_new_protected:Npn \acro_define_new_acro_command:NN #1#2
@@ -3618,6 +3631,16 @@
 \cs_new:Npn \acpdfstringalt
   { \acro_pdf_string_alt:n }
 
+\cs_new:Npn \acpdfstringlong
+  { \acro_pdf_string_long:n }
+
+\cs_new:Npn \acpdfstringfirst #1
+  { \acpdfstringlong {#1} ~ ( \acpdfstring {#1} ) }
+
+% TODO: place this somewhere where endings are defined:
+\cs_new:Npn \acpdfstringlongplural
+  { \acro_pdf_string_long_plural:n }
+
 \prg_new_conditional:Npnn \acro_if_star_gobble:n #1 {TF}
   {
     \if_meaning:w *#1
@@ -3627,6 +3650,35 @@
     \fi:
   }
 
+\cs_new:Npn \acro_expandable_long:n #1
+  { \prop_item:Nn \l__acro_long_prop {#1} }
+
+\cs_new:Npn \acro_expandable_long_plural:n #1
+  {
+    \bool_if:nTF
+      { \prop_item:Nn \l__acro_long_plural_form_prop {#1} }
+      { \prop_item:Nn \l__acro_long_plural_prop {#1} }
+      {
+        \prop_item:Nn \l__acro_long_prop {#1}
+        \prop_item:Nn \l__acro_long_plural_prop {#1}
+      }
+  }
+
+\cs_new:Npn \acro_pdf_string_long:n #1
+  {
+    \acro_if_star_gobble:nTF {#1}
+      { \acro_expandable_long:n }
+      { \acro_expandable_long:n {#1} }
+  }
+
+% TODO: place this somewhere where endings are defined:
+\cs_new:Npn \acro_pdf_string_long_plural:n #1
+  {
+    \acro_if_star_gobble:nTF {#1}
+      { \acro_expandable_long_plural:n }
+      { \acro_expandable_long_plural:n {#1} }
+  }
+  
 \cs_new:Npn \acro_pdf_string_short:n #1
   {
     \acro_if_star_gobble:nTF {#1}
@@ -3651,16 +3703,16 @@
             \cs_set_eq:NN \ac   \acpdfstring
             \cs_set_eq:NN \Ac   \acpdfstring
             \cs_set_eq:NN \acs  \acpdfstring
-            \cs_set_eq:NN \acl  \acpdfstring
-            \cs_set_eq:NN \Acl  \acpdfstring
-            \cs_set_eq:NN \acf  \acpdfstring
-            \cs_set_eq:NN \Acf  \acpdfstring
+            \cs_set_eq:NN \acl  \acpdfstringlong
+            \cs_set_eq:NN \Acl  \acpdfstringlong
+            \cs_set_eq:NN \acf  \acpdfstringfirst
+            \cs_set_eq:NN \Acf  \acpdfstringfirst
             \cs_set_eq:NN \aca  \acpdfstringalt
             \cs_set_eq:NN \acp  \acpdfstringplural
             \cs_set_eq:NN \Acp  \acpdfstringplural
             \cs_set_eq:NN \acsp \acpdfstringplural
-            \cs_set_eq:NN \aclp \acpdfstringplural
-            \cs_set_eq:NN \Aclp \acpdfstringplural
+            \cs_set_eq:NN \aclp \acpdfstringlongplural
+            \cs_set_eq:NN \Aclp \acpdfstringlongplural
             \cs_set_eq:NN \acfp \acpdfstringplural
             \cs_set_eq:NN \Acfp \acpdfstringplural
             \cs_set_eq:NN \acap \acpdfstringaltplural
@@ -4413,6 +4465,10 @@
                  - option `page-ref' replaced by option `page-style'
 2016/05/26 v2.5a - bug fix: remove erroneous group in `<ending>-ending' option
 2016/05/30 v2.5b - fix issue #72
+2016/??/??       - \l__acro_use_acronyms_bool can be used to disable \ac
+                   e.g. in the trial phase of a table like `tabu'; interface:
+                   \acro_switch_off: and \acswitchoff
+                 - fix issue #79
 
 % --------------------------------------------------------------------------
 % TODO:
