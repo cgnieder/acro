@@ -893,6 +893,18 @@ used:
   \command{acuseall}
     Mark all acronyms as used.
 \end{commands}
+Then there are two further commands related to using acronyms:
+\begin{commands}
+  \command{acswitchoff}
+    This\sinceversion{2.6} command is for patching in certain situations.  For
+    example some table environments like \env*{tabularx} or \env*{tabu} pass
+    their content two or more times for determining the width of the table
+    columns.  Those can be patched to add \cs{acswitchoff} to their trial
+    phase.
+  \command{acswitchon}
+    Effectively\sinceversion{2.6} the opposite of \cs{acswitchoff} -- this
+    command should probably never be needed.
+\end{commands}
 
 \subsection{\cs*{ac} and Friends in \acs*{pdf} Bookmarks, Accessibility
   Support, Tooltips}
@@ -1656,6 +1668,10 @@ commands\footnote{Which is why you need to use them inside an expl3
     \verbcode+#1+.
   \command*{acro_barrier:}
     The code-level version of \cs{acbarrier}.
+  \command*{acro_switch_off:}
+    The\sinceversion{2.6} expl3 version of \cs{acswitchoff}.
+  \command*{acro_switch_on:}
+    The\sinceversion{2.6} expl3 version of \cs{acswitchon}.
 \end{commands}
 
 \paragraph{Examples}
