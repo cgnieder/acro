@@ -3000,15 +3000,15 @@
   {
     \bool_if:NT \l__acro_sort_bool
       {
-        \cs_new_protected:Npn \acro_sort_prop:N #1
+        \cs_new_protected:Npn \acro_sort_prop:NN #1#2
           {
             \seq_clear:N  \l__acro_tmpa_seq
             \prop_clear:N \l__acro_tmpa_prop
             \prop_clear:N \l__acro_tmpb_prop
-            \prop_map_inline:Nn \l__acro_sort_prop
+            \prop_map_inline:Nn #2
               {
-                \seq_put_right:Nn \l__acro_tmpa_seq { ##2 }
-                \prop_put:Nnn \l__acro_tmpa_prop { ##2 } {##1}
+                \seq_put_right:Nn \l__acro_tmpa_seq {##2}
+                \prop_put:Nnn \l__acro_tmpa_prop {##1} {##2}
               }
             \seq_sort:Nn \l__acro_tmpa_seq
               {
@@ -3024,17 +3024,19 @@
               }
             \seq_map_inline:Nn \l__acro_tmpa_seq
               {
-                % get ID:
-                \prop_get:NnNF \l__acro_tmpa_prop {##1} \l__acro_tmpa_tl {}
-                % get prop entry of ID in #1:
-                \prop_get:NVNT #1 \l__acro_tmpa_tl \l__acro_tmpb_tl
+                \prop_map_inline:Nn \l__acro_tmpa_prop
                   {
-                    \prop_put:NVV \l__acro_tmpb_prop
-                      \l__acro_tmpa_tl
-                      \l__acro_tmpb_tl
+                    \str_if_eq:nnT {##1} {####2}
+                      {
+                        \prop_get:NnN #1 {####1} \l__acro_tmpa_tl
+                        \prop_put:NnV \l__acro_tmpb_prop {####1}
+                          \l__acro_tmpa_tl
+                      }
                   }
               }
+            \prop_show:N #1
             \prop_set_eq:NN #1 \l__acro_tmpb_prop
+            \prop_show:N #1
           }
       }
   }
@@ -3120,11 +3122,11 @@
 
 \cs_new_protected:Npn \aciftrailing { \acro_if_trailing_tokens:nTF }
 
-\cs_new_protected:Npn \acro_treat_trail:
+\cs_new_protected:Npn \__acro_check_trail:N #1
   {
     \tl_map_inline:Nn \l__acro_trailing_tokens_tl
       {
-        \token_if_eq_meaning:NNT \l_peek_token ##1
+        \token_if_eq_meaning:NNT #1 ##1
           { \prop_item:Nn \l__acro_trailing_actions_prop {##1} }
       }
   }
@@ -3287,7 +3289,7 @@
   {
     \cs_set:Npn \__acro_execute:
       {
-        \acro_treat_trail:
+        \__acro_check_trail:N \l_peek_token
         #1
         \acro_end: % this will end the group opened by \acro_begin:
       }
@@ -4139,7 +4141,7 @@
       \keys_set:nn { acro / print-acronyms } {#1}
       \__acro_aux_file_now:n { \acro@print@list }
       \bool_if:NT \l__acro_sort_bool
-        { \acro_sort_prop:N \l__acro_short_prop }
+        { \acro_sort_prop:NN \l__acro_short_prop \l__acro_sort_prop }
       \acro_title_instance:VV
         \l__acro_list_heading_cmd_tl
         \l__acro_list_name_tl
@@ -4465,10 +4467,12 @@
                  - option `page-ref' replaced by option `page-style'
 2016/05/26 v2.5a - bug fix: remove erroneous group in `<ending>-ending' option
 2016/05/30 v2.5b - fix issue #72
-2016/??/??       - \l__acro_use_acronyms_bool can be used to disable \ac
+2016/07/20 v2.6  - \l__acro_use_acronyms_bool can be used to disable \ac
                    e.g. in the trial phase of a table like `tabu'; interface:
                    \acro_switch_off: and \acswitchoff
                  - fix issue #79
+                 - fix error: acronyms with same sort entry are not
+                   overwritten any more in the list of acronyms
 
 % --------------------------------------------------------------------------
 % TODO:
