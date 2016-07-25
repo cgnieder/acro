@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/07/20}
-  {2.6}
+  {2016/07/25}
+  {2.6a}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -611,12 +611,25 @@
   { \UseInstance {acro-list} {#1} {#2} {#3} }
 \cs_generate_variant:Nn \acro_list_instance:nnn {VVV}
 
-\cs_new_protected:Npn \acro_first_instance:nnn #1#2#3
+\cs_new_protected:Npn \acro_first_instance:nn #1#2
   {
-    \acro_if_defined:nT {#2}
-      { \UseInstance {acro-first} {#1} {#2} {#3} }
+    \tl_if_blank:VF \l__acro_first_style_tl
+      {
+        \tl_set_eq:NN
+          \l__acro_first_instance_tl
+          \l__acro_first_style_tl
+      }
+    \acro_if_defined:nT {#1}
+      {
+        \use:x {
+          \UseInstance {acro-first}
+            { \exp_not:V \l__acro_first_instance_tl }
+            { \exp_not:n {#1} }
+            { \exp_not:n {#2} }
+          }
+      }
   }
-\cs_generate_variant:Nn \acro_first_instance:nnn {Vn,VnV}
+\cs_generate_variant:Nn \acro_first_instance:nn {nV}
   
 % --------------------------------------------------------------------------
 % hyperref support
@@ -1939,18 +1952,7 @@
         \bool_gset_true:c { g__acro_#1_first_use_bool }
         \acro_if_is_single:nTF {#1}
           { \acro_single:n {#1} }
-          {
-            \tl_if_blank:VF \l__acro_first_style_tl
-              {
-                \tl_set_eq:NN
-                  \l__acro_first_instance_tl
-                  \l__acro_first_style_tl
-              }
-            \acro_first_instance:VnV
-              \l__acro_first_instance_tl
-              {#1}
-              \l__acro_long_tl
-          }
+          { \acro_first_instance:nV {#1} \l__acro_long_tl }
       }
   }
 
@@ -1997,10 +1999,7 @@
             }
           \tl_if_blank:VT \l__acro_single_tl
             { \tl_set_eq:NN \l__acro_single_tl \l__acro_long_tl }
-          \acro_first_instance:VnV
-            \l__acro_first_instance_tl
-            {#1}
-            \l__acro_single_tl
+          \acro_first_instance:nV {#1} \l__acro_single_tl
         }
       }
       { % other (e.g. short)
@@ -2744,14 +2743,7 @@
     \acro_is_used:n {#1}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    \tl_if_blank:VF \l__acro_first_style_tl
-      {
-        \tl_set_eq:NN
-          \l__acro_first_instance_tl
-          \l__acro_first_style_tl
-      }
-    \acro_first_instance:VnV
-      \l__acro_first_instance_tl
+    \acro_first_instance:nV
       {#1}
       \l__acro_long_tl
   }
@@ -2766,8 +2758,7 @@
     \acro_is_used:n {#1}
     \acro_if_is_single:nT {#1}
       { \cs_set_eq:NN \acro_hyper_link:nn \use_ii:nn }
-    \acro_first_instance:Vnn
-      \l__acro_first_instance_tl
+    \acro_first_instance:nn
       {#1}
       {#2}
   }
@@ -4478,6 +4469,7 @@
                  - fix issue #74
                  - fix error: acronyms with same sort entry are not
                    overwritten any more in the list of acronyms
+2016/07/25 v2.6a - fix issue #80
 
 % --------------------------------------------------------------------------
 % TODO:
