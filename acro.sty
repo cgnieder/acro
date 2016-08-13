@@ -581,6 +581,9 @@
         \cs_new_eq:NN \acro_xspace: \xspace
       }
       { \cs_new:Npn \acro_xspace: {} }
+    \@ifpackageloaded {biblatex}
+      { \acro_reset_all: }
+      { }
   }
 
 % --------------------------------------------------------------------------
@@ -4469,7 +4472,7 @@
                  - fix issue #74
                  - fix error: acronyms with same sort entry are not
                    overwritten any more in the list of acronyms
-2016/07/25 v2.6a - fix issue #80
+2016/07/25 v2.6a - fix issues #80 and #81
 
 % --------------------------------------------------------------------------
 % TODO:
