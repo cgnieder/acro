@@ -6,14 +6,15 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
-\usepackage{fixltx2e}
 \usepackage[colorlinks]{hyperref}
 \usepackage{acro}
-\DeclareInstance{acro-extra}{paren}{default}{
-  punct = true ,
-  punct-symbol = 
+
+\acsetup{
+  sort = true ,
+  page-style = comma ,
+  extra-style = paren ,
+  hyperref =true
 }
-\acsetup{sort,page-ref=comma,extra-style=paren,hyperref}
 
 \DeclareAcronym{CDMA}{
   short            = CDMA ,

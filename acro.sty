@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/08/13}
-  {2.6a}
+  {2016/08/30}
+  {2.6d}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -581,9 +581,6 @@
         \cs_new_eq:NN \acro_xspace: \xspace
       }
       { \cs_new:Npn \acro_xspace: {} }
-    \@ifpackageloaded {biblatex}
-      { \acro_reset_all: }
-      { }
   }
 
 % --------------------------------------------------------------------------
@@ -3171,6 +3168,10 @@
 \cs_new_protected:Npn \acro_reset_all:
   { \acro_for_all_acronyms_do:n { \acro_reset:n {##1} } }
 
+% make sure that no acronym is used at the beginning of the document, see
+% issue #81 for reasons why this may be necessary:
+\AfterEndPreamble { \acro_reset_all: }
+  
 \cs_new_protected:Npn \acro_mark_all_as_used:
   { \acro_for_all_acronyms_do:n { \acro_mark_as_used:n {##1} } }
 
@@ -3297,7 +3298,7 @@
     \bool_set_false:N \l__acro_upper_indefinite_bool
     % \bool_set_false:N \l__acro_citation_all_bool
     % \bool_set_false:N \l__acro_citation_first_bool
-    \bool_set_false:N \l__acro_addto_index_bool
+    % \bool_set_false:N \l__acro_addto_index_bool
     \acro_for_endings_do:n { \bool_set_false:c {l__acro_##1_bool} }
   }
 
@@ -4473,6 +4474,9 @@
                  - fix error: acronyms with same sort entry are not
                    overwritten any more in the list of acronyms
 2016/08/13 v2.6a - fix issues #80 and #81
+2016/08/13 v2.6b - version stepped by accident
+2016/08/16 v2.6c - really fixes issue #81
+2016/08/30 v2.6d - fix issue #82
 
 % --------------------------------------------------------------------------
 % TODO:
