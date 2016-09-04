@@ -31,8 +31,8 @@
 \RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2016/08/30}
-  {2.6d}
+  {2016/09/04}
+  {2.6e}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -1625,24 +1625,39 @@
       { \prg_return_false: }
   }
 
-% this macro is used in templates for fetching all items to be printed:
+\tl_new:N \l__acro_list_entries_tl
+
+% this macro is used in templates for fetching all items to be printed; it
+% collects all entries in a tl which then is used where needed
 %
-% #1: included classes
-% #2: excluded classes
-\cs_new_protected:Npn \acro_list_items:nn #1#2
+% #1: tl containing the entries
+% #2: included classes
+% #3: excluded classes
+\cs_new_protected:Npn \acro_build_list_entries:Nnn #1#2#3
   {
+    \tl_clear:N #1
     \acro_for_all_acronyms_do:n
       {% ##1: id; ##2: short form
         \acro_get:n {##1}
-        \acro_if_entry:nnnT {##1} {#1} {#2}
+        \acro_if_entry:nnnT {##1} {#2} {#3}
           {
-            \acro_print_list_entry:nnnn
-              { \acro_list_entry:nn {short} {##1} }
-              { \acro_list_entry:nn {long} {##1} }
-              { \acro_list_entry:nn {extra} {##1} }
-              { \acro_list_entry:nn {page} {##1} }
+            \tl_put_right:Nn #1
+              {
+                \acro_print_list_entry:nnnn
+                  { \acro_list_entry:nn {short} {##1} }
+                  { \acro_list_entry:nn {long} {##1} }
+                  { \acro_list_entry:nn {extra} {##1} }
+                  { \acro_list_entry:nn {page} {##1} }
+              }
           }
       }
+  }
+
+% this macro is used in templates for fetching all items to be printed:
+\cs_new_protected:Npn \acro_list_items:nn #1#2
+  {
+    \acro_build_list_entries:Nnn \l__acro_list_entries_tl {#1} {#2}
+    \tl_use:N \l__acro_list_entries_tl
   }
   
 % --------------------------------------------------------------------------
@@ -1809,12 +1824,13 @@
         \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
           { ##1 & ##2 ##3 ##4 \tabularnewline }
       }
+    \acro_build_list_entries:Nnn \l__acro_list_entries_tl {#1} {#2}
     \use:x
       {
         \exp_not:V \l__acro_list_before_tl
         \exp_not:N \begin { \exp_not:V \l__acro_list_table_tl }
           { \exp_not:V \l__acro_list_table_spec_tl }
-        \exp_not:n { \acro_list_items:nn {#1} {#2} }
+        \exp_not:V \l__acro_list_entries_tl
         \exp_not:N \end { \exp_not:V \l__acro_list_table_tl }
         \exp_not:V \l__acro_list_after_tl
       }
@@ -1852,12 +1868,13 @@
         \cs_set_protected:Npn \acro_print_list_entry:nnnn ##1##2##3##4
           { ##1 & ##2 & ##3 & ##4 \tabularnewline }
       }
+    \acro_build_list_entries:Nnn \l__acro_list_entries_tl {#1} {#2}
     \use:x
       {
         \exp_not:V \l__acro_list_before_tl
         \exp_not:N \begin { \exp_not:V \l__acro_list_table_tl }
           { \exp_not:V \l__acro_list_table_spec_tl }
-        \exp_not:n { \acro_list_items:nn {#1} {#2} }
+        \exp_not:V \l__acro_list_entries_tl
         \exp_not:N \end { \exp_not:V \l__acro_list_table_tl }
         \exp_not:V \l__acro_list_after_tl
       }
@@ -4477,6 +4494,7 @@
 2016/08/13 v2.6b - version stepped by accident
 2016/08/16 v2.6c - really fixes issue #81
 2016/08/30 v2.6d - fix issue #82
+2016/09/04 v2.6e - fix issue in http://tex.stackexchange.com/q/270034/
 
 % --------------------------------------------------------------------------
 % TODO:
