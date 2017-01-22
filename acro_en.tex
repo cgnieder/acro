@@ -1545,7 +1545,7 @@ they're on.
 
 \section{Defining Own Acronym Macros}\label{sec:defining-own-acronym}
 
-The commands\sinceversion{2.0}\sinceversion{2.0}\sinceversion{2.0} explained in
+The commands\sinceversion{2.0} explained in
 section~\vref{sec:using-acronyms-comm} have all been defined with a dedicated
 command -- there is a family of dedicated commands, actually:
 \begin{commands}
@@ -1672,6 +1672,24 @@ commands\footnote{Which is why you need to use them inside an expl3
     The\sinceversion{2.6} expl3 version of \cs{acswitchoff}.
   \command*{acro_switch_on:}
     The\sinceversion{2.6} expl3 version of \cs{acswitchon}.
+  \command*{acro_add_action:n}[ \marg{code}]
+    Adds\sinceversion{2.7} code to \cs*{acro_get:n}.  Inside of \meta{code}
+    you can refer to the \ac{id} of the acronym with \verbcode+#1+.
+  \command*{acro_get_property:nn}[\TF\ \marg{id} \marg{property} \marg{true}
+    \marg{false}]
+    Fetches\sinceversion{2.7} the property \meta{property} of the acronym
+    \meta{id} and stores it in a tokenlist variable
+    \cs*{l__acro_\meta{property}_tl} where all dashes in the property names
+    are replaced with underscores.  \meta{true} is placed in the input stream
+    if the property had been set, \meta{false} otherwise.
+  \command*{acro_get_property:nn}[\marg{id} \marg{property}]
+    Like\sinceversion{2.7} \cs*{acro_get_property:nn}\TF, but without the
+    \meta{true} and \meta{false} arguments.
+  \command*{acro_if_property:nn}[\TF\ \marg{id} \marg{property} \marg{true}
+    \marg{false}]
+    Checks\sinceversion{2.7} if the property \meta{property} of the acronym
+    \meta{id} is set and places \meta{true} is in the input stream if yes and
+    \meta{false} otherwise.
 \end{commands}
 
 \paragraph{Examples}
