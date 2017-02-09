@@ -28,11 +28,11 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\RequirePackage{expl3,l3sort,xparse,l3keys2e,xtemplate,etoolbox}
+\RequirePackage{expl3,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
   {2017/01/22}
-  {2.7}
+  {2.7a}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -2925,8 +2925,8 @@
                       { \str_fold_case:n {##2} }
                         = \c_minus_one
                   }
-                  { \sort_ordered: }
-                  { \sort_reversed: }
+                  { \sort_return_same: }
+                  { \sort_return_swapped: }
               }
             \seq_map_inline:Nn \l__acro_tmpa_seq
               {
@@ -4587,6 +4587,7 @@
                    not set
                  - make \__acro_declare_property functions public
                  - \acro_add_action:n (adds code to \acro_get:n)
+2017/02/09 v2.7a - adapt to integration of l3sort into l3kernel
 
 % --------------------------------------------------------------------------
 % TODO:

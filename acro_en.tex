@@ -127,51 +127,6 @@
 \textsc{Wikipedia}}
 \newcommand*\h[1]{\textcolor{cnltx}{\textbf{#1}}}
 
-\makeatletter
-\def\cnltx@bash@listings@style{
-  language         = bash,
-  basicstyle       = {\sourceformat\color{black}},
-  % numbers          = left,
-  % numberstyle      = \tiny,
-  xleftmargin      = 1em,
-  numbersep        = .75em,
-  gobble           = \cnltx@gobble ,
-  columns          = fullflexible,
-  literate         =
-    {ä}{{\"a}}1
-    {ö}{{\"o}}1
-    {ü}{{\"u}}1
-    {Ä}{{\"A}}1
-    {Ö}{{\"O}}1
-    {Ü}{{\"U}}1
-    {ß}{{\ss}}1 ,
-  breaklines       = true,
-  keepspaces       = true,
-  breakindent      = 1em,
-  commentstyle     = \color{comment},
-  keywordstyle     = \color{black}\bfseries ,
-  stringstyle      = \color{black} ,
-  showstringspaces = false ,
-  morekeywords     = texdoc
-}
-
-\cnltx@expandargs(nx)\lstdefinestyle
-  {bash}
-  {\expandonce\cnltx@bash@listings@style}
-
-\newcommand*\prompt{}
-\patchcmd\lst@NewLine
-  {\hbox{}}% search
-  {\hbox{}\prompt}% replace
-  {}% success
-  {}% failure
-\newsourcecodeenv[
-  code-only,
-  sourcecode-options={style=bash},
-  pre-code=\def\prompt{\textasciitilde\space\$\space}
-]{bash}
-\makeatother
-
 \ProvideAcroEnding {possessive} {'s} {'s}
 
 % declare acronyms
