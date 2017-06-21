@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2017/01/22}
-  {2.7a}
+  {2017/06/21}
+  {2.7b}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -1840,7 +1840,11 @@
             }
           \tl_if_blank:VT \l__acro_single_tl
             { \tl_set_eq:NN \l__acro_single_tl \l__acro_long_tl }
+          % BUG: should that be \acro_write_expanded:nn ?
+          % \acro_write_expanded:nnn {#1} {#2} {\l__acro_single_tl}
           \acro_write_long:VV \l__acro_single_format_tl \l__acro_single_tl
+          \acro_endings:nn {#1} {single}
+          \l__acro_long_post_tl
         }
         {first} {
           \tl_if_blank:VF \l__acro_single_format_tl
@@ -2067,22 +2071,33 @@
 \cs_new_protected:Npn \acro_endings:nn #1#2
   {
     \group_begin:
-      \bool_if:NTF \l__acro_include_endings_format_bool
+      \str_if_eq:nnTF {#2} {single}
         {
-          \bool_if:NTF \l__acro_custom_format_bool
-            { \l__acro_custom_format_tl }
-            { \tl_use:c {l__acro_#2_format_tl} }
+          \keys_set:nn {acro}
+            { long-format= \l__acro_single_format_tl }
+          \__acro_endings:nn {#1} {long}
         }
-        { \use:n }
-        {
-          \acro_for_endings_do:n
-            {
-              \__acro_set_ending_for:nnn {##1} {#1} {#2}
-              \bool_if:cT {l__acro_##1_bool}
-                { \tl_use:c {l__acro_#2_##1_tl} }
-            }
-        }
+        { \__acro_endings:nn {#1} {#2} }
     \group_end:
+  }
+
+\cs_new_protected:Npn \__acro_endings:nn #1#2
+  {
+    \bool_if:NTF \l__acro_include_endings_format_bool
+      {
+        \bool_if:NTF \l__acro_custom_format_bool
+          { \l__acro_custom_format_tl }
+          { \tl_use:c {l__acro_#2_format_tl} }
+      }
+      { \use:n }
+      {
+        \acro_for_endings_do:n
+          {
+            \__acro_set_ending_for:nnn {##1} {#1} {#2}
+            \bool_if:cT {l__acro_##1_bool}
+              { \tl_use:c {l__acro_#2_##1_tl} }
+          }
+      }
   }
 
 \prg_new_conditional:Npnn \acro_if_ending_exist:n #1 {p,T,F,TF}
@@ -4588,6 +4603,7 @@
                  - make \__acro_declare_property functions public
                  - \acro_add_action:n (adds code to \acro_get:n)
 2017/02/09 v2.7a - adapt to integration of l3sort into l3kernel
+2017/06/21 v2.7b - fix issue #93
 
 % --------------------------------------------------------------------------
 % TODO:
