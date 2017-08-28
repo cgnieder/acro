@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2017/06/21}
-  {2.7b}
+  {2017/08/28}
+  {2.7c}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -3478,16 +3478,21 @@
     then.
   }
 
+% #1: acronym
+% #2: property
 \cs_new_protected:Npn \__acro_property_check:nn #1#2
   {
     \tl_if_blank:VT \l__acro_current_property_tl
       { \acro_serious_message:n {no-id} }
-    \bool_if:cF { l__acro_#1_short_set_bool }
+    \str_if_eq:nnF {#2} {short}
       {
-        \keys_set:nn { acro / declare-acronym } { short = {#1} }
-        \acro_harmless_message:nn {substitute-short} {#1}
+        \bool_if:cF { l__acro_#1_short_set_bool }
+          {
+            \keys_set:nn { acro / declare-acronym } { short = {#1} }
+            \acro_harmless_message:nn {substitute-short} {#1}
+          }
       }
-    \bool_new:c { l__acro_#1_#2_set_bool }
+    % \bool_new:c { l__acro_#1_#2_set_bool }
     \bool_set_true:c { l__acro_#1_#2_set_bool }
   }
 
@@ -3506,6 +3511,10 @@
 
 % --------------------------------------------------------------------------
 % the internal property selection functions for \DeclareAcronym:
+\prop_new:N \g__acro_properties_prop
+
+\cs_new_protected:Npn \acro_for_properties_do:n
+  { \prop_map_inline:Nn \g__acro_properties_prop }
 
 % #1: name in associated cs
 % #2: property name
@@ -3515,11 +3524,14 @@
     \prop_clear_new:c {l__acro_#1_prop}
     \cs_new_protected:cpn   {__acro_declare_#1:nn} ##1##2 {#3}
     \cs_generate_variant:cn {__acro_declare_#1:nn} {V}
+    % \bool_new:c {l__acro_ \l__acro_current_property_tl _#1_set_bool}
     \keys_define:nn {acro/declare-acronym}
       {
         #2 .code:n =
           \use:c {__acro_declare_#1:Vn} \l__acro_current_property_tl {##1}
+          \bool_set_true:c {l__acro_ \l__acro_current_property_tl _#2_set_bool}
       }
+    \prop_gput:Nnn \g__acro_properties_prop {#2} {#1}
   }
 
 % #1: name in associated cs
@@ -3815,6 +3827,8 @@
     \seq_gput_right:Nn \g__acro_declared_acronyms_seq {#1}
     \bool_gset_true:N \g__acro_first_acronym_declared_bool
     \tl_set:Nn \l__acro_current_property_tl {#1}
+    \acro_for_properties_do:n
+      { \bool_new:c {l__acro_#1_##1_set_bool} }
     \keys_set:nn { acro / declare-acronym } {#2}
     \bool_new:c {g__acro_#1_first_use_bool}
     \bool_new:c {g__acro_#1_used_bool}
@@ -4604,6 +4618,7 @@
                  - \acro_add_action:n (adds code to \acro_get:n)
 2017/02/09 v2.7a - adapt to integration of l3sort into l3kernel
 2017/06/21 v2.7b - fix issue #93
+2017/08/28 v2.7c - fix issue #96
 
 % --------------------------------------------------------------------------
 % TODO:
