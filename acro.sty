@@ -8,7 +8,7 @@
 % Web:    https://bitbucket.org/cgnieder/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2011-2017 Clemens Niederberger
+% Copyright 2011--2018 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2017/08/28}
-  {2.7c}
+  {2017/01/30}
+  {2.7d}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -615,17 +615,22 @@
 
 \cs_new_protected:Npn \acro_first_instance:nn #1#2
   {
-    \tl_if_blank:VF \l__acro_first_style_tl
+    \acro_if_property:nnTF {#1} {first-style}
       {
         \tl_set_eq:NN
-          \l__acro_first_instance_tl
+          \l__acro_tmpa_tl
           \l__acro_first_style_tl
+      }
+      {
+        \tl_set_eq:NN
+          \l__acro_tmpa_tl
+          \l__acro_first_instance_tl
       }
     \acro_if_defined:nT {#1}
       {
         \use:x {
           \UseInstance {acro-first}
-            { \exp_not:V \l__acro_first_instance_tl }
+            { \exp_not:V \l__acro_tmpa_tl }
             { \exp_not:n {#1} }
             { \exp_not:n {#2} }
           }
@@ -2085,9 +2090,17 @@
   {
     \bool_if:NTF \l__acro_include_endings_format_bool
       {
-        \bool_if:NTF \l__acro_custom_format_bool
-          { \l__acro_custom_format_tl }
-          { \tl_use:c {l__acro_#2_format_tl} }
+        \str_if_eq:nnTF {long} {#2}
+          {
+            \bool_if:NTF \l__acro_custom_long_format_bool
+              { \l__acro_custom_long_format_tl }
+              { \tl_use:c {l__acro_#2_format_tl} }
+          }
+          {
+            \bool_if:NTF \l__acro_custom_format_bool
+              { \l__acro_custom_format_tl }
+              { \tl_use:c {l__acro_#2_format_tl} }
+          }
       }
       { \use:n }
       {
@@ -4619,6 +4632,7 @@
 2017/02/09 v2.7a - adapt to integration of l3sort into l3kernel
 2017/06/21 v2.7b - fix issue #93
 2017/08/28 v2.7c - fix issue #96
+2018/01/30 v2.7d - fix issue #94
 
 % --------------------------------------------------------------------------
 % TODO:
