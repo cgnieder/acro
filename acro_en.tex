@@ -624,6 +624,17 @@ These acronyms now have the following plural appearances:
   \acsp{MP}, \aclp{MP}
 \end{example}
 
+In the default setting the format of the long or short form is not extended to
+the plural ending which might look strange if you choose bold weight as
+format, for example.  In this case you can tell \acro\ to extend the format.
+\begin{options}
+  \keybool{format-include-endings}\Default{false}
+    \sinceversion{2.7d}Tell \acro\ to use the format of the base form for the
+    endings, too.
+\end{options}
+For a more general view on endings please read section
+\vref{sec:about-plural-forms}.
+
 \subsection{Alternative Short Forms}
 For some acronyms it might be useful to have alternative forms.  For this
 \cs{DeclareAcronym} has another key:
@@ -1699,7 +1710,7 @@ Other definitions by \acro\ are for example the following ones:
 \end{sourcecode}
 
 \section{About Plural Forms, Possessive Forms and Similar Constructs -- the
-  Concept of Endings}
+  Concept of Endings}\label{sec:about-plural-forms}
 
 \acro\ has a concept of \emph{endings}.  All of \acro's plural options are
 defined by saying
