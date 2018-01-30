@@ -1,8 +1,8 @@
-% !arara: pdflatex
+% !arara: pdflatex: { action: nonstopmode }
 % !arara: biber
-% !arara: pdflatex
-% arara: pdflatex
-% arara: pdflatex
+% !arara: pdflatex: { action: nonstopmode }
+% arara: pdflatex: { action: nonstopmode }
+% arara: pdflatex: { action: nonstopmode }
 % --------------------------------------------------------------------------
 % the ACRO package
 % 
@@ -336,6 +336,10 @@ documentation.
   \keyval{long-post}{text}
     \meta{text} is appended to the long form in the text but not in the list
     of acronyms.
+  %% long-post
+  \keyval{post}{text}
+    \meta{text}\sinceversion{2.8} is appended to the acronym in the text but
+    not in the list of acronyms.
   %% alt
   \keyval{alt}{text}
     Alternative short form.
@@ -629,7 +633,7 @@ the plural ending which might look strange if you choose bold weight as
 format, for example.  In this case you can tell \acro\ to extend the format.
 \begin{options}
   \keybool{format-include-endings}\Default{false}
-    \sinceversion{2.7d}Tell \acro\ to use the format of the base form for the
+    Tell\sinceversion{2.8} \acro\ to use the format of the base form for the
     endings, too.
 \end{options}
 For a more general view on endings please read section
@@ -844,6 +848,9 @@ used for the first time you can call one of these commands:
   \command{acifused}[\marg{id}\marg{true}\marg{false}]
     This command tests if the acronym with \ac{id} \meta{id} has already been
     used and either puts \code{true} or \code{false} in the input stream.
+  \command{aciffirst}[\marg{true}\marg{false}]
+    To\sinceversion{2.8} be used inside of acronym definitions in order to
+    test if we are inside the first instance of the acronym or not.
 \end{commands}
 \begin{example}[side-by-side]
   \acreset{ny}\ac{ny}
