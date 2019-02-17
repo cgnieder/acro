@@ -13,7 +13,7 @@
 % Web:    http://www.mychemsitry.eu/forums/forum/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2011--2018 Clemens Niederberger
+% Copyright 2011--2019 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -318,6 +318,13 @@ documentation.
   \keyval{alt-plural-form}{text}
     The\sinceversion{2.0} plural alternative form of the acronym; replaces the
     alternative form when used instead of appending the plural ending.
+  %% foreign-plural
+  \keyval{foreign-plural}{text}\Default{s}
+    The\sinceversion{2.9} plural ending appended to the foreign form.
+  %% foreign-plural-form
+  \keyval{long-plural-form}{text}
+    Plural\sinceversion{2.9} lforeign form of the acronym; replaces the
+    foreign form when used instead of appending the plural ending.
   %% list
   \keyval{list}{text}
     If specified this will be written in the list as description instead of
@@ -1130,6 +1137,11 @@ There are a few options which change the general behaviour of \acro.
     \keyis{group-citation}{true}.  Each citation command that takes the cite
     key as argument is valid, for example \pkg*{biblatex}'s \cs*{footcite}.
   %%
+  \keyval{group-cite-connect}{code}\Default{\code{,\cs*{nobreakspace}}}
+    \sinceversion{2.0}When \keyis{group-citation}{true} this is inserted
+    between the long/short form of the acronym and the citation within the
+    parentheses.
+  %%
   \keybool{index}\Default{false}
     If set to \code{true} an index entry will be recorded every time an
     \emph{unstarred} acronym command is used for the corresponding acronym.
@@ -1731,8 +1743,9 @@ The command's syntax and what it does is as follows:
     \begin{itemize}
       \item \option*{\meta{name}-ending},
       \item \option*{short-\meta{name}-ending},
-      \item \option*{alt-\meta{name}-ending} and
-      \item \option*{long-\meta{name}-ending}.
+      \item \option*{alt-\meta{name}-ending},
+      \item \option*{long-\meta{name}-ending} and
+      \item \option*{foreign-\meta{name}-ending}.
     \end{itemize}
     It also defines the acronym properties
     \begin{itemize}
@@ -1740,8 +1753,10 @@ The command's syntax and what it does is as follows:
       \item \option*{short-\meta{name}-form},
       \item \option*{alt-\meta{name}},
       \item \option*{alt-\meta{name}-form},
-      \item \option*{long-\meta{name}} and
-      \item \option*{long-\meta{name}-form}.
+      \item \option*{long-\meta{name}},
+      \item \option*{long-\meta{name}-form},
+      \item \option*{foreign-\meta{name}} and
+      \item \option*{foreign-\meta{name}-form}.
     \end{itemize}
     Additionally it defines a setup macro as
     described in section~\vref{sec:defining-own-acronym},
