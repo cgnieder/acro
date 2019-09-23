@@ -1109,6 +1109,10 @@ There are a few options which change the general behaviour of \acro.
     option needs the experimental package \pkg{l3sort} (from the
     \pkg{l3experimental} bundle) and can only be set in the preamble.
   %%
+  \keybool{display-foreign}\Default{true}
+    When set to \code{false} any \option{foreign} option is ignored and
+    foreign forms are not displayed.
+  %%
   \keychoice{cite}{\default{all},first,none}\Default{first}
     \changedversion{2.4b}This option decides whether citations that are added
     via \option{cite} are added to each first, every or no appearance of an
@@ -1660,6 +1664,9 @@ commands\footnote{Which is why you need to use them inside an expl3
   \command*{acro_add_action:n}[ \marg{code}]
     Adds\sinceversion{2.7} code to \cs*{acro_get:n}.  Inside of \meta{code}
     you can refer to the \ac{id} of the acronym with \verbcode+#1+.
+    The \cs*{acro_get:n} command is called the first macro that is called by
+    \cs*{acro_use:n} which for example enables conditionals to test for
+    certain acronym properties.
   \command*{acro_get_property:nn}[\TF\ \marg{id} \marg{property} \marg{true}
     \marg{false}]
     Fetches\sinceversion{2.7} the property \meta{property} of the acronym
