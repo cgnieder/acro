@@ -1397,11 +1397,8 @@
         \acro_acc_supp:nn
           {#1}
           {
-            \acro_write_short:nn {#1}
-              {
-                \l__acro_list_short_format_tl
-                { \__acro_get_property:nn {short} {#1} }
-              }
+            \l__acro_list_short_format_tl
+            \__acro_get_property:nn {short} {#1}
           }
       }
   }
@@ -1531,18 +1528,20 @@
     \tl_clear:N #1
     \acro_for_all_acronyms_do:n
       {% ##1: id; ##2: short form
-        \acro_get:n {##1}
-        \acro_if_entry:nnnT {##1} {#2} {#3}
-          {
-            \tl_put_right:Nn #1
-              {
-                \acro_print_list_entry:nnnn
-                  { \acro_list_entry:nn {short} {##1} }
-                  { \acro_list_entry:nn {long} {##1} }
-                  { \acro_list_entry:nn {extra} {##1} }
-                  { \acro_list_entry:nn {page} {##1} }
-              }
-          }
+        \group_begin:
+          \acro_get:n {##1}
+          \acro_if_entry:nnnT {##1} {#2} {#3}
+            {
+              \tl_gput_right:Nn #1
+                {
+                  \acro_print_list_entry:nnnn
+                    { \acro_list_entry:nn {short} {##1} }
+                    { \acro_list_entry:nn {long} {##1} }
+                    { \acro_list_entry:nn {extra} {##1} }
+                    { \acro_list_entry:nn {page} {##1} }
+                }
+            }
+        \group_end:  
       }
   }
 
@@ -4698,6 +4697,8 @@
                  - fix issue #116
                  - implemented issue #112
 2019/09/23 v2.9a - fix issue #120
+                 - fix isuue #128
+                 - fix issue #129
 
 % --------------------------------------------------------------------------
 % TODO:
