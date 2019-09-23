@@ -811,15 +811,18 @@
 % #1: id
 \cs_new_protected:Npn \__acro_print_foreign:n #1
   {
-    \bool_if:nT
+    \acro_if_foreign:nT {#1}
       {
-         \l__acro_foreign_bool &&
-        !\l__acro_first_only_short_bool &&
-        !\l__acro_first_only_long_bool
-      }
-      {
-        \acro_write_foreign:n {#1}
-        \acro_endings:nn {#1} {foreign}
+        \bool_if:nT
+          {
+             \l__acro_foreign_bool &&
+            !\l__acro_first_only_short_bool &&
+            !\l__acro_first_only_long_bool
+          }
+          {
+            \acro_write_foreign:n {#1}
+            \acro_endings:nn {#1} {foreign}
+          }
       }
   }
 
