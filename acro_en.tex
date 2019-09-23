@@ -1,8 +1,8 @@
-% !arara: pdflatex: { action: nonstopmode }
+% arara: pdflatex: { action: nonstopmode }
 % !arara: biber
 % !arara: pdflatex: { action: nonstopmode }
-% arara: pdflatex: { action: nonstopmode }
-% arara: pdflatex: { action: nonstopmode }
+% !arara: pdflatex: { action: nonstopmode }
+% !arara: pdflatex: { action: nonstopmode }
 % --------------------------------------------------------------------------
 % the ACRO package
 % 
@@ -390,6 +390,10 @@ documentation.
   %% long-format
   \keyval{long-format}{\TeX{} code}
     The format used for the long form of the acronym.
+  %% short-format
+  \keyval{alt-format}{\TeX{} code}
+    The\sinceversion{2.10} format used for the alternative form of the
+    acronym. If this is not given the short format will be used.
   %% first-long-format
   \keyval{first-long-format}{\TeX{} code}
     The format used for the first long form of the acronym as set with \cs{ac},
@@ -521,36 +525,54 @@ This is an example of the logging info with \keyis{log}{true} or
 \subsection{Using the Acronyms -- the Commands}\label{sec:using-acronyms-comm}
 Acronyms are used with one of the following commands:
 \begin{commands}
+  %%
   \command{ac}[\sarg\marg{id}]
     basic command; the first output is different from subsequent ones.
   \command{Ac}[\sarg\marg{id}]
-    same as \cs{ac} but capitalizes the first letter of the long form.
+    same as \cs{ac} but capitalizes the first letter.
+  %%
   \command{acs}[\sarg\marg{id}]
     \h{s}hort form; the actual acronym.
+  \command{Acs}[\sarg\marg{id}]
+    same\sinceversion{2.10} as \cs{acs} but capitalizes the first letter.
+  %%
   \command{acl}[\sarg\marg{id}]
     \h{l}ong form; the meaning of the acronym.
   \command{Acl}[\sarg\marg{id}] 
     same as \cs{acl} but capitalizes first letter.
+  %%
   \command{aca}[\sarg\marg{id}]
     \h{a}lternative short form as specified in the \option{alt} key of
     \cs{DeclareAcronym}; if it hasn't been specified this is identical to
     \cs{acs}.
+  \command{Aca}[\sarg\marg{id}]
+    same\sinceversion{2.10} as \cs{aca} but capitalizes the first letter.
+  %%
   \command{acf}[\sarg\marg{id}]
     first form; output like the first time \cs{ac} is output.
   \command{Acf}[\sarg\marg{id}]
-    same as \cs{acf} but capitalizes first letter of the long form.
+    same as \cs{acf} but capitalizes first letter.
+  %%
   \command{acp}[\sarg\marg{id}]
     \h{p}lural form of \cs{ac};
   \command{Acp}[\sarg\marg{id}]
-    same as \cs{acp} but capitalizes first letter of the long form.
+    same as \cs{acp} but capitalizes first letter.
+  %%
   \command{acsp}[\sarg\marg{id}]
     plural form of \cs{acs};
+  \command{Acsp}[\sarg\marg{id}]
+    same\sinceversion{2.10} as \cs{acsp} but capitalizes the first letter.
+  %%
   \command{aclp}[\sarg\marg{id}]
     plural form of \cs{acl};
   \command{Aclp}[\sarg\marg{id}]
     same as \cs{aclp} but capitalizes first letter.
+  %%
   \command{acap}[\sarg\marg{id}]
     plural form of \cs{aca};
+  \command{Acap}[\sarg\marg{id}]
+    same\sinceversion{2.10} as \cs{acap} but capitalizes the first letter.
+  %%
   \command{acfp}[\sarg\marg{id}]
     plural form of \cs{acf};
   \command{Acfp}[\sarg\marg{id}]
@@ -1104,10 +1126,12 @@ There are a few options which change the general behaviour of \acro.
     then already existing macros will be overwritten.
   %%
   \keybool{sort}\Default{true}
-    If set to \code{true} the acronym list will be sorted automatically.  The
+    If set to \code{true} the acronym list will be sorted alphabetically.  The
     entries are sorted by their \acs{id} ignoring upper and lower case.  This
     option needs the experimental package \pkg{l3sort} (from the
     \pkg{l3experimental} bundle) and can only be set in the preamble.
+    If set to \code{false} the acronyms are listed in order of their
+    declaration.
   %%
   \keybool{display-foreign}\Default{true}
     When set to \code{false} any \option{foreign} option is ignored and
@@ -1171,15 +1195,20 @@ There are a few options which change the general behaviour of \acro.
     the like commands.  You can change it to another one like for example
     \cs*{makefirstuc}\footnote{from the \pkg{mfirstuc} package} or
     \cs*{MakeTextUppercase}\footnote{from the \pkg*{textcase} package}.
+  %%
+  \keybool{uppercase-short}\Default{false}
+    If\sinceversion{2.10} set to \code{true} commands like \cs{Ac}, \cs{Acs} or
+    \cs{Aca} will uppercase the first letter of the short or alternative
+    version.
 \end{options}
  
-All options of this and the following sections can be set up either as package
-options or via the setup command:
+All options of this and the following sections can be set via the setup command:
 \begin{commands}
   \command{acsetup}[\marg{options}]
    Set up \acro\ anywhere in the document.  Or separate package loading from
    setup.
 \end{commands}
+They might work as package options as well but \emph{I do not recommend it}. 
 
 \begin{example}
   % with \acsetup{macros}
@@ -2136,4 +2165,3 @@ letter (category code~11).
 \printacronyms
 
 \end{document}
-

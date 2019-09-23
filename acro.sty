@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2019/02/17}
-  {2.9}
+  {2019/09/23}
+  {2.10}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -310,11 +310,13 @@
 \bool_new:N      \l__acro_hyperref_loaded_bool
 \bool_new:N      \l__acro_use_hyperref_bool
 \bool_new:N      \l__acro_xspace_bool
-\bool_new:N      \l__acro_custom_format_bool
+\bool_new:N      \l__acro_custom_short_format_bool
+\bool_new:N      \l__acro_custom_alt_format_bool
 \bool_new:N      \l__acro_custom_long_format_bool
 \bool_new:N      \l__acro_strict_bool
 \bool_new:N      \l__acro_create_macros_bool
 \bool_new:N      \l__acro_first_upper_bool
+\bool_new:N      \l__acro_upper_short_bool
 \bool_new:N      \l__acro_indefinite_bool
 \bool_new:N      \l__acro_upper_indefinite_bool
 \bool_new:N      \l__acro_foreign_bool
@@ -377,7 +379,7 @@
 \tl_new:N   \l__acro_list_name_tl
 \tl_new:N   \l__acro_list_before_tl
 \tl_new:N   \l__acro_list_after_tl
-\tl_new:N   \l__acro_custom_format_tl
+\tl_new:N   \l__acro_custom_short_format_tl
 \tl_new:N   \l__acro_first_between_tl
 \tl_new:N   \l__acro_citation_connect_tl
 \tl_new:N   \l__acro_between_group_connect_citation_tl
@@ -470,6 +472,8 @@
       \tl_set_eq:NN \l__acro_alt_format_tl \l__acro_short_format_tl
       \tl_set:Nn \l__acro_list_short_format_tl {#1} ,
     short-format      .value_required:n = true ,
+    alt-format      .code:n     =
+      \tl_set:Nn \l__acro_alt_format_tl {#1} ,
     long-format       .code:n     =
       \tl_set:Nn \l__acro_long_format_tl {#1}
       \tl_set:Nn \l__acro_first_long_format_tl {#1}
@@ -574,7 +578,9 @@
     index-cmd         .value_required:n = true ,
     uc-cmd            .code:n     =
       \cs_set_eq:NN \__acro_first_upper_case:n #1 ,
-    uc-cmd            .value_required:n = true
+    uc-cmd            .value_required:n = true ,
+    uppercase-short   .bool_set:N = \l__acro_upper_short_bool ,
+    uppercase-short   .initial:n  = false
   }
 
 \AtBeginDocument
@@ -877,7 +883,10 @@
         \__acro_open_bracket:
         \__acro_print_foreign:n {#1}
         \__acro_foreign_sep:n {#1}
-        \__acro_print_form:nnn {long} {#1} {#2}
+        {
+          \bool_set_false:N \l__acro_first_upper_bool
+          \__acro_print_form:nnn {long} {#1} {#2}
+        }
         \__acro_print_citation:n {#1}
         \__acro_close_bracket:
         \__acro_finalize_first:n {#1}
@@ -887,7 +896,10 @@
         \__acro_open_bracket:
         \__acro_print_foreign:n {#1}
         \__acro_foreign_sep:n {#1}
-        \__acro_print_form:nnn {short} {#1} {#2}
+        {
+          \bool_set_false:N \l__acro_first_upper_bool
+          \__acro_print_form:nnn {short} {#1} {#2}
+        }
         \__acro_print_citation:n {#1}
         \__acro_close_bracket:
         \__acro_finalize_first:n {#1}
@@ -1984,7 +1996,7 @@
     \prop_get:NnNF \l__acro_short_prop {#1} \l__acro_tmpa_tl {}
     \__acro_make_link:NnV \l__acro_short_tl {#1} \l__acro_tmpa_tl
     % \acro_get_property:nn {#1} {short-format}
-     % alt:
+    % alt:
     \prop_get:NnNTF \l__acro_alt_prop {#1} \l__acro_tmpa_tl
       { \__acro_make_link:NnV \l__acro_alt_tl {#1} \l__acro_tmpa_tl }
       { \tl_set_eq:NN \l__acro_alt_tl \l__acro_short_tl }
@@ -2009,9 +2021,12 @@
       { \bool_set_true:N  \l__acro_custom_long_format_bool }
       { \bool_set_false:N \l__acro_custom_long_format_bool }
     \acro_get_property:nn {#1} {first-long-format}
-    \prop_get:NnNTF \l__acro_format_prop {#1} \l__acro_custom_format_tl
-      { \bool_set_true:N \l__acro_custom_format_bool }
-      { \bool_set_false:N \l__acro_custom_format_bool }
+    \prop_get:NnNTF \l__acro_format_prop {#1} \l__acro_custom_short_format_tl
+      { \bool_set_true:N \l__acro_custom_short_format_bool }
+      { \bool_set_false:N \l__acro_custom_short_format_bool }
+    \prop_get:NnNTF \l__acro_alt_format_prop {#1} \l__acro_custom_alt_format_tl
+      { \bool_set_true:N \l__acro_custom_alt_format_bool }
+      { \bool_set_false:N \l__acro_custom_alt_format_bool }
     \acro_get_property:nn {#1} {single-format}
     \acro_for_endings_do:n
       {
@@ -2106,35 +2121,50 @@
 
 \cs_new_protected:Npn \__acro_endings:nn #1#2
   {
-    \bool_if:NTF \l__acro_include_endings_format_bool
+    \acro_for_endings_do:n
       {
-        \str_if_eq:nnTF {long} {#2}
-          {
-            \bool_if:NTF \l__acro_custom_long_format_bool
-              { \l__acro_custom_long_format_tl }
-              {
-                \bool_if:NTF \l__acro_first_instance_bool
-                  { \l__acro_first_long_format_tl }
-                  { \tl_use:c {l__acro_#2_format_tl} }
-              }
-          }
-          {
-            \bool_if:NTF \l__acro_custom_format_bool
-              { \l__acro_custom_format_tl }
-              { \tl_use:c {l__acro_#2_format_tl} }
-          }
-      }
-      { \use:n }
-      {
-        \acro_for_endings_do:n
-          {
-            \__acro_set_ending_for:nnn {##1} {#1} {#2}
-            \bool_if:cT {l__acro_##1_bool}
-              { \tl_use:c {l__acro_#2_##1_tl} }
-          }
+        \__acro_set_ending_for:nnn {##1} {#1} {#2}
+        \bool_if:cT {l__acro_##1_bool}
+          { \__acro_ending_format:nn {#2} { \tl_use:c {l__acro_#2_##1_tl} } }
       }
   }
 
+% #1: long|short|alt
+% #2: string
+\cs_new_protected:Npn \__acro_ending_format:nn #1#2
+  {
+    \bool_if:NTF \l__acro_include_endings_format_bool
+      {
+        \str_case:nn {#1}
+          {
+            {long}
+            {
+              \bool_if:NTF \l__acro_custom_long_format_bool
+                { \l__acro_custom_long_format_tl }
+                {
+                  \bool_if:NTF \l__acro_first_instance_bool
+                    { \l__acro_first_long_format_tl }
+                    { \l__acro_long_format_tl }
+                }
+            }
+            {short}
+            {
+              \bool_if:NTF \l__acro_custom_short_format_bool
+                { \l__acro_custom_short_format_tl }
+                { \l__acro_short_format_tl }
+            }
+            {alt}
+            {
+              \bool_if:NTF \l__acro_custom_alt_format_bool
+                { \l__acro_custom_alt_format_tl }
+                { \l__acro_alt_format_tl }
+            }
+          }
+      }
+      { \use:n }
+      {#2}
+  }
+  
 \prg_new_conditional:Npnn \acro_if_ending_exist:n #1 {p,T,F,TF}
   {
     \seq_if_in:NnTF \l__acro_endings_seq {#1}
@@ -2383,7 +2413,10 @@
               }
             \bool_gset_true:c { g__acro_#1_used_bool }
           }
-          { \__acro_aux_file:Nxxxx \acro@used@once {#1} {} {} {} }
+          {}
+          % I can't remember why I want an empty first use case for starred
+          % acronyms…
+          % { \__acro_aux_file:Nxxxx \acro@used@once {#1} {} {} {} }
         \prg_return_false:
       }
   }
@@ -2481,18 +2514,34 @@
 \fi
 
 % --------------------------------------------------------------------------
+% #1: short|alt|long
+% #2: string to be typeset
+\cs_new_protected:Npn \__acro_typeset:nn #1#2
+  {
+    \mode_if_horizontal:F { \leavevmode }
+    \group_begin:
+      \use:x
+        {
+          \bool_if:cTF {l__acro_custom_#1_format_bool}
+            { \exp_not:v {l__acro_custom_#1_format_tl} }
+            { \exp_not:v {l__acro_#1_format_tl} }
+            {#2}
+        }
+    \group_end:
+  }
+
 % typeset the short form:
 % #1: ID
 % #2: short form
 \cs_new_protected:Npn \acro_write_short:nn #1#2
   {
-    \mode_if_horizontal:F { \leavevmode }
-    \group_begin:
-      \bool_if:NTF \l__acro_custom_format_bool
-        { \l__acro_custom_format_tl }
-        { \l__acro_short_format_tl }
-      {#2}
-    \group_end:
+    \__acro_typeset:nn {short}
+      {
+        \bool_if:nTF
+          { \l__acro_first_upper_bool && \l__acro_upper_short_bool }
+          { \exp_not:N \__acro_first_upper_case:n { \exp_not:n {#2} } }
+          { \exp_not:n {#2} }
+      }
   }
 \cs_generate_variant:Nn \acro_write_short:nn { nV , nv }
 
@@ -2501,13 +2550,13 @@
 % #2: alt form
 \cs_new_protected:Npn \acro_write_alt:nn #1#2
   {
-    \mode_if_horizontal:F { \leavevmode }
-    \group_begin:
-      \bool_if:NTF \l__acro_custom_format_bool
-        { \l__acro_custom_format_tl }
-        { \l__acro_alt_format_tl }
-      {#2}
-    \group_end:
+    \__acro_typeset:nn {alt}
+      {
+        \bool_if:nTF
+          { \l__acro_first_upper_bool && \l__acro_upper_short_bool }
+          { \exp_not:N \__acro_first_upper_case:n { \exp_not:n {#2} } }
+          { \exp_not:n {#2} }
+      }
   }
 \cs_generate_variant:Nn \acro_write_alt:nn { nV , nv }
 
@@ -2519,23 +2568,15 @@
 % #2: long form
 \cs_new_protected:Npn \acro_write_long:nn #1#2
   {
-    \mode_if_horizontal:F { \leavevmode }
-    \group_begin:
-      \bool_if:NTF \l__acro_custom_long_format_bool
-        { \l__acro_custom_long_format_tl }
-        { \use:n }
+    \__acro_typeset:nn {long}
       {
-        \use:x
-          {
-            \exp_not:n {#1}
-            {
-              \bool_if:NTF \l__acro_first_upper_bool
-                { \exp_not:N \__acro_first_upper_case:n { \exp_not:n {#2} } }
-                { \exp_not:n {#2} }
-            }
-          }
+        \exp_not:n {#1}
+        {
+          \bool_if:NTF \l__acro_first_upper_bool
+            { \exp_not:N \__acro_first_upper_case:n { \exp_not:n {#2} } }
+            { \exp_not:n {#2} }
+        }
       }
-    \group_end:
   }
 \cs_generate_variant:Nn \acro_write_long:nn { VV,Vo,Vf,V,v,vv }
 
@@ -3118,7 +3159,6 @@
   {
     activate-trailing-tokens   .code:n =
       \clist_map_inline:nn {#1} { \acro_activate_trailing_token:n {##1} } ,
-    activate-trailing-tokens   .initial:n = dot ,
     deactivate-trailing-tokens .code:n =
       \clist_map_inline:nn {#1} { \acro_deactivate_trailing_token:n {##1} }
   }
@@ -3740,6 +3780,9 @@
 % short format:
 \acro_declare_property_alias:nn {short-format} {format}
 
+% alt format:
+\acro_declare_simple_property:n {alt-format}
+
 % long format:
 \acro_declare_simple_property:n {long-format}
 
@@ -4201,11 +4244,19 @@
 \AcroRegisterTrailing - {dash}
 \AcroRegisterTrailing \babelhyphen {babel-hyphen}
 
+\keys_set:nn {acro} { activate-trailing-tokens = dot }
+
 % --------------------------------------------------------------------------
 % the user commands
 % automatic:
 \NewAcroCommand \ac
   { \acro_use:n {#1} }
+
+\NewAcroCommand \Ac
+  {
+    \acro_first_upper:
+    \acro_use:n {#1}
+  }
 
 \NewAcroCommand \iac
   {
@@ -4217,12 +4268,6 @@
   {
     \acro_first_upper:
     \acro_indefinite:
-    \acro_use:n {#1}
-  }
-
-\NewAcroCommand \Ac
-  {
-    \acro_first_upper:
     \acro_use:n {#1}
   }
 
@@ -4256,6 +4301,12 @@
 \NewAcroCommand \acs
   { \acro_short:n {#1} }
 
+\NewAcroCommand \Acs
+  {
+    \acro_first_upper:
+    \acro_short:n {#1}
+  }
+
 \NewAcroCommand \iacs
   {
     \acro_indefinite:
@@ -4271,6 +4322,13 @@
 
 \NewAcroCommand \acsp
   {
+    \acro_plural:
+    \acro_short:n {#1}
+  }
+
+\NewAcroCommand \Acsp
+  {
+    \acro_first_upper:
     \acro_plural:
     \acro_short:n {#1}
   }
@@ -4304,9 +4362,22 @@
     \acro_alt:n {#1}
   }
 
+\NewAcroCommand \Acap
+  {
+    \acro_first_upper:
+    \acro_plural:
+    \acro_alt:n {#1}
+  }
+
 % long:
 \NewAcroCommand \acl
   { \acro_long:n {#1} }
+
+\NewAcroCommand \Acl
+  {
+    \acro_first_upper:
+    \acro_long:n {#1}
+  }
 
 \NewAcroCommand \iacl
   {
@@ -4318,12 +4389,6 @@
   {
     \acro_first_upper:
     \acro_indefinite:
-    \acro_long:n {#1}
-  }
-
-\NewAcroCommand \Acl
-  {
-    \acro_first_upper:
     \acro_long:n {#1}
   }
 
@@ -4344,6 +4409,12 @@
 \NewAcroCommand \acf
   { \acro_first:n {#1} }
 
+\NewAcroCommand \Acf
+  {
+    \acro_first_upper:
+    \acro_first:n {#1}
+  }
+
 \NewAcroCommand \iacf
   {
     \acro_indefinite:
@@ -4354,12 +4425,6 @@
   {
     \acro_first_upper:
     \acro_indefinite:
-    \acro_first:n {#1}
-  }
-
-\NewAcroCommand \Acf
-  {
-    \acro_first_upper:
     \acro_first:n {#1}
   }
 
@@ -4696,10 +4761,15 @@
                    `foreign-sep' to be a &
                  - fix issue #116
                  - implemented issue #112
-2019/09/23 v2.9a - fix issue #120
+2019/09/23 v2.10 - fix issue #120
                  - fix isuue #128
                  - fix issue #129
                  - fix issue #131
+                 - new: \Acs \Acsp \Aca \Acap
+                 - new: `alt-format'
+                 - new: `uppercase-short'
+                 - a change to how usage is determined (see def. of
+                   \acro_is_used:nTF)
 
 % --------------------------------------------------------------------------
 % TODO:
