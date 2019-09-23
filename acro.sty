@@ -2113,7 +2113,11 @@
           {
             \bool_if:NTF \l__acro_custom_long_format_bool
               { \l__acro_custom_long_format_tl }
-              { \tl_use:c {l__acro_#2_format_tl} }
+              {
+                \bool_if:NTF \l__acro_first_instance_bool
+                  { \l__acro_first_long_format_tl }
+                  { \tl_use:c {l__acro_#2_format_tl} }
+              }
           }
           {
             \bool_if:NTF \l__acro_custom_format_bool
@@ -4693,6 +4697,7 @@
                    `foreign-sep' to be a &
                  - fix issue #116
                  - implemented issue #112
+2019/09/23 v2.9a - fix issue #120
 
 % --------------------------------------------------------------------------
 % TODO:
