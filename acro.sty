@@ -435,7 +435,7 @@
 
 % --------------------------------------------------------------------------
 % small commands for use at various places
-\cs_new:Npn \acro_no_break: { \tex_penalty:D \c_ten_thousand }
+\cs_new:Npn \acro_no_break: { \tex_penalty:D 10000 \scan_stop: }
 
 \cs_new_protected:Npn \__acro_first_upper_case:n #1
   { \tl_upper_case:n { \tl_head:n {#1} } \tl_tail:n {#1} }
@@ -3042,7 +3042,7 @@
                     \acro_strcmp:nn
                       { \str_fold_case:n {##1} }
                       { \str_fold_case:n {##2} }
-                        = - \c_one
+                        = -1
                   }
                   { \sort_return_same: }
                   { \sort_return_swapped: }
