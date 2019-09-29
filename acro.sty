@@ -3001,10 +3001,10 @@
           end ~
         end
       }
-    \luatex_directlua:D { \l__acro_tmpa_tl }
+    \lua_now:e { \l__acro_tmpa_tl }
     \cs_new_protected:Npn \acro_strcmp:nn #1#2
       {
-        \luatex_directlua:D
+        \lua_now:e
           {
             acro.strcmp
               (
@@ -3015,11 +3015,11 @@
       }
     \cs_new:Npn \__acro_escape_x:n #1
       {
-        \luatex_luaescapestring:D
-          { \etex_detokenize:D \exp_after:wN { \luatex_expanded:D {#1} } }
+        \lua_escape:e
+          { \__kernel_tl_to_str:w \use:e { {#1} } }
       }
   }
-  { \cs_new_eq:NN \acro_strcmp:nn \pdftex_strcmp:D }
+  { \cs_new_eq:NN \acro_strcmp:nn \tex_strcmp:D }
 
 \AtBeginDocument
   {
