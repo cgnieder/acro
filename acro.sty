@@ -313,6 +313,7 @@
 \bool_new:N      \l__acro_custom_short_format_bool
 \bool_new:N      \l__acro_custom_alt_format_bool
 \bool_new:N      \l__acro_custom_long_format_bool
+\bool_new:N      \l__acro_override_list_format_bool
 \bool_new:N      \l__acro_strict_bool
 \bool_new:N      \l__acro_create_macros_bool
 \bool_new:N      \l__acro_first_upper_bool
@@ -496,6 +497,8 @@
     list-long-format  .value_required:n = true ,
     list-foreign-format .tl_set:N = \l__acro_foreign_list_format_tl ,
     list-foreign-format .value_required:n = true ,
+    override-list-format .bool_set:N = \l__acro_override_list_format_bool ,
+    override-list-format .initial:n  = true ,
     extra-format      .tl_set:N   = \l__acro_extra_format_tl ,
     extra-format      .value_required:n = true ,
     single            .bool_set:N = \l__acro_use_single_bool ,
@@ -1403,16 +1406,25 @@
 % #1: id
 \cs_new_protected:Npn \__acro_list_entry_short:n #1
   {
-    \acro_hyper_target:nn
-      {#1}
-      {
-        \acro_acc_supp:nn
-          {#1}
-          {
-            \l__acro_list_short_format_tl
-            \__acro_get_property:nn {short} {#1}
-          }
-      }
+    \group_begin:
+      \acro_get:n {#1}
+      \acro_hyper_target:nn
+        {#1}
+        {
+          \acro_acc_supp:nn
+            {#1}
+            {
+              \bool_if:nTF
+                {
+                  \l__acro_custom_short_format_bool &&
+                  \l__acro_override_list_format_bool
+                }
+                { \l__acro_custom_short_format_tl }
+                { \l__acro_list_short_format_tl }
+              \__acro_get_property:nn {short} {#1}
+            }
+        }
+    \group_end:
   }
 
 % #1: id
@@ -4533,7 +4545,7 @@
       \c_acro_config_file_extension_tl
   }
 
-\tex_endinput:D
+\file_input_stop:
 % --------------------------------------------------------------------------
 % HISTORY:
 2012/06/22 v0.1  - first public release
