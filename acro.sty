@@ -741,6 +741,7 @@
                 \l__acro_first_only_short_bool
               }
               {
+                \acro_soft_upper:
                 \acro_write_indefinite:nn {#2} {short}
                 \acro_write_compact:nn {#2} {short}
               }
@@ -792,7 +793,12 @@
               \l__acro_first_only_long_bool ||
               !\l__acro_first_only_short_bool
             }
-            { \acro_write_expanded:nnn {#2} {first-long} {#3} }
+            {
+              \group_begin:
+                \bool_set_false:N \l__acro_first_upper_bool
+                \acro_write_expanded:nnn {#2} {first-long} {#3}
+              \group_end:
+            }
         }
         {short} {
           \bool_if:nT
@@ -800,7 +806,12 @@
               !\l__acro_first_only_long_bool ||
               \l__acro_first_only_short_bool
             }
-            { \acro_write_compact:nn {#2} {short} }
+            {
+              \group_begin:
+                \bool_set_false:N \l__acro_first_upper_bool
+                \acro_write_compact:nn {#2} {short}
+              \group_end:
+            }
         }
       }
   }
@@ -886,10 +897,7 @@
         \__acro_open_bracket:
         \__acro_print_foreign:n {#1}
         \__acro_foreign_sep:n {#1}
-        {
-          \bool_set_false:N \l__acro_first_upper_bool
-          \__acro_print_form:nnn {long} {#1} {#2}
-        }
+        \__acro_print_form:nnn {long} {#1} {#2}
         \__acro_print_citation:n {#1}
         \__acro_close_bracket:
         \__acro_finalize_first:n {#1}
@@ -899,10 +907,7 @@
         \__acro_open_bracket:
         \__acro_print_foreign:n {#1}
         \__acro_foreign_sep:n {#1}
-        {
-          \bool_set_false:N \l__acro_first_upper_bool
-          \__acro_print_form:nnn {short} {#1} {#2}
-        }
+        \__acro_print_form:nnn {short} {#1} {#2}
         \__acro_print_citation:n {#1}
         \__acro_close_bracket:
         \__acro_finalize_first:n {#1}
@@ -1833,13 +1838,20 @@
 % --------------------------------------------------------------------------
 % automatic typesetting, the internals of \ac:
 % #1: id
-  
+
+\cs_new_protected:Npn \acro_soft_upper:
+  {
+    \bool_if:NF \l__acro_upper_short_bool
+      { \bool_set_false:N \l__acro_first_upper_bool }
+  }
+
 \cs_new_protected:Npn \acro_use:n #1
   {
     % get the acronym and the plural settings:
     \acro_get:n {#1}
     \acro_is_used:nTF {#1}
       {
+        \acro_soft_upper:
         % this is not the first time
         \acro_write_indefinite:nn {#1} {short}
         \acro_write_compact:nn {#1} {short}
@@ -1905,6 +1917,7 @@
         }
       }
       { % other (e.g. short)
+        \acro_soft_upper:
         \tl_if_blank:VF \l__acro_single_tl
           { \tl_set_eq:cN {l__acro_#2_tl} \l__acro_single_tl }
         \tl_if_blank:VF \l__acro_single_format_tl
@@ -2550,7 +2563,7 @@
     \__acro_typeset:nn {short}
       {
         \bool_if:nTF
-          { \l__acro_first_upper_bool && \l__acro_upper_short_bool }
+          { \l__acro_first_upper_bool }
           { \exp_not:N \__acro_first_upper_case:n { \exp_not:n {#2} } }
           { \exp_not:n {#2} }
       }
