@@ -275,6 +275,8 @@
 \pkg{zref-abspage}\footnote{\CTANurl{oberdiek}} and
 \needpackage{translations}~\cite{pkg:translations}.
 
+
+
 \section{Basics}
 \subsection{Creating New Acronyms}
 Acronyms are created with the command \cs{DeclareAcronym}.
@@ -529,7 +531,8 @@ Acronyms are used with one of the following commands:
   \command{ac}[\sarg\marg{id}]
     basic command; the first output is different from subsequent ones.
   \command{Ac}[\sarg\marg{id}]
-    same as \cs{ac} but capitalizes the first letter.
+    same as \cs{ac} but capitalizes the first letter.  Obeys the option
+    \option{uppercase-short}.
   %%
   \command{acs}[\sarg\marg{id}]
     \h{s}hort form; the actual acronym.
@@ -551,12 +554,14 @@ Acronyms are used with one of the following commands:
   \command{acf}[\sarg\marg{id}]
     first form; output like the first time \cs{ac} is output.
   \command{Acf}[\sarg\marg{id}]
-    same as \cs{acf} but capitalizes first letter.
+    same as \cs{acf} but capitalizes first letter.  Obeys the option
+    \option{uppercase-short}.
   %%
   \command{acp}[\sarg\marg{id}]
     \h{p}lural form of \cs{ac};
   \command{Acp}[\sarg\marg{id}]
-    same as \cs{acp} but capitalizes first letter.
+    same as \cs{acp} but capitalizes first letter.  Obeys the option
+    \option{uppercase-short}.
   %%
   \command{acsp}[\sarg\marg{id}]
     plural form of \cs{acs};
@@ -576,7 +581,8 @@ Acronyms are used with one of the following commands:
   \command{acfp}[\sarg\marg{id}]
     plural form of \cs{acf};
   \command{Acfp}[\sarg\marg{id}]
-    same as \cs{acfp} but capitalizes first letter of the long form.
+    same as \cs{acfp} but capitalizes first letter of the long form.  Obeys
+    the option \option{uppercase-short}.
 \end{commands}
 If an acronym is used the first time with \cs{ac} its output is different from
 subsequent uses.  To be clear on this: the first time!  If the acronym has
@@ -787,6 +793,19 @@ corresponding indefinite article.
      \pkg{mfirstuc} package~\cite{pkg:mfirstuc} but it is expandable.  Obvious
      downsides are for example that it does not uppercase accented letters.
 \end{commands}
+The following options control the behaviour of the uppercasing commands:
+\begin{options}
+  \keyval{uc-cmd}{control sequence}\Default{\cs{acfirstupper}}
+    The command that is used to capitalize the first word in the \cs{Ac} and
+    the like commands.  You can change it to another one like for example
+    \cs*{makefirstuc}\footnote{from the \pkg{mfirstuc} package} or
+    \cs*{MakeTextUppercase}\footnote{from the \pkg*{textcase} package}.
+  %%
+  \keybool{uppercase-short}\Default{true}
+    If\sinceversion{2.10} set to \code{true} commands like \cs{Ac} or \cs{Acp}
+    will uppercase the first letter of the short form.  Commands like \cs{Acs}
+    or \cs{Acsp} will uppercase the short form in any case.
+\end{options}
 
 \subsection{Simulating the First Appearance}\label{sec:simul-first-appe}
 Users told me\footnote{Well -- one, to be precise ;)} that there are cases
@@ -1196,10 +1215,9 @@ There are a few options which change the general behaviour of \acro.
     \cs*{makefirstuc}\footnote{from the \pkg{mfirstuc} package} or
     \cs*{MakeTextUppercase}\footnote{from the \pkg*{textcase} package}.
   %%
-  \keybool{uppercase-short}\Default{false}
-    If\sinceversion{2.10} set to \code{true} commands like \cs{Ac}, \cs{Acs} or
-    \cs{Aca} will uppercase the first letter of the short or alternative
-    version.
+  \keybool{uppercase-short}\Default{true}
+    If\sinceversion{2.10} set to \code{true} commands like \cs{Ac} or \cs{Acp}
+    will uppercase the first letter of the short version.
 \end{options}
  
 All options of this and the following sections can be set via the setup command:
