@@ -265,4 +265,4 @@
 2019/10/02 v2.10a - fix newly introduced issue #135
 2019/10/06 v2.10b - fix issue #137
                   - clearer documentation of `uppercase-short'
-		  - set the default of `uppercase-short' to `true'
+                  - set the default of `uppercase-short' to `true'
