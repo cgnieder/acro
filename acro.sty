@@ -3507,13 +3507,19 @@
     \fi:
   }
 
+\cs_new:Npn \acro_expandable_short:n #1
+  { \use:e { \prop_item:Nn \l__acro_short_prop {#1} } }
+
+\cs_new:Npn \acro_expandable_alt:n #1
+  { \use:e { \prop_item:Nn \l__acro_alt_prop {#1} } }
+
 \cs_new:Npn \acro_expandable_long:n #1
   { \use:e { \prop_item:Nn \l__acro_long_prop {#1} } }
 
 \cs_new:Npn \acro_expandable_long_plural:n #1
   {
-    \bool_if:nTF
-      { \use:e { \prop_item:Nn \l__acro_long_plural_form_prop {#1} } }
+    \bool_if:cTF
+      { c_ \prop_item:Nn \l__acro_long_plural_form_prop {#1} _bool }
       { \use:e { \prop_item:Nn \l__acro_long_plural_prop {#1} } }
       {
         \use:e {
@@ -3521,6 +3527,20 @@
           \prop_item:Nn \l__acro_long_plural_prop {#1}
         }
       }
+  }
+
+\cs_new:Npn \acro_pdf_string_short:n #1
+  {
+    \acro_if_star_gobble:nTF {#1}
+      { \acro_expandable_short:n }
+      { \acro_expandable_short:n {#1} }
+  }
+
+\cs_new:Npn \acro_pdf_string_alt:n #1
+  {
+    \acro_if_star_gobble:nTF {#1}
+      { \acro_expandable_alt:n }
+      { \acro_expandable_alt:n {#1} }
   }
 
 \cs_new:Npn \acro_pdf_string_long:n #1
@@ -3536,26 +3556,6 @@
     \acro_if_star_gobble:nTF {#1}
       { \acro_expandable_long_plural:n }
       { \acro_expandable_long_plural:n {#1} }
-  }
-
-\cs_new:Npn \acro_expandable_short:n #1
-  { \use:e { \prop_item:Nn \l__acro_short_prop {#1} } }
-
-\cs_new:Npn \acro_pdf_string_short:n #1
-  {
-    \acro_if_star_gobble:nTF {#1}
-      { \acro_expandable_short:n }
-      { \acro_expandable_short:n {#1} }
-  }
-
-\cs_new:Npn \acro_expandable_alt:n #1
-  { \use:e { \prop_item:Nn \l__acro_alt_prop {#1} } }
-
-\cs_new:Npn \acro_pdf_string_alt:n #1
-  {
-    \acro_if_star_gobble:nTF {#1}
-      { \acro_expandable_alt:n }
-      { \acro_expandable_alt:n {#1} }
   }
 
 \AtBeginDocument
