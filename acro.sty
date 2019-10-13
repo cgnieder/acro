@@ -109,7 +109,12 @@
 
 % --------------------------------------------------------------------------
 % logging:
-\cs_new:Npn \acro_if_log:T #1 { \use:n {#1} }
+\prg_new_conditional:Npnn \acro_if_log: {p,T,F,TF}
+  {
+    \bool_if:NTF \l__acro_log_acronyms_bool
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
 
 \bool_new:N \l__acro_log_acronyms_bool
 \bool_new:N \l__acro_log_acronyms_verbose_bool
@@ -2329,8 +2334,8 @@
         \cs_new:cpn {acro_pdf_string_short_#1:n} ##1
           {
             \acro_if_star_gobble:nTF {##1}
-              { \prop_item:cn {l__acro_pdfstring_short_#1_prop} }
-              { \prop_item:cn {l__acro_pdfstring_short_#1_prop} {##1} }
+              { \use:e { \prop_item:cn {l__acro_pdfstring_short_#1_prop} } }
+              { \use:e {\prop_item:cn {l__acro_pdfstring_short_#1_prop} {##1} } }
           }
         \cs_new:cpn {acpdfstring#1} { \use:c {acro_pdf_string_short_#1:n} }
         \prop_new:c {l__acro_pdfstring_alt_#1_prop}
@@ -3509,7 +3514,7 @@
 
 \cs_new:Npn \acro_expandable_short:n #1
   { \use:e { \prop_item:Nn \l__acro_short_prop {#1} } }
-
+  
 \cs_new:Npn \acro_expandable_alt:n #1
   { \use:e { \prop_item:Nn \l__acro_alt_prop {#1} } }
 
