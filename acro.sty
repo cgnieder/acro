@@ -445,12 +445,12 @@
 
 \cs_new_protected:Npn \__acro_first_upper_case:n #1
   { \tl_upper_case:n { \tl_head:n {#1} } \tl_tail:n {#1} }
-\cs_generate_variant:Nn \__acro_first_upper_case:n { x }
-\cs_generate_variant:Nn \tl_mixed_case:n { x }
+\cs_generate_variant:Nn \__acro_first_upper_case:n {x}
+\cs_generate_variant:Nn \tl_mixed_case:n {x}
 
 \cs_new_eq:NN \acro_first_upper_case:n \__acro_first_upper_case:n
 
-\NewDocumentCommand \acfirstupper { m }
+\NewDocumentCommand \acfirstupper {m}
   { \acro_first_upper_case:n {#1} }
 
 % --------------------------------------------------------------------------
@@ -665,9 +665,14 @@
   {
     \bool_if:nT { \l__acro_hyperref_loaded_bool && \l__acro_use_hyperref_bool }
       {
-        \cs_set_eq:NN \acro_hyper_link:nn \hyperlink
+        \sys_if_engine_xetex:TF
+          {
+            \cs_set:Npn \acro_hyper_link:nn ##1##2
+              { \hyperlink { \XeTeXLinkBox {##1} } {##2} }
+          }
+          { \cs_set_eq:NN \acro_hyper_link:nn \hyperlink }
         \cs_set:Npn \acro_hyper_target:nn ##1##2
-          { \raisebox { 3ex } [ 0pt ] { \hypertarget {##1} { } } ##2 }
+          { \raisebox {3ex} [0pt] { \hypertarget {##1} { } } ##2 }
       }
   }
 
@@ -2024,25 +2029,21 @@
     \acro_activate_hyperref_support:
     % short:
     \prop_get:NnNF \l__acro_short_prop {#1} \l__acro_tmpa_tl {}
-    \__acro_make_link:NnV \l__acro_short_tl {#1} \l__acro_tmpa_tl
-    % \acro_get_property:nn {#1} {short-format}
+    % \__acro_make_link:NnV \l__acro_short_tl {#1} \l__acro_tmpa_tl
     % alt:
     \prop_get:NnNTF \l__acro_alt_prop {#1} \l__acro_tmpa_tl
       { \__acro_make_link:NnV \l__acro_alt_tl {#1} \l__acro_tmpa_tl }
       { \tl_set_eq:NN \l__acro_alt_tl \l__acro_short_tl }
     % long:
     \acro_get_property:nn {#1} {long}
-    % \acro_get_property:nn {#1} {long-format}
     % foreign:
     \acro_get_property:nn {#1} {foreign}
     % foreign-lang:
     \acro_get_property:nn {#1} {foreign-lang}
     % extra:
     \acro_get_property:nn {#1} {extra}
-    % \acro_get_property:nn {#1} {extra-format}
     % single:
     \acro_get_property:nn {#1} {single}
-    % \acro_get_property:nn {#1} {single-format}
     % first-style:
     \acro_get_property:nn {#1} {first-style}
     % formatting
@@ -3005,11 +3006,11 @@
 \cs_new_protected:Npn \acro_write_indefinite:nn #1#2
   {
     \bool_if:NT \l__acro_indefinite_bool
-      { \prop_item:cn { l__acro_#2_indefinite_prop } {#1} ~ }
+      { \prop_item:cn {l__acro_#2_indefinite_prop} {#1} ~ }
     \bool_if:NT \l__acro_upper_indefinite_bool
       { %  \bool_set_true:N \l__acro_first_upper_bool
          \__acro_first_upper_case:x
-           { \prop_item:cn { l__acro_#2_indefinite_prop } {#1} } ~
+           { \prop_item:cn {l__acro_#2_indefinite_prop} {#1} } ~
       }
   }
 
