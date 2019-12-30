@@ -267,4 +267,5 @@
                   - clearer documentation of `uppercase-short'
                   - set the default of `uppercase-short' to `true'
 2019/10/12 v2.10c - fix issue #139
-2019/12/19 ?????? - fix issue #76
+2019/12/30 v2.10d - fix issue #76
+                  - move the link box to avoid problems with uppercasing

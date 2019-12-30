@@ -31,8 +31,8 @@
 \RequirePackage{expl3,xparse,l3keys2e,xtemplate,etoolbox}
 \ProvidesExplPackage
   {acro}
-  {2019/10/12}
-  {2.10c}
+  {2019/12/30}
+  {2.10d}
   {Typeset Acronyms}
 
 % --------------------------------------------------------------------------
@@ -676,23 +676,19 @@
       }
   }
 
-% #1: tl var
-% #2: id
-% #3: text
-\cs_new_protected:Npn \__acro_make_link:Nnn #1#2#3
+% #1: id
+% #2: text
+\cs_new_protected:Npn \__acro_make_link:nn #1#2
   {
     \bool_if:nTF
       { \l__acro_use_hyperref_bool && \l__acro_hyperref_loaded_bool }
       {
-        \tl_set:Nn #1
-           {
-             \acro_hyper_link:nn {#2} { \phantom {#3} }
-             \acro_if_is_single:nTF {#2}
-               { \hbox_overlap_left:n {#3} }
-               { \acro_color_link:n { \hbox_overlap_left:n {#3} } }
-           }
+         \acro_hyper_link:nn {#1} { \phantom {#2} }
+         \acro_if_is_single:nTF {#1}
+           { \hbox_overlap_left:n {#2} }
+           { \acro_color_link:n { \hbox_overlap_left:n {#2} } }
        }
-       { \tl_set:Nn #1 {#3} }
+       {#2}
   }
 \cs_generate_variant:Nn \__acro_make_link:Nnn {NnV}
 
@@ -1436,7 +1432,7 @@
                 }
                 { \l__acro_custom_short_format_tl }
                 { \l__acro_list_short_format_tl }
-              \__acro_get_property:nn {short} {#1}
+              { \__acro_get_property:nn {short} {#1} }
             }
         }
     \group_end:
@@ -2028,11 +2024,11 @@
     \bool_if:NF \l__acro_in_list_bool { \leavevmode }
     \acro_activate_hyperref_support:
     % short:
-    \prop_get:NnNF \l__acro_short_prop {#1} \l__acro_tmpa_tl {}
+    \prop_get:NnNF \l__acro_short_prop {#1} \l__acro_short_tl {}
     % \__acro_make_link:NnV \l__acro_short_tl {#1} \l__acro_tmpa_tl
     % alt:
-    \prop_get:NnNTF \l__acro_alt_prop {#1} \l__acro_tmpa_tl
-      { \__acro_make_link:NnV \l__acro_alt_tl {#1} \l__acro_tmpa_tl }
+    \prop_get:NnNF \l__acro_alt_prop {#1} \l__acro_alt_tl
+      % { \__acro_make_link:NnV \l__acro_alt_tl {#1} \l__acro_tmpa_tl }
       { \tl_set_eq:NN \l__acro_alt_tl \l__acro_short_tl }
     % long:
     \acro_get_property:nn {#1} {long}
@@ -2518,9 +2514,9 @@
           {
             \__acro_aux_file_now:x
               {
-                \token_to_str:N \acro@pages {#1}
+                \acro@pages {#1}
                   { \seq_use:cn {g__acro_#1_pages_seq} {|} } ^^J
-                \token_to_str:N \acro@barriers {#1}
+                \acro@barriers {#1}
                   { \seq_use:cn {g__acro_#1_barriers_seq} {,} }
               }
           }
@@ -2567,12 +2563,15 @@
 % #2: short form
 \cs_new_protected:Npn \acro_write_short:nn #1#2
   {
-    \__acro_typeset:nn {short}
+    \__acro_make_link:nn {#1}
       {
-        \bool_if:nTF
-          { \l__acro_first_upper_bool }
-          { \exp_not:N \__acro_first_upper_case:n { \exp_not:n {#2} } }
-          { \exp_not:n {#2} }
+        \__acro_typeset:nn {short}
+          {
+            \bool_if:nTF
+              { \l__acro_first_upper_bool }
+              { \exp_not:N \__acro_first_upper_case:n { \exp_not:n {#2} } }
+              { \exp_not:n {#2} }
+          }
       }
   }
 \cs_generate_variant:Nn \acro_write_short:nn { nV , nv }
@@ -2582,12 +2581,15 @@
 % #2: alt form
 \cs_new_protected:Npn \acro_write_alt:nn #1#2
   {
-    \__acro_typeset:nn {alt}
+    \__acro_make_link:nn {#1}
       {
-        \bool_if:nTF
-          { \l__acro_first_upper_bool && \l__acro_upper_short_bool }
-          { \exp_not:N \__acro_first_upper_case:n { \exp_not:n {#2} } }
-          { \exp_not:n {#2} }
+        \__acro_typeset:nn {alt}
+          {
+            \bool_if:nTF
+              { \l__acro_first_upper_bool && \l__acro_upper_short_bool }
+              { \exp_not:N \__acro_first_upper_case:n { \exp_not:n {#2} } }
+              { \exp_not:n {#2} }
+          }
       }
   }
 \cs_generate_variant:Nn \acro_write_alt:nn { nV , nv }
@@ -3327,7 +3329,7 @@
   }
 \cs_generate_variant:Nn \acro_if_in_barrier:nnTF {nx}
 
-\cs_new:Npn \acro@barriers #1#2
+\cs_new_protected:Npn \acro@barriers #1#2
   { \seq_gset_split:cnn {g__acro_#1_recorded_barriers_seq} {,} {#2} }
 
 % --------------------------------------------------------------------------
