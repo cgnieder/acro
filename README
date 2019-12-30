@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------
-the ACRO package v2.10c 2019/10/12
+the ACRO package v2.10d 2019/12/30
 
   Typeset Acronyms
 
@@ -23,7 +23,7 @@ This work has the LPPL maintenance status `maintained'.
 The Current Maintainer of this work is Clemens Niederberger.
 --------------------------------------------------------------------------
 The acro package consists of the files
- - acro.sty, acro_en.tex, acro_en.pdf, README
+ - acro.sty, acro_en.tex, acro_en.pdf, README, acro.history
 --------------------------------------------------------------------------
 If you have any ideas, questions, suggestions or bugs to report, please
 feel free to contact me.
