@@ -10,7 +10,7 @@
 % 
 % --------------------------------------------------------------------------
 % Clemens Niederberger
-% Web:    http://www.mychemsitry.eu/forums/forum/acro/
+% Web:    https://bitbucket.org/cgnieder/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
 % Copyright 2011--2020 Clemens Niederberger
@@ -28,7 +28,9 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The acro package consists of the files
-%  - acro.sty, acro_en.tex, acro_en.pdf, README
+% - acro.sty, acro.definitions.tex, acro.cfg
+% - acro-manual.tex, acro-manual.pdf, acro-manual.cls
+% - acro.history, README
 % --------------------------------------------------------------------------
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
@@ -1641,19 +1643,19 @@ commands\footnote{Which is why you need to use them inside an expl3
     The \cs*{acro_get:n} command is called the first macro that is called by
     \cs*{acro_use:n} which for example enables conditionals to test for
     certain acronym properties.
-  \command*{acro_get_property:nn}[\TF\ \marg{id} \marg{property} \marg{true}
+  \command*{acro_property_get:nn}[\TF\ \marg{id} \marg{property} \marg{true}
     \marg{false}]
-    Fetches\sinceversion{2.7} the property \meta{property} of the acronym
+    Fetches\changedversion{2.11} the property \meta{property} of the acronym
     \meta{id} and stores it in a tokenlist variable
     \cs*{l__acro_\meta{property}_tl} where all dashes in the property names
     are replaced with underscores.  \meta{true} is placed in the input stream
     if the property had been set, \meta{false} otherwise.
-  \command*{acro_get_property:nn}[\marg{id} \marg{property}]
-    Like\sinceversion{2.7} \cs*{acro_get_property:nn}\TF, but without the
+  \command*{acro_property_get:nn}[\marg{id} \marg{property}]
+    Like\changedversion{2.11} \cs*{acro_property_get:nn}\TF, but without the
     \meta{true} and \meta{false} arguments.
-  \command*{acro_if_property:nn}[\TF\ \marg{id} \marg{property} \marg{true}
+  \command*{acro_property_if_set:nn}[\TF\ \marg{id} \marg{property} \marg{true}
     \marg{false}]
-    Checks\sinceversion{2.7} if the property \meta{property} of the acronym
+    Checks\changedversion{2.11} if the property \meta{property} of the acronym
     \meta{id} is set and places \meta{true} is in the input stream if yes and
     \meta{false} otherwise.
 \end{commands}

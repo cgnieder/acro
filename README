@@ -23,7 +23,9 @@ This work has the LPPL maintenance status `maintained'.
 The Current Maintainer of this work is Clemens Niederberger.
 --------------------------------------------------------------------------
 The acro package consists of the files
- - acro.sty, acro_en.tex, acro_en.pdf, README, acro.history
+- acro.sty, acro.definitions.tex, acro.cfg
+- acro-manual.tex, acro-manual.pdf, acro-manual.cls
+- acro.history, README
 --------------------------------------------------------------------------
 If you have any ideas, questions, suggestions or bugs to report, please
 feel free to contact me.

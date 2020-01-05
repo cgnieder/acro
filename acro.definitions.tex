@@ -1,0 +1,574 @@
+% --------------------------------------------------------------------------
+% the ACRO package
+% 
+%   Typeset Acronyms
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://bitbucket.org/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011--2020 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% The acro package consists of the files
+% - acro.sty, acro.definitions.tex, acro.cfg
+% - acro-manual.tex, acro-manual.pdf, acro-manual.cls
+% - acro.history, README
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+\ExplSyntaxOn
+
+% document commands:
+\NewDocumentCommand \DeclareAcronym {mm}
+  { \acro_declare_acronym:nn {#1} {#2} }
+
+\NewDocumentCommand \acsetup { m }
+  {
+    \tl_if_blank:nF {#1}
+      { \keys_set:nn {acro} {#1} }
+    \ignorespaces
+  }
+
+\NewDocumentCommand \ProvideAcroEnding {mmm}
+  { \acro_provide_ending:nnn {#1} {#2} {#3} }
+
+\NewDocumentCommand \AcroRegisterTrailing {mm}
+  { \acro_register_trailing_token:Nn #1 {#2} }
+
+\NewDocumentCommand \DeclareAcroTranslation {mm}
+  { \acro_declare_translation:nn {#1} {#2} }
+
+\DeclareExpandableDocumentCommand \acifused { m }
+  { \acro_if_acronym_used:nTF {#1} }
+
+\NewDocumentCommand \acresetall {}
+  { \acro_reset_all: }
+
+\NewDocumentCommand \acuseall {}
+  { \acro_mark_all_as_used: }
+
+\NewDocumentCommand \acreset { > { \SplitList {,} } m }
+  { \ProcessList {#1} { \acro_reset:n } \ignorespaces }
+
+\NewDocumentCommand \acuse { > { \SplitList {,} } m }
+  { \ProcessList {#1} { \acro_mark_as_used:n } \ignorespaces }
+
+\NewDocumentCommand \acfirstupper {m}
+  { \acro_first_upper_case:n {#1} }
+
+\NewExpandableDocumentCommand \aciffirst {+m+m}
+  { \bool_if:NTF \l__acro_first_instance_bool {#1} {#2} }
+
+\NewDocumentCommand \acdot   {} { \acro_dot: }
+\NewDocumentCommand \acspace {} { \acro_space: }
+
+\NewDocumentCommand \acbarrier {}
+  { \acro_barrier: }
+
+\NewDocumentCommand \acswitchoff {}
+  { \acro_switch_off: }
+
+\NewDocumentCommand \acswitchon {}
+  { \acro_switch_on: }
+
+\NewDocumentCommand \printacronyms { O{} }
+  { \acro_print_acronyms:n {#1} }
+
+% --------------------------------------------------------------------------
+% styles
+% #1: name
+% #2: template
+% #3: settings
+\NewDocumentCommand \DeclareAcroFirstStyle {mmm}
+  { \acro_declare_first_style:nnn {#1} {#2} {#3} }
+
+\NewDocumentCommand \DeclareAcroExtraStyle {mmm}
+  { \acro_declare_extra_style:nnn {#1} {#2} {#3} }
+
+\NewDocumentCommand \DeclareAcroPageStyle {mmm}
+  { \acro_declare_page_style:nnn {#1} {#2} {#3} }
+
+\NewDocumentCommand \DeclareAcroListHeading {mm}
+  { \acro_declare_list_heading:nn {#1} {#2} }
+
+\NewDocumentCommand \DeclareAcroListStyle {mmm}
+  { \acro_declare_list_style:nnn {#1} {#2} {#3} }
+
+% --------------------------------------------------------------------------
+% use acronyms:
+% automatic:
+\NewAcroCommand \ac
+  { \acro_use:n {#1} }
+
+\NewAcroCommand \Ac
+  {
+    \acro_first_upper:
+    \acro_use:n {#1}
+  }
+
+\NewAcroCommand \iac
+  {
+    \acro_indefinite:
+    \acro_use:n {#1}
+  }
+
+\NewAcroCommand \Iac
+  {
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_use:n {#1}
+  }
+
+\NewAcroCommand \acp
+  {
+    \acro_plural:
+    \acro_use:n {#1}
+  }
+
+\NewAcroCommand \Acp
+  {
+    \acro_plural:
+    \acro_first_upper:
+    \acro_use:n {#1}
+  }
+
+\NewAcroCommand \acsingle
+  {
+    \acro_get:n {#1}
+    \acro_single:n {#1}
+  }
+
+\NewAcroCommand \acpsingle
+  {
+    \acro_get:n {#1}
+    \acro_plural:
+    \acro_single:n {#1}
+  }
+
+\NewAcroCommand \Acsingle
+  {
+    \acro_get:n {#1}
+    \acro_first_upper:
+    \acro_single:n {#1}
+  }
+
+\NewAcroCommand \Acpsingle
+  {
+    \acro_get:n {#1}
+    \acro_first_upper:
+    \acro_plural:
+    \acro_single:n {#1}
+  }
+
+% short:
+\NewAcroCommand \acs
+  { \acro_short:n {#1} }
+
+\NewAcroCommand \Acs
+  {
+    \acro_first_upper:
+    \acro_short:n {#1}
+  }
+
+\NewAcroCommand \iacs
+  {
+    \acro_indefinite:
+    \acro_short:n {#1}
+  }
+
+\NewAcroCommand \Iacs
+  {
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_short:n {#1}
+  }
+
+\NewAcroCommand \acsp
+  {
+    \acro_plural:
+    \acro_short:n {#1}
+  }
+
+\NewAcroCommand \Acsp
+  {
+    \acro_first_upper:
+    \acro_plural:
+    \acro_short:n {#1}
+  }
+
+% alt:
+\NewAcroCommand \aca
+  { \acro_alt:n {#1} }
+
+\NewAcroCommand \Aca
+  {
+    \acro_first_upper:
+    \acro_alt:n {#1}
+  }
+  
+\NewAcroCommand \iaca
+  {
+    \acro_indefinite:
+    \acro_alt:n {#1}
+  }
+
+\NewAcroCommand \Iaca
+  {
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_alt:n {#1}
+  }
+
+\NewAcroCommand \acap
+  {
+    \acro_plural:
+    \acro_alt:n {#1}
+  }
+
+\NewAcroCommand \Acap
+  {
+    \acro_first_upper:
+    \acro_plural:
+    \acro_alt:n {#1}
+  }
+
+% long:
+\NewAcroCommand \acl
+  { \acro_long:n {#1} }
+
+\NewAcroCommand \Acl
+  {
+    \acro_first_upper:
+    \acro_long:n {#1}
+  }
+
+\NewAcroCommand \iacl
+  {
+    \acro_indefinite:
+    \acro_long:n {#1}
+  }
+
+\NewAcroCommand \Iacl
+  {
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_long:n {#1}
+  }
+
+\NewAcroCommand \aclp
+  {
+    \acro_plural:
+    \acro_long:n {#1}
+  }
+
+\NewAcroCommand \Aclp
+  {
+    \acro_plural:
+    \acro_first_upper:
+    \acro_long:n {#1}
+  }
+
+% first:
+\NewAcroCommand \acf
+  { \acro_first:n {#1} }
+
+\NewAcroCommand \Acf
+  {
+    \acro_first_upper:
+    \acro_first:n {#1}
+  }
+
+\NewAcroCommand \iacf
+  {
+    \acro_indefinite:
+    \acro_first:n {#1}
+  }
+
+\NewAcroCommand \Iacf
+  {
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_first:n {#1}
+  }
+
+\NewAcroCommand \acfp
+  {
+    \acro_plural:
+    \acro_first:n {#1}
+  }
+
+\NewAcroCommand \Acfp
+  {
+    \acro_plural:
+    \acro_first_upper:
+    \acro_first:n {#1}
+  }
+
+% first-like:
+\NewPseudoAcroCommand \acflike
+  { \acro_first_like:nn {#1} {#2} }
+
+\NewPseudoAcroCommand \iacflike
+  {
+    \acro_indefinite:
+    \acro_first_like:nn {#1} {#2}
+  }
+
+\NewPseudoAcroCommand \Iacflike
+  {
+    \acro_first_upper:
+    \acro_indefinite:
+    \acro_first_like:nn {#1} {#2}
+  }
+
+\NewPseudoAcroCommand \acfplike
+  {
+    \acro_plural:
+    \acro_first_like:nn {#1} {#2}
+  }
+
+% --------------------------------------------------------------------------
+% first appearance styles:
+\DeclareAcroFirstStyle {default} {inline}
+  { }
+
+\DeclareAcroFirstStyle {reversed} {inline}
+  { reversed = true }
+
+\DeclareAcroFirstStyle {short} {inline}
+  {
+    only-short = true ,
+    brackets = false
+  }
+
+\DeclareAcroFirstStyle {long} {inline}
+  {
+    only-long = true ,
+    brackets = false
+  }
+
+\DeclareAcroFirstStyle {square} {inline}
+  { brackets-type = [] }
+
+\DeclareAcroFirstStyle {plain} {inline}
+  {
+    brackets = false ,
+    between = --
+  }
+
+\DeclareAcroFirstStyle {plain-reversed} {inline}
+  { 
+    brackets = false ,
+    between = -- ,
+    reversed = true
+  }
+
+\DeclareAcroFirstStyle {footnote} {note}
+  { }
+
+\DeclareAcroFirstStyle {footnote-reversed} {note}
+  { reversed = true }
+
+\DeclareAcroFirstStyle {sidenote} {note}
+  { note-command = \sidenote {#1} }
+
+\DeclareAcroFirstStyle {sidenote-reversed} {note}
+  {
+    note-command = \sidenote {#1} ,
+    reversed     = true
+  }
+
+\DeclareAcroFirstStyle {empty} {note}
+  { use-note = false }
+
+% --------------------------------------------------------------------------
+% extra info appearance styles:
+\DeclareAcroExtraStyle {default} {inline}
+  {
+    brackets     = false ,
+    punct        = true ,
+    punct-symbol = .
+  }
+
+\DeclareAcroExtraStyle {plain} {inline}
+  {
+    brackets     = false ,
+    punct        = true ,
+    punct-symbol =
+  }
+
+\DeclareAcroExtraStyle {paren} {inline}
+  {
+    brackets     = true ,
+    punct        = true ,
+    punct-symbol =
+  }
+
+\DeclareAcroExtraStyle {bracket} {inline}
+  {
+    brackets      = true ,
+    punct         = true ,
+    punct-symbol  = ,
+    brackets-type = []
+  }
+
+\DeclareAcroExtraStyle {comma} {inline}
+  {
+    punct         = true,
+    punct-symbol  = {,} ,
+    brackets      = false
+  }
+
+% --------------------------------------------------------------------------
+% page number appearance styles:
+\DeclareAcroPageStyle {default} {inline}
+  {
+    punct = true ,
+    punct-symbol = .
+  }
+  
+\DeclareAcroPageStyle {plain}   {inline}
+  { punct = false }
+
+\DeclareAcroPageStyle {comma}   {inline}
+  { punct = true }
+
+\DeclareAcroPageStyle {paren}   {inline}
+  {
+    brackets=true ,
+    punct-symbol = ~
+  }
+
+\DeclareAcroPageStyle {none}    {inline}
+  { display = false }
+
+% --------------------------------------------------------------------------
+% list heading styles:
+\DeclareAcroListHeading {part}           {\part}
+\DeclareAcroListHeading {part*}          {\part*}
+\DeclareAcroListHeading {chapter}        {\chapter}
+\DeclareAcroListHeading {chapter*}       {\chapter*}
+\DeclareAcroListHeading {addchap}        {\addchap}
+\DeclareAcroListHeading {section}        {\section}
+\DeclareAcroListHeading {section*}       {\section*}
+\DeclareAcroListHeading {addsec}         {\addsec}
+\DeclareAcroListHeading {subsection}     {\subsection}
+\DeclareAcroListHeading {subsection*}    {\subsection*}
+\DeclareAcroListHeading {subsubsection}  {\subsubsection}
+\DeclareAcroListHeading {subsubsection*} {\subsubsection*}
+\DeclareAcroListHeading {none}           {\use_none:n}
+
+% --------------------------------------------------------------------------
+% list styles:
+\DeclareAcroListStyle {description} {list}
+  { }
+
+\DeclareAcroListStyle {toc} {list-of}
+  { }
+
+\DeclareAcroListStyle {lof} {list-of}
+  { style = lof }
+
+\DeclareAcroListStyle {tabular} {table}
+  { table = tabular }
+
+\DeclareAcroListStyle {longtable} {table}
+  { table = longtable }
+
+\DeclareAcroListStyle {extra-tabular} {extra-table}
+  { table = tabular }
+
+\DeclareAcroListStyle {extra-longtable} {extra-table}
+  { table = longtable }
+
+\DeclareAcroListStyle {extra-tabular-rev} {extra-table}
+  {
+    table   = tabular ,
+    reverse = true
+  }
+
+\DeclareAcroListStyle {extra-longtable-rev} {extra-table}
+  {
+    table   = longtable ,
+    reverse = true
+  }
+
+% --------------------------------------------------------------------------
+% endings:
+\ProvideAcroEnding {plural} {s} {s}
+
+% --------------------------------------------------------------------------
+% register some tokens to be checked for:
+\AcroRegisterTrailing . {dot}
+\AcroRegisterTrailing - {dash}
+\AcroRegisterTrailing \babelhyphen {babel-hyphen}
+
+\acsetup { activate-trailing-tokens = dot }
+
+% --------------------------------------------------------------------------
+% translations:
+% list name
+\DeclareAcroTranslation {acronym-list-name}
+  {
+    Fallback   = Acronyms ,
+    English    = Acronyms ,
+    French     = Acronymes ,
+    German     = Abk\"urzungen ,
+    Italian    = Acronimi ,
+    Portuguese = Acr\'onimos ,
+    Spanish    = Siglas ,
+    Catalan    = Sigles ,
+    Turkish    = K\i saltmalar
+  }
+
+% page name
+\DeclareAcroTranslation {acronym-page-name}
+  {
+    Fallback   = p. ,
+    English    = p. ,
+    German     = S. ,
+    Portuguese = p.
+  }
+
+% pages name
+\DeclareAcroTranslation {acronym-pages-name}
+  {
+    Fallback   = pp. ,
+    English    = pp. ,
+    German     = S. ,
+    Portuguese = pp.
+  }
+
+% following page
+\DeclareAcroTranslation {acronym-next-page}
+  {
+    Fallback   = f. ,
+    English    = f. ,
+    German     = f. ,
+    Portuguese = s.
+  }
+
+% following pages
+\DeclareAcroTranslation {acronym-next-pages}
+  {
+    Fallback   = ff. ,
+    English    = ff. ,
+    German     = ff. ,
+    Portuguese = ss.
+  }
+
+\file_input_stop:

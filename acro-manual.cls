@@ -5,7 +5,7 @@
 % 
 % --------------------------------------------------------------------------
 % Clemens Niederberger
-% Web:    http://www.mychemsitry.eu/forums/forum/acro/
+% Web:    https://bitbucket.org/cgnieder/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
 % Copyright 2011--2020 Clemens Niederberger
@@ -23,7 +23,9 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The acro package consists of the files
-%  - acro.sty, acro_en.tex, acro_en.pdf, README
+% - acro.sty, acro.definitions.tex, acro.cfg
+% - acro-manual.tex, acro-manual.pdf, acro-manual.cls
+% - acro.history, README
 % --------------------------------------------------------------------------
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
@@ -179,24 +181,26 @@
   #1%
 }
 
-\newcommand*\xsimman@readoptions[1]{%
+\newcommand*\acroman@readoptions[1]{%
   \catcode`\^^M=13
-  \xsimman@read@options{#1}%
+  \acroman@read@options{#1}%
 }
 
 \begingroup
 \catcode`\^^M=13
-\gdef\xsimman@read@options#1#2^^M{%
-  \ifblank{#2}{}{\xsimman@read@options@#2}%
+\gdef\acroman@read@options#1#2^^M{%
+  \ifblank{#2}{}{\acroman@read@options@#2}%
   #1%
   \XSIMfilewritestart*{\jobname.tmp}%
 }%
 \endgroup
-\def\xsimman@read@options@[#1]{\pgfqkeys{/cnltx}{#1}}
+\def\acroman@read@options@[#1]{\pgfqkeys{/cnltx}{#1}}
 
 \RenewDocumentEnvironment{sourcecode}{}
   {%
-    \xsimman@readoptions{%
+    \begingroup
+    \acroman@readoptions{%
+      \endgroup
       \setlength\cnltx@sidebysidewidth
         {\dimexpr .45\columnwidth -\lst@xleftmargin -\lst@xrightmargin\relax}%
       \expanded{%
@@ -219,7 +223,9 @@
 
 \RenewDocumentEnvironment{example}{}
   {%
-    \xsimman@readoptions{%
+    \begingroup
+    \acroman@readoptions{%
+      \endgroup
       \setlength\cnltx@sidebysidewidth
         {\dimexpr .45\columnwidth -\lst@xleftmargin -\lst@xrightmargin\relax}%
       \expanded{%
