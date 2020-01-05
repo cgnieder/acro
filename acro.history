@@ -8,7 +8,7 @@
 % Web:    https://bitbucket.org/cgnieder/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2011--2019 Clemens Niederberger
+% Copyright 2011--2020 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -270,3 +270,9 @@
 2019/12/30 v2.10d - fix issue #76
                   - fix issue #141
 		  - fix issue #143
+2020/01/05 v2.11  - new commands \acpsingle and \Acpsingle
+                  - fix issues with optional arguments of the `cite' property
+		  - new properties `before-citation' and `after-citation'
+		  - new options `config-file-name' and `config-file-extension'
+		  - rename the manual file and use a dedicated class for the
+                    manual

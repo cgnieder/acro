@@ -2,7 +2,7 @@
 % arara: biber
 % arara: pdflatex: { interaction: nonstopmode }
 % arara: pdflatex: { interaction: nonstopmode }
-% !arara: pdflatex: { interaction: nonstopmode }
+% arara: pdflatex: { interaction: nonstopmode }
 % --------------------------------------------------------------------------
 % the ACRO package
 % 
@@ -13,7 +13,7 @@
 % Web:    http://www.mychemsitry.eu/forums/forum/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2011--2019 Clemens Niederberger
+% Copyright 2011--2020 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -33,68 +33,10 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\documentclass[load-preamble+]{cnltx-doc}
-
-\usepackage[utf8]{inputenc}
-\usepackage[single,macros,accsupp,index]{acro}
-\setcnltx{
-  package  = {acro} ,
-  info     = {Typeset Acronyms and other Abbreviations} ,
-  authors  = Clemens Niederberger ,
-  email    = contact@mychemistry.eu ,
-  url      = https://bitbucket.org/cgnieder/acro/ ,
-  abstract = {%
-    \acro\ allows you to define and use abbreviations in a simple way.
-    Abbreviations can be divided into different classes of abbreviations.
-    Lists of abbreviations can be created (also of separate classes of
-    abbreviations) and printed wherever you want the lists to appear.\par
-    \acro\ provides an option \option{single} which ignores abbreviations that
-    are used only once in the whole document.\par
-    As an experimental feature \acro\ also offers the option \option{sort} which
-    automatically sorts the list created by \cs{printacronyms}.\par
-    \acro\ also has the feature of creating \emph{local} lists
-  } ,
-  add-cmds = {
-    ac, Ac, aca, Aca, acap, Acap, acbarrier, acdot, acf, Acf, acflike, acg,
-      acfp, Acfp, acfplike, aciftrailing, acl, Acl, aclp, Aclp, acp, Acp,
-      AcroRegisterTrailing, acs, Acs, acsingle, Acsingle, acsp, Acsp, acspace,
-      acreset, acresetall, acsetup,
-    DeclareAcroCommand, DeclareAcronym, DeclareAcroExtraStyle,
-      DeclareAcroFirstStyle, DeclareAcroListHeading, 
-      DeclareAcroListStyle, DeclareAcroPageStyle, DeclarePseudoAcroCommand,
-    iac, Iac, iaca, Iaca, iacs, Iacs, iacl, Iacl, iacf, Iacf, iacflike,
-      Iacflike,
-    NewAcroCommand, NewPseudoAcroCommand,
-    printacronyms,
-    ProvideAcroCommand, ProvideAcroEnding, ProvidePseudoAcroCommand,
-    RenewAcroCommand, RenewPseudoAcroCommand
-  } ,
-  add-silent-cmds = {
-    addcolon, DeclareInstance, babelhyphen, ExplSyntaxOff, ExplSyntaxOn, nato,
-    NewDocumentCommand, newlist, ny, setlist
-  } ,
-  index-setup = { level = \section , headers={\indexname}{\indexname} }
-}
-
-\acsetup{
-  use-barriers = true ,
-  hyperref     = true ,
-  log
-}
-
-\usepackage{varioref}
-
-\defbibheading{bibliography}{\section{References}}
-
-\usepackage{csquotes}
-
-\usepackage[biblatex]{embrac}[2012/06/29]
-\ChangeEmph{[}[,.02em]{]}[.055em,-.08em]
-\ChangeEmph{(}[-.01em,.04em]{)}[.04em,-.05em]
-
-\usepackage{filecontents}
+\documentclass{acro-manual}
 
 \addbibresource{\jobname.bib}
+\addbibresource{cnltx.bib}
 \begin{filecontents}{\jobname.bib}
 @online{wikipedia,
   author   = {Wikipedia},
@@ -119,15 +61,6 @@
   url       = {http://mirrors.ctan.org/macros/latex/contrib/l3kernel/interface3.pdf}
 }
 \end{filecontents}
-
-% additional packages:
-\usepackage{longtable,array,booktabs,enumitem,amssymb}
-
-\newcommand*\wikipedia{%\libertineGlyph{W.alt}\kern-.055em
-\textsc{Wikipedia}}
-\newcommand*\h[1]{\textcolor{cnltx}{\textbf{#1}}}
-
-\ProvideAcroEnding {possessive} {'s} {'s}
 
 % declare acronyms
 \DeclareAcronym{cd}
@@ -244,27 +177,6 @@
    long-indefinite = an
 }
 
-
-\makeatletter
-\protected\def\@versionstar{\raisebox{-.25em}{*}}
-\newcommand\versionstar{\texorpdfstring{\@versionstar}{*}}
-\makeatother
-
-\newcommand*\latin{\textit}
-
-\makeatletter
-\newcommand*\TF{\textcolor{red}{\uline{\code{\textcolor{cs}{\textit{TF}}}}}}
-\renewenvironment{commands}
-  {%
-    \cnltx@set@catcode_{12}%
-    \let\command\cnltx@command
-    \cnltxlist
-  }
-  {\endcnltxlist}
-\makeatother
-
-\newcommand*\mailto[1]{\texttt{\href{mailto:#1}{#1}}}
-
 \begin{document}
 \section{Licence and Requirements}
 \license
@@ -274,8 +186,6 @@
 \pkg{l3keys2e}\footnote{\CTANurl{l3packages}},
 \pkg{zref-abspage}\footnote{\CTANurl{oberdiek}} and
 \needpackage{translations}~\cite{pkg:translations}.
-
-
 
 \section{Basics}
 \subsection{Creating New Acronyms}
@@ -287,83 +197,84 @@ Acronyms are created with the command \cs{DeclareAcronym}.
 This command understands a number of keys which are listed below.  Some of
 them are not described immediately but at appropriate places in the
 documentation.
-\begin{options}
+\begin{properties}
   %% short
-  \keyval{short}{text}\Default!
-    The short form of the acronym.  This option is required: an acronym must
-    have a short form.  If this is set it \emph{must} be set as first option!
-    If another option is set first and notices the \option{short} option
-    missing it assumes that the \acs{id} should be used as short version and
-    sets it accordingly.  A warning will be written to the log then.
+  \propval{short}{text}\Default!
+    The short form of the acronym.  \emph{This property is required}: an
+    acronym must have a short form.  If this is set it \emph{must} be set as
+    first option! If another property is set first and notices the
+    \property{short} property missing it assumes that the \acs{id} should be
+    used as short version and sets it accordingly.  A warning will be written
+    to the log then.
   %% long
-  \keyval{long}{text}\Default!
-    The long form of the acronym.  This option is required: an acronym must
-    have a description.
+  \propval{long}{text}\Default!
+    The long form of the acronym.  \emph{This property is required}: an
+    acronym must have a description.
   %% short-plural
-  \keyval{short-plural}{text}\Default{s}
+  \propval{short-plural}{text}\Default{s}
     The plural ending appended to the short form.
   %% short-plural-form
-  \keyval{short-plural-form}{text}
+  \propval{short-plural-form}{text}
     The\sinceversion{2.0} plural short form of the acronym; replaces the short
     form when used instead of appending the plural ending.
   %% long-plural
-  \keyval{long-plural}{text}\Default{s}
+  \propval{long-plural}{text}\Default{s}
     The plural ending appended to the long form.
   %% long-plural-form
-  \keyval{long-plural-form}{text}
+  \propval{long-plural-form}{text}
     Plural long form of the acronym; replaces the long form when used
     instead of appending the plural ending.
    %% alt-plural
-  \keyval{alt-plural}{text}\Default{s}
+  \propval{alt-plural}{text}\Default{s}
     The\sinceversion{2.0} plural ending appended to the alternative form.
   %% alt-plural-form
-  \keyval{alt-plural-form}{text}
+  \propval{alt-plural-form}{text}
     The\sinceversion{2.0} plural alternative form of the acronym; replaces the
     alternative form when used instead of appending the plural ending.
   %% foreign-plural
-  \keyval{foreign-plural}{text}\Default{s}
+  \propval{foreign-plural}{text}\Default{s}
     The\sinceversion{2.9} plural ending appended to the foreign form.
   %% foreign-plural-form
-  \keyval{foreign-plural-form}{text}
-    Plural\sinceversion{2.9} lforeign form of the acronym; replaces the
+  \propval{foreign-plural-form}{text}
+    Plural\sinceversion{2.9} foreign form of the acronym; replaces the
     foreign form when used instead of appending the plural ending.
   %% list
-  \keyval{list}{text}
+  \propval{list}{text}
     If specified this will be written in the list as description instead of
     the long form.
   %% short-indefinite
-  \keyval{short-indefinite}{text}\Default{a}
+  \propval{short-indefinite}{text}\Default{a}
     Indefinite article for the short form.
   %% long-indefinite
-  \keyval{long-indefinite}{text}\Default{a}
+  \propval{long-indefinite}{text}\Default{a}
     Indefinite article for the long form.
   %% long-pre
-  \keyval{long-pre}{text}
+  \propval{long-pre}{text}
     \meta{text} is prepended to the long form in the text but not in the list
     of acronyms.
   %% long-post
-  \keyval{long-post}{text}
+  \propval{long-post}{text}
     \meta{text} is appended to the long form in the text but not in the list
     of acronyms.
   %% long-post
-  \keyval{post}{text}
+  \propval{post}{text}
     \meta{text}\sinceversion{2.8} is appended to the acronym in the text but
     not in the list of acronyms.
   %% alt
-  \keyval{alt}{text}
+  \propval{alt}{text}
     Alternative short form.
   %% alt-indefinite
-  \keyval{alt-indefinite}{text}\Default{a}
+  \propval{alt-indefinite}{text}\Default{a}
     Indefinite article for the alternative form.
   %% extra
-  \keyval{extra}{text}
+  \propval{extra}{text}
     Extra information to be added in the list of acronyms.
   %% foreign
-  \keyval{foreign}{original long form}
+  \propval{foreign}{original long form}
     Can be useful when dealing with acronyms in foreign languages, see
     section~\vref{ssec:foreign} for details.
   %% foreign-lang
-  \keyval{foreign-lang}{language}
+  \propval{foreign-lang}{language}
     \sinceversion{2.3}The \pkg{babel}~\cite{pkg:babel} or
     \pkg{polyglossia}~\cite{pkg:polyglossia} language of the foreign form.
     This language is used to wrap the entry with
@@ -371,80 +282,84 @@ documentation.
     \pkg{polyglossia} is loaded.  You'll need to take care that the
     corresponding language is loaded by \pkg{babel} or \pkg{polyglossia}.
   %% single
-  \keyval{single}{text}
+  \propval{single}{text}
     \sinceversion{2.3}If provided \meta{text} will be used instead of the long
     form if the acronym is only used a single time \emph{and} the option
     \keyis{single}{true} is active.
   %% sort
-  \keyval{sort}{text}
+  \propval{sort}{text}
     If used the acronym will be sorted according to this key instead of its
     \acs{id}.
   %% class
-  \keyval{class}{csv list}
+  \propval{class}{csv list}
     The\changedversion{2.4} class(es) the acronym belongs to.
   %% cite
-  \keylit{cite}{\oarg{prenote}\oarg{postnote}\marg{citation keys}}
+  \proplit-{cite}{\oarg{prenote}\oarg{postnote}\marg{citation keys}}
     A citation that is printed to the acronym according to an option explained
     later.
   %% short-format
-  \keyval{short-format}{\TeX{} code}
+  \propval{short-format}{\TeX{} code}
     The format used for the short form of the acronym.
   %% long-format
-  \keyval{long-format}{\TeX{} code}
+  \propval{long-format}{\TeX{} code}
     The format used for the long form of the acronym.
   %% short-format
-  \keyval{alt-format}{\TeX{} code}
+  \propval{alt-format}{\TeX{} code}
     The\sinceversion{2.10} format used for the alternative form of the
     acronym. If this is not given the short format will be used.
   %% first-long-format
-  \keyval{first-long-format}{\TeX{} code}
+  \propval{first-long-format}{\TeX{} code}
     The format used for the first long form of the acronym as set with \cs{ac},
     \cs{acf} or \cs{acflike} and their uppercase, plural and indefinite forms.
   %% single-format
-  \keyval{single-format}{\TeX{} code}
+  \propval{single-format}{\TeX{} code}
     \sinceversion{2.3}The format used for the acronym if the acronym is only
     used a single time.
   %% first-style
-  \keychoice{first-style}{default,empty,square,short,long,reversed,footnote,sidenote,%
+  \propchoice{first-style}{default,empty,square,short,long,reversed,footnote,sidenote,%
     footnote-reversed,sidenote-reversed}
     \sinceversion{2.3}The style of the first appearance of the acronym, see
     also section~\ref{sec:opti-regard-acronyms}.
   %% pdfstring
-  \keylit{pdfstring}{\meta{text}/\meta{plural ending}}
+  \proplit-{pdfstring}{\Marg{\meta{pdfstring}/\meta{plural ending}}}
     \changedversion{2.4b}Used as \acs{pdf} string replacement in bookmarks
     when used together with the \pkg{hyperref} package.  The appended plural
     ending is optional.  If you leave it (\emph{and} the \code{/}) the default
     ending is used.  \meta{text} is expanded before it is saved.
   %% accsupp
-  \keyval{accsupp}{text}
+  \propval{accsupp}{text}
     Sets the \code{ActualText} key as presented by the \pkg{accsupp} package
     for the acronym.
   %% tooltip
-  \keyval{tooltip}{text}
+  \propval{tooltip}{text}
     \sinceversion{2.1}Sets the tooltip description for an acronym.  For
     actually getting tooltips you also need an appropriate setting of the
     \option{tooltip-cmd} option or to set the package option
     \option{tooltip}.
   %% index-sort
-  \keyval{index-sort}{text}
+  \propval{index-sort}{text}
     If you use the package option \option{index} every occurrence of an
     acronym is recorded to the index and sorted by its \acs{id} or (if set) by
-    the value of the \option{sort} key.  This key allows to set an individual
-    sorting option for the index.  See section~\vref{ssec:index} for details.
+    the value of the \property{sort} property.  This key allows to set an
+    individual sorting option for the index.  See section~\vref{ssec:index}
+    for details.
   %% index
-  \keyval{index}{text}
+  \propval{index}{text}
     This key allows to overwrite the automatic index entry with an arbitrary
     one.  See section~\vref{ssec:index} for details.
  %% index-cmd
-  \keyval{index-cmd}{control sequence}
+  \propval{index-cmd}{control sequence}
     This key let's you set an individual index creating command for this
     acronym.  It should be a command that takes one mandatory argument.  See
     section~\vref{ssec:index} for details. 
-\end{options}
+\end{properties}
 
-In its simplest form an acronym needs a short and a long form.  Please note
-that both keys \emph{must} be set and that the \option{short} key \emph{must}
-always be the \emph{first} key that is set.
+\begin{bewareofthedog}
+  In its simplest form an acronym needs a short and a long form.  Please note
+  that both keys \emph{must} be set and that the \property{short} property
+  \emph{must} always be the \emph{first} property that is set.
+\end{bewareofthedog}
+
 \begin{sourcecode}
   % preamble:
   \DeclareAcronym{test}{
@@ -455,8 +370,8 @@ always be the \emph{first} key that is set.
 This creates the acronym ``\acs{test}'' with the \acs{id} ``test'' and the
 long form ``\acl{test}.''
 
-The \option{format} key allows you to choose a specific format for the short
-form of an acronym:
+The \property{short-format} key allows you to choose a specific format for the
+short form of an acronym:
 \begin{sourcecode}
   % preamble:
   \DeclareAcronym{ot}{
@@ -467,7 +382,7 @@ form of an acronym:
 \end{sourcecode}
 The short form now looks like this: \acs{ot}.
 
-The \option{cite} key needs a bit explaining.  It expects arguments like the
+The \property{cite} key needs a bit explaining.  It expects arguments like the
 standard \cs*{cite} command, \latin{i.e.}, two optional arguments setting the
 \meta{prenote} and \meta{postnote} and one mandatory argument setting the
 citation key.
@@ -545,7 +460,7 @@ Acronyms are used with one of the following commands:
     same as \cs{acl} but capitalizes first letter.
   %%
   \command{aca}[\sarg\marg{id}]
-    \h{a}lternative short form as specified in the \option{alt} key of
+    \h{a}lternative short form as specified in the \property{alt} property of
     \cs{DeclareAcronym}; if it hasn't been specified this is identical to
     \cs{acs}.
   \command{Aca}[\sarg\marg{id}]
@@ -619,17 +534,17 @@ may be formed differently.  And third, other languages can have other plural
 endings.
 
 For these reasons \cs{DeclareAcronym} can get the following keys:
-\begin{options}
-  \keyval{short-plural}{text}\Default{s}
+\begin{properties}
+  \propval{short-plural}{text}\Default{s}
     The plural ending of the short form.
-  \keyval{long-plural}{text}\Default{s}
+  \propval{long-plural}{text}\Default{s}
     The plural ending of the long form.
-  \keyval{long-plural-form}{text}
+  \propval{long-plural-form}{text}
     An alternative plural form for the long form.
-\end{options}
+\end{properties}
 These keys are optional.  If they're not used, the default setting is
-\code{s}.  If you use \option{long-plural-form} the long form will be replaced
-by the specified plural form when necessary.
+\code{s}.  If you use \property{long-plural-form} the long form will be
+replaced by the specified plural form when necessary.
 
 Suppose we define the following acronyms:
 \begin{sourcecode}
@@ -677,10 +592,10 @@ For a more general view on endings please read section
 \subsection{Alternative Short Forms}
 For some acronyms it might be useful to have alternative forms.  For this
 \cs{DeclareAcronym} has another key:
-\begin{options}
- \keyval{alt}{text}
-   Alternative short form.
-\end{options}
+\begin{properties}
+  \propval{alt}{text}
+    Alternative short form.
+\end{properties}
 \begin{example}
   % preamble:
   % \DeclareAcronym{jpg}{
@@ -699,10 +614,10 @@ is formatted in the same way.
 Of course you can print a list of acronyms where their meaning is explained.
 Sometimes it can be useful to add additional information there.  This is done
 with another key to \cs{DeclareAcronym}:
-\begin{options}
-  \keyval{extra}{text}
+\begin{properties}
+  \propval{extra}{text}
     Additional information for the list of acronyms.
-\end{options}
+\end{properties}
 These information will only be displayed in the list.  See
 section~\vref{sec:print_lists} for the impact of the following example.
 
@@ -730,16 +645,16 @@ the acronyms stem from another language than the document language,
   \ac{ecu}
 \end{example}
 That's why I decided to add the following properties:
-\begin{options}
-  \keyval{foreign}{original long form}
+\begin{properties}
+  \propval{foreign}{original long form}
     A description for an acronym originating in another language than the
     document language.
-  \keyval{foreign-lang}{language}
+  \propval{foreign-lang}{language}
     \sinceversion{2.3}The \pkg{babel}~\cite{pkg:babel} or
     \pkg{polyglossia}~\cite{pkg:polyglossia} language of the foreign form.
     This language is used to wrap the entry with
     \cs*{foreignlanguage}\marg{language}.
-\end{options}
+\end{properties}
 
 Here is the definition of the above mentioned \ac{ecu} acronym:
 \begin{sourcecode}
@@ -750,10 +665,10 @@ Here is the definition of the above mentioned \ac{ecu} acronym:
     foreign-lang = english
   }
 \end{sourcecode}
-As you have seen this adds the \option{foreign} entry to the first appearance
-of an acronym.  It is also added in parentheses to the list of acronyms after
-the \option{long} entry.  Actually the entry there is the argument to the
-following command:
+As you have seen this adds the \property{foreign} entry to the first
+appearance of an acronym.  It is also added in parentheses to the list of
+acronyms after the \property{long} entry.  Actually the entry there is the
+argument to the following command:
 \begin{commands}
   \command{acroenparen}[\marg{argument}]
     Places \meta{argument} in parentheses: \cs{acroenparen}\Marg{example}:
@@ -769,11 +684,18 @@ Unlike many other languages\footnote{Let's better say: unlike the other
 article is not determined by the grammatical case, gender or number but by the
 pronounciation of the following word.  This means that the short and the long
 form of an acronym can have different indefinite articles.  For these cases
-\acro\ offers the keys \option{short-indefinite}, \option{alt-indefinite} and
-\option{long-indefinite} whose default is \code{a}.  For every lowercase
-singular command two alternatives exist, preceded by \code{i} and \code{I},
-respectively, which output the lowercase and uppercase version of the
-corresponding indefinite article.
+\acro\ offers the following keys:
+\begin{properties}
+  \propval{short-indefinite}{article}\Default{a}
+    Indefinite article for the short form.
+  \propval{alt-indefinite}{article}\Default{a}
+    Indefinite article for the alternative form.
+  \propval{long-indefinite}{article}\Default{a}
+    Indefinite article for the long form.
+\end{properties}
+For every lowercase singular command two alternatives exist, preceded by
+\code{i} and \code{I}, respectively, which output the lowercase and uppercase
+version of the corresponding indefinite article.
 
 \begin{example}
   % preamble:
@@ -810,8 +732,9 @@ The following options control the behaviour of the uppercasing commands:
 \subsection{Simulating the First Appearance}\label{sec:simul-first-appe}
 Users told me\footnote{Well -- one, to be precise ;)} that there are cases
 when it might be useful to have the the acronym typeset according to the
-\option{first-style} but with another text than the long form.  For such cases
-\acro\ offers the following commands.
+\option{first-style} option (or \property{first-style} property) but with
+another text than the long form.  For such cases \acro\ offers the following
+commands.
 \begin{commands}
   \command{acflike}[\sarg\marg{id}\marg{instead of long form}]
     Write some alternative long form for acronym with \acs{id} \meta{id} as if
@@ -839,6 +762,10 @@ option is active.
     Write acronym as if it were used only a single time.
   \command{Acsingle}[\sarg\marg{id}]
     Uppercase form of \cs{acsingle}.
+  \command{acpsingle}[\sarg\marg{id}]
+    Plural\sinceversion{2.11} form of \cs{acsingle}.
+  \command{Acsingle}[\sarg\marg{id}]
+    Plural\sinceversion{2.11} form of \cs{Acsingle}.
 \end{commands}
 
 \begin{example}[side-by-side]
@@ -850,10 +777,10 @@ The acronyms of \acro\ can be divided into different classes.  This doesn't
 change the output but allows different acronym lists, see
 section~\vref{sec:print_lists}.  For this \cs{DeclareAcronym} has an additional
 key:
-\begin{options}
-  \keyval{class}{csv list}
+\begin{properties}
+  \propval{class}{csv list}
     Associated\changedversion{2.4} class(es) for an acronym.
-\end{options}
+\end{properties}
 
 This might be useful if you can and want to divide your acronyms into
 different types, technical and grammatical ones, say, that shall be listed in
@@ -948,11 +875,11 @@ bookmarks.
   \command{acpdfstringplural}[\marg{id}]
     Access the plural form of the text string used in \acs{pdf} bookmarks.
 \end{commands}
-\begin{options}
-  \keylit{pdfstring}{\Marg{\meta{pdfstring}/\meta{plural ending}}}
+\begin{properties}
+  \proplit-{pdfstring}{\Marg{\meta{pdfstring}/\meta{plural ending}}}
     Key for \cs{DeclareAcronym} to declare a custom text string for \acs{pdf}
     bookmarks.  The plural ending can be set optionally.
-\end{options}
+\end{properties}
 
 For example the \acs{pdf} acronym used in the title for this section is defined
 as follows:
@@ -968,7 +895,7 @@ as follows:
 
 \subsubsection{Accessibility Support}
 
-The last example also demonstrates the \option{accsupp} key.  The idea is to
+The last example also demonstrates the \property{accsupp} key.  The idea is to
 have something different visible in the \acs{pdf} file compared to what you
 get when you select and copy the corresponding string.  In the example visible
 string is a lowercase \code{pdf} in small caps while the string copied is an
@@ -976,17 +903,21 @@ uppercase \code{PDF}.
 
 For this to work you need to use the \emph{package option} \option{accsupp},
 too, which will load the package \pkg{accsupp} if it isn't loaded by the user
-already.  Then the key \option{accsupp} will set the \code{ActualText}
+already.  Then the key \property{accsupp} will set the \code{ActualText}
 property of \cs*{BeginAccSupp}.  Please refer to \pkg{accsupp}'s documentation
 for details.  To see its effect copy \ac{pdf} and paste it into a text file.
 You should get uppercase letters instead of lowercase ones.
 
-\begin{options}
-  \keyval{accsupp}{text}
+\begin{properties}
+  \propval{accsupp}{text}
     Key for \cs{DeclareAcronym} to set the \code{ActualText} property of
     \cs*{BeginAccSupp} (see \pkg{accsupp}'s documentation for details) to be
     used for an acronym.  It only has an effect when the package option
     \option{accsupp} is used, too.
+\end{properties}
+\begin{options}
+  \keybool{accsupp}\Default{false}
+    Activate \acro's accessibility support.
 \end{options}
 
 \subsubsection{Tooltips}
@@ -1008,10 +939,10 @@ macro.
     the \acs{pdf}, the second being the tooltip description text.
 \end{options}
 
-For using this with acronyms they have a property \option{tooltip} which can
+For using this with acronyms they have a property \property{tooltip} which can
 be used inside \cs{DeclareAcronym} for specifying the description text of the
 tooltip.  If the \option{tooltip} package option is used but the property is
-not set for an acronym then the \option{long} property is used instead.
+not set for an acronym then the \property{long} property is used instead.
 
 If an acronym is used inside of another acronym then the tooltips of the
 ``inner'' acronyms are disabled.
@@ -1020,11 +951,11 @@ If an acronym is used inside of another acronym then the tooltips of the
 \acro\ has the package option \option{index}.  If it is used an index entry
 will be recorded every time an \emph{unstarred} acronym command is used.  The
 index entry will be \code{\meta{id}@\meta{short}},
-\code{\meta{sort}@\meta{short}} if the \option{sort} key has been set,
-\code{\meta{index-sort}@\meta{short}} if the \option{index-sort} has been set,
-or \meta{index} if the key \option{index} has been set for the specific
-acronym.  The short versions appearing there are formatted according to the
-chosen format of the corresponding acronym, of course.
+\code{\meta{sort}@\meta{short}} if the \property{sort} property has been set,
+\code{\meta{index-sort}@\meta{short}} if the property \property{index-sort}
+has been set, or \meta{index} if the property \property{index} has been set
+for the specific acronym.  The short versions appearing there are formatted
+according to the chosen format of the corresponding acronym, of course.
 
 This document demonstrates the feature.  You can find every acronym that has
 been declared in the index.  In order to allow flexibility the indexing
@@ -1085,13 +1016,19 @@ that, this fact shouldn't cause too much inconvenience.
 \section{Options and Customization}\label{sec:customization}
 \subsection{General Options}
 There are a few options which change the general behaviour of \acro.
-\default{Underlined} values are used if no value is given.
+\default{Underlined} values are used if no value is given. \acro's package
+options are best set onyl via the setup command:
+\begin{commands}
+  \command{acsetup}[\marg{options}]
+    Set up \acro.
+\end{commands}
+\begin{bewareofthedog}
+  They \emph{might} work as package options to \cs*{usepackage} as well but
+  \emph{I do not recommend it} and will likely remove this in a future
+  version~3 of \acro.
+\end{bewareofthedog}
+
 \begin{options}
-  %%
-  % \keychoice{version}{0,1}\Default{1}
-  %   Provide backwards compatibility for documents set with \acro\ in a version
-  %   prior to v1.0.
-  %%
   \keychoice{messages}{silent,loud}\Default{loud}
     Setting \keyis{messages}{silent} will turn all of \acro's error messages
     into warnings and all of \acro's warnings into info messages.  Be sure to
@@ -1153,12 +1090,12 @@ There are a few options which change the general behaviour of \acro.
     declaration.
   %%
   \keybool{display-foreign}\Default{true}
-    When set to \code{false} any \option{foreign} option is ignored and
+    When set to \code{false} any \property{foreign} property is ignored and
     foreign forms are not displayed.
   %%
   \keychoice{cite}{\default{all},first,none}\Default{first}
     \changedversion{2.4b}This option decides whether citations that are added
-    via \option{cite} are added to each first, every or no appearance of an
+    via \property{cite} are added to each first, every or no appearance of an
     acronym.  If \code{first} is chosen, the option \keyis{single}{true} is
     active and an acronym appears only once it still will get the citation.
   %%
@@ -1219,14 +1156,6 @@ There are a few options which change the general behaviour of \acro.
     If\sinceversion{2.10} set to \code{true} commands like \cs{Ac} or \cs{Acp}
     will uppercase the first letter of the short version.
 \end{options}
- 
-All options of this and the following sections can be set via the setup command:
-\begin{commands}
-  \command{acsetup}[\marg{options}]
-   Set up \acro\ anywhere in the document.  Or separate package loading from
-   setup.
-\end{commands}
-They might work as package options as well but \emph{I do not recommend it}. 
 
 \begin{example}
   % with \acsetup{macros}
@@ -1247,7 +1176,7 @@ possible output forms of the acronyms.
     The same for the long forms.
   %%
   \keyval{foreign-format}{format}\Default
-    The format for the \option{foreign} entry when it appears as part of the
+    The format for the \property{foreign} entry when it appears as part of the
     first appearance of an acronym.
   %%
   \keyval{single-format}{format}\Default
@@ -1274,7 +1203,7 @@ possible output forms of the acronyms.
     \option{long-format} after this one will overwrite it again.
   %%
   \keyval{list-foreign-format}{format}\Default{\cs{acroenparen}}
-    \label{key:list-foreign-format}The format for the \option{foreign} entry
+    \label{key:list-foreign-format}The format for the \property{foreign} entry
     as it appears in the list.  This may be code that ends with a macro that
     takes a mandatory argument.
   %%
@@ -1312,9 +1241,7 @@ possible output forms of the acronyms.
   long: \acf{ny} \\
   \acsetup{first-style=reversed}
   reversed: \acf{ny} \\
-  \acsetup{
-    first-style = footnote-reversed
-  }
+  \acsetup{first-style = footnote-reversed}
   footnote-reversed: \acf{ny}
 \end{example}
 
@@ -1803,14 +1730,14 @@ The command's syntax and what it does is as follows:
     \end{itemize}
     It also defines the acronym properties
     \begin{itemize}
-      \item \option*{short-\meta{name}},
-      \item \option*{short-\meta{name}-form},
-      \item \option*{alt-\meta{name}},
-      \item \option*{alt-\meta{name}-form},
-      \item \option*{long-\meta{name}},
-      \item \option*{long-\meta{name}-form},
-      \item \option*{foreign-\meta{name}} and
-      \item \option*{foreign-\meta{name}-form}.
+      \item \property*{short-\meta{name}},
+      \item \property*{short-\meta{name}-form},
+      \item \property*{alt-\meta{name}},
+      \item \property*{alt-\meta{name}-form},
+      \item \property*{long-\meta{name}},
+      \item \property*{long-\meta{name}-form},
+      \item \property*{foreign-\meta{name}} and
+      \item \property*{foreign-\meta{name}-form}.
     \end{itemize}
     Additionally it defines a setup macro as
     described in section~\vref{sec:defining-own-acronym},
