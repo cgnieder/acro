@@ -35,7 +35,7 @@
 
 \ExplSyntaxOn
 
-\tl_const:Nn \c_acro_date_tl                 {2020/01/05}
+\tl_const:Nn \c_acro_date_tl                 {2020/01/07}
 \tl_const:Nn \c_acro_version_major_number_tl {2}
 \tl_const:Nn \c_acro_version_minor_number_tl {11}
 \tl_const:Nn \c_acro_version_subrelease_tl   {}
@@ -153,6 +153,7 @@
 \cs_generate_variant:Nn \seq_gset_split:Nnn     {c}
 \cs_generate_variant:Nn \seq_set_split:Nnn      {NnV}
 \cs_generate_variant:Nn \seq_if_in:NnT          {NV}
+\cs_generate_variant:Nn \seq_if_in:NnTF         {Ne}
 \cs_generate_variant:Nn \prop_put:Nnn           {NnV,cnx,cnv}
 \cs_generate_variant:Nn \prop_get:NnNTF         {cnc}
 \cs_generate_variant:Nn \prop_get:NnNF          {cn,cnc}
@@ -162,78 +163,78 @@
 
 % --------------------------------------------------------------------------
 % variables:
-\bool_new:N      \l__acro_silence_bool
-\bool_new:N      \l__acro_mark_as_used_bool
-\bool_new:N      \g__acro_mark_first_as_used_bool
-\bool_new:N      \l__acro_use_single_bool
-\bool_new:N      \l__acro_print_only_used_bool
-\bool_set_true:N \l__acro_print_only_used_bool
-\bool_new:N      \l__acro_hyperref_loaded_bool
-\bool_new:N      \l__acro_use_hyperref_bool
-\bool_new:N      \l__acro_xspace_bool
-\bool_new:N      \l__acro_custom_short_format_bool
-\bool_new:N      \l__acro_custom_alt_format_bool
-\bool_new:N      \l__acro_custom_long_format_bool
-\bool_new:N      \l__acro_override_list_format_bool
-\bool_new:N      \l__acro_strict_bool
-\bool_new:N      \l__acro_create_macros_bool
-\bool_new:N      \l__acro_first_upper_bool
-\bool_new:N      \l__acro_upper_short_bool
-\bool_new:N      \l__acro_indefinite_bool
-\bool_new:N      \l__acro_upper_indefinite_bool
-\bool_new:N      \l__acro_foreign_bool
-\bool_set_true:N \l__acro_foreign_bool
-\bool_new:N      \l__acro_sort_bool
-\bool_set_true:N \l__acro_sort_bool
+\bool_new:N      \l__acro_acc_supp_bool
+\bool_new:N      \l__acro_addto_index_bool
 \bool_new:N      \l__acro_capitalize_list_bool
+\bool_new:N      \g__acro_case_insensitive_bool
 \bool_new:N      \l__acro_citation_all_bool
 \bool_new:N      \l__acro_citation_first_bool
 \bool_set_true:N \l__acro_citation_first_bool
-\bool_new:N      \l__acro_group_citation_bool
-\bool_new:N      \l__acro_acc_supp_bool
-\bool_new:N      \l__acro_tooltip_bool
-\bool_new:N      \l__acro_inside_tooltip_bool
-\bool_new:N      \l__acro_following_page_bool
-\bool_new:N      \l__acro_following_pages_bool
-\bool_new:N      \l__acro_addto_index_bool
-\bool_new:N      \l__acro_is_excluded_bool
-\bool_new:N      \l__acro_is_included_bool
-\bool_new:N      \l__acro_page_punct_bool
-\bool_new:N      \l__acro_page_brackets_bool
-\bool_new:N      \l__acro_page_display_bool
-\bool_new:N      \l__acro_new_page_numbering_bool
-\bool_new:N      \l__acro_first_use_brackets_bool
+\bool_new:N      \l__acro_create_macros_bool
+\bool_new:N      \l__acro_custom_alt_format_bool
+\bool_new:N      \l__acro_custom_long_format_bool
+\bool_new:N      \l__acro_custom_short_format_bool
+\bool_new:N      \l__acro_extra_punct_bool
+\bool_new:N      \l__acro_extra_use_brackets_bool
+\bool_new:N      \g__acro_first_acronym_declared_bool
+\bool_new:N      \l__acro_first_instance_bool
 \bool_new:N      \l__acro_first_only_short_bool
 \bool_new:N      \l__acro_first_only_long_bool
 \bool_new:N      \l__acro_first_reversed_bool
 \bool_new:N      \l__acro_first_switched_bool
-\bool_new:N      \l__acro_use_note_bool
-\bool_new:N      \l__acro_extra_punct_bool
-\bool_new:N      \l__acro_extra_use_brackets_bool
+\bool_new:N      \l__acro_first_use_brackets_bool
+\bool_new:N      \l__acro_first_upper_bool
+\bool_new:N      \l__acro_following_page_bool
+\bool_new:N      \l__acro_following_pages_bool
+\bool_new:N      \l__acro_foreign_bool
+\bool_set_true:N \l__acro_foreign_bool
+\bool_new:N      \l__acro_group_citation_bool
+\bool_new:N      \l__acro_hyperref_loaded_bool
+\bool_new:N      \l__acro_hyperref_use_bool
+\bool_new:N      \l__acro_include_endings_format_bool
+\bool_new:N      \l__acro_indefinite_bool
 \bool_new:N      \l__acro_in_list_bool
-\bool_new:N      \l__acro_place_label_bool
+\bool_new:N      \l__acro_is_included_bool
+\bool_new:N      \l__acro_is_excluded_bool
 \bool_new:N      \l__acro_list_all_pages_bool
 \bool_set_true:N \l__acro_list_all_pages_bool
-\bool_new:N      \g__acro_first_acronym_declared_bool
-\bool_new:N      \l__acro_include_endings_format_bool
 \bool_new:N      \l__acro_list_reverse_long_extra_bool
-\bool_new:N      \l__acro_use_acronyms_bool
-\bool_set_true:N \l__acro_use_acronyms_bool
-\bool_new:N      \g__acro_use_barriers_bool
-\bool_new:N      \g__acro_reset_at_barrier_bool
-\bool_new:N      \l__acro_use_barrier_bool
-\bool_new:N      \l__acro_trailing_tokens_bool
-\bool_new:N      \l__acro_first_instance_bool
-\bool_new:N      \l__acro_use_ending_form_bool
-\bool_new:N      \g__acro_rerun_bool
 \bool_new:N      \l__acro_log_acronyms_bool
 \bool_new:N      \l__acro_log_acronyms_verbose_bool
+\bool_new:N      \l__acro_mark_as_used_bool
+\bool_new:N      \g__acro_mark_first_as_used_bool
+\bool_new:N      \l__acro_override_list_format_bool
+\bool_new:N      \l__acro_page_brackets_bool
+\bool_new:N      \l__acro_page_display_bool
+\bool_new:N      \l__acro_page_punct_bool
+\bool_new:N      \l__acro_place_label_bool
+\bool_new:N      \l__acro_print_only_used_bool
+\bool_set_true:N \l__acro_print_only_used_bool
+\bool_new:N      \g__acro_rerun_bool
+\bool_new:N      \g__acro_reset_at_barrier_bool
+\bool_new:N      \l__acro_silence_bool
+\bool_new:N      \l__acro_single_use_bool
+\bool_new:N      \l__acro_sort_bool
+\bool_set_true:N \l__acro_sort_bool
+\bool_new:N      \l__acro_strict_bool
+\bool_new:N      \l__acro_trailing_tokens_bool
+\bool_new:N      \l__acro_tooltip_bool
+\bool_new:N      \l__acro_tooltip_inside_bool
+\bool_new:N      \l__acro_upper_indefinite_bool
+\bool_new:N      \l__acro_upper_short_bool
+\bool_new:N      \l__acro_use_acronyms_bool
+\bool_set_true:N \l__acro_use_acronyms_bool
+\bool_new:N      \l__acro_use_barrier_bool
+\bool_new:N      \g__acro_use_barriers_bool
+\bool_new:N      \l__acro_use_ending_form_bool
+\bool_new:N      \l__acro_use_note_bool
+\bool_new:N      \l__acro_xspace_bool
+
+\str_new:N \l__acro_current_id_str
 
 \tl_new:N  \l__acro_list_entries_tl
-\tl_new:N  \l_acro_current_id_tl
 \tl_new:N  \l__acro_endings_tl
 \tl_new:N  \l__acro_trailing_tokens_tl
-\tl_new:N  \l__acro_current_property_tl
 \tl_new:N  \l__acro_included_classes_tl
 \tl_new:N  \l__acro_excluded_classes_tl
 \tl_new:N  \l__acro_ignore_tl
@@ -521,6 +522,8 @@
     xspace            .bool_set:N = \l__acro_xspace_bool ,
     % xspace            .code:n     = \acro_option_deprecated:nn {xspace} {} ,
     strict            .bool_set:N = \l__acro_strict_bool ,
+    case-insensitive  .bool_set:N = \g__acro_case_insensitive_bool ,
+    case-insensitive  .initial:n  = false ,
     sort              .bool_set:N = \l__acro_sort_bool ,
     short-format      .code:n     =
       \tl_set:Nn \l__acro_short_format_tl {#1}
@@ -555,7 +558,7 @@
     override-list-format .initial:n  = true ,
     extra-format      .tl_set:N   = \l__acro_extra_format_tl ,
     extra-format      .value_required:n = true ,
-    single            .bool_set:N = \l__acro_use_single_bool ,
+    single            .bool_set:N = \l__acro_single_use_bool ,
     single-form       .tl_set:N   = \l__acro_single_form_tl ,
     single-form       .value_required:n = true ,
     first-style       .code:n     = \acro_set_first_style:n {#1} ,
@@ -596,7 +599,7 @@
     list-heading      .value_required:n = true ,
     list-name         .tl_set:N   = \l__acro_list_name_tl ,
     list-name         .value_required:n = true ,
-    hyperref          .bool_set:N = \l__acro_use_hyperref_bool ,
+    hyperref          .bool_set:N = \l__acro_hyperref_use_bool ,
     only-used         .bool_set:N = \l__acro_print_only_used_bool ,
     mark-as-used      .choice: ,
     mark-as-used / first .code:n  =
@@ -709,7 +712,7 @@
   {
     \bool_lazy_and:nnT
       { \l__acro_hyperref_loaded_bool }
-      { \l__acro_use_hyperref_bool }
+      { \l__acro_hyperref_use_bool }
       {
         \sys_if_engine_xetex:TF
           {
@@ -727,7 +730,7 @@
 \cs_new_protected:Npn \__acro_make_link:nn #1#2
   {
     \bool_lazy_and:nnTF
-      { \l__acro_use_hyperref_bool }
+      { \l__acro_hyperref_use_bool }
       { \l__acro_hyperref_loaded_bool }
       {
          \acro_hyper_link:nn {#1} { \phantom {#2} }
@@ -1520,7 +1523,7 @@
     \bool_lazy_or:nnTF
       {
         \bool_lazy_and_p:nn
-          { !\l__acro_use_single_bool }
+          { !\l__acro_single_use_bool }
           { !\l__acro_print_only_used_bool }
       }
       {
@@ -1530,13 +1533,13 @@
             \bool_lazy_or_p:nn
               {
                 \bool_lazy_and_p:nn
-                  { \l__acro_use_single_bool }
+                  { \l__acro_single_use_bool }
                   { \cs_if_exist_p:c {acro@#1@twice} }
               }
               {
                 \bool_lazy_all_p:n
                   {
-                    { !\l__acro_use_single_bool }
+                    { !\l__acro_single_use_bool }
                     { \cs_if_exist_p:c {acro@#1@once} }
                     { \l__acro_print_only_used_bool }
                   }
@@ -1850,6 +1853,28 @@
   }
 
 % --------------------------------------------------------------------------
+% case insensitivity of the ID:
+\cs_new:Npn \acro_case_insensitive:n #1
+  {
+    \bool_if:NTF \g__acro_case_insensitive_bool
+      { \str_lower_case:n {#1} }
+      { \tl_to_str:n {#1} }
+  }
+
+\cs_new_protected:Npn \acro_protected_case_insensitive:n #1
+  { \acro_case_insensitive:n {#1} }
+
+\cs_new:Npn \acro_case_insensitive:Nn #1#2
+  { \exp_args:Ne #1 { \acro_case_insensitive:n {#2} } }
+
+\cs_new:Npn \acro_case_insensitive:Nnn #1#2#3
+  { \exp_args:Ne #1 { \acro_case_insensitive:n {#2} } {#3} }
+
+\cs_new_protected:Npn \acro_case_insensitive_command:Nnnn #1#2#3#4
+  { \exp_args:Nnnx #1 {#2} {#3} { \acro_case_insensitive:n {#4} } }
+\cs_generate_variant:Nn \acro_case_insensitive_command:Nnnn {c}
+
+% --------------------------------------------------------------------------
 % automatic typesetting, the internals of \ac:
 % #1: id
 
@@ -1887,7 +1912,7 @@
     \acro_single_form:nV {#1} \l__acro_single_form_tl
     \acro_after:n {#1}
   }
-  
+
 % #1: ID
 % #2: long|first|<other>
 \cs_new_protected:Npn \acro_single_form:nn #1#2
@@ -1944,7 +1969,7 @@
 \prg_new_conditional:Npnn \acro_if_is_single:n #1 { p,T,TF }
   {
     \bool_lazy_or:nnTF
-      { !\l__acro_use_single_bool }
+      { !\l__acro_single_use_bool }
       { \cs_if_exist_p:c {acro@#1@twice} }
       { \prg_return_false: }
       { \prg_return_true: }
@@ -1957,7 +1982,8 @@
 % some helpers we'll need more often:
 \prg_new_conditional:Npnn \acro_if_defined:n #1 {p,T,F,TF}
   {
-    \seq_if_in:NnTF \g__acro_declared_acronyms_seq {#1}
+    \seq_if_in:NeTF \g__acro_declared_acronyms_seq
+      { \acro_case_insensitive:n {#1} }
       { \prg_return_true: }
       { \prg_return_false: }
   }
@@ -2965,10 +2991,10 @@
 % #2: tool tip text
 \cs_new_protected:Npn \__acro_check_tooltip:nn #1#2
   {
-    \bool_if:NTF \l__acro_inside_tooltip_bool
+    \bool_if:NTF \l__acro_tooltip_inside_bool
       {#1}
       {
-        \bool_set_true:N \l__acro_inside_tooltip_bool
+        \bool_set_true:N \l__acro_tooltip_inside_bool
         \__acro_tooltip_cmd:nn {#1} {#2}
       }
   }
@@ -3335,20 +3361,29 @@
     % #2: definition where `#1' refers to the ID
     \cs_new_protected:Npn #1 ##1##2
       {
-        \cs_set:Npn \__acro_tmp_command:n ####1 {##2}
-        \exp_args:NNnx #2 ##1 {sO{}m}
+        \cs_set:Npn \__acro_tmp:n ####1 {##2}
+        \cs_new_protected:cpx
+          {acro_ \__acro_remove_backslash:N ##1 :nnn} ####1####2####3
           {
             \acro_begin:
               \acro_reset_specials:
-              \tl_if_blank:nF {########2}
-                { \keys_set:nn {acro} {########2} }
-              \acro_check_and_mark_if:nn {########1} {########3}
-              \exp_not:o { \__acro_tmp_command:n {####3} }
+              \exp_not:N \tl_if_blank:nF {####2} { \keys_set:nn {acro} {####2} }
+              \acro_check_and_mark_if:nn {####1} {####3}
+              \__acro_tmp:n {####3}
             \acro_end:
+          }
+        #2 ##1 {sO{}m}
+          {
+            \acro_case_insensitive_command:cnnn
+              {acro_ \__acro_remove_backslash:N ##1 :nnn}
+              {####1}
+              {####2}
+              {####3}
           }
       }
   }
 \cs_generate_variant:Nn \acro_define_new_acro_command:NN {cc}
+\cs_generate_variant:Nn \acro_check_and_mark_if:nn {nx}
 
 % commands for (re)defining \acflike-like macros:
 \cs_new_protected:Npn \acro_define_new_acro_pseudo_command:NN #1#2
@@ -3357,14 +3392,23 @@
     % #2: definition where `#1' refers to the ID and `#2' to the pseudo long form
     \cs_new_protected:Npn #1 ##1##2
       {
-        \cs_set:Npn \__acro_tmp_command:nn ####1####2 {##2}
-        \exp_args:NNnx #2 ##1 {smm}
+        \cs_set:Npn \__acro_tmp:nn ####1####2 {##2}
+        \cs_new_protected:cpx
+          {acro_ \__acro_remove_backslash:N ##1 :nnn} ####1####2####3
           {
             \acro_begin:
               \acro_reset_specials:
-              \acro_check_and_mark_if:nn {########1} {########2}
-              \exp_not:o { \__acro_tmp_command:nn {####2} {####3} }
+              \acro_check_and_mark_if:nn {####1} {####3}
+              \__acro_tmp:nn {####3} {####2}
             \acro_end:
+          }
+        #2 ##1 {smm}
+          {
+            \acro_case_insensitive_command:cnnn
+              {acro_ \__acro_remove_backslash:N ##1 :nnn}
+              {####1}
+              {####3}
+              {####2}
           }
       }
   }
@@ -3558,7 +3602,7 @@
 % #2: property
 \cs_new_protected:Npn \__acro_property_check:nn #1#2
   {
-    \tl_if_blank:VT \l__acro_current_property_tl
+    \str_if_empty:NT \l__acro_current_id_str
       { \acro_serious_message:n {no-id} }
     \str_if_eq:nnF {#2} {short}
       {
@@ -3615,8 +3659,8 @@
     \keys_define:nn {acro/declare-acronym}
       {
         #2 .code:n =
-          \use:c {__acro_declare_#1:Vn} \l__acro_current_property_tl {##1}
-          \acro_property_mark_set:Vn \l__acro_current_property_tl {#2}
+          \use:c {__acro_declare_#1:Vn} \l__acro_current_id_str {##1}
+          \acro_property_mark_set:Vn \l__acro_current_id_str {#2}
       }
     \prop_gput:Nnn \g__acro_properties_prop {#2} {#1}
   }
@@ -3795,7 +3839,7 @@
 \keys_define:nn {acro/declare-acronym}
   {
     pdfstring    .code:n =
-      \__acro_declare_pdfstring:Vw \l__acro_current_property_tl #1 // \acro_stop:
+      \__acro_declare_pdfstring:Vw \l__acro_current_id_str #1 // \acro_stop:
   }
 
 \cs_new_protected:Npn \__acro_declare_pdfstring_alt:nw #1#2/#3/#4 \acro_stop:
@@ -3817,7 +3861,7 @@
 \keys_define:nn {acro/declare-acronym}
   {
     pdfstring-alt .code:n =
-      \__acro_declare_pdfstring_alt:Vw \l__acro_current_property_tl #1 // \acro_stop:
+      \__acro_declare_pdfstring_alt:Vw \l__acro_current_id_str #1 // \acro_stop:
   }
   
 % class:
@@ -3874,7 +3918,7 @@
   {
     cite .code:n =
       \__acro_declare_citation:Vw
-        \l__acro_current_property_tl #1 [\q_no_value][\q_no_value] \scan_stop: \acro_stop:
+        \l__acro_current_id_str #1 [\q_no_value][\q_no_value] \scan_stop: \acro_stop:
   }
 \prop_gput:Nnn \g__acro_properties_prop {cite} {cite}
   
@@ -3933,12 +3977,15 @@
 % --------------------------------------------------------------------------
 % internal acronym declaring function:
 \cs_new_protected:Npn \acro_declare_acronym:nn #1#2
+  { \acro_case_insensitive:Nnn \__acro_declare_acronym:nn {#1} {#2} }
+
+\cs_new_protected:Npn \__acro_declare_acronym:nn #1#2
   {
     \seq_gput_right:Nn \g__acro_declared_acronyms_seq {#1}
     \bool_gset_true:N \g__acro_first_acronym_declared_bool
-    \tl_set:Nn \l__acro_current_property_tl {#1}
+    \str_set:Nn \l__acro_current_id_str {#1}
     \acro_for_properties_do:n
-      { \bool_new:c {l__acro_#1_##1_set_bool} }
+      { \bool_new:c {l__acro_ \l__acro_current_id_str _##1_set_bool} }
     \keys_set:nn {acro/declare-acronym} {#2}
     \bool_new:c {g__acro_#1_first_use_bool}
     \bool_new:c {g__acro_#1_used_bool}
@@ -3950,7 +3997,7 @@
       { \bool_gset_true:c {g__acro_#1_in_list_bool} }
     \__acro_create_page_records:n {#1}
     \__acro_define_acronym_macro:n {#1}
-    \tl_clear:N \l__acro_current_property_tl
+    \str_clear:N \l__acro_current_id_str
     \acro_property_if_set:nnF {#1} {short}
       { \acro_serious_message:nnn {missing} {#1} {short} }
     \acro_property_if_set:nnF {#1} {long}
@@ -3958,6 +4005,7 @@
     \__acro_log_acronym:n {#1}
   }
 
+  
 % --------------------------------------------------------------------------
 % print the list:
 % #1: list of classes

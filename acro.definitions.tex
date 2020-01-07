@@ -109,6 +109,10 @@
   { \acro_declare_list_style:nnn {#1} {#2} {#3} }
 
 % --------------------------------------------------------------------------
+% endings:
+\ProvideAcroEnding {plural} {s} {s}
+
+% --------------------------------------------------------------------------
 % use acronyms:
 % automatic:
 \NewAcroCommand \ac
@@ -506,10 +510,6 @@
     table   = longtable ,
     reverse = true
   }
-
-% --------------------------------------------------------------------------
-% endings:
-\ProvideAcroEnding {plural} {s} {s}
 
 % --------------------------------------------------------------------------
 % register some tokens to be checked for:

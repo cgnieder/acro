@@ -272,10 +272,11 @@ feel free to contact me.
 2019/12/30 v2.10d - fix issue #76
                   - fix issue #141
 		  - fix issue #143
-2020/01/05 v2.11  - new commands \acpsingle and \Acpsingle
+2020/01/06 v2.11  - new commands \acpsingle and \Acpsingle
                   - fix issues with optional arguments of the `cite' property
 		  - new properties `before-citation' and `after-citation'
 		  - new options `config-file-name' and `config-file-extension'
+		  - new option `case-insensitive'
 		  - rename the manual file and use a dedicated class for the
                     manual
 		  - prefer lazy boolean evaluation when possible

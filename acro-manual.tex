@@ -1,5 +1,5 @@
-% arara: pdflatex: { interaction: nonstopmode }
-% arara: biber
+% !arara: pdflatex: { interaction: nonstopmode }
+% !arara: biber
 % arara: pdflatex: { interaction: nonstopmode }
 % arara: pdflatex: { interaction: nonstopmode }
 % arara: pdflatex: { interaction: nonstopmode }
@@ -299,6 +299,14 @@ documentation.
   \proplit-{cite}{\oarg{prenote}\oarg{postnote}\marg{citation keys}}
     A citation that is printed to the acronym according to an option explained
     later.
+  %% before-citation
+  \propval{before-citation}{code}
+    \meta{code}\sinceversion{2.11} is inserted directly before \property{cite}
+    and \emph{ony when} \property{cite} is used.
+  %% after-citation
+  \propval{after-citation}{code}
+    \meta{code}\sinceversion{2.11} is inserted directly after \property{cite}
+    and \emph{ony when} \property{cite} is used.
   %% short-format
   \propval{short-format}{\TeX{} code}
     The format used for the short form of the acronym.
@@ -2110,5 +2118,7 @@ letter (category code~11).
 }
 
 \printacronyms
+
+\printbibliography
 
 \end{document}

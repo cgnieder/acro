@@ -269,7 +269,12 @@
     \endcnltxcode
   }
 
-\RequirePackage{biblatex,csquotes,varioref}
+\RequirePackage[
+  backend=biber,
+  style=cnltx,
+  sortlocale=en_US,
+  indexing=cite]{biblatex}
+\RequirePackage{csquotes,varioref}
 \defbibheading{bibliography}{\section{References}}
 
 \RequirePackage[biblatex]{embrac}[2012/06/29]
