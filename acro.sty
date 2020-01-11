@@ -35,7 +35,7 @@
 
 \ExplSyntaxOn
 
-\tl_const:Nn \c_acro_date_tl                 {2020/01/07}
+\tl_const:Nn \c_acro_date_tl                 {2020/01/11}
 \tl_const:Nn \c_acro_version_major_number_tl {2}
 \tl_const:Nn \c_acro_version_minor_number_tl {11}
 \tl_const:Nn \c_acro_version_subrelease_tl   {}
@@ -166,7 +166,7 @@
 \bool_new:N      \l__acro_acc_supp_bool
 \bool_new:N      \l__acro_addto_index_bool
 \bool_new:N      \l__acro_capitalize_list_bool
-\bool_new:N      \g__acro_case_insensitive_bool
+\bool_new:N      \g__acro_case_sensitive_bool
 \bool_new:N      \l__acro_citation_all_bool
 \bool_new:N      \l__acro_citation_first_bool
 \bool_set_true:N \l__acro_citation_first_bool
@@ -522,8 +522,8 @@
     xspace            .bool_set:N = \l__acro_xspace_bool ,
     % xspace            .code:n     = \acro_option_deprecated:nn {xspace} {} ,
     strict            .bool_set:N = \l__acro_strict_bool ,
-    case-insensitive  .bool_set:N = \g__acro_case_insensitive_bool ,
-    case-insensitive  .initial:n  = false ,
+    case-sensitive    .bool_set:N = \g__acro_case_sensitive_bool ,
+    case-sensitive    .initial:n  = true ,
     sort              .bool_set:N = \l__acro_sort_bool ,
     short-format      .code:n     =
       \tl_set:Nn \l__acro_short_format_tl {#1}
@@ -1856,9 +1856,9 @@
 % case insensitivity of the ID:
 \cs_new:Npn \acro_case_insensitive:n #1
   {
-    \bool_if:NTF \g__acro_case_insensitive_bool
-      { \str_lower_case:n {#1} }
+    \bool_if:NTF \g__acro_case_sensitive_bool
       { \tl_to_str:n {#1} }
+      { \str_lower_case:n {#1} }
   }
 
 \cs_new_protected:Npn \acro_protected_case_insensitive:n #1

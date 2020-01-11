@@ -30,7 +30,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\ProvidesClass{acro-manual}[2020/01/05]
+\ProvidesClass{acro-manual}[2020/01/11]
 
 \LoadClass[load-preamble,add-index]{cnltx-doc}
 \RequirePackage{imakeidx}
@@ -39,7 +39,6 @@
 \usepackage{acro}
 \acsetup{
   single       = true ,
-  macros       = true ,
   accsupp      = true ,
   index        = true ,
   use-barriers = true ,
@@ -145,9 +144,36 @@
 \protected\def\@versionstar{\raisebox{-.25em}{*}}
 \newcommand\versionstar{\texorpdfstring{\@versionstar}{*}}
 
-\newcommand*\latin{\textit}
-
 \newcommand*\TF{\textcolor{red}{\uline{\code{\textcolor{cs}{\textit{TF}}}}}}
+
+\RequirePackage{fontawesome}
+\RequirePackage{datetime2}
+\DTMsetup{useregional=numeric,datesep=/}
+\newrobustcmd*\acro@add@version[2]{%
+  \csdef{ac@ver@#2}{%
+    \DTMdate{#1}%
+    \csgdef{ac@ver@#2used}{}%
+    \csdef{ac@ver@#2}{\DTMdate{#1}}%
+  }%
+}
+
+\newrobustcmd*\ac@date[1]{\ifcsdef{ac@ver@#1used}{}{ (\csuse{ac@ver@#1})}}
+\newrobustcmd*\ac@ifnew[1]{\ifcsstring{c_acro_version_tl}{#1}}
+\newrobustcmd*\ac@NEW{\faStarO\ New}
+
+\renewrobustcmd*\sinceversion[1]{%
+  \ac@ifnew{#1}%
+    {\cnltx@version@note{\textcolor{red}{\ac@NEW}}}%
+    {\cnltx@version@note{\GetTranslation{cnltx-introduced}~#1\ac@date{#1}}}%
+}
+\renewrobustcmd*\changedversion[1]{%
+  \cnltx@version@note{\GetTranslation{cnltx-changed}~#1\ac@date{#1}}%
+}
+
+\newnote*\sincechanged[2]{%
+  \GetTranslation{cnltx-introduced}~#1\ac@date{#1},
+  changed with version~#2\ac@date{#2}\ac@ifnew{#2}{ \ac@NEW}{}%
+}
 
 \RenewDocumentEnvironment{commands}{}
   {%
@@ -288,5 +314,76 @@
 \newcommand*\mailto[1]{\texttt{\href{mailto:#1}{#1}}}
 
 \ProvideAcroEnding {possessive} {'s} {'s}
+
+\acro@add@version{2012-06-22}{0.1}
+\acro@add@version{2012-06-23}{0.1a}
+\acro@add@version{2012-06-24}{0.1b}
+\acro@add@version{2012-06-24}{0.1c}
+\acro@add@version{2012-06-24}{0.2}
+\acro@add@version{2012-06-25}{0.2a}
+\acro@add@version{2012-06-25}{0.3}
+\acro@add@version{2012-06-27}{0.3a}
+\acro@add@version{2012-06-29}{0.3b}
+\acro@add@version{2012-07-16}{0.3c}
+\acro@add@version{2012-07-23}{0.3d}
+\acro@add@version{2012-07-24}{0.3e}
+\acro@add@version{2012-09-28}{0.4}
+\acro@add@version{2012-10-07}{0.4a}
+\acro@add@version{2012-11-30}{0.5}
+\acro@add@version{2012-12-14}{0.6}
+\acro@add@version{2013-01-02}{0.6a}
+\acro@add@version{2013-01-16}{1.0}
+\acro@add@version{2013-01-26}{1.1}
+\acro@add@version{2013-01-29}{1.1a}
+\acro@add@version{2013-02-09}{1.2}
+\acro@add@version{2013-04-04}{1.2a}
+\acro@add@version{2013-05-06}{1.3}
+\acro@add@version{2013-05-09}{1.3a}
+\acro@add@version{2013-05-30}{1.3b}
+\acro@add@version{2013-06-16}{1.3c}
+\acro@add@version{2013-07-08}{1.3d}
+\acro@add@version{2013-08-07}{1.3e}
+\acro@add@version{2013-08-27}{1.4}
+\acro@add@version{2013-09-02}{1.4a}
+\acro@add@version{2013-09-24}{1.4b}
+\acro@add@version{2013-11-04}{1.4c}
+\acro@add@version{2013-11-22}{1.4d}
+\acro@add@version{2013-12-18}{1.5}
+\acro@add@version{2015-02-26}{1.6}
+\acro@add@version{2015-04-08}{1.6a}
+\acro@add@version{2015-05-10}{1.6b}
+\acro@add@version{2015-08-16}{2.0}
+\acro@add@version{2015-08-25}{2.0a}
+\acro@add@version{2015-08-29}{2.0b}
+\acro@add@version{2015-09-05}{2.1}
+\acro@add@version{2015-10-03}{2.2}
+\acro@add@version{2016-01-07}{2.2a}
+\acro@add@version{2016-01-21}{2.2b}
+\acro@add@version{2016-02-02}{2.2c}
+\acro@add@version{2016-03-14}{2.3}
+\acro@add@version{2016-03-25}{2.4}
+\acro@add@version{2016-04-14}{2.4a}
+\acro@add@version{2016-05-03}{2.4b}
+\acro@add@version{2016-05-25}{2.5}
+\acro@add@version{2016-05-26}{2.5a}
+\acro@add@version{2016-05-30}{2.5b}
+\acro@add@version{2016-07-20}{2.6}
+\acro@add@version{2016-08-13}{2.6a}
+\acro@add@version{2016-08-13}{2.6b}
+\acro@add@version{2016-08-16}{2.6c}
+\acro@add@version{2016-08-30}{2.6d}
+\acro@add@version{2016-09-04}{2.6e}
+\acro@add@version{2017-01-22}{2.7}
+\acro@add@version{2017-02-09}{2.7a}
+\acro@add@version{2017-06-21}{2.7b}
+\acro@add@version{2017-08-28}{2.7c}
+\acro@add@version{2018-01-30}{2.8}
+\acro@add@version{2019-02-17}{2.9}
+\acro@add@version{2019-09-23}{2.10}
+\acro@add@version{2019-10-02}{2.10a}
+\acro@add@version{2019-10-06}{2.10b}
+\acro@add@version{2019-10-12}{2.10c}
+\acro@add@version{2019-12-30}{2.10d}
+\acro@add@version{2020-01-11}{2.11}
 
 \endinput
