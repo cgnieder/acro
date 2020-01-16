@@ -280,3 +280,4 @@ feel free to contact me.
 		  - rename the manual file and use a dedicated class for the
                     manual
 		  - prefer lazy boolean evaluation when possible
+2020/01/16 v2.11a - adapt to new l3text module

@@ -35,10 +35,10 @@
 
 \ExplSyntaxOn
 
-\tl_const:Nn \c_acro_date_tl                 {2020/01/11}
+\tl_const:Nn \c_acro_date_tl                 {2020/01/16}
 \tl_const:Nn \c_acro_version_major_number_tl {2}
 \tl_const:Nn \c_acro_version_minor_number_tl {11}
-\tl_const:Nn \c_acro_version_subrelease_tl   {}
+\tl_const:Nn \c_acro_version_subrelease_tl   {a}
 \tl_const:Nx \c_acro_version_number_tl
   {
     \c_acro_version_major_number_tl .
@@ -487,9 +487,8 @@
 \cs_new:Npn \acro_no_break: { \tex_penalty:D 10000 \scan_stop: }
 
 \cs_new_protected:Npn \__acro_first_upper_case:n #1
-  { \tl_upper_case:n { \tl_head:n {#1} } \tl_tail:n {#1} }
+  { \text_titlecase_first:n {#1} }
 \cs_generate_variant:Nn \__acro_first_upper_case:n {x}
-\cs_generate_variant:Nn \tl_mixed_case:n {x}
 
 \cs_new_eq:NN \acro_first_upper_case:n \__acro_first_upper_case:n
 
@@ -702,7 +701,7 @@
       }
   }
 \cs_generate_variant:Nn \acro_first_instance:nn {nV}
-  
+
 % --------------------------------------------------------------------------
 % hyperref support
 \cs_new_eq:NN \acro_hyper_target:nn \use_ii:nn
@@ -1858,7 +1857,7 @@
   {
     \bool_if:NTF \g__acro_case_sensitive_bool
       { \tl_to_str:n {#1} }
-      { \str_lower_case:n {#1} }
+      { \str_lowercase:n {#1} }
   }
 
 \cs_new_protected:Npn \acro_protected_case_insensitive:n #1
