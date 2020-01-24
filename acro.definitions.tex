@@ -519,6 +519,13 @@
 
 \acsetup { activate-trailing-tokens = dot }
 
+% some user macros:
+\cs_new_protected:Npn \acro_dot:
+  { \acro_if_trailing_tokens:nF {dot} {.\@} }
+
+\cs_new_protected:Npn \acro_space:
+  { \acro_if_trailing_tokens:nF {dash,babel-hyphen} { \c_space_tl } }
+
 % --------------------------------------------------------------------------
 % translations:
 % list name

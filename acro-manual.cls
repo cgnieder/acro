@@ -30,7 +30,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\ProvidesClass{acro-manual}[2020/01/11]
+\ProvidesClass{acro-manual}[2020/01/24]
 
 \LoadClass[load-preamble,add-index]{cnltx-doc}
 \RequirePackage{imakeidx}
@@ -385,5 +385,7 @@
 \acro@add@version{2019-10-12}{2.10c}
 \acro@add@version{2019-12-30}{2.10d}
 \acro@add@version{2020-01-11}{2.11}
+\acro@add@version{2020-01-16}{2.11a}
+\acro@add@version{2020-01-24}{2.11b}
 
 \endinput

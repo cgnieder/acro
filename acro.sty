@@ -35,10 +35,10 @@
 
 \ExplSyntaxOn
 
-\tl_const:Nn \c_acro_date_tl                 {2020/01/16}
+\tl_const:Nn \c_acro_date_tl                 {2020/01/24}
 \tl_const:Nn \c_acro_version_major_number_tl {2}
 \tl_const:Nn \c_acro_version_minor_number_tl {11}
-\tl_const:Nn \c_acro_version_subrelease_tl   {a}
+\tl_const:Nn \c_acro_version_subrelease_tl   {b}
 \tl_const:Nx \c_acro_version_number_tl
   {
     \c_acro_version_major_number_tl .
@@ -852,7 +852,7 @@
             { \l__acro_first_only_short_bool }
             {
               \group_begin:
-                \bool_set_false:N \l__acro_first_upper_bool
+                \acro_soft_upper:
                 \acro_write_compact:nn {#2} {short}
               \group_end:
             }
@@ -3193,13 +3193,6 @@
     deactivate-trailing-tokens .code:n =
       \clist_map_inline:nn {#1} { \acro_deactivate_trailing_token:n {##1} }
   }
-
-% some user macros:
-\cs_new_protected:Npn \acro_dot:
-  { \acro_if_trailing_tokens:nF {dot} {.\@} }
-
-\cs_new_protected:Npn \acro_space:
-  { \acro_if_trailing_tokens:nF {dash,babel-hyphen} { \c_space_tl } }
   
 % ---------------------------------------------------------------------------
 % reset outputs, they'll behave like the first time again (!not like the _only_

@@ -281,3 +281,4 @@ feel free to contact me.
                     manual
 		  - prefer lazy boolean evaluation when possible
 2020/01/16 v2.11a - adapt to new l3text module
+2020/01/24 v2.11b - fix issue #147
