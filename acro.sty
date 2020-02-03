@@ -35,10 +35,10 @@
 
 \ExplSyntaxOn
 
-\tl_const:Nn \c_acro_date_tl                 {2020/01/24}
+\tl_const:Nn \c_acro_date_tl                 {2020/02/03}
 \tl_const:Nn \c_acro_version_major_number_tl {2}
 \tl_const:Nn \c_acro_version_minor_number_tl {11}
-\tl_const:Nn \c_acro_version_subrelease_tl   {b}
+\tl_const:Nn \c_acro_version_subrelease_tl   {c}
 \tl_const:Nx \c_acro_version_number_tl
   {
     \c_acro_version_major_number_tl .
@@ -716,7 +716,7 @@
         \sys_if_engine_xetex:TF
           {
             \cs_set:Npn \acro_hyper_link:nn ##1##2
-              { \hyperlink { \XeTeXLinkBox {##1} } {##2} }
+              { \hyperlink {##1} { \XeTeXLinkBox {##2} } }
           }
           { \cs_set_eq:NN \acro_hyper_link:nn \hyperlink }
         \cs_set:Npn \acro_hyper_target:nn ##1##2

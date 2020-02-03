@@ -215,6 +215,7 @@
 \begingroup
 \catcode`\^^M=13
 \gdef\acroman@read@options#1#2^^M{%
+  \endgroup
   \ifblank{#2}{}{\acroman@read@options@#2}%
   #1%
   \XSIMfilewritestart*{\jobname.tmp}%
@@ -226,7 +227,6 @@
   {%
     \begingroup
     \acroman@readoptions{%
-      \endgroup
       \setlength\cnltx@sidebysidewidth
         {\dimexpr .45\columnwidth -\lst@xleftmargin -\lst@xrightmargin\relax}%
       \expanded{%
@@ -251,7 +251,6 @@
   {%
     \begingroup
     \acroman@readoptions{%
-      \endgroup
       \setlength\cnltx@sidebysidewidth
         {\dimexpr .45\columnwidth -\lst@xleftmargin -\lst@xrightmargin\relax}%
       \expanded{%
@@ -387,5 +386,6 @@
 \acro@add@version{2020-01-11}{2.11}
 \acro@add@version{2020-01-16}{2.11a}
 \acro@add@version{2020-01-24}{2.11b}
+\acro@add@version{2020-02-03}{2.11c}
 
 \endinput
