@@ -2117,7 +2117,7 @@
 % input
 % #1: ending
 % #2: id
-% #3: short|alt|long
+% #3: short|alt|long|foreign
 \cs_new_protected:Npn \__acro_set_ending_for:nnn #1#2#3
   {
     \acro_if_ending_form_exist:nnT {#1} {#3}
@@ -2665,6 +2665,7 @@
         \acro_property_get:nnT {#1} {foreign}
           {
             \group_begin:
+              \__acro_endings:nn {#1} {foreign}
               \tl_use:N \l__acro_foreign_format_tl
               {
                 \acro_foreign_language:VV
@@ -2676,7 +2677,7 @@
       }
   }
 
-\cs_new:Npn \acroenparen #1 { ( #1 ) }
+\cs_new:Npn \acroenparen #1 { (#1) }
 
 \cs_new_protected:Npn \acro_get_foreign:n #1
   {
