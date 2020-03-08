@@ -5,7 +5,7 @@ the ACRO package
 
 --------------------------------------------------------------------------
 Clemens Niederberger
-Web:    https://bitbucket.org/cgnieder/acro/
+Web:    https://github.com/cgnieder/acro/
 E-Mail: contact@mychemistry.eu
 --------------------------------------------------------------------------
 Copyright 2011--2020 Clemens Niederberger
@@ -137,41 +137,41 @@ feel free to contact me.
                   - change of expl3's tl uppercasing function (adapt to updates
                     of l3kernel and friends
                   - new package option `messages=silent|loud'
-                  - fix issue https://bitbucket.org/cgnieder/acro/issue/23/
-                  - fix issue https://bitbucket.org/cgnieder/acro/issue/24/
-                  - fix issue https://bitbucket.org/cgnieder/acro/issue/28/
+                  - fix issue https://github.com/cgnieder/acro/issue/23/
+                  - fix issue https://github.com/cgnieder/acro/issue/24/
+                  - fix issue https://github.com/cgnieder/acro/issue/28/
                   - drop support for version 0
 2015/04/08 v1.6a  - more generalized user command definitions, see
                     http://tex.stackexchange.com/q/236362/ for an application
 2015/05/10 v1.6b  - \ProcessKeysPackageOptions ,
                   - correct bug http://tex.stackexchange.com/q/236860/ :
                     option `pages = first' works again
-2015/08/16 v2.0   - fix https://bitbucket.org/cgnieder/acro/issue/36
-                  - implement https://bitbucket.org/cgnieder/acro/issue/39
-                  - implement https://bitbucket.org/cgnieder/acro/issue/40
+2015/08/16 v2.0   - fix https://github.com/cgnieder/acro/issue/36
+                  - implement https://github.com/cgnieder/acro/issue/39
+                  - implement https://github.com/cgnieder/acro/issue/40
                     (=> new option `group-cite-cmd')
-                  - add ideas for https://bitbucket.org/cgnieder/acro/issue/41
-                  - implement https://bitbucket.org/cgnieder/acro/issue/18
-                  - implement https://bitbucket.org/cgnieder/acro/issue/43
+                  - add ideas for https://github.com/cgnieder/acro/issue/41
+                  - implement https://github.com/cgnieder/acro/issue/18
+                  - implement https://github.com/cgnieder/acro/issue/43
                   - further generalization for defining user commands:
                     \NewAcroCommand, \NewPseudoAcroCommand and siblings
                   - bug fix in indefinite versions with first-upper
                   - add `short-<ending>-form' equivalent to
                     `long-<ending>-form'
-                    (https://bitbucket.org/cgnieder/acro/issue/44)
-                  - implement https://bitbucket.org/cgnieder/acro/issue/35
+                    (https://github.com/cgnieder/acro/issue/44)
+                  - implement https://github.com/cgnieder/acro/issue/35
                   - new option `single-form'
-2015/08/25 v2.0a  - fix https://bitbucket.org/cgnieder/acro/issue/38 and
-                    https://bitbucket.org/cgnieder/acro/issue/49
-2015/08/29 v2.0b  - fix https://bitbucket.org/cgnieder/acro/issue/44
-                  - fix https://bitbucket.org/cgnieder/acro/issue/45
-                  - implement https://bitbucket.org/cgnieder/acro/issue/42
+2015/08/25 v2.0a  - fix https://github.com/cgnieder/acro/issue/38 and
+                    https://github.com/cgnieder/acro/issue/49
+2015/08/29 v2.0b  - fix https://github.com/cgnieder/acro/issue/44
+                  - fix https://github.com/cgnieder/acro/issue/45
+                  - implement https://github.com/cgnieder/acro/issue/42
 2015/09/05 v2.1   - add list object type `list-of' that prints the list like a
                     toc or lof, new option `list-short-width',
                   - correct bug in the `plain' extra style
                   - implemented `tooltip' property
                   - remove \tl_to_lowercase:n
-2015/10/03 v2.2   - fix https://bitbucket.org/cgnieder/acro/issue/52
+2015/10/03 v2.2   - fix https://github.com/cgnieder/acro/issue/52
                   - fix typo in `list-of' object
                   - \DeclareAcroListStyle
                   - \DeclareAcroListHeading

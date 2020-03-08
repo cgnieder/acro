@@ -5,7 +5,7 @@
 % 
 % --------------------------------------------------------------------------
 % Clemens Niederberger
-% Web:    https://bitbucket.org/cgnieder/acro/
+% Web:    https://github.com/cgnieder/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
 % Copyright 2011--2020 Clemens Niederberger
@@ -51,7 +51,7 @@
   info     = {Typeset Acronyms and other Abbreviations} ,
   authors  = Clemens Niederberger ,
   email    = contact@mychemistry.eu ,
-  url      = https://bitbucket.org/cgnieder/acro/ ,
+  url      = https://github.com/cgnieder/acro/ ,
   abstract = {%
     \acro\ allows you to define and use abbreviations in a simple way.
     Abbreviations can be divided into different classes of abbreviations.
