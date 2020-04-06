@@ -6,14 +6,11 @@
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
 \usepackage[colorlinks]{hyperref}
-\usepackage{acro}
+\usepackage[version=3]{acro}
 
-\acsetup{
-  sort = true ,
-  page-style = comma ,
-  extra-style = paren ,
-  hyperref =true
-}
+\acsetup{ hyperref = true , pages / display = first }
+
+\RenewDocumentCommand \acropagefill {} {, }
 
 \DeclareAcronym{CDMA}{
   short            = CDMA ,

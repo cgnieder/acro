@@ -229,7 +229,7 @@
             \acroifanyT {foreign,extra} {)}
             \acroifpagesT
               {
-                \space \dotfill \space
+                \acropagefill
                 \acropages
                   { \acrotranslate {page} \nobreakspace }
                   { \acrotranslate {pages} \nobreakspace }
@@ -261,13 +261,13 @@
             \acroifT {extra}
               { \acrowrite {extra} }
             \acroifanyT {foreign,extra} {)}
-            % \acroifpagesT
-            %   {
-            %     \space \dotfill \space
-            %     \acropages
-            %       { \acrotranslate {page} \nobreakspace }
-            %       { \acrotranslate {pages} \nobreakspace }
-            %   }
+            \acroifpagesT
+              {
+                \acropagefill
+                \acropages
+                  { \acrotranslate {page} \nobreakspace }
+                  { \acrotranslate {pages} \nobreakspace }
+              }
             \tabularnewline
           }
       }

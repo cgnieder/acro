@@ -3,12 +3,9 @@
 \documentclass{scrartcl}
 \usepackage[T1]{fontenc}
 \usepackage[ngerman]{babel}
-\usepackage{acro}
-\acsetup{
-  page-style  = paren , % Seitennummer in Klammern
-  extra-style = comma , % extra-Informationen mit Komma anhängen
-  only-used   = false   % für das Beispiel auch die nicht verwendeten in die Liste aufnehmen
-}
+\usepackage[version=3]{acro}
+
+\acsetup{ list/display = all , pages/display = all}
 
 \usepackage{longtable,siunitx}
 
@@ -28,47 +25,63 @@
 \DeclareAcronym{ecdm}{
   short = ECDM ,
   long  = Electro Chemical Discharge Machining ,
-  extra = Kombination aus \acs{ecm} und \acs{edm}
+  extra = Kombination aus \acs*{ecm} und \acs*{edm}
 }
+
+\AcroDeclareProperty{unit}
 
 % "Acronyme" (tatsächlich physikalische Größen) einer speziellen Klasse:
 \DeclareAcronym{f}{
   short = \ensuremath{f} ,
   long  = Frequenz ,
-  extra = \si{\hertz} ,
+  unit  = \si{\hertz} ,
   class = physics
 }
 \DeclareAcronym{A}{
   short = \ensuremath{A} ,
   long  = Fläche ,
-  extra = \si{\metre^2} ,
+  unit  = \si{\metre^2} ,
   class = physics
 }
 \DeclareAcronym{C}{
   short = \ensuremath{C} ,
   long  = Kapazität ,
-  extra = \si{\farad} ,
+  unit  = \si{\farad} ,
   class = physics
 }
 \DeclareAcronym{F}{
   short = \ensuremath{F} ,
   long  = Kraft ,
-  extra = \si{\newton} ,
+  unit  = \si{\newton} ,
   class = physics
 }
 
-\DeclareAcroListStyle{physics}{extra-table}{
-  table   = longtable ,
-  table-spec = @{}lll@{\extracolsep{\fill}}l@{} ,
-  reverse = true ,
-  before =
-    \setlength\LTleft{0pt}%
-    \setlength\LTright{0pt}%
-    \acsetup{
-      extra-style = plain ,
-      page-style = plain ,
-      pages = all
+\AcroNewTemplate[list]{physics}{%
+  \def\TableCode{}%
+  \acronymsmapT{%
+    \AcroPutRight\TableCode{%
+      \def\AcronymID{##1}%
+      \acrowrite{short}%
+      &
+      \def\AcronymID{##1}%
+      \acrowrite{unit}%
+      &
+      \def\AcronymID{##1}%
+      \acrowrite{long}%
+      &
+      \def\AcronymID{##1}%
+      \acroifpagesT{\acropages{S. }{S. }}%
+      \tabularnewline
     }%
+  }%
+  \acroheading
+  \acropreamble
+  \par\noindent
+  \setlength\LTleft{0pt}%
+  \setlength\LTright{0pt}%
+  \begin{longtable}{@{}lll@{\extracolsep{\fill}}l@{}}
+    \TableCode
+  \end{longtable}
 }
 
 \begin{document}
@@ -80,10 +93,9 @@ zweites Mal: \ac{ecm}
 \ac{F}
 
 % % alle außer der Klasse 'physics' auflisten:
-\printacronyms[exclude-classes=physics, name=Abkürzungsverzeichnis]
+\printacronyms[exclude=physics]%, name=Abkürzungsverzeichnis]
 
 % nur die Klasse 'physics' auflisten:
-\acsetup{list-style = physics}
-\printacronyms[include-classes=physics, name=Formelverzeichnis]
+\printacronyms[template=physics, include=physics]%, name=Formelverzeichnis]
 
 \end{document}

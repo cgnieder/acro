@@ -146,6 +146,9 @@
 \NewDocumentCommand \acronymsmapF {+m+m}
   { \acronymsmapTF {#1} {} {#2} }
 
+\NewDocumentCommand \acronymsmap {+m}
+  { \acronymsmapTF {#1} {} {} }
+
 \NewDocumentCommand \acrowrite {m}
   { \acro_write:en { \AcronymID } {#1} }
 
@@ -198,6 +201,9 @@
 
 \NewDocumentCommand \acropages {mm}
   { \acro_print_pages:enn { \AcronymID } {#1} {#2} }
+
+\NewDocumentCommand \acropagefill {}
+  { \space \dotfill \space }
 
 \NewExpandableDocumentCommand \acroifpagesTF {}
   { \acro_if_pages:eTF { \AcronymID } }

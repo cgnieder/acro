@@ -36,14 +36,16 @@
 \RequirePackage{imakeidx}
 \RequirePackage[utf8]{inputenc}
 
-\usepackage{acro}
+\usepackage{acro,accsupp}
 \acsetup{
-  single       = true ,
-  accsupp      = true ,
-  index        = true ,
-  use-barriers = true ,
-  hyperref     = true ,
-  log          = true
+  single = true ,
+  index / use = true ,
+  hyperref = true ,
+  list / template = manual ,
+  list / heading = section ,
+  list / display = all ,
+  list / show-locale ,
+  pages / display = all
 }
 
 \setcnltx{
@@ -53,36 +55,18 @@
   email    = contact@mychemistry.eu ,
   url      = https://github.com/cgnieder/acro/ ,
   abstract = {%
-    \acro\ allows you to define and use abbreviations in a simple way.
-    Abbreviations can be divided into different classes of abbreviations.
-    Lists of abbreviations can be created (also of separate classes of
-    abbreviations) and printed wherever you want the lists to appear.\par
-    \acro\ provides an option \option{single} which ignores abbreviations that
-    are used only once in the whole document.\par
-    As an experimental feature \acro\ also offers the option \option{sort} which
-    automatically sorts the list created by \cs{printacronyms}.\par
-    \acro\ also has the feature of creating \emph{local} lists
+    \acro\ allows you to define and manage acronyms and abbreviations. It can
+    also be used for glossaries or nomenclatures.
   } ,
   add-cmds = {
-    ac, Ac, aca, Aca, acap, Acap, acbarrier, acdot, acf, Acf, acflike, acg,
-      acfp, Acfp, acfplike, aciftrailing, acl, Acl, aclp, Aclp, acp, Acp,
-      acpsingle, Acpsingle, AcroRegisterTrailing, acs, Acs, acsingle,
-      Acsingle, acsp, Acsp, acspace, acreset, acresetall, acsetup,
-    DeclareAcroCommand, DeclareAcronym, DeclareAcroExtraStyle,
-      DeclareAcroFirstStyle, DeclareAcroListHeading, 
-      DeclareAcroListStyle, DeclareAcroPageStyle, DeclarePseudoAcroCommand,
-    iac, Iac, iaca, Iaca, iacs, Iacs, iacl, Iacl, iacf, Iacf, iacflike,
-      Iacflike,
-    NewAcroCommand, NewPseudoAcroCommand,
-    printacronyms,
-    ProvideAcroCommand, ProvideAcroEnding, ProvidePseudoAcroCommand,
-    RenewAcroCommand, RenewPseudoAcroCommand
+    ac, Ac, acf, Acf, acl, Acl, acs, Acs,
+    DeclareAcronym,
   } ,
   add-silent-cmds = {
-    addcolon, DeclareInstance, babelhyphen, ExplSyntaxOff, ExplSyntaxOn, nato,
-    NewDocumentCommand, newlist, ny, setlist
   } ,
-  index-setup = { level = \section , headers={\indexname}{\indexname} }
+  index-setup = {
+    level = \section , headers={\indexname}{\indexname} , noclearpage
+  }
 }
 
 \colorlet{property}{blue}
@@ -312,7 +296,27 @@
 \newcommand*\h[1]{\textcolor{cnltx}{\textbf{#1}}}
 \newcommand*\mailto[1]{\texttt{\href{mailto:#1}{#1}}}
 
-\ProvideAcroEnding {possessive} {'s} {'s}
+\AcroDeclareEnding {possessive} {'s} {'s}
+
+\AcroNewTemplate[list]{manual}{%
+  \acroheading
+  \acropreamble
+  \begin{description}
+    \acronymsmapF{%
+      \item[\acrowrite{short}\acroifT{alt}{/\acrowrite{alt}}]%
+        \acrowrite{long}%
+        \acroifanyT{foreign,extra}{ (}%
+        \acroifT{foreign}{%
+          \acrowrite{foreign}%
+          \acroifT{extra}{, }%
+        }%
+        \acroifT{extra}{\acrowrite{extra}}%
+        \acroifanyT{foreign,extra}{)}%
+        \acroifpagesT{ \dotfill\acropages{}{}}%
+    }%
+    { \item \AcroRerun{list} }%
+  \end {description}
+}
 
 \acro@add@version{2012-06-22}{0.1}
 \acro@add@version{2012-06-23}{0.1a}
@@ -387,5 +391,6 @@
 \acro@add@version{2020-01-16}{2.11a}
 \acro@add@version{2020-01-24}{2.11b}
 \acro@add@version{2020-02-03}{2.11c}
+\acro@add@version{2020-04-06}{v3.0alpha}
 
 \endinput

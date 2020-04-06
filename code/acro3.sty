@@ -1,0 +1,196 @@
+% --------------------------------------------------------------------------
+% the ACRO package
+% 
+%   Typeset Acronyms
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011--2020 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% The acro package consists of the files
+% - acro.sty, acro.definitions.tex, acro.cfg
+% - acro-manual.tex, acro-manual.pdf, acro-manual.cls
+% - acro.history, README
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+\RequirePackage{expl3,xparse,l3keys2e}
+\ExplSyntaxOn
+
+% setup package:
+\tl_const:Nn \c_acro_date_tl {2020/04/06}
+\tl_const:Nn \c_acro_version_major_number_tl {3}
+\tl_const:Nn \c_acro_version_minor_number_tl {0}
+\tl_const:Nn \c_acro_version_subrelease_tl   {alpha}
+\tl_const:Nx \c_acro_version_number_tl
+  {
+    \c_acro_version_major_number_tl .
+    \c_acro_version_minor_number_tl
+  }
+\tl_const:Nx \c_acro_version_tl
+  {
+    \c_acro_version_number_tl
+    \c_acro_version_subrelease_tl
+  }
+\tl_const:Nn \c_acro_info_tl {Typeset~ Acronyms}
+
+\ProvidesExplPackage
+  {acro3}
+  {\c_acro_date_tl}
+  {\c_acro_version_tl}
+  {\c_acro_info_tl}
+
+% ----------------------------------------------------------------------------
+% temporary variables:
+\tl_new:N \l__acro_tmpa_tl
+\tl_new:N \l__acro_tmpb_tl
+\tl_new:N \l__acro_tmpc_tl
+% \tl_new:N \l__acro_tmpd_tl
+
+\str_new:N \l__acro_tmpa_str
+\str_new:N \l__acro_tmpb_str
+\str_new:N \l__acro_tmpc_str
+
+\bool_new:N \l__acro_tmpa_bool
+\bool_new:N \l__acro_tmpb_bool
+\bool_new:N \l__acro_tmpc_bool
+
+\seq_new:N \l__acro_tmpa_seq
+\seq_new:N \l__acro_tmpb_seq
+\seq_new:N \l__acro_tmpc_seq
+
+\int_new:N \l__acro_tmpa_int
+\int_new:N \l__acro_tmpb_int
+\int_new:N \l__acro_tmpc_int
+
+\clist_new:N \l__acro_tmpa_clist
+\clist_new:N \l__acro_tmpb_clist
+\clist_new:N \l__acro_tmpc_clist
+
+% --------------------------------------------------------------------------
+% document hooks:
+\tl_new:N \g_acro_end_document_hook_tl
+\tl_new:N \g_acro_begin_document_hook_tl
+
+\AtBeginDocument { \tl_use:N \g_acro_begin_document_hook_tl }
+\AtEndDocument   { \tl_use:N \g_acro_end_document_hook_tl }
+
+\cs_new_protected:Npn \acro_at_begin_document:n #1
+  { \tl_gput_right:Nn \g_acro_begin_document_hook_tl {#1} }
+
+\cs_new_protected:Npn \acro_at_end_document:n #1
+  { \tl_gput_right:Nn \g_acro_end_document_hook_tl {#1} }
+
+% --------------------------------------------------------------------------
+% load-time messages:
+\msg_new:nnn {acro} {load-time-option}
+  {
+    `#1'~ is~ a~ load-time~ option! \\
+    You~ cannot~ set~ it~ with~ \token_to_str:N \acsetup ! \\
+    You~ need~ to~ use~ \token_to_str:N \usepackage [#1] {acro} .
+  }
+
+% --------------------------------------------------------------------------
+% re-compile mechanism:
+\bool_new:N \g__acro_rerun_bool
+\str_new:N \g__acro_rerun_message_str
+
+\tl_const:Nn \l__acro_rerun_general_tl
+  { Rerun~ to~ get~ `acro'~ synchronized. }
+
+\tl_const:Nn \l__acro_rerun_property_tl
+  {
+    Acronym~ properties~ may~ have~ changed.~ Rerun~ to~ get~ them~
+    synchronized.
+  }
+
+\tl_const:Nn \l__acro_rerun_list_tl
+  {
+    Empty~ acronym~ list.~ If~ you~ have~ used~ acronyms~ then~ re-compile~
+    to~ get~ the~ list~ filled.~ Otherwise~ remove~ \token_to_str:N
+    \printacronyms
+  }
+
+\msg_new:nnn {acro} {rerun} { \use:c {l__acro_rerun_#1_tl} }
+
+\prg_new_conditional:Npnn \acro_if_rerun: {p,T,F,TF}
+  {
+    \bool_if:NTF \g__acro_rerun_bool
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+\cs_new_protected:Npn \acro_rerun:n #1
+  {
+    \bool_gset_true:N \g__acro_rerun_bool
+    \str_gput_right:Nn \g__acro_rerun_message_str {#1}
+  }
+
+\cs_new_protected:Npn \acro_do_rerun:
+  {
+    \acro_if_rerun:T
+      {
+        \str_case:VnF \g__acro_rerun_message_str
+          {
+            {property} { \msg_warning:nnn {acro} {rerun} {property} }
+            {list} { \msg_warning:nnn {acro} {rerun} {list} }
+          }
+          { \msg_warning:nnn {acro} {rerun} {general} }
+      }
+  }
+
+% --------------------------------------------------------------------------
+% debugging mechanism:
+\bool_new:N \g__acro_debug_bool
+
+\prg_new_conditional:Npnn \acro_if_debug: {p,T,F,TF}
+  {
+    \bool_if:NTF \g__acro_debug_bool
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+% --------------------------------------------------------------------------
+% load-time options:
+\keys_define:nn {acro/package}
+  {
+    debug   .bool_gset:N = \g__acro_debug_bool ,
+    debug   .initial:n   = false
+  }
+
+\ProcessKeysPackageOptions {acro/package}
+
+\keys_define:nn {acro/package}
+  {
+    debug   .code:n = \msg_error:nnn {acro} {load-time-option} {debug} ,
+    % TODO: check for any other given option
+  }
+
+% --------------------------------------------------------------------------
+% load module mechanism:
+\tl_set:Nn \l__acro_tmpa_tl {code.tex}
+\@onefilewithoptions {acro.modules} [][] \l__acro_tmpa_tl
+
+\acro_module_load:n {definitions}
+
+% ----------------------------------------------------------------------------
+% house-keeping:
+\AtEndDocument { \acro_close_aux: \acro_do_rerun: }
+
+\file_input_stop:

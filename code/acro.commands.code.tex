@@ -154,8 +154,12 @@
 % #2: property
 \cs_new_protected:Npn \__acro_write:nn #1#2
   {
-    \__acro_accsupp:ee
-      { \__acro_write_acronym:nn {#1} {#2-acc} }
+    \acro_property_if_exist:nTF {#2-acc}
+      {
+        \__acro_accsupp:ee
+          { \__acro_write_acronym:nn {#1} {#2-acc} }
+          { \__acro_write_acronym:nn {#1} {#2} }
+      }
       { \__acro_write_acronym:nn {#1} {#2} }
   }
 
@@ -234,7 +238,13 @@
       }
       {
         \acro_if_first:nT {#2}
-          { \label { \l_acro_label_prefix_tl #2 } }
+          {
+            \acro_property_if_set:nnF {#2} {label}
+              {
+                \acro_property_set:nnn {#2} {label} {#2}
+                \label { \l_acro_label_prefix_tl #2 }
+              }
+          }
       }
     \bool_if:nF {#1}
       {
