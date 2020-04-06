@@ -1,0 +1,192 @@
+% ----------------------------------------------------------------------------
+% the ACRO package - base module
+% 
+%   Typeset Acronyms
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011--2020 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+\ACROmodule{base}{basic functionality of the package}
+
+% --------------------------------------------------------------------------
+% variants of kernel functions:
+\cs_generate_variant:Nn \bool_lazy_any:nTF {e}
+\cs_generate_variant:Nn \bool_lazy_all:nTF {e}
+\cs_generate_variant:Nn \seq_gset_split:Nnn {cVx}
+\cs_generate_variant:Nn \seq_use:Nn {cV}
+\cs_generate_variant:Nn \seq_set_split:Nnn {Nnx}
+\cs_generate_variant:Nn \seq_if_in:NnTF {Ne}
+\cs_generate_variant:Nn \seq_if_in:NnF {ceF}
+\cs_generate_variant:Nn \seq_gremove_all:Nn {cV}
+\cs_generate_variant:Nn \seq_put_right:Nn {Ne}
+\cs_generate_variant:Nn \seq_gput_right:Nn {Ne,ce}
+\cs_generate_variant:Nn \int_set:Nn {Nx}
+\cs_generate_variant:Nn \tl_set:Nn {Ne}
+\cs_generate_variant:Nn \clist_set:Nn {Ne}
+\cs_generate_variant:Nn \str_if_eq:nnT {x}
+\cs_generate_variant:Nn \str_fold_case:n {e}
+\cs_generate_variant:Nn \str_lowercase:n {e}
+\cs_generate_variant:Nn \msg_error:nnnnn {nnnxx}
+\cs_generate_variant:Nn \msg_warning:nn {nV}
+\cs_generate_variant:Nn \prg_new_conditional:Npnn {c}
+\cs_generate_variant:Nn \file_get_mdfive_hash:nN {V}
+\cs_generate_variant:Nn \iow_open:Nn {NV}
+\cs_generate_variant:Nn \use_ii:nn {ne}
+
+% --------------------------------------------------------------------------
+\prg_new_conditional:Npnn \acro_package_if_loaded:n #1 {p,T,F,TF}
+  {
+    \cs_if_exist:cTF {ver@#1.sty}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+\prg_new_conditional:Npnn \acro_class_if_loaded:n #1 {p,T,F,TF}
+  {
+    \cs_if_exist:cTF {ver@#1.cls}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+\prg_new_conditional:Npnn \acro_if_komascript: {p,T,F,TF}
+  {
+    \cs_if_exist:NTF \KOMAClassName
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+% --------------------------------------------------------------------------
+% attributes instead of property lists:
+\msg_new:nnn {acro} {attribute-not-set}
+  { The~ attribute~ `#1'~ is~ not~ set~ \msg_line_context: }
+
+\msg_new:nnn {acro} {attribute-defined}
+  { The~ attribute~ `#1'~ is~ already~ defined~ \msg_line_context: }
+
+\msg_new:nnn {acro} {attribute-undefined}
+  { The~ attribute~ `#1'~ is~ not~ yet~ defined~ \msg_line_context: }
+
+\seq_new:N \g__acro_attributes_seq
+
+\prg_new_conditional:Npnn \acro_attribute_if_exist:n #1 {p,T,F,TF}
+  {
+    \cs_if_exist:cTF {____acro_attribute_main_ \tl_to_str:n {#1} :}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+% #1: attribute
+\cs_new_protected:Npn \acro_attribute_new:n #1
+  {
+    \acro_attribute_if_exist:nTF {#1}
+      { \msg_error:nnn {acro} {attribute-defined} {#1} }
+      { \cs_gset:cpx {____acro_attribute_main_ \tl_to_str:n {#1} :} {} }
+  }
+  
+% #1: attribute
+% #2: item
+% #3: value
+\cs_new_protected:Npn \acro_attribute_set:nnn #1#2#3
+  {
+    \acro_attribute_if_exist:nTF {#1}
+      {
+        \cs_gset:cpx
+          {____acro_attribute_ \tl_to_str:n {#1::#2} :}
+          { \exp_not:n { \exp_not:n {#3} } }
+      }
+      { \msg_error:nnn {acro} {attribute-undefined} {#1} }
+  }
+\cs_generate_variant:Nn \acro_attribute_set:nnn {nnx}
+
+% #1: attribute
+% #2: item
+\cs_new_protected:Npn \acro_attribute_unset:nn #1#2
+  { \cs_undefine:c {____acro_attribute_ \tl_to_str:n {#1::#2} :} }
+  
+% #1: attribute
+% #2: item
+\cs_new:Npn \acro_attribute_get:nn #1#2
+  {
+    \acro_attribute_if_exist:nTF {#1}
+      {
+        \cs_if_exist:cTF {____acro_attribute_ \tl_to_str:n {#1::#2} :}
+          { \use:c {____acro_attribute_ \tl_to_str:n {#1::#2} :} }
+          {
+            \acro_if_debug:T
+              { \msg_expandable_error:nnn {acro} {attribute-not-set} {#1::#2} }
+          }
+      }
+      { \msg_expandable_error:nnn {acro} {attribute-undefined} {#1} }
+  }
+\cs_generate_variant:Nn \acro_attribute_get:nn {ne}
+
+% #1: attribute
+% #2: item
+\prg_new_conditional:Npnn \acro_attribute_if_set:nn #1#2 {p,T,F,TF}
+  {
+    \acro_attribute_if_exist:nTF {#1}
+      {
+        \cs_if_exist:cTF {____acro_attribute_ \tl_to_str:n {#1::#2} :}
+          { \prg_return_true: }
+          { \prg_return_false: }
+      }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \acro_attribute_if_set:nn {ne} {p,T,F,TF}
+
+% #1: attribute
+% #2: item
+\prg_new_conditional:Npnn \__acro_if_attribute_eq:nnn #1#2#3 {p,T,F,TF}
+  {
+    \tl_if_eq:enTF
+      { \use:c {____acro_attribute_ \tl_to_str:n {#1::#2} :} }
+      {#3}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+% #1: attribute
+% #2: item
+\cs_new_protected:Npn \acro_attribute_show:nn #1#2
+  {
+    \acro_attribute_if_exist:nTF {#1}
+      {
+        \iow_term:n {}
+        \iow_term:x
+          {
+            \c_space_tl \c_space_tl
+            \tl_to_str:n {#1::#2}
+            \c_space_tl \c_space_tl == \c_space_tl \c_space_tl
+            {\use:c {____acro_attribute_ \tl_to_str:n {#1::#2} :}}
+          }
+        \iow_term:n {}
+      }
+      { \msg_error:nnn {acro} {attribute-undefined} {#1} }
+  }
+
+% ----------------------------------------------------------------------------
+% option setup:
+\cs_new_protected:Npn \acro_setup:n #1
+  { \keys_set:nn {acro} {#1} }
+
+% ----------------------------------------------------------------------------
+\file_input_stop:

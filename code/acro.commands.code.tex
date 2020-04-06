@@ -1,0 +1,320 @@
+% ----------------------------------------------------------------------------
+% the ACRO package - commands module
+% 
+%   Typeset Acronyms
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011--2020 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+\ACROmodule{commands}{frameworks for user commands}
+
+\acro_modules_load:n {acronyms,tools}
+
+% --------------------------------------------------------------------------
+% case insensitivity of the ID:
+\bool_new:N \g__acro_case_sensitive_bool
+
+\cs_new:Npn \acro_case_insensitive:n #1
+  {
+    \bool_if:NTF \g__acro_case_sensitive_bool
+      { \tl_to_str:n {#1} }
+      { \str_lowercase:n {#1} }
+  }
+
+\cs_new_protected:Npn \acro_protected_case_insensitive:n #1
+  { \acro_case_insensitive:n {#1} }
+
+\cs_new:Npn \acro_case_insensitive:Nn #1#2
+  { \exp_args:Ne #1 { \acro_case_insensitive:n {#2} } }
+
+\keys_define:nn {acro}
+  {
+    case-sensitive .bool_set:N = \g__acro_case_sensitive_bool ,
+    case-sensitive .initial:n  = true ,
+  }
+
+% ----------------------------------------------------------------------------
+% typeset endings and ending forms:
+\bool_new:N \l__acro_include_endings_bool
+
+% #1: id
+% #2: property
+% #3: ending
+\cs_new:Npn \__acro_get_ending:nnn #1#2#3
+  {
+    \use:c {acro_if_#3:T}
+      { \acro_property_get:nn {#1} {#2-#3} }
+  }
+
+% #1: id
+% #2: property
+\cs_new:Npn \__acro_ending:nn #1#2
+  {
+    \seq_map_tokens:Nn \l__acro_endings_seq
+      { \__acro_get_ending:nnn {#1} {#2} }
+  }
+
+% #1: id
+% #2: property
+% #3: ending
+\cs_new:Npn \__acro_get_ending_form:nnn #1#2#3
+  {
+    \acro_property_if_set:nnT {#1} {#2-#3-form}
+      {
+        \use:c {acro_if_#3:T}
+          {
+            \acro_property_get:nn {#1} {#2-#3-form}
+            \seq_map_break:n { \use_ii:nnn }
+          }
+      }
+  }
+
+% #1: id
+% #2: property
+\cs_new:Npn \acro_ending_form:nnTF #1#2#3#4
+  {
+    \seq_map_tokens:Nn \l__acro_endings_seq
+      { \__acro_get_ending_form:nnn {#1} {#2} }
+    \use_ii:nn {#3} {#4}
+  }
+
+% #1: id
+% #2: property
+\cs_new:Npn \acro_ending_form:nnT #1#2#3
+  { \acro_ending_form:nnTF {#1} {#2} {#3} {} }
+
+% #1: id
+% #2: property
+\cs_new:Npn \acro_ending_form:nnF #1#2#3
+  { \acro_ending_form:nnTF {#1} {#2} {} {#3} }
+
+% #1: id
+% #2: property
+\cs_new:Npn \acro_ending_form:nn #1#2
+  { \acro_ending_form:nnTF {#1} {#2} {} {} }
+
+% #1: id
+% #2: property
+% #3: ending
+\cs_new:Npn \__acro_check_ending_form:nnn #1#2#3
+  {
+    \acro_property_if_set:nnT {#1} {#2-#3-form}
+      { \use:c {acro_if_#3:T} { \seq_map_break:n { \use_ii:nnn } } }
+  }
+
+% #1: id
+% #2: property
+\cs_new:Npn \acro_if_ending_form:nnTF #1#2#3#4
+  {
+    \seq_map_tokens:Nn \l__acro_endings_seq
+      { \__acro_check_ending_form:nnn {#1} {#2} }
+    \use_ii:nn {#3} {#4}
+  }
+
+% #1: id
+% #2: property
+\cs_new:Npn \acro_if_ending_form:nnT #1#2#3
+  { \acro_if_ending_form:nnTF {#1} {#2} {#3} {} }
+
+% #1: id
+% #2: property
+\cs_new:Npn \acro_if_ending_form:nnF #1#2#3
+  { \acro_if_ending_form:nnTF {#1} {#2} {} {#3} }
+
+% --------------------------------------------------------------------------
+% typeset acronyms:
+% #1: id
+% #2: property
+\cs_new:Npn \__acro_indefinite:nn #1#2
+  {
+    \bool_if:NT \l__acro_indefinite_bool
+      { \acro_property_get:nn {#1} {#2-indefinite} \c_space_tl }
+  }
+
+% #1: id
+% #2: property
+\cs_new_protected:Npn \__acro_write:nn #1#2
+  {
+    \__acro_accsupp:ee
+      { \__acro_write_acronym:nn {#1} {#2-acc} }
+      { \__acro_write_acronym:nn {#1} {#2} }
+  }
+
+% #1: id
+% #2: property
+\cs_new:Npn \__acro_write_acronym:nn #1#2
+  {
+    \acro_if_ending_form:nnTF {#1} {#2}
+      { \__acro_upper:n { \acro_ending_form:nn {#1} {#2} } }
+      {
+        \__acro_upper:n
+          {
+            \__acro_indefinite:nn {#1} {#2}
+            \acro_property_get:nn {#1} {#2}
+          }
+      }
+  }
+
+% #1: id
+% #2: property
+\cs_new_protected:Npn \acro_write:nn #1#2
+  {
+    \group_begin:
+      \acro_if_short:nT {#2} { \acro_soft_upper: }
+      \__acro_make_link:nnn {#1} {#2}
+        {
+          \__acro_format:nnn {#1} {#2}
+            {
+              \acro_locale:nnn {#1} {#2}
+                {
+                  \__acro_write:nn {#1} {#2}
+                  \bool_if:NT \l__acro_include_endings_bool
+                    { \__acro_ending:nn {#1} {#2} }
+                }
+            }
+        }
+    \group_end:
+    \acro_if_ending_form:nnF {#1} {#2}
+      {
+        \bool_if:NF \l__acro_include_endings_bool
+          { \__acro_ending:nn {#1} {#2} }
+      }
+    \bool_set_false:N \l__acro_upper_bool
+  }
+\cs_generate_variant:Nn \acro_write:nn {e}
+
+\keys_define:nn {acro}
+  {
+    include-endings        .bool_set:N = \l__acro_include_endings_bool ,
+    include-endings        .initial:n  = true ,
+    format-include-endings .meta:n = { include-endings = #1 }
+  }
+
+
+% --------------------------------------------------------------------------
+% #1: boolean
+% #2: id
+\cs_new_protected:Npn \acro_finalize:nn #1#2
+  {
+    \bool_lazy_all:nT
+      {
+        { !#1 }
+        { !\g__acro_cited_bool }
+        { \l__acro_use_bool }
+      }
+      {
+        \acro_if_first:nT {#2}
+          { \acro_cite:nn { \nobreakspace } {#2} }
+      }
+    \acro_property_get:nn {#2} {post}
+    \bool_lazy_all:nT
+      {
+        { \l__acro_label_bool }
+        { !#1 }
+        { \l__acro_use_bool }
+      }
+      {
+        \acro_if_first:nT {#2}
+          { \label { \l_acro_label_prefix_tl #2 } }
+      }
+    \bool_if:nF {#1}
+      {
+        \acro_use:n {#2}
+        \acro_record_page:n {#2}
+        \acro_record_barrier:n {#2}
+        \acro_index:n {#2}
+      }
+  }
+\cs_generate_variant:Nn \acro_finalize:nn {ne}
+
+% --------------------------------------------------------------------------
+% define acronym typesetting commands:
+% #1: csname
+% #2: csname
+% #3: action
+\cs_new_protected:Npn \acro_new_definition_command:NNn #1#2#3
+  {
+    % ##1: csname
+    % ##2: arg spec
+    % ##3: code with arg numbers n=n+2
+    \cs_new_protected:cpn {acro_command_#3:Nnn} ##1##2##3
+      {
+        \tl_set:Nn \l__acro_tmpa_tl {##3}
+        \regex_replace_all:nnN {\cP\#7} {\cP\#9} \l__acro_tmpa_tl
+        \regex_replace_all:nnN {\cP\#6} {\cP\#8} \l__acro_tmpa_tl
+        \regex_replace_all:nnN {\cP\#5} {\cP\#7} \l__acro_tmpa_tl
+        \regex_replace_all:nnN {\cP\#4} {\cP\#6} \l__acro_tmpa_tl
+        \regex_replace_all:nnN {\cP\#3} {\cP\#5} \l__acro_tmpa_tl
+        \regex_replace_all:nnN {\cP\#2} {\cP\#4} \l__acro_tmpa_tl
+        \regex_replace_all:nnN {\cP\#1} {\cP\#3} \l__acro_tmpa_tl
+        \use:x
+          {
+            \exp_not:n { #2 ##1 {so##2} }
+              {
+                \acro_begin:
+                  % setup:
+                  \exp_not:n
+                    {
+                      \IfNoValueF { \keys_set:nn {acro} {####2} }
+                      \acro_check_definition:n {####3}
+                      \tl_set:Ne \AcronymID { \acro_case_insensitive:n {####3} }
+                      \tl_set:Ne \l_acro_id_tl { \acro_case_insensitive:n {####3} }
+                    }
+                  % the actual code:
+                  \exp_not:V \l__acro_tmpa_tl
+                  % finalize:
+                  \exp_not:n
+                    {
+                      \acro_finalize:ne
+                        {####1}
+                        { \acro_case_insensitive:n {####3} }
+                    }
+                \acro_end:
+              }
+          }
+      }
+    \NewDocumentCommand #1 {mm+m}
+      { \use:c {acro_command_#3:Nnn} ##1 {##2} {##3} }
+  }
+
+\acro_new_definition_command:NNn
+  \NewAcroCommand
+  \NewDocumentCommand
+  {new}
+
+\acro_new_definition_command:NNn
+  \RenewAcroCommand
+  \RenewDocumentCommand
+  {renew}
+
+\acro_new_definition_command:NNn
+  \DeclareAcroCommand
+  \DeclareDocumentCommand
+  {declare}
+
+\acro_new_definition_command:NNn
+  \ProvideAcroCommand
+  \ProvideDocumentCommand
+  {provide}
+
+% --------------------------------------------------------------------------
+\file_input_stop:

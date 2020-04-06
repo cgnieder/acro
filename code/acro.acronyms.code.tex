@@ -1,0 +1,365 @@
+% ----------------------------------------------------------------------------
+% the ACRO package - acronyms module
+% 
+%   Typeset Acronyms
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011--2020 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+\ACROmodule{acronyms}{define acronyms}
+
+\acro_modules_load:n {properties}
+
+% --------------------------------------------------------------------------
+\msg_new:nnn {acro} {undefined}
+  {
+    You've~ requested~ acronym~ `#1'~ \msg_line_context: \ but~ you~
+    apparently~ haven't~ defined~ it,~ yet! \\
+    Maybe~ you've~ misspelled~ `#1'?
+  }
+
+\msg_new:nnn {acro} {mandatory}
+  {
+    You~ forgot~ to~ set~ the~ mandatory~ property~ `#2'~ for~ acronym~
+    `#1'~ \msg_line_context:
+  }
+
+% --------------------------------------------------------------------------
+% short and long list:
+\seq_new:N \l__acro_short_seq
+\seq_new:N \l__acro_long_seq
+
+\cs_new_protected:Npn \acro_list_add:nn #1#2
+  {
+    \clist_map_inline:nn {#2}
+      {
+        \seq_put_right:cn {l__acro_#1_seq} {##1}
+        \cs_set:cpn {____acro_#1::##1____:} {}
+      }
+  }
+
+\cs_new_protected:Npn \acro_list_remove:nn #1#2
+  {
+    \clist_map_inline:nn {#2}
+      {
+        \seq_remove_all:cn {l__acro_#1_seq} {##1}
+        \cs_undefine:c {____acro_#1::##1____:}
+      }
+  }
+
+\cs_new_protected:Npn \acro_list_map:nn #1#2
+  { \seq_map_inline:cn {l__acro_#1_seq} {#2} }
+
+\prg_new_conditional:Npnn \acro_if_short:n #1 {p,T,F,TF}
+  {
+    \cs_if_exist:cTF {____acro_short::#1____:}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+\prg_new_conditional:Npnn \acro_if_long:n #1 {p,T,F,TF}
+  {
+    \cs_if_exist:cTF {____acro_long::#1____:}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+  
+\acro_list_add:nn {short} {short,alt}
+\acro_list_add:nn {long}  {long,foreign,single,extra}
+
+% --------------------------------------------------------------------------
+% define necessary properties:
+\NewDocumentCommand \AcroDeclareProperty {st?t!t|m}
+  { \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5} }
+
+\NewDocumentCommand \AcroDeclarePropertyAlias {st?t!t|mm}
+  {
+    \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5}
+    \acro_property_make_alias:nn {#5} {#6}
+  }
+
+% meta information:
+\AcroDeclareProperty*!{id}
+\AcroDeclareProperty ?{used}
+\AcroDeclareProperty |{usage}
+\AcroDeclareProperty |{pages}
+\AcroDeclareProperty |{barriers}
+
+% main properties:
+\AcroDeclareProperty !{short}
+\AcroDeclareProperty  {alt}
+\AcroDeclareProperty !{long}
+
+% sorting, indexing, ... :
+\AcroDeclarePropertyAlias {sort}       {short}
+\AcroDeclareProperty      {index}
+\AcroDeclarePropertyAlias {index-sort} {sort}
+\AcroDeclarePropertyAlias {single}     {long}
+\AcroDeclarePropertyAlias {pdfstring}  {short}
+\AcroDeclareProperty      {pdfcomment}
+
+% locale:
+\AcroDeclareProperty {foreign}
+\AcroDeclareProperty {foreign-babel}
+\AcroDeclareProperty {foreign-locale}
+
+% indefinite articles:
+\AcroDeclareProperty {indefinite}
+
+% formatting:
+\AcroDeclareProperty {format}
+\AcroDeclarePropertyAlias {short-format} {format}
+\AcroDeclarePropertyAlias {alt-format}   {format}
+\AcroDeclareProperty {long-format}
+\AcroDeclareProperty {foreign-format}
+\AcroDeclarePropertyAlias {single-format} {long-format}
+\AcroDeclareProperty {extra-format}
+
+% additional properties:
+\AcroDeclareProperty {extra}
+\AcroDeclareProperty {post}
+\AcroDeclareProperty {first-style}
+\AcroDeclareProperty {class}
+\AcroDeclareProperty {cite}
+
+% Accessibility:
+\acro_list_map:nn {short}
+  {
+    \AcroDeclarePropertyAlias {#1-acc} {#1}
+    \acro_list_add:nn {short} {#1-acc}
+  }
+
+\AcroDeclarePropertyAlias {single-acc} {long-acc}
+\acro_list_map:nn {long}
+  {
+    \AcroDeclarePropertyAlias {#1-acc} {#1}
+    \acro_list_add:nn {long} {#1-acc}
+  }
+
+% indefinite article:
+\acro_list_map:nn {short}
+  { \AcroDeclarePropertyAlias {#1-indefinite} {indefinite} }
+
+\acro_list_map:nn {long}
+  { \AcroDeclarePropertyAlias {#1-indefinite} {indefinite} }
+
+% --------------------------------------------------------------------------
+% use id as short entry:
+\bool_new:N \g__use_id_bool
+
+\keys_define:nn {acro}
+  {
+    use-id-as-short         .choice: ,
+    use-id-as-short / true  .code:n =
+      \acro_property_make_alias:nn {short} {id}
+      \bool_gset_true:N \g__use_id_bool ,
+    use-id-as-short / false .code:n =
+      \bool_gset_false:N \g__use_id_bool ,
+    use-id-as-short         .default:n = true
+  }
+
+% --------------------------------------------------------------------------
+% mechanism for endings:
+\seq_new:N \l__acro_endings_seq
+
+\prop_new:N \l__acro_short_endings_prop
+\prop_new:N \l__acro_long_endings_prop
+
+\cs_new_protected:Npn \__acro_declare_ending_properties:n #1
+  {
+    \acro_property_declare:nnnnn
+      { \c_false_bool }
+      { \c_false_bool }
+      { \c_false_bool }
+      { \c_false_bool }
+      {#1}
+    \acro_property_declare:nnnnn
+      { \c_false_bool }
+      { \c_false_bool }
+      { \c_false_bool }
+      { \c_false_bool }
+      {#1-form}
+  }
+
+% #1: ending
+% #2: short default
+% #3: long default
+\cs_new_protected:Npn \acro_declare_ending:nnn #1#2#3
+  {
+    \bool_new:c {l__acro_#1_bool}
+    \cs_new_protected:cpn {acro_#1:} { \bool_set_true:c {l__acro_#1_bool} }
+    \exp_args:Nc \NewDocumentCommand {acro#1} {} { \use:c {acro_#1:} }
+    \prg_new_conditional:cpnn {acro_if_#1:} {p,T,F,TF}
+      {
+        \bool_if:cTF {l__acro_#1_bool}
+          { \prg_return_true: }
+          { \prg_return_false: }
+      }
+    \seq_put_right:Nn \l__acro_endings_seq {#1}
+    \prop_put:Nnn \l__acro_short_endings_prop {#1} {#2}
+    \prop_put:Nnn \l__acro_long_endings_prop {#1} {#3}
+    \__acro_declare_ending_properties:n {#1}% plural + plural-form
+    \acro_list_map:nn {short}
+      {
+        % short-plural + short-plural-form
+        \__acro_declare_ending_properties:n {##1-#1}
+        % short-plural = plural
+        \acro_property_make_alias:nn {##1-#1} {#1}
+      }
+    \acro_list_map:nn {long}
+      {
+        % long-plural + long-plural-form
+        \__acro_declare_ending_properties:n {##1-#1}
+        % long-plural = plural
+        \acro_property_make_alias:nn {##1-#1} {#1}
+        % long-plural-form = plural-form
+        \acro_property_make_alias:nn {##1-#1-form} {#1-form}
+      }
+  }
+
+% #1: id
+% #2: short|long
+\cs_new_protected:Npn \__acro_set_endings:nn #1#2
+  {
+    \acro_list_map:nn {#2}
+      {
+         \prop_map_inline:cn {l__acro_#2_endings_prop}
+           {
+             \acro_property_if_set:nnF {#1} {##1-####1-form}
+               {
+                 \acro_property_if_set:nnF {#1} {##1-####1}
+                   { \acro_property_set:nnn {#1} {##1-####1} {####2} }
+               }
+           }
+      }
+  }
+
+% #1: id
+\cs_new_protected:Npn \acro_set_endings:n #1
+  {
+    \__acro_set_endings:nn {#1} {short}
+    \__acro_set_endings:nn {#1} {long}
+  }
+
+% --------------------------------------------------------------------------
+% declaration of acronyms:
+\seq_new:N \g__acro_acronyms_seq
+
+\tl_new:N \l__acro_first_style_tl
+\tl_new:N \l__acro_indefinite_tl
+
+\keys_define:nn {acro}
+  {
+    first-style .tl_set:N  = \l__acro_first_style_tl ,
+    first-style .initial:n = long-short ,
+    indefinite  .tl_set:N  = \l__acro_indefinite_tl ,
+    indefinite  .initial:n = a
+  }
+
+\cs_new_protected:Npn \acro_declare_acronym:nn #1#2
+  { \acro_case_insensitive:Nn \__acro_declare_acronym:nn {#1} {#2} }
+
+% #1: id
+% #2: properties
+\cs_new_protected:Npn \__acro_declare_acronym:nn #1#2
+  {
+    \int_new:c {g__acro_#1_int}
+    \seq_new:c {g__acro_#1_pages_seq}
+    \seq_new:c {g__acro_#1_barriers_seq}
+    \seq_gput_right:Nn \g__acro_acronyms_seq {#1}
+    % set defaults:
+    \acro_property_set:nnV {#1} {first-style} \l__acro_first_style_tl
+    \acro_property_set:nnV {#1} {indefinite} \l__acro_indefinite_tl
+    % set user input:
+    \acro_properties_set:nn {#1} {#2}
+    % set defaults which must not be overwritten:
+    \acro_property_set:nnn {#1} {usage} {0}
+    \acro_property_set:nnn {#1} {id} {#1}
+    \acro_property_set_aliases:n {#1}
+    \bool_if:NT \g__use_id_bool
+      { \acro_property_set_alias:nn {#1} {short} }
+    % check mandatory properties:
+    \acro_property_foreach_mandatory:n
+      {
+        \acro_property_if_set:nnF {#1} {##1}
+          { \msg_error:nnnn {acro} {mandatory} {#1} {##1} }
+      }
+    % set endings:
+    \acro_set_endings:n {#1}
+    \acro_at_end_document:n
+      { \acro_property_set:nnx {#1} {usage} { \int_use:c {g__acro_#1_int} } }
+  }
+
+\prg_new_conditional:Npnn \acro_if_defined:n #1 {p,T,F,TF}
+  {
+    \seq_if_in:NeTF \g__acro_acronyms_seq
+      { \acro_case_insensitive:n {#1} }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+\cs_new_protected:Npn \acro_check_definition:n #1
+  {
+    \acro_if_defined:nF {#1}
+      { \msg_error:nnn {acro} {undefined} {#1} }
+  }
+
+% --------------------------------------------------------------------------
+\bool_new:N \l__acro_use_bool
+\bool_set_true:N \l__acro_use_bool
+
+\cs_new_protected:Npn \acro_use_false:
+  { \bool_set_false:N \l__acro_use_bool }
+
+\cs_new_protected:Npn \acro_use:n #1
+  {
+    \bool_if:NT \l__acro_use_bool
+      {
+        \acro_property_set:nnn {#1} {used} {true}
+        \acro_step:n {#1}
+      }
+  }
+\cs_generate_variant:Nn \acro_use:n {e}
+
+\cs_new_protected:Npn \acro_use_all:
+  { \seq_map_inline:Nn \g__acro_acronyms_seq { \acro_use:n {##1} } }
+
+\cs_new_protected:Npn \acro_reset:n #1
+  {
+    \acro_property_set:nnn {#1} {used} {false}
+    \int_gzero:c {g__acro_ \acro_case_insensitive:n {#1} _int}
+    \int_compare:nNnF
+      { \acro_property_get:nn {#1} {usage} } > 0
+      { \acro_property_set:nnn {#1} {usage} {0} }
+  }
+
+\cs_new_protected:Npn \acro_reset_all:
+  { \seq_map_inline:Nn \g__acro_acronyms_seq { \acro_reset:n {##1} } }
+
+\cs_new_protected:Npn \acro_switch_off:
+  { \bool_set_false:N \l__acro_use_bool }
+
+\cs_new_protected:Npn \acro_switch_on:
+  { \bool_set_true:N \l__acro_use_bool }
+
+% --------------------------------------------------------------------------
+\file_input_stop:

@@ -1,0 +1,212 @@
+% ----------------------------------------------------------------------------
+% the ACRO package - interface module
+% 
+%   Typeset Acronyms
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011--2020 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+\ACROmodule{interface}{definitions of user commands}
+
+\acro_modules_load:n {commands,templates,list,locale,pdfsupport}
+
+% --------------------------------------------------------------------------
+% helper commands
+\NewDocumentCommand \AcroPutRight {mm}
+  { \tl_put_right:Nn #1 {#2} }
+
+\NewDocumentCommand \AcroRerun {m}
+  {
+    \str_case:nnTF {#1}
+      {
+        {property} {}
+        {list} {}
+      }
+      { \acro_rerun:n {#1} }
+      { \acro_rerun:n {general} }
+  }
+
+\NewDocumentCommand \AcroPropertiesMap {+m}
+  { \acro_properties_map:n {#1} }
+
+% --------------------------------------------------------------------------
+% general commands:
+\NewDocumentCommand \acsetup {+m}
+  { \acro_setup:n {#1} }
+
+\NewDocumentCommand \acroloadstyle {m}
+  { \acro_style_load:n {#1} }
+
+\DeclareExpandableDocumentCommand \acroifusedTF {m}
+  { \acro_boolean_property_if:nnTF {#1} {used} }
+
+\NewDocumentCommand \acuse {m}
+  { \acro_use:n {#1} }
+
+\NewDocumentCommand \acuseall {}
+  { \acro_use_all: }
+
+\NewDocumentCommand \acreset {m}
+  { \acro_reset:n {#1} }
+
+\NewDocumentCommand \acresetall {}
+  { \acro_reset_all: }
+
+\NewExpandableDocumentCommand \acsimple {mm}
+  { \acro_pdfstring_template:nn {#1} {#2} }
+
+\NewDocumentCommand \acbarrier {}
+  { \acro_barrier: }
+
+\NewDocumentCommand \acswitchoff {}
+  { \acro_switch_off: }
+
+\NewDocumentCommand \acswitchon {}
+  { \acro_switch_on: }
+
+% --------------------------------------------------------------------------
+\NewDocumentCommand \AcroUseTemplate {O{1}D(){acronym}+m}
+  { \acro_template_use:nnn {#1} {#2} {#3} }
+
+\NewDocumentCommand \AcroNewTemplate {O{acronym}m+m}
+  { \use:c {acro_#1_template_new:nn} {#2} {#3} }
+
+\NewDocumentCommand \DeclareAcronym {m+m}
+  { \acro_declare_acronym:nn {#1} {#2} }
+
+\NewDocumentCommand \AcroDeclareEnding {mmm}
+  { \acro_declare_ending:nnn {#1} {#2} {#3} }
+
+\NewDocumentCommand \AcroDeclareTranslation {m+m}
+  { \acro_declare_translations:nn {#1} {#2} }
+
+\NewExpandableDocumentCommand \acrotranslate {m}
+  { \acro_translate:n {#1} }
+
+\NewExpandableDocumentCommand \aciftrailing {}
+  { \acro_trailing_if_tokens:nTF }
+
+\NewDocumentCommand \acdot   {} { \acro_dot: }
+\NewDocumentCommand \acspace {} { \acro_space: }
+
+\NewDocumentCommand \acroupper {} { \acro_upper: }
+\NewDocumentCommand \acrofirst {} { \acro_first: }
+\NewDocumentCommand \acroindefinite {} { \acro_indefinite: }
+
+\NewDocumentCommand \printacronyms {o}
+  {
+    \group_begin:
+      \IfNoValueF {#1}
+        { \keys_set:nn {acro/list} {#1} }
+      \acro_list:
+    \group_end:
+  }
+
+% --------------------------------------------------------------------------
+% commands for list templates
+\NewDocumentCommand \acroheading  {} { \acro_heading: }
+\NewDocumentCommand \acropreamble {} { \acro_preamble: }
+
+% --------------------------------------------------------------------------
+% cmmands for use in templates:
+\NewDocumentCommand \acronymsmapTF {+m+m+m}
+  {
+    \acro_acronyms_map:nTF
+      {
+        \tl_set:Nn \l_acro_id_tl {##1}
+        \tl_set:Nn \AcronymID {##1}
+        #1
+      }
+      {#2}
+      {#3}
+  }
+
+\NewDocumentCommand \acronymsmapT {+m+m}
+  { \acronymsmapTF {#1} {#2} {} }
+
+\NewDocumentCommand \acronymsmapF {+m+m}
+  { \acronymsmapTF {#1} {} {#2} }
+
+\NewDocumentCommand \acrowrite {m}
+  { \acro_write:en { \AcronymID } {#1} }
+
+\NewDocumentCommand \acroshow {m}
+  { \acro_property_show:en { \AcronymID } {#1} }
+
+\NewDocumentCommand \acrousefalse {}
+  { \acro_use_false: }
+
+\NewDocumentCommand \acrogroupcite {m}
+  {
+    \bool_if:NT \l__acro_cite_group_bool
+      { \acro_cite:ne {#1} { \AcronymID } }
+  }
+
+\NewDocumentCommand \acroifTF {m+m+m}
+  { \acro_property_if_set:enTF { \AcronymID } {#1} {#2} {#3} }
+\NewDocumentCommand \acroifT {m+m}
+  { \acro_property_if_set:enTF { \AcronymID } {#1} {#2} {} }
+\NewDocumentCommand \acroifF {m+m}
+  { \acro_property_if_set:enTF { \AcronymID } {#1} {} {#2} }
+  
+\NewDocumentCommand \acroifanyTF {m+m+m}
+  { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {#3} }
+\NewDocumentCommand \acroifanyT {m+m}
+  { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {} }
+\NewDocumentCommand \acroifanyF {m+m}
+  { \acro_property_if_any:enTF { \AcronymID } {#1} {} {#2} }
+
+\NewDocumentCommand \acroifallTF {m+m+m}
+  { \acro_property_if_all:enTF { \AcronymID } {#1} {#2} {#3} }
+\NewDocumentCommand \acroifallT {m+m}
+  { \acro_property_if_all:enTF { \AcronymID } {#1} {#2} {} }
+\NewDocumentCommand \acroifallF {m+m}
+  { \acro_property_if_all:enTF { \AcronymID } {#1} {} {#2} }
+
+\NewDocumentCommand \acroifsingleTF {+m+m}
+  { \acro_if_single:eTF { \AcronymID } {#1} {#2} }
+\NewDocumentCommand \acroifsingleT {+m}
+  { \acro_if_single:eTF { \AcronymID } {#1} {} }
+\NewDocumentCommand \acroifsingleF {+m}
+  { \acro_if_single:eTF { \AcronymID } {} {#1} }
+
+\NewDocumentCommand \acroiffirstTF {+m+m}
+  { \acro_if_first:eTF { \AcronymID } {#1} {#2} }
+\NewDocumentCommand \acroiffirstT {+m}
+  { \acro_if_first:eTF { \AcronymID } {#1} {} }
+\NewDocumentCommand \acroiffirstF {+m}
+  { \acro_if_first:eTF { \AcronymID } {} {#1} }
+
+\NewDocumentCommand \acropages {mm}
+  { \acro_print_pages:enn { \AcronymID } {#1} {#2} }
+
+\NewExpandableDocumentCommand \acroifpagesTF {}
+  { \acro_if_pages:eTF { \AcronymID } }
+
+\NewExpandableDocumentCommand \acroifpagesT {}
+  { \acro_if_pages:eT { \AcronymID } }
+
+\NewExpandableDocumentCommand \acroifpagesF {}
+  { \acro_if_pages:eF { \AcronymID } }
+
+% --------------------------------------------------------------------------
+\file_input_stop:

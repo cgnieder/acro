@@ -1,0 +1,201 @@
+% ----------------------------------------------------------------------------
+% the ACRO package - templates module
+% 
+%   eXercise Sheets IMproved
+% 
+% ----------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/acro
+% E-Mail: contact@mychemistry.eu
+% ----------------------------------------------------------------------------
+% Copyright 2017--2020 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% ----------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% ----------------------------------------------------------------------------
+\ACROmodule{templates}{templates for typesetting exercises}
+
+\acro_modules_load:n {base}
+
+\msg_new:nnn {acro} {unknown-template}
+  {
+    You~ are~ trying~ to~ load~ the~ template~ `#1'~ (template~ type~ `#2')~
+    \msg_line_context: .~ This~ template~ does~ not~ seem~ to~ be~ defined.~
+    I~ am~ using~ the~ template~ `#3'~ (template~ type~ `#2')~ instead.
+  }
+
+\msg_new:nnn {acro} {template-type-exists}
+  { The~ template~ type~ `#1'~ already~ exists~ \msg_line_context: }
+
+% ----------------------------------------------------------------------------
+\seq_new:N \l__acro_template_types_seq
+
+% #1: template type
+\cs_new_protected:Npn \acro_template_type_new:n #1
+  {
+    \seq_if_in:NnTF \l__acro_template_types_seq {#1}
+      { \msg_error:nnn {acro} {template-type-exists} {#1} }
+      {
+        \seq_put_right:Nn \l__acro_template_types_seq {#1}
+        \acro_attribute_new:n {template::#1}
+      }
+  }
+
+% #1: template type
+% #2: template name
+% #3: code
+\cs_new_protected:Npn \__acro_template_add:nnn #1#2#3
+  {
+    \tl_new:c {l__acro_template_#1_#2_setup_tl}
+    \acro_attribute_set:nnn {template::#1} {#2} {#3}
+  }
+
+\prg_new_conditional:Npnn \acro_template_if_exist:nn #1#2 {T,F,TF}
+  {
+    \acro_attribute_if_set:nnTF {template::#1} {#2}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+% #1: parameter number
+% #2: template type
+% #3: template name
+\cs_new_protected:Npn \__acro_template_get:nnn #1#2#3
+  {
+    \use:x
+      {
+         \cs_set:cn { __acro_tmp: \prg_replicate:nn {#1} {n} }
+          { \acro_attribute_get:nn {template::#2} {#3} }
+      }
+    \use:c { __acro_tmp: \prg_replicate:nn {#1} {n} }
+  }
+
+% using templates:
+% setup up the next usage of `template name':
+% #1: template type
+% #2: template name
+% #3: setup code
+\cs_new_protected:Npn \acro_template_setup:nnn #1#2#3
+  { \tl_set:cn {l__acro_template_#1_#2_setup_tl} {#3} }
+\cs_generate_variant:Nn \acro_template_setup:nnn {nnV,nVn}
+
+% #1: template type
+% #2: template name
+\cs_new_protected:Npn \__acro_template_setup:nn #1#2
+  { \tl_use:c {l__acro_template_#1_#2_setup_tl} }
+
+% #1: template type
+% #2: template name
+\cs_new_protected:Npn \__acro_clear_template_setup:nn #1#2
+  { \tl_clear:c {l__acro_template_#1_#2_setup_tl} }
+
+% #1: template type
+% #2: template name
+\cs_new_protected:Npn \__acro_template_start:nn #1#2
+  { \group_begin: \__acro_template_setup:nn {#1} {#2} }
+
+% #1: template type
+% #2: template name
+\cs_new_protected:Npn \__acro_template_stop:nn #1#2
+  { \group_end: \__acro_clear_template_setup:nn {#1} {#2} }
+
+
+% typesetting the first appearance of acronym: pseude template `first'
+
+% #1: parameter number
+% #2: template type
+% #3: template name
+\cs_new_protected:Npn \acro_template_use:nnn #1#2#3
+  {
+    \bool_set_false:N \l__acro_tmpa_bool
+    \bool_if:NT \l__acro_use_only_first_bool
+      {
+        \bool_if:NT \l__acro_use_bool
+          {
+            \bool_set_true:N \l__acro_tmpa_bool
+            \bool_set_false:N \l__acro_use_bool
+          }
+      }
+    \str_if_eq:nnTF {#3} {first}
+      {
+        \bool_if:NT \l__acro_tmpa_bool
+          { \bool_set_true:N \l__acro_use_bool }
+        \__acro_template_use:nnx {#1} {#2}
+          { \acro_property_get:Vn \l_acro_id_tl {first-style} }
+      }
+      { \__acro_template_use:nnn {#1} {#2} {#3} }
+  }
+\cs_new_protected:Npn \__acro_template_use:nnn #1#2#3
+  {
+    \acro_template_if_exist:nnTF {#2} {#3}
+      { \__acro_template_get:nnn {#1} {#2} {#3} }
+      {
+        \msg_warning:nnnnn {acro} {unknown-template} {#3} {#2} {first}
+        \__acro_template_get:nnn {#1} {#2} {first}
+      }
+  }
+\cs_generate_variant:Nn \__acro_template_use:nnn {nnx,nnV}
+\cs_generate_variant:Nn \acro_template_use:nnn {nnV}
+
+% ----------------------------------------------------------------------------
+% acronym templates:
+\acro_template_type_new:n {acronym}
+
+% #1: template name
+% #2: code
+\cs_new_protected:Npn \acro_acronym_template_new:nn #1#2
+  {
+    \__acro_template_add:nnn {acronym} {#1}
+      {
+        \__acro_template_start:nn {acronym} {#1}
+        #2
+        \__acro_template_stop:nn {acronym} {#1}
+      }
+  }
+
+% ----------------------------------------------------------------------------
+% heading templates:
+\acro_template_type_new:n {heading}
+
+% #1: template name
+% #2: code
+\cs_new_protected:Npn \acro_heading_template_new:nn #1#2
+  {
+    \__acro_template_add:nnn {heading} {#1}
+      {
+        \__acro_template_start:nn {heading} {#1}
+        #2
+        \__acro_template_stop:nn {heading} {#1}
+      }
+  }
+
+% ----------------------------------------------------------------------------
+% list templates:
+\acro_template_type_new:n {list}
+
+% #1: template name
+% #2: code
+\cs_new_protected:Npn \acro_list_template_new:nn #1#2
+  {
+    \__acro_template_add:nnn {list} {#1}
+      {
+        \__acro_template_start:nn {list} {#1}
+        #2
+        \__acro_template_stop:nn {list} {#1}
+      }
+  }
+
+% ----------------------------------------------------------------------------
+\file_input_stop:

@@ -1,0 +1,377 @@
+% ----------------------------------------------------------------------------
+% the ACRO package - definitions module
+% 
+%   Typeset Acronyms
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011--2020 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+\ACROmodule{definitions}{definitions of user commands}
+
+\acro_modules_load:n {interface}
+
+% --------------------------------------------------------------------------
+% commands for typesetting acronyms:
+\NewAcroCommand \ac {m}
+  { \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \acp {m}
+  { \acroplural \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \iac {m}
+  { \acroindefinite \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \iacp {m}
+  { \acroindefinite \acroplural \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \Ac {m}
+  { \acroupper \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \Acp {m}
+  { \acroplural \acroupper \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \Iac {m}
+  { \acroupper \acroindefinite \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \Iacp {m}
+  { \acroupper \acroindefinite \acroplural \AcroUseTemplate {first} {#1} }
+
+\NewAcroCommand \acs {m}
+  { \AcroUseTemplate {short} {#1} }
+\NewAcroCommand \acsp {m}
+  { \acroplural \AcroUseTemplate {short} {#1} }
+\NewAcroCommand \iacs {m}
+  { \acroindefinite \AcroUseTemplate {short} {#1} }
+\NewAcroCommand \iacsp {m}
+  { \acroindefinite \acroplural \AcroUseTemplate {short} {#1} }
+\NewAcroCommand \Acs {m}
+  { \acroupper \AcroUseTemplate {short} {#1} }
+\NewAcroCommand \Acsp {m}
+  { \acroplural \acroupper \AcroUseTemplate {short} {#1} }
+\NewAcroCommand \Iacs {m}
+  { \acroupper \acroindefinite \AcroUseTemplate {short} {#1} }
+\NewAcroCommand \Iacsp {m}
+  { \acroupper \acroindefinite \acroplural \AcroUseTemplate {short} {#1} }
+  
+\NewAcroCommand \acl {m}
+  { \AcroUseTemplate {long} {#1} }
+\NewAcroCommand \aclp {m}
+  { \acroplural \AcroUseTemplate {long} {#1} }
+\NewAcroCommand \iacl {m}
+  { \acroindefinite \AcroUseTemplate {long} {#1} }
+\NewAcroCommand \Acl {m}
+  { \acroupper \AcroUseTemplate {long} {#1} }
+\NewAcroCommand \Aclp {m}
+  { \acroplural \acroupper \AcroUseTemplate {long} {#1} }
+\NewAcroCommand \Iacl {m}
+  { \acroupper \acroindefinite \AcroUseTemplate {long} {#1} }
+
+\NewAcroCommand \aca {m}
+  { \AcroUseTemplate {alt} {#1} }
+\NewAcroCommand \acap {m}
+  { \acroplural \AcroUseTemplate {alt} {#1} }
+\NewAcroCommand \iaca {m}
+  { \acroindefinite \AcroUseTemplate {alt} {#1} }
+\NewAcroCommand \Aca {m}
+  { \acroupper \AcroUseTemplate {alt} {#1} }
+\NewAcroCommand \Acap {m}
+  { \acroplural \acroupper \AcroUseTemplate {alt} {#1} }
+\NewAcroCommand \Iaca {m}
+  { \acroupper \acroindefinite \AcroUseTemplate {alt} {#1} }
+
+\NewAcroCommand \acf {m}
+  { \acrofirst \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \acfp {m}
+  { \acrofirst \acroplural \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \iacf {m}
+  { \acrofirst \acroindefinite \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \Acf {m}
+  { \acrofirst \acroupper \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \Acfp {m}
+  { \acrofirst \acroplural \acroupper \AcroUseTemplate {first} {#1} }
+\NewAcroCommand \Iacf {m}
+  { \acrofirst \acroupper \acroindefinite \AcroUseTemplate {first} {#1} }
+
+\NewAcroCommand \acshow {m}
+  { \AcroUseTemplate {show} {#1} }
+  
+% --------------------------------------------------------------------------
+\AcroDeclareEnding {plural} {s} {s}
+  
+% --------------------------------------------------------------------------
+% acronym templates:
+\AcroNewTemplate {long-short}
+  {
+    \acroifsingleTF
+      { \acrowrite {single} }
+      {
+        \acroiffirstTF
+          {
+            \acrowrite {long}
+            \acspace
+              (
+                \acrowrite {short}
+                \acroifT {alt} { ~ \acrotranslate {or} ~ \acrowrite {alt} }
+                \acrogroupcite {\nobreakspace}
+              )
+          }
+          { \acrowrite {short} }
+      }
+  }
+
+\AcroNewTemplate {short-long}
+  {
+    \acroifsingleTF
+      { \acrowrite {single} }
+      {
+        \acrowrite {short}
+        \acroiffirstT
+          {
+            \space
+              (
+                \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} ~ }
+                \acrowrite {long}
+                \acrogroupcite {\nobreakspace}  
+              )
+          }
+      }
+  }
+
+\AcroNewTemplate {footnote}
+  {
+    \acroifsingleTF
+      { \acrowrite {single} }
+      {
+        \acrowrite {short}
+        \acroiffirstT
+          {
+            \footnote
+              {
+                \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} :~ }
+                \acrowrite {long}
+                \acrogroupcite {\nobreakspace}  
+              }
+          }
+      }
+  }
+
+\AcroNewTemplate {long}
+  { \acrowrite {long} }
+
+\AcroNewTemplate {short}
+  { \acrowrite {short} }
+
+\AcroNewTemplate {alt}
+  {
+    \acroifTF {alt}
+      { \acrowrite {alt} }
+      { \acrowrite {short} }
+  }
+
+\AcroNewTemplate {show}
+  {
+    \acrousefalse
+    \iow_term:n {}
+    \iow_term:x
+      {
+        The~ acronym~ `\AcronymID'~ has~ the~ properties~ (without~ outer~
+        braces):
+      }
+    \iow_term:n {}
+    \AcroPropertiesMap { \acroshow {##1} }
+    \iow_term:n {}
+  }
+
+% --------------------------------------------------------------------------
+% heading templates:
+\AcroNewTemplate[heading] {none} { }
+
+\AcroNewTemplate[heading] {section}
+  { \section { \acrotranslate {list-name} } }
+
+\AcroNewTemplate[heading] {section*}
+  { \section* { \acrotranslate {list-name} } }
+
+\AcroNewTemplate[heading] {addsec}
+  { \addsec { \acrotranslate {list-name} } }
+
+% --------------------------------------------------------------------------
+% list templates:
+\AcroNewTemplate[list] {description}
+  {
+    \acroheading
+    \acropreamble
+    \begin {description}
+      \acronymsmapF
+        {
+          \item [ \acrowrite {short} \acroifT {alt} { / \acrowrite {alt} } ]
+            \acrowrite {long}
+            \acroifanyT {foreign,extra} {~(}
+            \acroifT {foreign}
+              {
+                \acrowrite {foreign}
+                \acroifT {extra} {,~}
+              }
+            \acroifT {extra}
+              { \acrowrite {extra} }
+            \acroifanyT {foreign,extra} {)}
+            \acroifpagesT
+              {
+                \space \dotfill \space
+                \acropages
+                  { \acrotranslate {page} \nobreakspace }
+                  { \acrotranslate {pages} \nobreakspace }
+              }
+        }
+        { \item \AcroRerun {list} }
+    \end {description}
+  }
+
+\AcroNewTemplate[list] {tabular}
+  {
+    \def \TableCode {}
+    \acronymsmap
+      {
+        \AcroPutRight \TableCode
+          {
+            \def \AcronymID {##1}
+            \acrowrite {short}
+            \acroifT {alt} { / \acrowrite {alt} }
+            &
+            \def \AcronymID {##1}
+            \acrowrite {long}
+            \acroifanyT {foreign,extra} {~(}
+            \acroifT {foreign}
+              {
+                \acrowrite {foreign}
+                \acroifT {extra} {,~}
+              }
+            \acroifT {extra}
+              { \acrowrite {extra} }
+            \acroifanyT {foreign,extra} {)}
+            % \acroifpagesT
+            %   {
+            %     \space \dotfill \space
+            %     \acropages
+            %       { \acrotranslate {page} \nobreakspace }
+            %       { \acrotranslate {pages} \nobreakspace }
+            %   }
+            \tabularnewline
+          }
+      }
+    \acroheading
+    \acropreamble
+    \par \noindent
+    \begin {tabular} {>{\bfseries}lp{\dimexpr\linewidth-3cm\relax}}
+      \TableCode
+    \end {tabular}
+  }
+
+% --------------------------------------------------------------------------
+% translations:
+% list name
+\AcroDeclareTranslation {list-name}
+  {
+    Fallback   = Acronyms ,
+    English    = Acronyms ,
+    French     = Acronymes ,
+    German     = Abk\"urzungen ,
+    Italian    = Acronimi ,
+    Portuguese = Acr\'onimos ,
+    Spanish    = Siglas ,
+    Catalan    = Sigles ,
+    Turkish    = K\i saltmalar
+  }
+
+% page name
+\AcroDeclareTranslation {page}
+  {
+    Fallback   = p. ,
+    English    = p. ,
+    German     = S. ,
+    Portuguese = p.
+  }
+
+% pages name
+\AcroDeclareTranslation {pages}
+  {
+    Fallback   = pp. ,
+    English    = pp. ,
+    German     = S. ,
+    Portuguese = pp.
+  }
+
+% following page
+\AcroDeclareTranslation {next-page}
+  {
+    Fallback   = f. ,
+    English    = f. ,
+    German     = f. ,
+    Portuguese = s.
+  }
+
+% following pages
+\AcroDeclareTranslation {next-pages}
+  {
+    Fallback   = ff. ,
+    English    = ff. ,
+    German     = ff. ,
+    Portuguese = ss.
+  }
+
+% also
+\AcroDeclareTranslation {also}
+  {
+    Fallback   = also ,
+    English    = also ,
+    French     = aussi ,
+    German     = auch ,
+    Italian    = anche ,
+    Portuguese = tamb\'{e}m ,
+    Spanish    = tambien ,
+    Catalan    = tamb\'{e} ,
+    Turkish    = ayr\i ca
+  }
+
+% or
+\AcroDeclareTranslation {or}
+  {
+    Fallback   = or ,
+    English    = or ,
+    French     = ou ,
+    German     = oder ,
+    Italian    = o ,
+    Portuguese = ou ,
+    Spanish    = o ,
+    Catalan    = o ,
+    Turkish    = veya
+  }
+
+% and
+\AcroDeclareTranslation {and}
+  {
+    Fallback   = and ,
+    English    = and ,
+    French     = et ,
+    German     = und ,
+    Italian    = e ,
+    Portuguese = e ,
+    Spanish    = y ,
+    Catalan    = i ,
+    Turkish    = ve
+  }
+  
+% --------------------------------------------------------------------------
+\file_input_stop:

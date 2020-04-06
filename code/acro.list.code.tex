@@ -1,0 +1,175 @@
+% ----------------------------------------------------------------------------
+% the ACRO package - list module
+% 
+%   Typeset Acronyms
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011--2020 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+\ACROmodule{list}{the list of acronyms}
+% --------------------------------------------------------------------------
+% list of acronyms:
+\bool_new:N \l__acro_list_display_all_bool
+\bool_new:N \l__acro_list_bool
+\bool_new:N \l__acro_list_local_bool
+
+\seq_new:N \g__acro_list_seq
+
+\tl_new:N \l__acro_list_tl
+
+\clist_new:N \l__acro_class_include_clist
+\clist_new:N \l__acro_class_exclude_clist
+
+\acro_at_begin_document:n
+  {
+    \bool_if:NTF \l__acro_list_display_all_bool
+      { \seq_set_eq:NN \g__acro_list_seq \g__acro_acronyms_seq }
+      {
+        \seq_map_inline:Nn \g__acro_acronyms_seq
+          {
+            \acro_if_single:nF {#1}
+              { \seq_gput_right:Nn \g__acro_list_seq {#1} }
+          }
+      }
+  }
+
+% --------------------------------------------------------------------------
+% #1: filtered sequence
+% #2: sequence
+\cs_new_protected:Npn \__acro_list_filter:NN #1#2
+  {
+    \seq_clear:N #2
+    \seq_clear:N \l__acro_tmpc_seq
+    \bool_if:NF \l__acro_list_local_bool
+      { \bool_set_true:N \l__acro_tmpb_bool }
+    \seq_map_inline:Nn #1
+      {
+        \__acro_check_classes:Nn \l__acro_tmpa_bool {##1}
+        \bool_if:NT \l__acro_list_local_bool
+          {
+            \bool_set_false:N \l__acro_tmpb_bool
+            \seq_set_split:Nnx \l__acro_tmpb_seq {|}
+              { \acro_property_get:nn {##1} {barriers} }
+            \seq_if_in:NxT \l__acro_tmpb_seq { \int_use:N \g_acro_barrier_int }
+              { \bool_set_true:N \l__acro_tmpb_bool }
+          }
+        \bool_lazy_and:nnT { \l__acro_tmpa_bool } { \l__acro_tmpb_bool }
+          { \seq_put_right:Nn #2 {##1} }
+      }
+  }
+
+% #1: boolean
+% #2: id
+\cs_new_protected:Npn \__acro_check_classes:Nn #1#2
+  {
+    \bool_set_false:N #1
+    % get classes for acronym:
+    \clist_set:Ne \l__acro_tmpa_clist
+      { \acro_property_get:nn {#2} {class} }
+    \clist_if_empty:NTF \l__acro_tmpa_clist
+      {% acronym does not have (a) class(es)
+        \clist_if_empty:NT \l__acro_class_include_clist
+          { \bool_set_true:N #1 }
+      }
+      {% acronym has (a) class(es)
+        \clist_if_empty:NTF \l__acro_class_include_clist
+          { \bool_set_true:N #1 }
+          {
+            \clist_map_inline:Nn \l__acro_tmpa_clist
+              {
+                \clist_if_in:NnT \l__acro_class_include_clist {##1}
+                  {% acronym is included
+                    \bool_set_true:N #1
+                    \clist_map_break:
+                  }
+              }
+          }
+        \bool_if:NT #1
+          {% we only need to check if acronym is included:
+            \clist_if_empty:NF \l__acro_class_exclude_clist
+              {
+                \clist_map_inline:Nn \l__acro_tmpa_clist
+                  {
+                    \clist_if_in:NnT \l__acro_class_exclude_clist {##1}
+                      {% acronym is excluded
+                        \bool_set_false:N #1
+                        \clist_map_break:
+                      }
+                  }
+              }
+          }
+      }
+  }
+
+% --------------------------------------------------------------------------
+\prg_new_protected_conditional:Npnn \acro_acronyms_map:n #1 {T,F,TF}
+  {
+    \__acro_list_filter:NN \g__acro_list_seq \l__acro_tmpa_seq
+    \seq_if_empty:NTF \l__acro_tmpa_seq
+      { \prg_return_false: }
+      {
+        \seq_map_inline:Nn \l__acro_tmpa_seq {#1}
+        \prg_return_true:
+      }
+  }
+
+\cs_new_protected:Npn \acro_list:
+  {
+    \group_begin:
+      \bool_set_true:N \l__acro_list_bool
+      \bool_if:NT \l__acro_sort_bool { \acro_list_sort: }
+      \acro_template_use:nnV {0} {list} \l__acro_list_tl
+    \group_end:
+  }
+
+% --------------------------------------------------------------------------
+\tl_new:N \l__acro_heading_tl
+\tl_new:N \l__acro_preamble_tl
+
+\cs_new_protected:Npn \acro_heading:
+  { \acro_template_use:nnV {0} {heading} \l__acro_heading_tl }
+
+\cs_new_protected:Npn \acro_preamble:
+  { \tl_use:N \l__acro_preamble_tl }
+
+% --------------------------------------------------------------------------
+\keys_define:nn {acro/list}
+  {
+    template     .tl_set:N    = \l__acro_list_tl ,
+    template     .initial:n   = description ,
+    sort         .bool_set:N  = \l__acro_sort_bool ,
+    sort         .initial:n   = true ,
+    display      .choice: ,
+    display/all  .code:n      = \bool_set_true:N \l__acro_list_display_all_bool ,
+    display/used .code:n      = \bool_set_false:N \l__acro_list_display_all_bool ,
+    display      .initial:n   = used ,
+    include      .clist_set:N = \l__acro_class_include_clist ,
+    exclude      .clist_set:N = \l__acro_class_exclude_clist ,
+    local        .bool_set:N  = \l__acro_list_local_bool ,
+    heading      .tl_set:N  = \l__acro_heading_tl ,
+    heading      .initial:n = section* ,
+    preamble     .tl_set:N  = \l__acro_preamble_tl ,
+    preamble     .initial:n =
+  }
+
+% --------------------------------------------------------------------------
+\file_input_stop:

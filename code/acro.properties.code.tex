@@ -1,0 +1,459 @@
+% ----------------------------------------------------------------------------
+% the ACRO package - properties module
+% 
+%   Typeset Acronyms
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011--2020 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+\ACROmodule{properties}{properties of acronyms}
+
+\acro_modules_load:n {base,aux}
+
+\msg_new:nnn {acro} {unknown-property}
+  {
+    You~ tried~ to~ set~ the~ property~ `#1'~ \msg_line_context: . \\
+    This~ property~ does~ not~ exist.~ Check~ for~ a~ typo~ or~ \\
+    define~ the~ property~ yourself.
+  }
+
+\msg_new:nnn {acro} {property-unique}
+  {
+    You~ tried~ to~ set~ the~ property~ `#1'~ \msg_line_context: . \\
+    This~ property~ has~ to~ have~ a~ unique~ value~ and~ thus~ \\
+    cannot~ be~ set~ to~ `#2'~ since~ this~ value~ is~ already~ talen.
+  }
+
+\msg_new:nnn {acro} {no-boolean-property}
+  {
+    You~ tried~ to~ check~ the~ boolean~ value~ of~ property~ `#1'~
+    \msg_line_context: . \\
+    However,~ property~ `#1'~ is~ not~ a~ boolean~ property!
+  }
+
+\msg_new:nnn {acro} {unbalanced-property-list}
+  {
+    There~ is~ a~ mis-match~ in~ the~ property~ list: \\
+    `#1' \\
+    \msg_line_context:
+  }
+
+\seq_new:N \l__acro_properties_seq
+
+\cs_new_protected:Npn \acro_properties_map:n #1
+  { \seq_map_inline:Nn \l__acro_properties_seq {#1} }
+
+% check if property exists:
+\prg_new_conditional:Npnn \acro_property_if_exist:n #1 {T,F,TF}
+  {
+    \acro_attribute_if_exist:nTF {property::#1}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\cs_generate_variant:Nn \acro_property_if_exist:nTF {x}
+
+% check if property is set:
+% #1: id
+% #2: property
+\prg_new_conditional:Npnn \acro_property_if_set:nn #1#2 {p,T,F,TF}
+  {
+    \acro_attribute_if_set:neTF {#2} { \acro_case_insensitive:n {#1} }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \acro_property_if_set:nn
+  {nx,xx,nV,e}
+  {p,T,F,TF}
+
+
+% #1: id
+% #2: properties
+\prg_new_protected_conditional:Npnn \acro_property_if_any:nn #1#2 {T,F,TF}
+  {
+    \seq_set_from_clist:Nn \l__acro_tmpa_seq {#2}
+    \seq_set_map:NNn \l__acro_tmpa_seq \l__acro_tmpa_seq
+      { { \exp_not:N \acro_property_if_set_p:nn {#1} {##1} } }
+    \bool_lazy_any:eTF
+      { \seq_use:Nn \l__acro_tmpa_seq {} }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \acro_property_if_any:nn {e} {TF}
+
+% #1: id
+% #2: properties
+\prg_new_protected_conditional:Npnn \acro_property_if_all:nn #1#2 {T,F,TF}
+  {
+    \seq_set_from_clist:Nn \l__acro_tmpa_seq {#2}
+    \seq_set_map:NNn \l__acro_tmpa_seq \l__acro_tmpa_seq
+      { { \exp_not:N \acro_property_if_set_p:nn {#1} {##1} } }
+    \bool_lazy_all:eTF
+      { \seq_use:Nn \l__acro_tmpa_seq {} }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \acro_property_if_all:nn {e} {TF}
+
+\acro_attribute_new:n {boolean}
+\acro_attribute_new:n {unique}
+\acro_attribute_new:n {mandatory}
+\acro_attribute_new:n {static}
+
+\seq_new:N \l__acro_mandatory_properties_seq
+
+% new property:
+% #1: boolean (true = unique)
+% #2: boolean (true = boolean)
+% #3: boolean (true = mandatory)
+% #4: boolean (true = dynamic = not static)
+% #5: property name
+\cs_new_protected:Npn \acro_property_declare:nnnnn #1#2#3#4#5
+  {
+    \acro_property_if_exist:nF {#5}
+      {
+        \seq_put_right:Ne \l__acro_properties_seq { \tl_to_str:n {#5} }
+        \acro_attribute_new:n {property::#5}
+        \bool_if:nF {#4}
+          { \acro_attribute_set:nnn {static} {#5} {true} }
+        \__acro_auxlist_new:n {#5}
+        \bool_if:nT {#3}
+          {
+            \acro_attribute_set:nnn {mandatory} {#5} {true}
+            \seq_put_right:Nn \l__acro_mandatory_properties_seq {#5}
+          }
+        \bool_if:nT {#2}
+          { \acro_attribute_set:nnn {boolean} {#5} {true} }
+        \bool_if:nT {#1}
+          {
+            \acro_attribute_set:nnn {unique} {#5} {true}
+            \seq_new:c {l__acro_unique_#5_seq}
+          }
+        \bool_if:nT {#4}
+          {
+            \AtEndDocument { \__acro_auxlist_update:n {#5} }
+            \acro_at_begin_document:n { \__acro_property_set_from_auxlist:n {#5} }
+          }
+      }
+  }
+
+\prg_new_conditional:Npnn \acro_property_if_mandatory:n #1 {p,T,F,TF}
+  {
+    \acro_attribute_if_set:nnTF {mandatory} {#1}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\cs_generate_variant:Nn \acro_property_if_mandatory:nF {V}
+
+\cs_new_protected:Npn \acro_property_foreach_mandatory:n #1
+  { \seq_map_inline:Nn \l__acro_mandatory_properties_seq {#1} }
+
+\prg_new_conditional:Npnn \acro_property_if_boolean:n #1 {p,T,F,TF}
+  {
+    \acro_attribute_if_set:nnTF {boolean} {#1}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+\prg_new_conditional:Npnn \acro_property_if_unique:n #1 {p,T,F,TF}
+  {
+    \acro_attribute_if_set:nnTF {unique} {#1}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+% #1: property
+% #2: value
+\prg_new_protected_conditional:Npnn \acro_property_if_unique_value:nn #1#2 {T,F,TF}
+  {
+    \acro_property_if_unique:nTF {#1}
+      {
+        \seq_if_in:cnTF {l__acro_unique_#1_seq} {#2}
+          { \prg_return_true: }
+          { \prg_return_false: }
+      }
+      { \prg_return_false: }
+  }
+
+% #1: id
+% #2: property
+% #3: value
+\cs_new_protected:Npn \acro_property_set:nnn #1#2#3
+  {
+    \acro_property_if_exist:nTF {#2}
+      {
+        \acro_property_if_set:nnTF {#1} {#2}
+          {
+            \acro_property_if_unique_value:nnTF {#2} {#3}
+              { \msg_warning:nnnn {acro} {property-unique} {#2} {#3} }
+              {
+                \acro_property_if_boolean:nTF {#2}
+                  { \__acro_boolean_property_set:nnn {#1} {#2} {#3} }
+                  {
+                    \acro_property_if_unique:nTF {#2}
+                      { \__acro_unique_property_set:nnn {#1} {#2} {#3} }
+                      { \__acro_property_set:nnn {#1} {#2} {#3} }
+                  }
+              }
+          }
+          {
+            \acro_property_if_boolean:nTF {#2}
+              { \__acro_boolean_property_set:nnn {#1} {#2} {#3} }
+              {
+                \acro_property_if_unique:nTF {#2}
+                  { \__acro_unique_property_set:nnn {#1} {#2} {#3} }
+                  { \__acro_property_set:nnn {#1} {#2} {#3} }
+              }
+          }
+      }
+      { \msg_error:nnn {acro} {unknown-property} {#2} }  
+  }
+\cs_generate_variant:Nn \acro_property_set:nnn {nnV,nxx,nnx,e}
+
+% #1: id
+% #2: property
+% #3: value
+\cs_new_protected:Npn \__acro_boolean_property_set:nnn #1#2#3
+  {
+    \str_case_e:nnTF { \str_lowercase:n {#3} }
+      {
+        {} {}
+        {true} {}
+      }
+      { \__acro_property_set:nnn {#1} {#2} {true} }
+      { \__acro_property_set:nnn {#1} {#2} {false} }
+  }
+
+% #1: id
+% #2: property
+% #3: value
+\cs_new_protected:Npn \__acro_unique_property_set:nnn #1#2#3
+  { \__acro_property_set:nnn {#1} {#2} {#3} }
+
+% #1: id
+% #2: property
+\cs_new_protected:Npn \__acro_property_unset:nn #1#2
+  {
+    \__acro_property_remove_from_auxlist:nn {#1} {#2}
+    \acro_attribute_unset:nn {#2} {#1}
+  }
+
+% #1: id
+% #2: property
+\cs_new_protected:Npn \acro_property_unset:nn #1#2
+  {
+    \acro_property_if_exist:nTF {#2}
+      { \__acro_property_unset:nn {#1} {#2} }
+      { \msg_error:nnn {acro} {unknown-property} {#2} }
+  }
+\cs_generate_variant:Nn \acro_property_unset:nn {nx,nV}
+
+% #1: id
+% #2: property
+% #3: value
+\cs_new_protected:Npn \__acro_property_set:nnn #1#2#3
+  {
+    \__acro_property_remove_from_auxlist:nn {#1} {#2}
+    % now we can safely add the property to the list:
+    \__acro_auxlist_add:nn {#2} {#1=={#3}}
+    \acro_attribute_set:nnn {#2} {#1} {#3}
+  }
+\cs_generate_variant:Nn \__acro_property_set:nnn {VnV}
+
+\cs_new_protected:Npn \acro_property_show:nn #1#2
+  {
+    \acro_property_if_set:nnT {#1} {#2}
+      {
+        \iow_term:x
+          {
+            \c_space_tl \c_space_tl
+            \tl_to_str:n {#2}
+            \c_space_tl \c_space_tl => \c_space_tl \c_space_tl
+            { \acro_property_get:nn {#1} {#2} }
+          }
+      }
+  }
+\cs_generate_variant:Nn \acro_property_show:nn {e}
+
+\tl_set:Nx \l__acro_tmpa_tl { \cs_to_str:N \{ }
+\tl_set:Nx \l__acro_tmpb_tl { \cs_to_str:N \} }
+\use:x
+  {
+    \cs_new_protected:Npn
+    \exp_not:N \__acro_property_extract_auxlist_entry:NNww
+    ##1##2##3 == \l__acro_tmpa_tl ##4 \l__acro_tmpb_tl
+    \exp_not:N \q_stop
+  }
+  {
+    \str_set:Nn #1 {#3}
+    \str_set:Nn #2 {#4}
+  }
+
+% #1: id
+% #2: property
+\cs_new_protected:Npn \__acro_property_remove_from_auxlist:nn #1#2
+  {
+    % make sure we change the entry if it has been recorded previously:
+    \__acro_auxlist_foreach_entry:nn {#2}
+      {
+        \__acro_property_extract_auxlist_entry:NNww
+          \l__acro_tmpa_str \l__acro_tmpb_str ##1 \q_stop
+        \str_if_eq:xnT { \l__acro_tmpa_str } {#1}
+          {
+            \__acro_auxlist_remove:nx {#2}
+              { #1 == {\l__acro_tmpb_str} }
+          }
+      }
+    % make sure we change the entry if it has been set during the current run:
+    \__acro_auxlist_foreach_new_entry:nn {#2}
+      {
+        \__acro_property_extract_auxlist_entry:NNww
+          \l__acro_tmpa_str \l__acro_tmpb_str ##1 \q_stop
+        \str_if_eq:xnT { \l__acro_tmpa_str } {#1}
+          {
+            \__acro_auxlist_remove:nx {#2}
+              { #1 == {\l__acro_tmpb_str} }
+          }
+      }
+  }
+
+% #1: property
+\cs_new_protected:Npn \__acro_property_set_from_auxlist:n #1
+  {
+    \__acro_auxlist_foreach_entry:nn {#1}
+      {
+        \__acro_property_extract_auxlist_entry:NNww
+          \l__acro_tmpa_str \l__acro_tmpb_str ##1 \q_stop
+        \tl_set_rescan:Nnx \l__acro_tmpa_tl {} { \l__acro_tmpb_str }
+        \__acro_property_set:VnV \l__acro_tmpa_str {#1} \l__acro_tmpa_tl
+      }
+  }
+
+% set properties:
+% #1: id
+% #2: csv list of properties
+\cs_new_protected:Npn \acro_properties_set:nn #1#2
+  {
+    \cs_set_protected:Npn \__acro_parse_property:nn ##1##2
+      { \acro_property_set:nnn {#1} {##1} {##2} }
+    \cs_set_protected:Npn \__acro_parse_property:n ##1
+      { \msg_error:nnnn {acro} {value-required} {#1} {##1} }
+    \keyval_parse:NNn
+      \__acro_parse_property:n
+      \__acro_parse_property:nn
+      {#2}
+  }
+\cs_generate_variant:Nn \acro_properties_set:nnn {nnx,nxx,nV,nVx}
+
+% ----------------------------------------------------------------------------
+
+\seq_new:N \g__acro_property_aliases_seq
+
+% #1: property
+\prg_new_conditional:Npnn \acro_property_if_alias:n #1 {p,T,F,TF}
+  {
+    \seq_if_in:NnTF \g__acro_property_aliases_seq {#1}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+% #1: property
+\cs_new:Npn \acro_property_alias:n #1
+  { \acro_attribute_get:nn {#1} {alias} }
+
+% #1: property
+% #2: alias of
+\cs_new_protected:Npn \acro_property_make_alias:nn #1#2
+  {
+    \acro_property_if_alias:nF {#1}
+      {
+        \acro_attribute_set:nnn {#1} {alias} {#2}
+        \seq_gput_right:Nn \g__acro_property_aliases_seq {#1}
+      }
+  }
+
+% #1: id
+% #2: alias property
+\cs_new_protected:Npn \acro_property_set_alias:nn #1#2
+  {
+    \acro_property_if_set:nnF {#1} {#2}
+      {
+        \acro_property_if_set:nxT {#1} { \acro_property_alias:n {#2} }
+          { 
+            \acro_property_set:nnx {#1} {#2}
+              { \acro_property_get:ne {#1} { \acro_property_alias:n {#2} } }
+          }
+      }
+  }
+
+% #1: id
+\cs_new_protected:Npn \acro_property_set_aliases:n #1
+  {
+    \seq_map_inline:Nn \g__acro_property_aliases_seq
+      { \acro_property_set_alias:nn {#1} {##1} }
+  }
+
+% ----------------------------------------------------------------------------
+% retrieve properties:
+% #1: id
+% #2: property
+\cs_new:Npn \acro_property_get:nn #1#2
+  {  \acro_attribute_get:ne {#2} { \acro_case_insensitive:n {#1} } }
+\cs_generate_variant:Nn \acro_property_get:nn {nx,ne,V}
+
+% #1: id
+% #2: property
+\prg_new_conditional:Npnn \acro_property_get_if_set:nn #1#2 {T,F,TF}
+  {
+    \acro_property_if_set:nnTF {#1} {#2}
+      {
+        \acro_property_get:nn {#1} {#2}
+        \prg_return_true:
+      }
+      { \prg_return_false: }
+  }
+
+% #1: id
+% #2: property
+\prg_new_conditional:Npnn \acro_boolean_property_if:nn #1#2 {p,T,F,TF}
+  {
+    \acro_property_if_exist:nTF {#2}
+      {
+        \acro_property_if_boolean:nTF {#2}
+          {
+            \acro_property_if_set:nnTF {#1} {#2}
+              {
+                \bool_if:cTF
+                  {c_ \acro_property_get:nn {#1} {#2} _bool}
+                  { \prg_return_true: }
+                  { \prg_return_false: }
+              }
+              { \prg_return_false: }
+          }
+          { \prg_return_false: }
+      }
+      { \prg_return_false: }
+  }
+\cs_generate_variant:Nn \acro_boolean_property_if:nnTF {oo}
+\cs_generate_variant:Nn \acro_boolean_property_if:nnF  {nV}
+
+% ----------------------------------------------------------------------------
+\file_input_stop:
