@@ -75,7 +75,7 @@
       { \prg_return_false: }
       { \prg_return_true: }
   }
-\prg_generate_conditional_variant:Nnn \acro_if_single:n {e} {TF}
+\prg_generate_conditional_variant:Nnn \acro_if_single:n {e,V} {TF}
 
 \bool_new:N \l__acro_use_only_first_bool
 \tl_new:N \l__acro_single_tl
@@ -155,9 +155,9 @@
   {
     \tl_use:c
       {
-        \tl_if_exist:cTF {l__acro_format_ #2 _tl}
-          {l__acro_format_ #2 _tl}
-          {l__acro_format_ \acro_if_short:nTF {#2} {short} {long} _tl}
+        \tl_if_exist:cTF {l__acro_format_ #1 _tl}
+          {l__acro_format_ #1 _tl}
+          {l__acro_format_ \acro_if_short:nTF {#1} {short} {long} _tl}
       }
   }
 

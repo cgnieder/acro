@@ -36,6 +36,7 @@
 % feel free to contact me.
 % --------------------------------------------------------------------------
 \PassOptionsToPackage{ngerman,english}{babel}
+\PassOptionsToPackage{version=3,deprecation}{acro}
 \documentclass{acro-manual}
 
 % \usepackage[]{babel}
@@ -67,11 +68,6 @@
 }
 \end{filecontents}
 
-% \ExplSyntaxOn
-% \tl_put_right:Nn \l_text_letterlike_tl {\LaTeX}
-% \tl_show:N \l_text_letterlike_tl
-% \ExplSyntaxOff
-
 % declare acronyms
 \DeclareAcronym{cd}{
   short = CD ,
@@ -82,7 +78,9 @@
   long      = Comprehensive \TeX\ Archive Network ,
   format    = \scshape ,
   pdfstring = CTAN ,
-  short-acc = CTAN
+  short-acc = CTAN ,
+  first-style = short-long ,
+  single-style = short
 }
 \DeclareAcronym{ecu}{
   short   = ECU ,
@@ -169,6 +167,15 @@
 
 \begin{document}
 
+\begin{bewareofthedog}
+  Hi and thanks that you are testing v3.0 of \acro\ before it is released to
+  \ac{ctan}. If you want to test the new version use
+  \cs*{usepackage}\Oarg{version=3}\Marg{acro}. With \code{version=2} or no
+  option at all you get the old version of acro.  Using
+  \cs*{usepackage}\Oarg{version=3,deprecation}\Marg{acro} is supposed to give
+  as much meaningful warnings and errors as possible.
+\end{bewareofthedog}
+
 \part{Get started with \acro}
 
 \section{Licence and requirements}
@@ -223,10 +230,10 @@ Then the usage is
 
 \part{Comprehensive details}
 
+\clearpage
 \appendix
 \part{Appendix}
 
-\tracingmacros=1
 \printacronyms[
   preamble = {Below all abbreviations are listed which have been defined for
     the manual.} ,

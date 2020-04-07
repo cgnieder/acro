@@ -40,7 +40,7 @@
 \acsetup{
   single = true ,
   index / use = true ,
-  hyperref = true ,
+  make-links = true ,
   list / template = manual ,
   list / heading = section ,
   list / display = all ,
@@ -172,7 +172,7 @@
 \tcbset{enhanced,enhanced jigsaw}
 
 \newtcolorbox{bewareofthedog}{
-  colback  = white ,
+  colback  = red!2!white!98 ,
   colframe = red ,
   underlay={%
     \path[draw=none]
