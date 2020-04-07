@@ -34,6 +34,12 @@
     The~ #1~ `#2'~ is~ deprecated.~ Use~ #1~ `#3'~ instead .
   }
 
+\msg_new:nnn {acro} {deprecated-function}
+  { The~ command~ #1~ is~ deprecated.~ Use~ #2 instead . }
+
+\msg_new:nnn {acro} {removed-function}
+  { The~ command~ #1~ has~ been~ removed. }
+
 \msg_new:nnn {acro} {removed}
   {
     On~ line~ \msg_line_number: : \\
@@ -134,20 +140,6 @@
 \cs_generate_variant:Nn \__acro_auxlist_add:nn {e}
 \cs_generate_variant:Nn \__acro_property_remove_from_auxlist:nn {ne}
 
-% #1: new
-% #2: value
-\cs_new_protected:Npn \acro_deprecate_option:nn #1#2
-  {
-    \__acro_deprecation_warning:nVn {option} \l_keys_key_str {#1}
-    \keys_set:nn {acro} { #1 = #2 }
-  }
-
-\cs_new_protected:Npn \acro_remove_option:n #1
-  { \acro_removal_warning:nVn {option} \l_keys_key_str {#1} }
-
-\cs_new_protected:Npn \acro_remove_option:
-  { \acro_removal_warning:nV {option} \l_keys_key_str }
-
 % #1: old
 % #2: new
 \cs_new_protected:Npn \acro_deprecated_property:nn #1#2
@@ -174,6 +166,41 @@
   }
 
 % ----------------------------------------------------------------------------
+% #1: old
+% #2: new
+\cs_new_protected:Npn \acro_deprecate_function:NN #1#2
+  {
+    \cs_set:Npn #1
+      {
+        \msg_expandable_error:nnnn {acro} {function-deprecated} {#1} {#2}
+        #2
+      }
+  }
+
+% #1: old
+\cs_new_protected:Npn \acro_remove_function:N #1
+  {
+    \cs_set:Npn #1
+      { \msg_expandable_error:nnn {acro} {function-removed} {#1} }
+  }
+
+% ----------------------------------------------------------------------------
+% #1: new
+% #2: value
+\cs_new_protected:Npn \acro_deprecate_option:nn #1#2
+  {
+    \__acro_deprecation_warning:nVn {option} \l_keys_key_str {#1}
+    \keys_set:nn {acro} { #1 = #2 }
+  }
+
+% #1: additional text
+\cs_new_protected:Npn \acro_remove_option:n #1
+  { \acro_removal_warning:nVn {option} \l_keys_key_str {#1} }
+
+\cs_new_protected:Npn \acro_remove_option:
+  { \acro_removal_warning:nV {option} \l_keys_key_str }
+
+% ----------------------------------------------------------------------------
 % old properties:
 \acro_deprecated_property:nn {accsupp} {short-acc}
 \acro_deprecated_property:nn {tooltip} {pdfcomment}
@@ -184,6 +211,29 @@
 \acro_removed_property:n {after-citation}
 \acro_removed_property:n {first-long-format}
 \acro_removed_property:n {index-cmd}
+
+% ----------------------------------------------------------------------------
+% old functions
+\acro_remove_function:N \acflike
+\acro_remove_function:N \acfplike
+\acro_remove_function:N \acsingle
+\acro_remove_function:N \Acsingle
+\acro_remove_function:N \acpsingle
+\acro_remove_function:N \Acpsingle
+
+\acro_remove_function:N \acpdfstring
+\acro_remove_function:N \acpdfstringplural
+\acro_remove_function:N \AcroRegisterTrailing
+
+\acro_deprecate_function:NN \acifused \acroifusedTF
+\acro_deprecate_function:NN \aciffirst \acroiffirstTF
+\acro_deprecate_function:NN \ProvideAcroEnding \AcroDeclareEnding
+
+\acro_remove_function:N \DeclareAcroListStyle
+\acro_remove_function:N \DeclareAcroListHeading
+\acro_remove_function:N \DeclareAcroFirstStyle
+\acro_remove_function:N \DeclareAcroExtraStyle
+\acro_remove_function:N \DeclareAcroPageStyle
 
 % ----------------------------------------------------------------------------
 % old options:
