@@ -1,0 +1,283 @@
+% ----------------------------------------------------------------------------
+% the ACRO package - upgrade module
+% 
+%   Typeset Acronyms
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/acro/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2011--2020 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+\AcroModule{upgrade}{ease upgrading from version 2}
+
+% ----------------------------------------------------------------------------
+\msg_new:nnn {acro} {deprecated}
+  {
+    On~ line~ \msg_line_number: : \\
+    The~ #1~ `#2'~ is~ deprecated.~ Use~ #1~ `#3'~ instead .
+  }
+
+\msg_new:nnn {acro} {removed}
+  {
+    On~ line~ \msg_line_number: : \\
+    The~ #1~ `#2'~ has~ been~ removed~ from~ acro. \\
+    If~ you~ need~ it~ back~ please~ open~ an~ issue~ on~ \\
+    https://github.com/cgnieder/acro/issues
+    \tl_if_blank:nF {#3} { \\ #3 }
+  }
+
+% ----------------------------------------------------------------------------
+% #1: type
+% #2: old
+% #3: new
+\cs_new_protected:Npn \__acro_deprecation_warning:nnn #1#2#3
+  { \msg_warning:nnnnn {acro} {deprecated} {#1} {#2} {#3} }
+\cs_generate_variant:Nn \__acro_deprecation_warning:nnn {nne,nV}
+
+\acro_attribute_new:n {deprecated}
+\acro_attribute_new:n {removed}
+
+\prg_new_conditional:Npnn \acro_if_deprecated:n #1 {p,T,F,TF}
+  {
+    \acro_attribute_if_set:nnTF {deprecated} {#1}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+\prg_new_conditional:Npnn \acro_if_removed:n #1 {p,T,F,TF}
+  {
+    \acro_attribute_if_set:nnTF {removed} {#1}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+% #1: old
+% #2: new
+\cs_new_protected:Npn \acro_deprecate:nn #1#2
+  { \acro_attribute_set:nnn {deprecated} {#1} {#2} }
+
+% #1: old
+\cs_new_protected:Npn \acro_remove:n #1
+  { \acro_attribute_set:nnn {removed} {#1} {} }
+
+% #1: type
+% #2: old
+\cs_new_protected:Npn \acro_deprecation_warning:nn #1#2
+  {
+    \__acro_deprecation_warning:nne
+      {#1}
+      {#2}
+      { \acro_attribute_get:nn {deprecated} {#2} }
+  }
+
+% #1: type
+% #2: old
+% #3: additional text
+\cs_new_protected:Npn \acro_removal_warning:nnn #1#2#3
+  { \msg_warning:nnnnn {acro} {removed} {#1} {#2} {#3} }
+\cs_generate_variant:Nn \acro_removal_warning:nnn {nV}
+
+% #1: type
+% #2: old
+\cs_new_protected:Npn \acro_removal_warning:nn #1#2
+  { \msg_warning:nnnn {acro} {removed} {#1} {#2} }
+\cs_generate_variant:Nn \acro_removal_warning:nn {nV}
+
+% ----------------------------------------------------------------------------
+% #1: id
+% #2: property
+% #3: value
+\cs_set_protected:Npn \__acro_property_set:nnn #1#2#3
+  {
+    \acro_if_deprecated:nT {#2}
+      {
+        \acro_deprecation_warning:nn {property} {#2}
+        \__acro_property_remove_from_auxlist:ne {#1}
+          { \acro_attribute_get:nn {deprecated} {#2} }
+        \__acro_auxlist_add:en
+          { \acro_attribute_get:nn {deprecated} {#2} }
+          {#1=={#3}}
+        \acro_attribute_set:enn
+          { \acro_attribute_get:nn {deprecated} {#2} }
+          {#1} {#3}
+      }
+    \acro_if_removed:nT {#2}
+      { \acro_removal_warning:nn {property} {#2} }
+    \bool_lazy_and:nnT
+      { ! \acro_if_deprecated_p:n {#2} }
+      { ! \acro_if_removed_p:n {#2} }
+      {
+        \__acro_property_remove_from_auxlist:nn {#1} {#2}
+        \__acro_auxlist_add:nn {#2} {#1=={#3}}
+        \acro_attribute_set:nnn {#2} {#1} {#3}
+      }
+  }
+
+\cs_generate_variant:Nn \acro_attribute_set:nnn {e}
+\cs_generate_variant:Nn \__acro_auxlist_add:nn {e}
+\cs_generate_variant:Nn \__acro_property_remove_from_auxlist:nn {ne}
+
+% #1: new
+% #2: value
+\cs_new_protected:Npn \acro_deprecate_option:nn #1#2
+  {
+    \__acro_deprecation_warning:nVn {option} \l_keys_key_str {#1}
+    \keys_set:nn {acro} { #1 = #2 }
+  }
+
+\cs_new_protected:Npn \acro_remove_option:n #1
+  { \acro_removal_warning:nVn {option} \l_keys_key_str {#1} }
+
+\cs_new_protected:Npn \acro_remove_option:
+  { \acro_removal_warning:nV {option} \l_keys_key_str }
+
+% #1: old
+% #2: new
+\cs_new_protected:Npn \acro_deprecated_property:nn #1#2
+  {
+    \acro_deprecate:nn {#1} {#2}
+    \acro_property_declare:nnnnn
+      { \c_false_bool }
+      { \c_false_bool }
+      { \c_false_bool }
+      { \c_false_bool }
+      {#1}
+  }
+
+% #1: old
+\cs_new_protected:Npn \acro_removed_property:n #1
+  {
+    \acro_remove:n {#1}
+    \acro_property_declare:nnnnn
+      { \c_false_bool }
+      { \c_false_bool }
+      { \c_false_bool }
+      { \c_false_bool }
+      {#1}
+  }
+
+% ----------------------------------------------------------------------------
+% old properties:
+\acro_deprecated_property:nn {accsupp} {short-acc}
+\acro_deprecated_property:nn {tooltip} {pdfcomment}
+
+\acro_removed_property:n {long-pre}
+\acro_removed_property:n {long-post}
+\acro_removed_property:n {before-citation}
+\acro_removed_property:n {after-citation}
+\acro_removed_property:n {first-long-format}
+\acro_removed_property:n {index-cmd}
+
+% ----------------------------------------------------------------------------
+% old options:
+\keys_define:nn {acro}
+  {
+    %%% package:
+    log .code:n =
+      \acro_remove_option:n
+        { You~ can~ use~ \acshow ~ to~ inspect~ an~ acronym~ instead . } ,
+    messages .code:n = \acro_remove_option: ,
+    macros .code:n = \acro_remove_option: ,
+    xspace .code:n = \acro_remove_option: ,
+    strict .code:n = \acro_remove_option: ,
+    %%% behaviour:
+    hyperref .code:n =
+      \acro_deprecate_option:nn {make-links} {true} ,
+    label .code:n =
+      \acro_deprecate_option:nn {labels} {true} ,
+    only-used .code:n =
+      \acro_deprecate_option:nn {list/display} {used} ,
+    mark-as-used .code:n =
+      \acro_deprecate_option:nn {use-only-first} {true} ,
+    sort .code:n =
+      \acro_deprecate_option:nn {list/sort} {true} ,
+    display-foreign .code:n = \acro_remove_option: ,
+    cite .code:n =
+      \acro_deprecate_option:nn {cite/display} {#1} ,
+    cite-cmd .code:n =
+      \acro_deprecate_option:nn {cite/cmd} {#1} ,
+    group-citation .code:n =
+      \acro_deprecate_option:nn {cite/group} {true} ,
+    cite-connect .code:n =
+      \acro_deprecate_option:nn {cite/pre} {#1} ,
+    group-cite-cmd .code:n =
+      \acro_remove_option:n {Maybe~ the~ option~ `cite/cmd'~ helps.} ,
+    index .code:n =
+      \acro_deprecate_option:nn {index/use} {true} ,
+    index-cmd .code:n =
+      \acro_deprecate_option:nn {index/cmd} {#1} ,
+    short-format .code:n =
+      \acro_deprecate_option:nn {format/short} {#1} ,
+    long-format .code:n =
+      \acro_deprecate_option:nn {format/long} {#1} ,
+    foreign-format .code:n =
+      \acro_deprecate_option:nn {format/foreign} {#1} ,
+    extra-format .code:n =
+      \acro_deprecate_option:nn {format/extra} {#1} ,
+    single-format .code:n = \acro_remove_option: ,
+    first-long-format .code:n = \acro_remove_option: ,
+    list-foreign-format .code:n = \acro_remove_option: ,
+    format-include-endings .code:n =
+      \acro_deprecate_option:nn {include-endings} {true} ,
+    extra-style .code:n = \acro_remove_option: ,
+    page-style.code:n = \acro_remove_option: ,
+    pages .code:n =
+      \acro_deprecate_option:nn {pages/display} {#1} ,
+    page-name .code:n = \acro_remove_option: ,
+    pages-name .code:n = \acro_remove_option: ,
+    following-page .code:n =
+      \acro_deprecate_option:nn {pages/next} {true} ,
+    following-pages .code:n =
+      \acro_deprecate_option:nn {pages/next} {true} ,
+    next-page .code:n = \acro_remove_option: ,
+    next-pages .code:n = \acro_remove_option: ,
+    uc-cmd .code:n =
+      \acro_deprecate_option:nn {uppercase/cmd} {#1} ,
+    uppercase-short .code:n =
+      \acro_deprecate_option:nn {uppercase/short} {#1} ,
+    tooltip .code:n =
+      \acro_deprecate_option:nn {pdfcomment/use} {#1} ,
+    tooltip-cmd .code:n =
+      \acro_deprecate_option:nn {pdfcomment/cmd} {#1} ,
+    use-barriers .code:n = \acro_remove_option: ,
+    %%% list options:
+    list-style .code:n =
+      \acro_deprecate_option:nn {list/template} {#1} ,
+    list-heading .code:n =
+      \acro_deprecate_option:nn {list/heading} {#1} ,
+    list-name .code:n =
+      \acro_deprecate_option:nn {list/name} {#1} ,
+    list-caps .code:n = \acro_remove_option: ,
+    print-acronyms/include-classes .code:n =
+      \acro_deprecate_option:nn {list/include} {#1} ,
+    print-acronyms/exclude-classes .code:n =
+      \acro_deprecate_option:nn {list/exclude} {#1} ,
+    print-acronyms/name .code:n =
+      \acro_deprecate_option:nn {list/name} {#1} ,
+    print-acronyms/heading .code:n =
+      \acro_deprecate_option:nn {list/heading} {#1} ,
+    print-acronyms/sort .code:n =
+      \acro_deprecate_option:nn {list/sort} {true} ,
+    print-acronyms/local-to-barriers .code:n =
+      \acro_deprecate_option:nn {list/local} {true}
+  }
+
+% ----------------------------------------------------------------------------
+\file_input_stop:
