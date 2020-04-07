@@ -1,5 +1,3 @@
-% arara: pdflatex
-% arara: pdflatex
 % this file is an adapted version of acrotest.tex shipped out
 % with the `acronym' package
 \documentclass{article}
@@ -8,9 +6,11 @@
 \usepackage[colorlinks]{hyperref}
 \usepackage[version=3]{acro}
 
-\acsetup{ hyperref = true , pages / display = first }
-
-\RenewDocumentCommand \acropagefill {} {, }
+\acsetup{
+  hyperref ,
+  pages / display = first ,
+  pages / fill    = {, }
+}
 
 \DeclareAcronym{CDMA}{
   short            = CDMA ,

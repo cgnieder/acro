@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\ACROmodule{commands}{frameworks for user commands}
+\AcroModule{commands}{frameworks for user commands}
 
 \acro_modules_load:n {acronyms,tools}
 
@@ -208,9 +208,8 @@
 
 \keys_define:nn {acro}
   {
-    include-endings        .bool_set:N = \l__acro_include_endings_bool ,
-    include-endings        .initial:n  = true ,
-    format-include-endings .meta:n = { include-endings = #1 }
+    include-endings .bool_set:N = \l__acro_include_endings_bool ,
+    include-endings .initial:n  = true
   }
 
 
@@ -227,7 +226,7 @@
       }
       {
         \acro_if_first:nT {#2}
-          { \acro_cite:nn { \nobreakspace } {#2} }
+          { \acro_cite:n {#2} }
       }
     \acro_property_get:nn {#2} {post}
     \bool_lazy_all:nT

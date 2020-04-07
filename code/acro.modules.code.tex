@@ -181,12 +181,12 @@
 % define a acro module:
 % #1: name
 % #2: description
-\NewDocumentCommand \ACROmodule {mm}
+\NewDocumentCommand \AcroModule {mm}
   { \__acro_module:nn {#1} {#2} \ExplSyntaxOn }
 
 % --------------------------------------------------------------------------
 % style files
-\NewDocumentCommand \ACROstyle   {smO{}}
+\NewDocumentCommand \AcroStyle {smO{}}
   {
     \__acro_module:nn {style.#2} {#3}
     \IfBooleanT {#1} { \ExplSyntaxOn }

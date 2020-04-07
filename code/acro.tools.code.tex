@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\ACROmodule{tools}{tools for treating different aspects}
+\AcroModule{tools}{tools for treating different aspects}
 
 % ----------------------------------------------------------------------------
 \bool_new:N \l__acro_label_bool
@@ -76,10 +76,13 @@
       { \prg_return_true: }
   }
 \prg_generate_conditional_variant:Nnn \acro_if_single:n {e} {TF}
-  
+
+\bool_new:N \l__acro_use_only_first_bool
+\tl_new:N \l__acro_single_tl
+
 \keys_define:nn {acro}
   {
-    single        .code:n    =
+    single         .code:n    =
       \str_case:nnF {#1}
         {
           {} { \int_set:Nn \l__acro_minimal_usage_int {1} }
@@ -87,14 +90,10 @@
           {false} { \int_set:Nn \l__acro_minimal_usage_int {0} }
         }
         { \int_set:Nn \l__acro_minimal_usage_int {#1} } ,
-     minimal-usage .meta:n    = { single = #1 } ,
-     single        .initial:n = 0 ,
-  }
-
-\bool_new:N \l__acro_use_only_first_bool
-
-\keys_define:nn {acro}
-  {
+    minimal-usage  .meta:n    = { single = #1 } ,
+    single         .initial:n = 0 ,
+    single-form    .tl_set:N   = \l__acro_single_tl ,
+    single-form    .initial:n  = long ,
     use-only-first .bool_set:N = \l__acro_use_only_first_bool ,
     use-only-first .initial:n  = false
   }
@@ -146,7 +145,23 @@
 \bool_new:N \l__acro_format_replace_bool
 \tl_new:N \l__acro_format_short_tl
 \tl_new:N \l__acro_format_long_tl
+\tl_new:N \l__acro_format_alt_tl
+\tl_new:N \l__acro_format_extra_tl
+\tl_new:N \l__acro_format_foreign_tl
 
+% sets the format from the global option:
+% #1: property
+\cs_new_protected:Npn \__acro_property_format:n #1
+  {
+    \tl_use:c
+      {
+        \tl_if_exist:cTF {l__acro_format_ #2 _tl}
+          {l__acro_format_ #2 _tl}
+          {l__acro_format_ \acro_if_short:nTF {#2} {short} {long} _tl}
+      }
+  }
+
+% sets the individual format:
 % #1: id
 % #2: property
 % #3: text
@@ -156,11 +171,11 @@
       {
         \acro_property_if_set:nnTF {#1} {#2-format}
           { \acro_property_get:nn {#1} {#2-format} }
-          { \tl_use:c {l__acro_format_ \acro_if_short:nTF {#2} {short} {long} _tl} }
+          { \__acro_property_format:n {#2} }
         {#3}
       }
       {
-        \tl_use:c {l__acro_format_ \acro_if_short:nTF {#2} {short} {long} _tl}
+        \__acro_property_format:n {#2}
         {
           \acro_property_if_set:nnT {#1} {#2-format}
             { \acro_property_get:nn {#1} {#2-format} }
@@ -169,20 +184,21 @@
       }
   }
 
-\keys_define:nn {acro}
+\keys_define:nn {acro/format}
   {
-    format           .multichoice: ,
-    format / replace .code:n     =
-      \use:c {bool_set_#1:N} \l__acro_format_replace_bool ,
-    format / replace .initial:n  = false ,
-    format / short   .tl_set:N   = \l__acro_format_short_tl ,
-    format / short   .initial:n  = ,
-    format / long    .tl_set:N   = \l__acro_format_long_tl ,
-    format / long    .initial:n  = ,
-    format / unknown .meta:n     =
-      { format / short = #1 , format / long = #1 } ,
-    short-format     .meta:n     = { format / short = #1 } ,
-    long-format      .meta:n     = { format / long = #1 }
+    replace .bool_set:N = \l__acro_format_replace_bool ,
+    replace .initial:n  = false ,
+    short   .tl_set:N   = \l__acro_format_short_tl ,
+    short   .initial:n  = ,
+    long    .tl_set:N   = \l__acro_format_long_tl ,
+    long    .initial:n  = ,
+    alt     .tl_set:N   = \l__acro_format_alt_tl ,
+    alt     .initial:n  = ,
+    extra   .tl_set:N   = \l__acro_format_extra_tl ,
+    extra   .initial:n  = ,
+    foreign .tl_set:N   = \l__acro_format_foreign_tl ,
+    foreign .initial:n  = ,
+    unknown .meta:n     = { short = #1 , long = #1 }
   }
 
 % --------------------------------------------------------------------------
@@ -205,17 +221,19 @@
   }
 \cs_generate_variant:Nn \__acro_cite:n {e}
 
-% #1: before
-% #2: cite key
-\cs_new_protected:Npn \acro_cite:nn #1#2
+\tl_new:N \l__acro_cite_pre_tl
+
+% #1: cite key
+\cs_new_protected:Npn \acro_cite:n #1
   {
-    \acro_property_if_set:nnT {#2} {cite}
+    \acro_property_if_set:nnT {#1} {cite}
       {
-        #1 \__acro_cite:n {#2}
+        \l__acro_cite_pre_tl
+        \__acro_cite:n {#1}
         \bool_gset_true:N \g__acro_cited_bool
       }
   }
-\cs_generate_variant:Nn \acro_cite:nn {ne}
+\cs_generate_variant:Nn \acro_cite:n {e}
 
 \cs_new_protected:Npn \__acro_cite:w #1[#2]#3[#4]#5#6 \acro_stop:
   {
@@ -235,11 +253,17 @@
 
 \keys_define:nn {acro/cite}
   {
-    cmd   .cs_set:Np  = \__acro_cite_cmd:w ,
-    cmd   .initial:n  = \cite ,
-    cmd   .value_required:n = true ,
-    group .bool_set:N = \l__acro_cite_group_bool ,
-    group .initial:n  = false
+    cmd           .cs_set:Np  = \__acro_cite_cmd:w ,
+    cmd           .initial:n  = \cite ,
+    cmd           .value_required:n = true ,
+    group         .bool_set:N = \l__acro_cite_group_bool ,
+    group         .initial:n  = false ,
+    display       .choice: ,
+    display/all   .code:n = ,
+    display/first .code:n = ,
+    display/none  .code:n = ,
+    pre           .tl_set:N = \l__acro_cite_pre_tl ,
+    pre           .initial:n = \nobreakspace
   }
 
 % --------------------------------------------------------------------------
@@ -639,6 +663,8 @@
       { \bool_set_true:N \l__acro_label_bool }
   }
 
+\tl_new:N \l__acro_pages_fill_tl
+
 \keys_define:nn {acro/pages}
   {
     display .choice: ,
@@ -651,7 +677,9 @@
     display / none   .code:n =
       \bool_set_false:N \l__acro_pages_display_bool ,
     next   .bool_set:N = \l__acro_next_page_bool ,
-    next   .initial:n  = true
+    next   .initial:n  = true ,
+    fill   .tl_set:N   = \l__acro_pages_fill_tl ,
+    fill   .initial:n  = \space \dotfill \space
   }
 
 % --------------------------------------------------------------------------

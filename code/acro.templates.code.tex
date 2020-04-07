@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % ----------------------------------------------------------------------------
-\ACROmodule{templates}{templates for typesetting exercises}
+\AcroModule{templates}{templates for typesetting exercises}
 
 \acro_modules_load:n {base}
 
@@ -128,12 +128,22 @@
             \bool_set_false:N \l__acro_use_bool
           }
       }
-    \str_if_eq:nnTF {#3} {first}
+    \str_case:nnF {#3}
       {
-        \bool_if:NT \l__acro_tmpa_bool
-          { \bool_set_true:N \l__acro_use_bool }
-        \__acro_template_use:nnx {#1} {#2}
-          { \acro_property_get:Vn \l_acro_id_tl {first-style} }
+        {first} {
+          \bool_if:NT \l__acro_tmpa_bool
+            { \bool_set_true:N \l__acro_use_bool }
+          \__acro_template_use:nnx {#1} {#2}
+            { \acro_property_get:Vn \l_acro_id_tl {first-style} }
+        }
+        {single} {
+          \acro_property_if_set:VnTF \l_acro_id_tl {single}
+            {
+              \__acro_template_use:nnx {#1} {#2}
+                { \acro_property_get:Vn \l_acro_id_tl {single} }
+            }
+            { \__acro_template_use:nnV {#1} {#2} \l__acro_single_tl }
+        }
       }
       { \__acro_template_use:nnn {#1} {#2} {#3} }
   }

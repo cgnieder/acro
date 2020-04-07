@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\ACROmodule{interface}{definitions of user commands}
+\AcroModule{interface}{definitions of user commands}
 
 \acro_modules_load:n {commands,templates,list,locale,pdfsupport}
 
@@ -126,6 +126,9 @@
 \NewDocumentCommand \acroheading  {} { \acro_heading: }
 \NewDocumentCommand \acropreamble {} { \acro_preamble: }
 
+\NewExpandableDocumentCommand \acrolistname {}
+  { \tl_use:N \l__acro_list_name_tl }
+
 % --------------------------------------------------------------------------
 % cmmands for use in templates:
 \NewDocumentCommand \acronymsmapTF {+m+m+m}
@@ -158,10 +161,10 @@
 \NewDocumentCommand \acrousefalse {}
   { \acro_use_false: }
 
-\NewDocumentCommand \acrogroupcite {m}
+\NewDocumentCommand \acrogroupcite {}
   {
     \bool_if:NT \l__acro_cite_group_bool
-      { \acro_cite:ne {#1} { \AcronymID } }
+      { \acro_cite:e { \AcronymID } }
   }
 
 \NewDocumentCommand \acroifTF {m+m+m}
@@ -203,7 +206,7 @@
   { \acro_print_pages:enn { \AcronymID } {#1} {#2} }
 
 \NewDocumentCommand \acropagefill {}
-  { \space \dotfill \space }
+  { \tl_use:N \l__acro_pages_fill_tl }
 
 \NewExpandableDocumentCommand \acroifpagesTF {}
   { \acro_if_pages:eTF { \AcronymID } }

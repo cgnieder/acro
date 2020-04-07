@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\ACROmodule{definitions}{definitions of user commands}
+\AcroModule{definitions}{definitions of user commands}
 
 \acro_modules_load:n {interface}
 
@@ -124,7 +124,7 @@
               (
                 \acrowrite {short}
                 \acroifT {alt} { ~ \acrotranslate {or} ~ \acrowrite {alt} }
-                \acrogroupcite {\nobreakspace}
+                \acrogroupcite
               )
           }
           { \acrowrite {short} }
@@ -143,7 +143,7 @@
               (
                 \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} ~ }
                 \acrowrite {long}
-                \acrogroupcite {\nobreakspace}  
+                \acrogroupcite
               )
           }
       }
@@ -161,7 +161,7 @@
               {
                 \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} :~ }
                 \acrowrite {long}
-                \acrogroupcite {\nobreakspace}  
+                \acrogroupcite
               }
           }
       }
@@ -199,13 +199,13 @@
 \AcroNewTemplate[heading] {none} { }
 
 \AcroNewTemplate[heading] {section}
-  { \section { \acrotranslate {list-name} } }
+  { \section { \acrolistname } }
 
 \AcroNewTemplate[heading] {section*}
-  { \section* { \acrotranslate {list-name} } }
+  { \section* { \acrolistname } }
 
 \AcroNewTemplate[heading] {addsec}
-  { \addsec { \acrotranslate {list-name} } }
+  { \addsec { \acrolistname } }
 
 % --------------------------------------------------------------------------
 % list templates:

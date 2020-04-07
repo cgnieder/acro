@@ -44,5 +44,8 @@
 \ProcessOptions
 
 \RequirePackage{acro\ifnewacro3\else2\fi}
+\ifnewacro
+\csname acro_module_load:n\endcsname{upgrade}
+\fi
 
 \endinput

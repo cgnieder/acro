@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\ACROmodule{list}{the list of acronyms}
+\AcroModule{list}{the list of acronyms}
 % --------------------------------------------------------------------------
 % list of acronyms:
 \bool_new:N \l__acro_list_display_all_bool
@@ -151,6 +151,8 @@
 \cs_new_protected:Npn \acro_preamble:
   { \tl_use:N \l__acro_preamble_tl }
 
+\tl_new:N \l__acro_list_name_tl
+
 % --------------------------------------------------------------------------
 \keys_define:nn {acro/list}
   {
@@ -168,7 +170,9 @@
     heading      .tl_set:N  = \l__acro_heading_tl ,
     heading      .initial:n = section* ,
     preamble     .tl_set:N  = \l__acro_preamble_tl ,
-    preamble     .initial:n =
+    preamble     .initial:n = ,
+    name         .tl_set:N  = \l__acro_list_name_tl ,
+    name         .initial:n = \acro_translate:n {list-name}
   }
 
 % --------------------------------------------------------------------------

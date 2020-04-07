@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\ACROmodule{acronyms}{define acronyms}
+\AcroModule{acronyms}{define acronyms}
 
 \acro_modules_load:n {properties}
 
@@ -82,9 +82,6 @@
       { \prg_return_true: }
       { \prg_return_false: }
   }
-  
-\acro_list_add:nn {short} {short,alt}
-\acro_list_add:nn {long}  {long,foreign,single,extra}
 
 % --------------------------------------------------------------------------
 % define necessary properties:
@@ -96,6 +93,10 @@
     \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5}
     \acro_property_make_alias:nn {#5} {#6}
   }
+
+% short and long properties:
+\acro_list_add:nn {short} {short,alt}
+\acro_list_add:nn {long}  {long,foreign,single,extra,list}
 
 % meta information:
 \AcroDeclareProperty*!{id}
@@ -114,7 +115,7 @@
 \AcroDeclarePropertyAlias {sort}       {short}
 \AcroDeclareProperty      {index}
 \AcroDeclarePropertyAlias {index-sort} {sort}
-\AcroDeclarePropertyAlias {single}     {long}
+\AcroDeclareProperty      {single}
 \AcroDeclarePropertyAlias {pdfstring}  {short}
 \AcroDeclareProperty      {pdfcomment}
 
@@ -136,6 +137,7 @@
 \AcroDeclareProperty {extra-format}
 
 % additional properties:
+\AcroDeclarePropertyAlias {list} {long}
 \AcroDeclareProperty {extra}
 \AcroDeclareProperty {post}
 \AcroDeclareProperty {first-style}

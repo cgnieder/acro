@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\ACROmodule{pdfsupport}{support for bookmarks and accessibility}
+\AcroModule{pdfsupport}{support for bookmarks and accessibility}
 
 \msg_new:nnn {acro} {pdf-template-exists}
   { The~ pdfstring~ template~ `#1'~ already~ exists~ \msg_line_context: }
@@ -120,8 +120,7 @@
 \keys_define:nn {acro}
   {
     make-links .bool_set:N = \l__acro_hyperref_use_bool ,
-    make-links .initial:n  = false ,
-    hyperref   .meta:n     = { make-links = #1 }
+    make-links .initial:n  = false
   }
 
 % --------------------------------------------------------------------------
@@ -198,14 +197,12 @@
       {#3}
   }
 
-\keys_define:nn {acro}
+\keys_define:nn {acro/pdfcomment}
   {
-    pdfcomment       .multichoice: ,
-    pdfcomment / use .code:n    =
-      \use:c {bool_set_#1:N} \l__acro_pdfcomment_use_bool ,
-    pdfcomment / use .initial:n = false ,
-    pdfcomment / cmd .cs_set:Np = \__acro_pdf_comment_cmd:nn #1#2 ,
-    pdfcomment / cmd .initial:n = \pdftooltip {#1} {#2}
+    use .bool_set:N = \l__acro_pdfcomment_use_bool ,
+    use .initial:n = false ,
+    cmd .cs_set:Np = \__acro_pdf_comment_cmd:nn #1#2 ,
+    cmd .initial:n = \pdftooltip {#1} {#2}
   }
 
 % --------------------------------------------------------------------------

@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\ACROmodule{properties}{properties of acronyms}
+\AcroModule{properties}{properties of acronyms}
 
 \acro_modules_load:n {base,aux}
 
@@ -430,6 +430,7 @@
       }
       { \prg_return_false: }
   }
+\prg_generate_conditional_variant:Nnn \acro_property_if_set:nn {V} {TF}
 
 % #1: id
 % #2: property
