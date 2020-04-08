@@ -130,8 +130,8 @@
 % formatting:
 \AcroDeclareProperty {format}
 \AcroDeclarePropertyAlias {short-format} {format}
-\AcroDeclarePropertyAlias {alt-format}   {format}
-\AcroDeclareProperty {long-format}
+\AcroDeclarePropertyAlias {alt-format}   {short-format}
+\AcroDeclarePropertyAlias {long-format}  {format}
 \AcroDeclareProperty {foreign-format}
 \AcroDeclarePropertyAlias {single-format} {long-format}
 \AcroDeclareProperty {extra-format}
@@ -219,8 +219,15 @@
           { \prg_return_false: }
       }
     \seq_put_right:Nn \l__acro_endings_seq {#1}
-    \prop_put:Nnn \l__acro_short_endings_prop {#1} {#2}
-    \prop_put:Nnn \l__acro_long_endings_prop {#1} {#3}
+    \keys_define:nn {acro}
+      {
+        short-#1-ending .code:n =
+          \prop_put:Nnn \l__acro_short_endings_prop {#1} {##1} ,
+        short-#1-ending .initial:n = #2 ,
+        long-#1-ending .code:n =
+          \prop_put:Nnn \l__acro_long_endings_prop {#1} {##1} ,
+        long-#1-ending .initial:n = #3
+      }
     \__acro_declare_ending_properties:n {#1}% plural + plural-form
     \acro_list_map:nn {short}
       {
@@ -291,7 +298,6 @@
     \seq_new:c {g__acro_#1_barriers_seq}
     \seq_gput_right:Nn \g__acro_acronyms_seq {#1}
     % set defaults:
-    \acro_property_set:nnV {#1} {first-style} \l__acro_first_style_tl
     \acro_property_set:nnV {#1} {indefinite} \l__acro_indefinite_tl
     % set user input:
     \acro_properties_set:nn {#1} {#2}
@@ -299,8 +305,8 @@
     \acro_property_set:nnn {#1} {usage} {0}
     \acro_property_set:nnn {#1} {id} {#1}
     \acro_property_set_aliases:n {#1}
-    \bool_if:NT \g__use_id_bool
-      { \acro_property_set_alias:nn {#1} {short} }
+    % \bool_if:NT \g__use_id_bool
+    %   { \acro_property_set_alias:nn {#1} {short} }
     % check mandatory properties:
     \acro_property_foreach_mandatory:n
       {

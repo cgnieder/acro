@@ -203,6 +203,7 @@
           { \__acro_ending:nn {#1} {#2} }
       }
     \bool_set_false:N \l__acro_upper_bool
+    \bool_set_false:N \l__acro_indefinite_bool
   }
 \cs_generate_variant:Nn \acro_write:nn {e}
 
@@ -283,7 +284,7 @@
                   % setup:
                   \exp_not:n
                     {
-                      \IfNoValueF { \keys_set:nn {acro} {####2} }
+                      \IfNoValueF  {####2} { \keys_set:nn {acro} {####2} }
                       \acro_check_definition:n {####3}
                       \tl_set:Ne \AcronymID { \acro_case_insensitive:n {####3} }
                       \tl_set:Ne \l_acro_id_tl { \acro_case_insensitive:n {####3} }

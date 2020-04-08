@@ -170,9 +170,9 @@
 % #2: new
 \cs_new_protected:Npn \acro_deprecate_function:NN #1#2
   {
-    \cs_set:Npn #1
+    \cs_set_protected:Npn #1
       {
-        \msg_expandable_error:nnnn {acro} {function-deprecated} {#1} {#2}
+        \msg_error:nnnn {acro} {deprecated-function} {#1} {#2}
         #2
       }
   }
@@ -180,8 +180,8 @@
 % #1: old
 \cs_new_protected:Npn \acro_remove_function:N #1
   {
-    \cs_set:Npn #1
-      { \msg_expandable_error:nnn {acro} {function-removed} {#1} }
+    \cs_set_protected:Npn #1
+      { \msg_error:nnn {acro} {removed-function} {#1} }
   }
 
 % ----------------------------------------------------------------------------
@@ -204,6 +204,7 @@
 % old properties:
 \acro_deprecated_property:nn {accsupp} {short-acc}
 \acro_deprecated_property:nn {tooltip} {pdfcomment}
+\acro_deprecated_property:nn {foreign-lang} {foreign-babel}
 
 \acro_removed_property:n {long-pre}
 \acro_removed_property:n {long-post}
@@ -227,7 +228,7 @@
 
 \acro_deprecate_function:NN \acifused \acroifusedTF
 \acro_deprecate_function:NN \aciffirst \acroiffirstTF
-\acro_deprecate_function:NN \ProvideAcroEnding \AcroDeclareEnding
+\acro_deprecate_function:NN \ProvideAcroEnding \DeclareAcroEnding
 
 \acro_remove_function:N \DeclareAcroListStyle
 \acro_remove_function:N \DeclareAcroListHeading

@@ -90,13 +90,16 @@
 \NewDocumentCommand \AcroNewTemplate {O{acronym}m+m}
   { \use:c {acro_#1_template_new:nn} {#2} {#3} }
 
+\NewDocumentCommand \AcroRenewTemplate {O{acronym}m+m}
+  { \use:c {acro_#1_template_renew:nn} {#2} {#3} }
+
 \NewDocumentCommand \DeclareAcronym {m+m}
   { \acro_declare_acronym:nn {#1} {#2} }
 
-\NewDocumentCommand \AcroDeclareEnding {mmm}
+\NewDocumentCommand \DeclareAcroEnding {mmm}
   { \acro_declare_ending:nnn {#1} {#2} {#3} }
 
-\NewDocumentCommand \AcroDeclareTranslation {m+m}
+\NewDocumentCommand \DeclareAcroTranslation {m+m}
   { \acro_declare_translations:nn {#1} {#2} }
 
 \NewExpandableDocumentCommand \acrotranslate {m}
@@ -109,7 +112,7 @@
 \NewDocumentCommand \acspace {} { \acro_space: }
 
 \NewDocumentCommand \acroupper {} { \acro_upper: }
-\NewDocumentCommand \acrofirst {} { \acro_first: }
+\NewDocumentCommand \acrofull {} { \acro_first: }
 \NewDocumentCommand \acroindefinite {} { \acro_indefinite: }
 
 \NewDocumentCommand \printacronyms {o}

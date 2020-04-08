@@ -1,6 +1,6 @@
 % !arara: pdflatex: { interaction: nonstopmode }
 % !arara: biber
-% arara: pdflatex: { interaction: nonstopmode }
+% !arara: pdflatex: { interaction: nonstopmode }
 % arara: pdflatex: { interaction: nonstopmode }
 % arara: pdflatex: { interaction: nonstopmode }
 % --------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 % and version 1.3 or later is part of all distributions of LaTeX
 % version 2005/12/01 or later.
 % 
-% This work has the LPPL maintenance status `maintained'.
+% This work has nce status `maintained'.
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
@@ -35,11 +35,11 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\PassOptionsToPackage{ngerman,english}{babel}
+\PassOptionsToPackage{ngerman,latin,english}{babel}
 \PassOptionsToPackage{version=3,deprecation}{acro}
 \documentclass{acro-manual}
 
-% \usepackage[]{babel}
+\usepackage{todonotes}
 
 \addbibresource{\jobname.bib}
 \addbibresource{cnltx.bib}
@@ -84,10 +84,24 @@
 }
 \DeclareAcronym{ecu}{
   short   = ECU ,
-  long    = Electronic Control Unit ,
-  foreign = Steuergerät ,
-  foreign-locale = German ,
-  foreign-babel = ngerman
+  long    = Steuergerät ,
+  foreign = Electronic Control Unit ,
+  foreign-babel = english ,
+  foreign-locale = englisch
+}
+\DeclareAcronym{eg}{
+  short = e.g\acdot ,
+  long  = for example ,
+  foreign = exempli gratia ,
+  foreign-babel  = latin ,
+  short-format = \textit ,
+  foreign-format = \textit
+}
+\DeclareAcronym{etc}{
+  short = etc\acdot ,
+  long = et cetera ,
+  format = \textit ,
+  first-style = long
 }
 \DeclareAcronym{id}{
   short        = id ,
@@ -117,14 +131,15 @@
 \DeclareAcronym{MP}{
   short = MP ,
   long  = Member of Parliament ,
-  long-plural-form = Members of Parliament
+  long-plural-form = Members of Parliament ,
+  long-possessive-form = Member's of Parliament
 }
 \DeclareAcronym{nato}{
   short        = nato ,
-  long         = North Atlantic Treaty Organization ,
-  foreign      = Organisation des Nordatlantikvertrags ,
-  foreign-locale = German ,
-  foreign-babel  = ngerman ,
+  long         = Organisation des Nordatlantikvertrags ,
+  foreign      = North Atlantic Treaty Organization ,
+  foreign-babel  = english ,
+  foreign-locale = englisch ,
   short-format = \scshape
 }
 \DeclareAcronym{ny}{
@@ -142,11 +157,17 @@
   pdfstring = PDF ,
   short-acc = PDF
 }
+\DeclareAcronym{png}{
+  short = PNG ,
+  long  = Portable Network Graphics ,
+  first-style = short-long ,
+  single-style = short
+}
 \DeclareAcronym{sw}{
   short       = SW ,
   long        = Sammelwerk ,
   long-plural = e ,
-  class       = exclude
+  class = exclude
 }
 \DeclareAcronym{tex.sx}{
   short = \TeX.sx ,
@@ -154,8 +175,11 @@
   long  = \TeX{} StackExchange
 }
 \DeclareAcronym{ufo}{
-  short           = UFO ,
-  long            = unidentified flying object ,
+  short   = UFO ,
+  long    = unidentified flying object ,
+  foreign = unbekanntes Flugobjekt ,
+  foreign-plural-form = unbekannte Flugobjekte ,
+  foreign-babel = ngerman ,
   long-indefinite = an
 }
 
@@ -176,12 +200,13 @@
   as much meaningful warnings and errors as possible.
 \end{bewareofthedog}
 
-\part{Get started with \acro}
+\clearpage
+\part{Get started with \acro}\label{part:get-started-with}
 
-\section{Licence and requirements}
+\section{Licence and requirements}\label{sec:licence-requirements}
 \license
 
-\section{\acro\ for the impatient}
+\section{\acro\ for the impatient}\label{sec:acro-impatient}
 
 Acronyms are defined in the preamble via the command
 \begin{commands}
@@ -191,24 +216,20 @@ Acronyms are defined in the preamble via the command
 \end{commands}
 In the document acronyms are used with these commands:
 \begin{commands}
-  \command{ac}[\marg{id}]
-    Prints the acronym \meta{id}, the first time with full description and
-    every subsequent use only the abbreviated form.
-  \command{Ac}[\marg{id}]
-    Does the same as \cs{ac} but uppercases the first letter -- this may be
-    needed at the beginning of a sentence.
-  \command{acs}[\marg{id}]
-    Prints the short form of the acronym \meta{id}.
-  \command{Acs}[\marg{id}]
-    Does the same as \cs{acs} but uppercases the first letter.
-  \command{acl}[\marg{id}]
-    Prints the long form of the acronym \meta{id}.
-  \command{Acl}[\marg{id}]
-    Does the same as \cs{acl} but uppercases the first letter.
-  \command{acf}[\marg{id}]
-    Prints the full form of the acronym \meta{id}.
-  \command{Acf}[\marg{id}]
-    Does the same as \cs{acf} but uppercases the first letter.
+  \command{ac}[\marg{id}\quad\cs{Ac}\marg{id}]
+    \cs{ac} prints the acronym \meta{id}, the first time with full description
+    and every subsequent use only the abbreviated form. \cs{Ac} does the same
+    but uppercases the first letter -- this may be needed at the beginning of
+    a sentence.
+  \command{acs}[\marg{id}\quad\cs{Acs}\marg{id}]
+    \cs{acs} prints the short form of the acronym \meta{id}. \cs{Acs} does the
+    same but uppercases the first letter.
+  \command{acl}[\marg{id}\quad\cs{Acl}\marg{id}]
+    \cs{acl} prints the long form of the acronym \meta{id}. \cs{Acl} does the
+    same but uppercases the first letter.
+  \command{acf}[\marg{id}\quad\cs{Acf}\marg{id}]
+    \cs{acf} prints the full form of the acronym \meta{id}. \cs{Acf} does the
+    same but uppercases the first letter.
 \end{commands}
 Let's say you defined \acs*{cd} as follows:
 \begin{sourcecode}
@@ -228,20 +249,753 @@ Then the usage is
   \end{tabular}
 \end{example}
 
-\part{Comprehensive details}
+\section{Setting options}\label{sec:setting-options}
+\subsection{Load-time options}\label{sec:load-time-options}
+\acro\ knows only a few set of load-time options which can be used as argument
+to \cs*{usepackage}.  To be more precise it knows only one such option:
+\begin{options}
+  \opt{upgrade}
+    When this option is used \acro\ tries to give as much helpful and
+    meaningful warning or error messages when a deprecated or removed command
+    or setup is used.  This is especially useful if you are upgrading from
+    version~2.
+\end{options}
+
+\subsection{Setup command}\label{sec:setup-command}
+All options of \acro\ that have \emph{not} been mentioned in
+section~\ref{sec:load-time-options} have to be set up either with this command
+\begin{commands}
+  \command{acsetup}[\marg{options}]
+    or as option to other commands.  If this is possible then it is described
+    when the corresponding commands are explained.  Options usually follow a
+    key\slash value syntax like and are always described in the following way:
+\end{commands}
+\begin{options}
+  \opt*{option}
+    An option without a value. Those options are very rare if there are any.
+  \keyval*{option}{value}\Default{preset}
+    An option where a value can be given.  The pre-set value is given to the
+    right.
+  \keychoice*{option}{\default{choiceA},choiceB,choiceC}\Default{choiceB}
+    An option with a determined set of choices. The underlined value is
+    chosen if the option is given without value.
+  \keybool*{option}
+    A boolean option.
+  \opt*{option}\Module{module}
+    An option at a deeper level belonging to the module \module*{module}.
+\end{options}
+All of the above is probably clear from an example (using real options):
+\begin{sourcecode}
+  \acsetup{
+    make-links = true , % boolean
+    index ,             % boolean
+    format = \emph ,    % standard
+    list / local ,      % boolean option of the list module
+    list/display = all  % choice option of the list module
+  }
+\end{sourcecode}
+
+\part{Comprehensive description of creation and usage of acronyms}\label{part:compr-descr-creat}
+\section{Declaring acronyms and other abbreviations}\label{sec:decl-acronyms-other}
+
+All acronyms have to be declared in the preamble with the following command in
+order to be used in the document. Any usage of an acronym which has not been
+declared leeds to an error message.
+\begin{commands}
+  \command{DeclareAcronym}[\marg{id}\marg{list of properties}]
+    The basic command for declaring an acronym where \meta{id} is a unique
+    string identifying the acronym.  Per default behaviour this is case
+    sensitive which means \code{id} is different from \code{ID}, for example.
+    There is an option \option{case-sensitive} to change this.
+\end{commands}
+This command understands a number of properties which are listed in the
+following sections.  This is a comprehensive overview over the existing
+properties. Most of these properties are explained in more detail in later
+sections of this manual.
+
+\begin{bewareofthedog}
+  In its simplest form an acronym needs a short and a long form.  Please note
+  that both properties \emph{must} be set.
+\end{bewareofthedog}
+
+\subsection{Basic properties}\label{sec:basic-properties}
+\begin{properties}
+  %% short
+  \propval{short}{text}\Default!
+    The short form of the acronym.  \emph{This property is required}: an
+    acronym must have a short form.
+\end{properties}
+Maybe you mostly have simple acronyms where the \acs{id} and short form are
+the same.  In that case you can use
+\begin{options}
+  \keybool{use-id-as-short}\Default{false}
+    to use the \acs{id} of the acronym as short form. For more complicated
+    cases this would still allow you to set the short form.
+\end{options}
+\begin{properties}
+  %% long
+  \propval{long}{text}\Default!
+    The long form of the acronym.  \emph{This property is required}: an
+    acronym must have a description.
+  %% alt
+  \propval{alt}{text}\Default
+    Alternative short form.
+  %% extra
+  \propval{extra}{text}\Default
+    Extra information to be added in the list of acronyms.
+  %% foreign
+  \propval{foreign}{long form in foreign language}\Default
+    Can be useful when dealing with acronyms in foreign languages, see
+    section~\vref{sec:fore-lang-acronyms} for details.
+  %% post
+  \propval{post}{text}\Default
+    \meta{text} is appended to the acronym in the text but not in the list of
+    acronyms.
+  %% single
+  \propval{single}{text}\Default={long}
+    If provided \meta{text} will be used instead of the long form if the
+    acronym is only used a single time \emph{and} the option
+    \option{single} has been set, see section~\vref{sec:single-appe-an}.
+  %% sort
+  \propval{sort}{text}\Default={short}
+    If used the acronym will be sorted according to this property instead of
+    its \acs{id}.
+  %% class
+  \propval{class}{csv list}\Default
+    The class(es) the acronym belongs to.
+  %% cite
+  \proplit-{cite}{\oarg{prenote}\oarg{postnote}\marg{citation keys}}\Default
+    A citation that is printed to the acronym according to an option explained
+    later.
+  %% index
+  \propval{index}{text}Default
+    This property allows to overwrite the automatic index entry with an
+    arbitrary one.  See section~\vref{sec:indexing} for details.
+\end{properties}
+
+\subsection{Properties related to plural and indefinite forms}\label{sec:prop-relat-plur}
+\begin{properties}
+  %% short-plural
+  \propval{short-plural}{text}\Default{s}
+    The plural ending appended to the short form.
+  %% short-plural-form
+  \propval{short-plural-form}{text}\Default
+    The plural short form of the acronym; replaces the short form when used
+    instead of appending the plural ending.
+  %% long-plural
+  \propval{long-plural}{text}\Default{s}
+    The plural ending appended to the long form.
+  %% long-plural-form
+  \propval{long-plural-form}{text}\Default
+    Plural long form of the acronym; replaces the long form when used
+    instead of appending the plural ending.
+   %% alt-plural
+  \propval{alt-plural}{text}\Default{s}
+    The plural ending appended to the alternative form.
+  %% alt-plural-form
+  \propval{alt-plural-form}{text}\Default
+    The plural alternative form of the acronym; replaces the alternative form
+    when used instead of appending the plural ending.
+  %% foreign-plural
+  \propval{foreign-plural}{text}\Default{s}
+    The plural ending appended to the foreign form.
+  %% foreign-plural-form
+  \propval{foreign-plural-form}{text}\Default
+    Plural foreign form of the acronym; replaces the foreign form when used
+    instead of appending the plural ending.
+  %% short-indefinite
+  \propval{short-indefinite}{text}\Default{a}
+    Indefinite article for the short form.
+  %% long-indefinite
+  \propval{long-indefinite}{text}\Default{a}
+    Indefinite article for the long form.
+  %% alt-indefinite
+  \propval{alt-indefinite}{text}\Default{a}
+    Indefinite article for the alternative form.
+\end{properties}
+
+\subsection{Properties related to formatting}\label{sec:prop-relat-form}
+\begin{properties}
+  \propval{format}{\TeX{} code}\Default
+    The format used for both short and long form of the acronym.
+  %% short-format
+  \propval{short-format}{\TeX{} code}\Default={format}
+    The format used for the short form of the acronym.
+  %% long-format
+  \propval{long-format}{\TeX{} code}\Default={format}
+    The format used for the long form of the acronym.
+  %% alt-format
+  \propval{alt-format}{\TeX{} code}\Default={short-format}
+    The format used for the alternative form of the acronym. If this is not
+    given the short format will be used.
+  %% extra-format
+  \propval{extra-format}{\TeX{} code}\Default
+    The format used for the additional information of the acronym.
+  %% foreign-format
+  \propval{foreign-format}{\TeX{} code}\Default
+    The format used for the foreign form of the acronym.
+  %% single-format
+  \propval{single-format}{\TeX{} code}\Default={long-format}
+    The format used for the acronym if the acronym is only used a single
+    time.
+  %% first-style
+  \propchoice{first-style}{long-short,short-long,short,long,footnote}\Default
+    The style of the first appearance of the acronym, see also
+    section~\vref{sec:first-or-full}.
+  %% single-style
+  \propchoice{single-style}{long-short,short-long,short,long,footnote}\Default
+    The style of a single appearance of the acronym, see also
+    section~\vref{sec:single-appe-an}.
+\end{properties}
+
+\subsection{Properties related to the created \acs*{pdf} file}\label{sec:prop-relat-creat}
+\begin{properties}
+  %% pdfstring
+  \propval{pdfstring}{pdfstring}\Default={short}
+    Used as \acs{pdf} string replacement in bookmarks when used together with
+    the \pkg{hyperref}~\cite{pkg:hyperref} or the \pkg{bookmark}
+    package~\cite{pkg:bookmark}.
+  %% pdfcomment
+  \propval{pdfcomment}{text}
+    Sets a tooltip description for an acronym.  For actually getting
+    tooltips you also need an appropriate setting of the options
+    \option{pdfcomment/cmd} and \option{pdfcomment/use}, see also
+    section~\vref{sec:pdf-comments}.
+  %% short-acc
+  \propval{short-acc}{text}\Default={short}
+    Sets the \code{ActualText} property as presented by the \pkg{accsupp}
+    package for the short form of the acronym.
+  %% long-acc
+  \propval{long-acc}{text}\Default={long}
+    Sets the \code{ActualText} property as presented by the \pkg{accsupp}
+    package for the long form of the acronym.
+  %% alt-acc
+  \propval{alt-acc}{text}\Default={alt}
+    Sets the \code{ActualText} property as presented by the \pkg{accsupp}
+    package for the alternative short form of the acronym.
+  %% foreign-acc
+  \propval{foreign-acc}{text}\Default={foreign}
+    Sets the \code{ActualText} property as presented by the \pkg{accsupp}
+    package for the foreign form of the acronym.
+  %% short-acc
+  \propval{extra-acc}{text}\Default={extra}
+    Sets the \code{ActualText} property as presented by the \pkg{accsupp}
+    package for the extra information of the acronym.
+  %% single-acc
+  \propval{single-acc}{text}\Default={long-acc}
+    Sets the \code{ActualText} property as presented by the \pkg{accsupp}
+    package for a single appearance of the acronym.
+\end{properties}
+
+\subsection{Futher properties}\label{sec:futher-properties}
+\begin{properties}
+  %% list
+  \propval{list}{text}\Default={long}
+    If specified this will be written in the list as description instead of
+    the long form if the corresponding list template supports it.
+  %% foreign-babel
+  \propval{foreign-babel}{language}\Default
+    The \pkg{babel}~\cite{pkg:babel} or
+    \pkg{polyglossia}~\cite{pkg:polyglossia} language of the foreign form.
+    This language is used to wrap the entry with
+    \cs*{foreignlanguage}\marg{language} if either \pkg{babel} or
+    \pkg{polyglossia} is loaded.  You'll need to take care that the
+    corresponding language is loaded by \pkg{babel} or \pkg{polyglossia}.
+  %% foreign-locale
+  \propval{foreign-locale}{language}\Default
+    The language name that is output when the option
+    \module{locale}\code{/}\option{display} is used.  If this property is not
+    set then the appropriate value might be derived from
+    \property{foreign-babel}. See section~\vref{sec:fore-lang-acronyms} for
+    details.
+  %% index-sort
+  \propval{index-sort}{text}\Default={sort}
+    If you use the option \option{index} every occurrence of an acronym is
+    recorded to the index and sorted by its \acs{id} or (if set) by the value
+    of the \property{sort} property.  This property allows to set an
+    individual sorting option for the index.  See section~\vref{sec:indexing}
+    for details
+\end{properties}
+
+\section{Using acronyms}\label{sec:using-acronyms}
+There are a number of commands to use acronyms with. Their names always follow
+the same pattern which should make their usage intuitive immediately.
+
+All of these commands have a starred form which means \enquote{don't count
+  this as usage}. All of these commands also have an optional argument that
+allows to set options for that usage only.
+\begin{commands}
+  \command*{acrocommand}[\sarg\oarg{options}\marg{id}]
+    This is the general syntax of all of the commands listed below.  The star
+    and the optional argument is left way for the sake of readability.
+  \command{ac}[\marg{id} \cs{Ac}\marg{id} \cs{acp}\marg{id} \cs{Acp}\marg{id}
+  \cs{iac}\marg{id} \cs{Iac}\marg{id}]
+    \cs{ac} prints the acronym \meta{id}, the first time with full description
+    and every subsequent use only the abbreviated form. \cs{Ac} does the same
+    but uppercases the first letter -- this may be needed at the beginning of
+    a sentence.  The commands \cs{acp} and \cs{Acp}, resp., print the
+    corresponding plural forms.  The commands \cs{iac} and \cs{Iac}, resp.,
+    print indefinite forms.
+  \command{acs}[\marg{id} \cs{Acs}\marg{id} \cs{acsp}\marg{id} \cs{Acsp}\marg{id}
+  \cs{iacs}\marg{id} \cs{Iacs}\marg{id}]
+    \cs{acs} prints the short form of the acronym \meta{id}. \cs{Acs} does the
+    same but uppercases the first letter. The commands \cs{acsp} and
+    \cs{Acsp}, resp., print the corresponding plural forms. The commands
+    \cs{iacs} and \cs{Iacs}, resp., print indefinite forms.
+  \command{acl}[\marg{id} \cs{Acl}\marg{id} \cs{aclp}\marg{id} \cs{Aclp}\marg{id}
+  \cs{iacl}\marg{id} \cs{Iacl}\marg{id}]
+    \cs{acl} prints the long form of the acronym \meta{id}. \cs{Acl} does the
+    same but uppercases the first letter. The commands \cs{aclp} and
+    \cs{Aclp}, resp., print the corresponding plural forms. The commands
+    \cs{iacl} and \cs{Iacl}, resp., print indefinite forms.
+  \command{aca}[\marg{id} \cs{Aca}\marg{id} \cs{acap}\marg{id} \cs{Acap}\marg{id}
+  \cs{iaca}\marg{id} \cs{Iaca}\marg{id}]
+    \cs{aca} prints the alternative short form of the acronym \meta{id}.
+    \cs{Aca} does the same but uppercases the first letter. The commands
+    \cs{acap} and \cs{Acap}, resp., print the corresponding plural forms. The
+    commands \cs{iaca} and \cs{Iaca}, resp., print indefinite forms.
+  \command{acf}[\marg{id} \cs{Acf}\marg{id} \cs{acfp}\marg{id} \cs{Acfp}\marg{id}
+  \cs{iacf}\marg{id} \cs{Iacf}\marg{id}]
+    \cs{acf} prints the full form of the acronym \meta{id}. \cs{Acf} does the
+    same but uppercases the first letter. The commands \cs{acfp} and
+    \cs{Acfp}, resp., print the corresponding plural forms. The commands
+    \cs{iacf} and \cs{Iacf}, resp., print indefinite forms.
+\end{commands}
+
+The usage should be clear. Let's assume you have defined an acronym
+\acs*{ufo}\label{ufo} like this:
+\begin{sourcecode}
+  \DeclareAcronym{ufo}{
+    short = UFO ,
+    long = unidentified flying object ,
+    foreign = unbekanntes Flugobjekt ,
+    foreign-plural-form = unbekannte Flugobjekte ,
+    foreign-babel = ngerman ,
+    long-indefinite = an
+  }
+\end{sourcecode}
+Then typical outputs look like this:
+\begin{example}
+  \ac{ufo} \\
+  \iac{ufo} \\
+  \iacl{ufo} \\
+  \Iacf{ufo} \\
+  \acfp{ufo}
+\end{example}
+
+\section{Alternative short forms}\label{sec:altern-short-forms}
+Sometimes expressions have two different short forms. And example might be
+\acs*{jpg} which also often is \aca*{jpg}. This is what the property
+\property{alt} is there for.
+\begin{properties}
+  \propval{alt}{text}
+    Alternative short form.
+\end{properties}
+Let's define \acs*{jpg}:
+\begin{sourcecode}
+  \DeclareAcronym{jpg}{
+    short = JPEG ,
+    sort  = jpeg ,
+    alt   = JPG ,
+    long  = Joint Photographic Experts Group
+  }
+\end{sourcecode}
+And let's see how to use it:
+\begin{example}
+  \ac{jpg} \\
+  \ac{jpg} \\
+  \aca{jpg}
+\end{example}
+As you can see the full form shows both short forms of the acronym. This could
+be changed by altering the template for the full form, see
+section~\vref{sec:templates} and section~\vref{sec:first-or-full}.  The
+alternative form is also printed in the list of acronyms, see
+section~\vref{sec:acronyms}.  This can also be changed by altering the
+template for the list, again see section~\ref{sec:templates}.
+
+\section{The first or full appearance}\label{sec:first-or-full}
+If an acronym is used for the first time with \cs{ac} (after any number of
+usages with the starred forms of the usage commands listed in
+section~\vref{sec:using-acronyms}) or if an acronym is used \cs{acf}, then the
+first or full appearance of the acronym is printed\footnote{This usually
+  requires at least two compilations.}.
+
+The first or full appearance of an acronym is determined by this option:
+\begin{options}
+  \keychoice{first-style}{long-short,short-long,short,long,footnote}\Default{long-short}
+    The style of the first appearance of the acronym. This options sets the
+    appearance for all acronyms.  Available options in reality are the names
+    of all defined templates of the type \code{acronym}. All pre-defined
+    templates can be found in section~\vref{sec:pre-defin-templ}.
+\end{options}
+It might be desirable to set the first appearance of an acronym
+individually. This is possible by setting the corresponding property:
+\begin{properties}
+  \propchoice{first-style}{long-short,short-long,short,long,footnote}\Default
+    The style of the first appearance of the acronym.
+\end{properties}
+Let's again look at an example:
+\begin{example}[side-by-side]
+  \acf[first-style=long-short]{cd} \\
+  \acf[first-style=short-long]{cd} \\
+  \acf[first-style=footnote]{cd} \\
+  \acf[first-style=long]{cd} \\
+  \acf[first-style=short]{cd}
+\end{example}
+This also demonstrates the use of the optional argument.
+
+An example of an abbreviation that should have \code{long} as first appearance
+might be \enquote{\acs*{etc}}, defined like this
+\begin{sourcecode}
+  \DeclareAcronym{etc}{
+    short = etc\acdot ,
+    long = et cetera ,
+    format = \textit ,
+    first-style = long
+  }
+\end{sourcecode}
+and output like this:
+\begin{example}[side-by-side]
+  \ac{etc}, \ac{etc} \ac{etc}.
+\end{example}
+The command \cs{acdot} is explained in section~\vref{sec:trailing-tokens}.
+Basically it checks if a dot follows and outputs a dot if not.
+
+\section{Single appearances of an acronym}\label{sec:single-appe-an}
+If an acronym is used only once (not counting usages with the starred forms of
+the usage commands listed in section~\vref{sec:using-acronyms}), then the
+single appearance of the acronym is printed\footnote{This usually requires at
+  least two compilations.}.
+
+The single appearance of an acronym is determined by this option:
+\begin{options}
+  \keychoice{single}{\default{true},false,\meta{number}}\Default{false}
+    This option determines wether a single appearance of an acronym counts as
+    \emph{usage}. It might be desirable in such cases that an acronym is
+    simply printed as long form and not added to the list of acronym.  This is
+    what this option does.  With \meta{number} the minimal number of usages
+    can be given that needs to be exceeded.  \keyis{single}{1} is the same as
+    \keyis{single}{true}.
+  \keychoice{single-style}{long-short,short-long,short,long,footnote}\Default{long}
+    The style of the single appearance of an acronym.  Can be used to
+    determine how a single appearance is printed if the option \option{single}
+    has been set. This options sets the appearance for all acronyms.
+    Available options in reality are the names of all defined templates of the
+    type \code{acronym}. All pre-defined templates can be found in
+    section~\vref{sec:pre-defin-templ}.
+\end{options}
+
+If you like you can also set the single appearance of an acronym individually:
+\begin{properties}
+  \propval{single}{text}\Default={long}
+    If provided \meta{text} will be used instead of the long form if the
+    acronym is only used a single time \emph{and} the option
+    \option{single} has been set.
+  \propval{single-format}{\TeX{} code}\Default={long-format}
+    The format used for the acronym if the acronym is only used a single
+    time.
+  \propchoice{single-style}{long-short,short-long,short,long,footnote}\Default
+    The style of the single appearance of the acronym.
+\end{properties}
+Let's again look at an example. The acronym \acs*{png} is defined as follows:
+\begin{sourcecode}
+  \DeclareAcronym{png}{
+    short = PNG ,
+    long  = Portable Network Graphics ,
+    first-style = short-long ,
+    single-style = short
+  }
+\end{sourcecode}
+And it is used only once in this manual\footnote{You will find it in the list
+  of acronyms in section~\ref{sec:acronyms} nonetheless as this document does
+  \keyis{list/display}{all}.}:
+\begin{example}[side-by-side]
+  \ac{png}
+\end{example}  
+Please be aware that \cs{acf} would still print the full form, of course.
+
+\section{Plural forms and other endings}\label{sec:plural-forms-other}
+\subsection{The plural ending and the plural form}\label{sec:plural-ending-form}
+Not in all languages plural forms are as easy as always appending an
+\enquote{s}.  Not even English.  Sometimes there's other endings
+instead\footnote{German is full of such examples.}.  This is why \acro\ has
+quite a number of different properties related to plural forms or endings:
+\begin{properties}
+  %% short-plural
+  \propval{short-plural}{text}\Default{s}
+    The plural ending appended to the short form.
+  %% short-plural-form
+  \propval{short-plural-form}{text}\Default
+    The plural short form of the acronym; replaces the short form when used
+    instead of appending the plural ending.
+  %% long-plural
+  \propval{long-plural}{text}\Default{s}
+    The plural ending appended to the long form.
+  %% long-plural-form
+  \propval{long-plural-form}{text}\Default
+    Plural long form of the acronym; replaces the long form when used
+    instead of appending the plural ending.
+   %% alt-plural
+  \propval{alt-plural}{text}\Default{s}
+    The plural ending appended to the alternative form.
+  %% alt-plural-form
+  \propval{alt-plural-form}{text}\Default
+    The plural alternative form of the acronym; replaces the alternative form
+    when used instead of appending the plural ending.
+  %% foreign-plural
+  \propval{foreign-plural}{text}\Default{s}
+    The plural ending appended to the foreign form.
+  %% foreign-plural-form
+  \propval{foreign-plural-form}{text}\Default
+    Plural foreign form of the acronym; replaces the foreign form when used
+    instead of appending the plural ending.  
+\end{properties}
+There are two options which allow to change the default values for the whole
+document:
+\begin{options}
+  \keyval{short-plural-ending}{text}\Default{s}
+    Defines the plural ending for the short forms to be \meta{text}.
+  \keyval{long-plural-ending}{text}\Default{s}
+    Defines the plural ending for the long forms to be \meta{text}.
+\end{options}
+Now let's see two simple examples demonstrating the two different kinds of plural
+settings:
+\begin{sourcecode}
+  \DeclareAcronym{sw}{
+    short = SW ,
+    long = Sammelwerk ,
+    long-plural = e
+  }
+  \DeclareAcronym{MP}{
+    short = MP ,
+    long  = Member of Parliament ,
+    long-plural-form = Members of Parliament
+  }
+\end{sourcecode}
+The first one has another plural ending than the usual \enquote{s}. The second
+one has a different plural form altogether because appending an \enquote{s}
+would give a wrong form:
+\begin{example}[side-by-side]
+  \acfp{sw} \par
+  \acfp{MP}
+\end{example}
+
+\subsection{Other endings}\label{sec:other-endings}
+There are other such concepts which is why \acro\ generalizes the concept of
+endings.
+\begin{commands}
+  \command{DeclareAcroEnding}[\marg{name}\marg{short default}\marg{long
+    default}]
+    This command can be used to define properties and options analoguous to
+    the plural endings which have been defined this way:
+\end{commands}
+\begin{sourcecode}
+  \DeclareAcroEnding{plural}{s}{s}
+\end{sourcecode}
+In general \cs{DeclareAcroEnding}\marg{foo}\marg{x}\marg{y} defines these
+options
+\begin{options}
+  \keyval*{short-\meta{foo}-ending}{value}\Default*{\meta{x}}
+  \keyval*{long-\meta{foo}-ending}{value}\Default*{\meta{y}}
+\end{options}
+and these properties
+\begin{properties}
+  \propval*{short-\meta{foo}}{value}\Default*{\meta{x}}
+  \propval*{short-\meta{foo}-form}{value}\Default*
+  \propval*{alt-\meta{foo}}{value}\Default*{\meta{x}}
+  \propval*{alt-\meta{foo}-form}{value}\Default*
+  \propval*{long-\meta{foo}}{value}\Default*{\meta{y}}
+  \propval*{long-\meta{foo}-form}{value}\Default*
+  \propval*{foreign-\meta{foo}}{value}\Default*{\meta{y}}
+  \propval*{foreign-\meta{foo}-form}{value}\Default*
+  \propval*{single-\meta{foo}}{value}\Default*{\meta{y}}
+  \propval*{single-\meta{foo}-form}{value}\Default*
+  \propval*{extra-\meta{foo}}{value}\Default*{\meta{y}}
+  \propval*{extra-\meta{foo}-form}{value}\Default*
+\end{properties}
+In addition another command is defined which is meant to be used in
+template definitions.
+\begin{commands}
+  \command*{acro\meta{foo}}
+    This command tells the template that the ending \meta{foo} should be
+    used.
+\end{commands}
+Section~\vref{sec:own-acronym-commands} has an example of how this can be used
+to define a possessive ending and commands that make use of them like this:
+\begin{example}[side-by-side]
+  \acfg{MP}
+\end{example}
+
+\section{Indefinite forms}\label{sec:indefinite-forms}
+Indefinite forms can be a problem if the short and the long form of acronyms
+have different indefinite articles\footnote{This may very well be a language
+  specific issue.}.
+\begin{example}[side-by-side]
+  \acreset{ufo}%
+  a \ac{ufo} \par
+  an \ac{ufo}
+\end{example}
+And what good would it be to uase a package like \acro\ if you have to keep
+track of of and second uses, anyway?  This is why \acs{ufo} should be defined
+like we did on page~\pageref{ufo}.  We then can just use the dedicated
+commands and let them decide for us:
+\begin{example}[side-by-side]
+  \acreset{ufo}%
+  \iac{ufo} \par
+  \iac{ufo}
+\end{example}
+The commands which also output the indefinite article all start with an
+\enquote{i} and have all been described in section~\vref{sec:using-acronyms}
+already: \cs{iac}, \cs{Iac}, \cs{iacs}, \cs{Iacs}, \cs{iacl}, \cs{Iacl},
+\cs{iaca}, \cs{Iaca}, \cs{iacf}, and \cs{Iacf}.
+
+\section{Foreign language acronyms}\label{sec:fore-lang-acronyms}
+Sometimes and in some fields more often than in others abbreviations are used
+that are derived from another language.  \acro\ provides a number of
+properties for such cases:
+\begin{properties}
+  %% foreign
+  \propval{foreign}{long form in foreign language}\Default
+    Can be useful when dealing with acronyms in foreign languages, see
+    section~\vref{sec:fore-lang-acronyms} for details.
+  %% foreign-plural
+  \propval{foreign-plural}{text}\Default{s}
+    The plural ending appended to the foreign form.
+  %% foreign-plural-form
+  \propval{foreign-plural-form}{text}\Default
+    Plural foreign form of the acronym; replaces the foreign form when used
+    instead of appending the plural ending.
+  %% foreign-format
+  \propval{foreign-format}{\TeX{} code}\Default
+    The format used for the foreign form of the acronym.
+  %% foreign-babel
+  \propval{foreign-babel}{language}\Default
+    The \pkg{babel} or \pkg{polyglossia} language of the foreign form. This
+    language is used to wrap the entry with
+    \cs*{foreignlanguage}\marg{language} if either \pkg{babel} or
+    \pkg{polyglossia} is loaded.  You'll need to take care that the
+    corresponding language is loaded by \pkg{babel} or \pkg{polyglossia}.
+  %% foreign-locale
+  \propval{foreign-locale}{language}\Default
+    The language name that is output when the option
+    \module{locale}\code{/}\option{display} is used.  If this property is not
+    set then the appropriate value might be derived from
+    \property{foreign-babel}.
+\end{properties}
+There are also some options:
+\begin{options}
+  \keybool{display}\Module{locale}\Default{false}
+    This options determines wether the language of the foreign form is printed
+    or not when the full form of the acronym is printed.
+  \keybool{display}\Module{list/locale}\Default{false}
+    The same but for the list of acronyms.
+  \keyval{format}{code}\Module{locale}\Default{\cs*{em}\cs*{text\_titlecase\_first:n}}
+    Determines how said language is formatted when printed.  The last command
+    in \meta{code} may take a mandatory argument.
+\end{options}
+
+Let's say you are writing a German document and are using the abbreviation
+\acs*{ecu} for \acl*{ecu} which stems from the English \enquote{Electronic
+  Control Unit}.  Then you can define it as follows:
+\begin{sourcecode}
+  \DeclareAcronym{ecu}{
+    short   = ECU ,
+    long    = Steuergerät ,
+    foreign = Electronic Control Unit ,
+    foreign-babel = english ,
+    foreign-locale = englisch
+  }
+\end{sourcecode}
+Now the abbreviation is introduced so that everyone understands the confusion:
+\begin{example}
+  \ac{ecu} \par
+  \acsetup{locale/display,locale/format=\emph}
+  \acf{ecu}
+\end{example}
+
+The property \property{foreign-babel} is used for ensuring correct hyphenation
+as long as you use \pkg{babel} or \pkg{polyglossia} and load the corresponding
+language, too.  If you are writing your document in English then \acro\ is
+able to deduce the language used for the \enquote{locale} field by itself:
+\begin{sourcecode}
+  \DeclareAcronym{eg}{
+    short = e.g\acdot ,
+    long  = for example ,
+    foreign = exempli gratia ,
+    foreign-babel  = latin ,
+    short-format = \textit ,
+    foreign-format = \textit
+  }
+\end{sourcecode}
+\begin{example}
+  \acsetup{locale/display,first-style=short-long}
+  \acf{eg}
+\end{example}
+
+\section{Uppercasing}\label{sec:uppercasing}
+
+\section{Printing the list}\label{sec:printing-list}
+\subsection{The main command and its options}\label{sec:main-list}
+\subsection{Several lists using classes}\label{sec:lists-classes}
+\subsection{Local lists}\label{sec:local-lists}
+
+\section{Trailing tokens}\label{sec:trailing-tokens}
+
+\section{Citing and indexing}\label{sec:citing-indexing}
+\subsection{Citing}\label{sec:citing}
+\subsection{Indexing}\label{sec:indexing}
+
+\section{Using or resetting acronyms}\label{sec:using-or-resetting}
+
+\section{Localisation}\label{sec:localisation}
+
+\section{Bookmarks and accessibility support}\label{sec:bookm-access-supp}
+\subsection{\pkg*{hyperref} support}\label{sec:hyperref-support}
+\subsection{\acs*{pdf} comments}\label{sec:pdf-comments}
+\subsection{Accessibility support}\label{sec:access-supp}
+
+\part{Extending \acro}\label{part:extending-acro}
+\section{Templates}\label{sec:templates}
+\subsection{Pre-defined templates}\label{sec:pre-defin-templ}
+\subsection{Defining new templates}\label{sec:defin-new-templ}
+\subsection{New acronym templates}\label{sec:new-acronym-templ}
+\subsection{New list templates}\label{sec:new-list-templates}
+\subsection{New heading templates}\label{sec:new-head-templ}
+
+
+\section{Own acronym commands}\label{sec:own-acronym-commands}
+
+\begin{sourcecode}
+  \DeclareAcroEnding{possessive}{'s}{'s}
+
+  \NewAcroCommand\acg{m}{\acropossessive\AcroUseTemplate{first}{#1}}
+  \NewAcroCommand\acsg{m}{\acropossessive\AcroUseTemplate{short}{#1}}
+  \NewAcroCommand\aclg{m}{\acropossessive\AcroUseTemplate{long}{#1}}
+  \NewAcroCommand\acfg{m}{%
+    \acrofull
+    \acropossessive
+    \AcroUseTemplate{first}{#1}%
+  }
+  \NewAcroCommand\iacsg{m}{%
+    \acroindefinite
+    \acropossessive
+    \AcroUseTemplate{short}{#1}%
+  }
+\end{sourcecode}
 
 \clearpage
 \appendix
-\part{Appendix}
+\part{Appendix}\label{part:appendix}
+
+\section{Examples}\label{sec:examples}
+\todo{}
 
 \printacronyms[
-  preamble = {Below all abbreviations are listed which have been defined for
-    the manual.} ,
+  preamble = {\label{sec:acronyms}Below all abbreviations are listed which
+    have been defined for the manual.} ,
   exclude = exclude
 ]
 
-% \acshow{ecu}
-
-% \printbibliography
+\printbibliography
 
 \end{document}

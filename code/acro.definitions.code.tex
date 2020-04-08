@@ -37,16 +37,12 @@
   { \acroplural \AcroUseTemplate {first} {#1} }
 \NewAcroCommand \iac {m}
   { \acroindefinite \AcroUseTemplate {first} {#1} }
-\NewAcroCommand \iacp {m}
-  { \acroindefinite \acroplural \AcroUseTemplate {first} {#1} }
 \NewAcroCommand \Ac {m}
   { \acroupper \AcroUseTemplate {first} {#1} }
 \NewAcroCommand \Acp {m}
   { \acroplural \acroupper \AcroUseTemplate {first} {#1} }
 \NewAcroCommand \Iac {m}
   { \acroupper \acroindefinite \AcroUseTemplate {first} {#1} }
-\NewAcroCommand \Iacp {m}
-  { \acroupper \acroindefinite \acroplural \AcroUseTemplate {first} {#1} }
 
 \NewAcroCommand \acs {m}
   { \AcroUseTemplate {short} {#1} }
@@ -54,16 +50,12 @@
   { \acroplural \AcroUseTemplate {short} {#1} }
 \NewAcroCommand \iacs {m}
   { \acroindefinite \AcroUseTemplate {short} {#1} }
-\NewAcroCommand \iacsp {m}
-  { \acroindefinite \acroplural \AcroUseTemplate {short} {#1} }
 \NewAcroCommand \Acs {m}
   { \acroupper \AcroUseTemplate {short} {#1} }
 \NewAcroCommand \Acsp {m}
   { \acroplural \acroupper \AcroUseTemplate {short} {#1} }
 \NewAcroCommand \Iacs {m}
   { \acroupper \acroindefinite \AcroUseTemplate {short} {#1} }
-\NewAcroCommand \Iacsp {m}
-  { \acroupper \acroindefinite \acroplural \AcroUseTemplate {short} {#1} }
   
 \NewAcroCommand \acl {m}
   { \AcroUseTemplate {long} {#1} }
@@ -92,77 +84,68 @@
   { \acroupper \acroindefinite \AcroUseTemplate {alt} {#1} }
 
 \NewAcroCommand \acf {m}
-  { \acrofirst \AcroUseTemplate {first} {#1} }
+  { \acrofull \AcroUseTemplate {first} {#1} }
 \NewAcroCommand \acfp {m}
-  { \acrofirst \acroplural \AcroUseTemplate {first} {#1} }
+  { \acrofull \acroplural \AcroUseTemplate {first} {#1} }
 \NewAcroCommand \iacf {m}
-  { \acrofirst \acroindefinite \AcroUseTemplate {first} {#1} }
+  { \acrofull \acroindefinite \AcroUseTemplate {first} {#1} }
 \NewAcroCommand \Acf {m}
-  { \acrofirst \acroupper \AcroUseTemplate {first} {#1} }
+  { \acrofull \acroupper \AcroUseTemplate {first} {#1} }
 \NewAcroCommand \Acfp {m}
-  { \acrofirst \acroplural \acroupper \AcroUseTemplate {first} {#1} }
+  { \acrofull \acroplural \acroupper \AcroUseTemplate {first} {#1} }
 \NewAcroCommand \Iacf {m}
-  { \acrofirst \acroupper \acroindefinite \AcroUseTemplate {first} {#1} }
+  { \acrofull \acroupper \acroindefinite \AcroUseTemplate {first} {#1} }
 
 \NewAcroCommand \acshow {m}
   { \AcroUseTemplate {show} {#1} }
   
 % --------------------------------------------------------------------------
-\AcroDeclareEnding {plural} {s} {s}
+\DeclareAcroEnding {plural} {s} {s}
   
 % --------------------------------------------------------------------------
 % acronym templates:
 \AcroNewTemplate {long-short}
   {
-    \acroifsingleTF
-      { \acrowrite {single} }
+    \acroiffirstTF
       {
-        \acroiffirstTF
-          {
-            \acrowrite {long}
-            \acspace
-              (
-                \acrowrite {short}
-                \acroifT {alt} { ~ \acrotranslate {or} ~ \acrowrite {alt} }
-                \acrogroupcite
-              )
-          }
-          { \acrowrite {short} }
+        \acrowrite {long}
+        \acspace
+          (
+            \acroifT {foreign} { \acrowrite {foreign} ,~ }
+            \acrowrite {short}
+            \acroifT {alt} { ~ \acrotranslate {or} ~ \acrowrite {alt} }
+            \acrogroupcite
+          )
       }
+      { \acrowrite {short} }
   }
 
 \AcroNewTemplate {short-long}
   {
-    \acroifsingleTF
-      { \acrowrite {single} }
+    \acrowrite {short}
+    \acroiffirstT
       {
-        \acrowrite {short}
-        \acroiffirstT
-          {
-            \space
-              (
-                \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} ~ }
-                \acrowrite {long}
-                \acrogroupcite
-              )
-          }
+        \space
+          (
+            \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} ~ }
+            \acroifT {foreign} { \acrowrite {foreign} :~ }
+            \acrowrite {long}
+            \acrogroupcite
+          )
       }
   }
 
 \AcroNewTemplate {footnote}
   {
-    \acroifsingleTF
-      { \acrowrite {single} }
+    \acrowrite {short}
+    \acroiffirstT
       {
-        \acrowrite {short}
-        \acroiffirstT
+        \footnote
           {
-            \footnote
-              {
-                \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} :~ }
-                \acrowrite {long}
-                \acrogroupcite
-              }
+            \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} :~ }
+            \acroifT {foreign} { \acrowrite {foreign} ,~ }
+            \acrowrite {long}
+            \acrogroupcite
           }
       }
   }
@@ -282,7 +265,7 @@
 % --------------------------------------------------------------------------
 % translations:
 % list name
-\AcroDeclareTranslation {list-name}
+\DeclareAcroTranslation {list-name}
   {
     Fallback   = Acronyms ,
     English    = Acronyms ,
@@ -296,7 +279,7 @@
   }
 
 % page name
-\AcroDeclareTranslation {page}
+\DeclareAcroTranslation {page}
   {
     Fallback   = p. ,
     English    = p. ,
@@ -305,7 +288,7 @@
   }
 
 % pages name
-\AcroDeclareTranslation {pages}
+\DeclareAcroTranslation {pages}
   {
     Fallback   = pp. ,
     English    = pp. ,
@@ -314,7 +297,7 @@
   }
 
 % following page
-\AcroDeclareTranslation {next-page}
+\DeclareAcroTranslation {next-page}
   {
     Fallback   = f. ,
     English    = f. ,
@@ -323,7 +306,7 @@
   }
 
 % following pages
-\AcroDeclareTranslation {next-pages}
+\DeclareAcroTranslation {next-pages}
   {
     Fallback   = ff. ,
     English    = ff. ,
@@ -332,7 +315,7 @@
   }
 
 % also
-\AcroDeclareTranslation {also}
+\DeclareAcroTranslation {also}
   {
     Fallback   = also ,
     English    = also ,
@@ -346,7 +329,7 @@
   }
 
 % or
-\AcroDeclareTranslation {or}
+\DeclareAcroTranslation {or}
   {
     Fallback   = or ,
     English    = or ,
@@ -360,7 +343,7 @@
   }
 
 % and
-\AcroDeclareTranslation {and}
+\DeclareAcroTranslation {and}
   {
     Fallback   = and ,
     English    = and ,

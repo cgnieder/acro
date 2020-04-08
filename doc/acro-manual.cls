@@ -44,7 +44,7 @@
   list / template = manual ,
   list / heading = section ,
   list / display = all ,
-  list / show-locale ,
+  list / locale / display ,
   pages / display = all
 }
 
@@ -59,14 +59,38 @@
     also be used for glossaries or nomenclatures.
   } ,
   add-cmds = {
-    ac, Ac, acf, Acf, acl, Acl, acs, Acs,
-    DeclareAcronym,
+    % basic commands:
+    ac, Ac, aca, Aca, acf, Acf, acl, Acl, acs, Acs,
+    iac, Iac, iaca, Iaca, iacf, Iacf, iacl, Iacl, iacs, Iacs ,
+    acp, Acp, acap, Acap, acfp, Acfp, aclp, Aclp, acsp, Acsp,
+    % general commands:
+    acdot, acreset, acresetall, acspace, acsetup, acuse, acuseall,
+    % used in templates and command definitions:
+    acroindefinite, acrofull, acrogroupcite, acroplural, acrowrite,
+    AcroUseTemplate,
+    acroiffirstTF,
+    % declaring stuff:
+    DeclareAcronym, DeclareAcroEnding,
+    NewAcroCommand,
+    % demonstration of the possessive ending:
+    acg, acfg, aclg, acsg, iacsg, acropossessive
   } ,
   add-silent-cmds = {
   } ,
   index-setup = {
-    level = \section , headers={\indexname}{\indexname} , noclearpage
-  }
+    level = \section , headers={\indexname}{\indexname} , noclearpage ,
+    othercode = \footnotesize
+  } ,
+  makeindex-setup = { columns=3 , columnsep=1em } ,
+  module-sep = {\texttt{/}}%
+}
+
+\renewcommand*\cnltx@module@text[2]{%
+  \begingroup
+    \reversemarginpar
+    \setlength\marginparsep{1em}%
+    \marginnote{\hfill\llap{\module#1{#2}\cnltx@module@sep}}%
+  \endgroup
 }
 
 \colorlet{property}{blue}
@@ -114,16 +138,35 @@
 \def\cnltx@boolprop@star#1{\choiceprop*{#1}{\default{true},false}}
 \def\cnltx@boolprop@nostar#1{\choiceprop{#1}{\default{true},false}}
 
-\newenvironment{properties}
-  {%
-    \def\propert{\@cnltx@option@item\property}%
-    \def\propval{\@cnltx@option@item\prop}%
-    \def\proplit{\@cnltx@option@item\propis}%
-    \def\propchoice{\@cnltx@option@item\choiceprop}%
-    \def\propbool{\@cnltx@option@item\boolprop}%
-    \cnltxlist
-  }
-  {\endcnltxlist}
+\newenvironment{properties}{%
+  \renewrobustcmd*\cnltx@Default[1]{%
+    \null\hfill
+    \@ifnextchar\bgroup
+      {\cnltx@Default@initial{##1}}
+      {%
+        \cnltx@ifbang
+          {\cnltx@Default@required{##1}}
+          {
+            \cnltx@ifsym{=}%
+              {\cnltx@Default@alias{##1}}
+              {\cnltx@Default@empty{##1}}%
+          }%
+      }%
+  }%
+  \def\cnltx@Default@alias##1##2{%
+    \llap{if unused then equal to \property{##2}}%
+    \ifblank{##1}{\newline}{}%
+  }% 
+  \def\propert{\@cnltx@option@item\property}%
+  \def\propval{\@cnltx@option@item\prop}%
+  \def\proplit{\@cnltx@option@item\propis}%
+  \def\propchoice{\@cnltx@option@item\choiceprop}%
+  \def\propbool{\@cnltx@option@item\boolprop}%
+  \cnltxlist
+}
+{\endcnltxlist}
+
+\DeclareTranslation{english}{cnltx-default}{Initial}
 
 \protected\def\@versionstar{\raisebox{-.25em}{*}}
 \newcommand\versionstar{\texorpdfstring{\@versionstar}{*}}
@@ -296,7 +339,13 @@
 \newcommand*\h[1]{\textcolor{cnltx}{\textbf{#1}}}
 \newcommand*\mailto[1]{\texttt{\href{mailto:#1}{#1}}}
 
-\AcroDeclareEnding {possessive} {'s} {'s}
+\DeclareAcroEnding{possessive}{'s}{'s}
+
+\NewAcroCommand\acfg{m}{%
+  \acrofull
+  \acropossessive
+  \AcroUseTemplate{first}{#1}%
+}
 
 \AcroNewTemplate[list]{manual}{%
   \acroheading

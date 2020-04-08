@@ -22,3 +22,27 @@ This work has the LPPL maintenance status `maintained'.
 
 The Current Maintainer of this work is Clemens Niederberger.
 --------------------------------------------------------------------------
+--------------------------------------------------------------------------
+The acro package consists of the code files:
+   acro.sty
+   acro.acronyms.code.tex
+   acro.aux.code.tex
+   acro.base.code.tex
+   acro.commands.code.tex
+   acro.definitions.code.tex
+   acro.interface.code.tex
+   acro.list.code.tex
+   acro.locale.code.tex
+   acro.modules.code.tex
+   acro.pdfsupport.code.tex
+   acro.properties.code.tex
+   acro.templates.code.tex
+   acro.tools.code.tex
+   acro.upgrade.code.tex
+--------------------------------------------------------------------------
+The acro package consists of the documentation files:
+   README
+   acro.history
+   acro-manual.tex, acro-manual.pdf
+   acro-manual.cls
+--------------------------------------------------------------------------

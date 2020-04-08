@@ -274,7 +274,9 @@
   {
     \acro_property_get_if_set:nnF {#1} {#2-plural-form}
       {
-        \acro_property_get:nn {#1} {#2}
+        \str_if_eq:nnTF {#2} {short}
+          { \acro_property_get:nn {#1} {pdfstring} }
+          { \acro_property_get:nn {#1} {#2} }
         \acro_property_get:nn {#1} {#2-plural}
       }
   }
@@ -299,7 +301,7 @@
   {
     \acro_property_get:nn {#1} {long}
     \c_space_tl
-    ( \acro_property_get:nn {#1} {short} )
+    ( \acro_property_get:nn {#1} {pdfstring} )
   }
 
 % indef-long-short
@@ -308,7 +310,7 @@
     \__acro_pdfstring_indefinite:nn {#1} {long}
     \acro_property_get:nn {#1} {long}
     \c_space_tl
-    ( \acro_property_get:nn {#1} {short} )
+    ( \acro_property_get:nn {#1} {pdfstring} )
   }
 
 % Long-short
@@ -317,7 +319,7 @@
     \__acro_pdfstring_upper:n
       { \acro_property_get:nn {#1} {long} }
     \c_space_tl
-    ( \acro_property_get:nn {#1} {short} )
+    ( \acro_property_get:nn {#1} {pdfstring} )
   }
 
 % Indef-long-short
@@ -329,7 +331,7 @@
         \acro_property_get:nn {#1} {long}
       }
     \c_space_tl
-    ( \acro_property_get:nn {#1} {short} )
+    ( \acro_property_get:nn {#1} {pdfstring} )
   }
 
 % long-short-plural
@@ -353,7 +355,7 @@
 % short-long
 \acro_pdfstring_template_new:nn {short-long}
   {
-    \acro_property_get:nn {#1} {short}
+    \acro_property_get:nn {#1} {pdfstring}
     \c_space_tl
     ( \acro_property_get:nn {#1} {long} )
   }
@@ -362,7 +364,7 @@
 \acro_pdfstring_template_new:nn {indef-short-long}
   {
     \__acro_pdfstring_indefinite:nn {#1} {short}
-    \acro_property_get:nn {#1} {short}
+    \acro_property_get:nn {#1} {pdfstring}
     \c_space_tl
     ( \acro_property_get:nn {#1} {long} )
   }
@@ -371,7 +373,7 @@
 \acro_pdfstring_template_new:nn {Short-long}
   {
     \__acro_pdfstring_upper:n
-      { \acro_property_get:nn {#1} {short} }
+      { \acro_property_get:nn {#1} {pdfstring} }
     \c_space_tl
     ( \acro_property_get:nn {#1} {long} )
   }
@@ -382,7 +384,7 @@
     \__acro_pdfstring_upper:n
       {
         \__acro_pdfstring_indefinite:nn {#1} {short}
-        \acro_property_get:nn {#1} {short}
+        \acro_property_get:nn {#1} {pdfstring}
       }
     \c_space_tl
     ( \acro_property_get:nn {#1} {long} )
@@ -408,20 +410,20 @@
 % --------------------------------------------------------------------------
 % short
 \acro_pdfstring_template_new:nn {short}
-  { \acro_property_get:nn {#1} {short} }
+  { \acro_property_get:nn {#1} {pdfstring} }
 
 % indef-short
 \acro_pdfstring_template_new:nn {indef-short}
   {
     \__acro_pdfstring_indefinite:nn {#1} {short}
-    \acro_property_get:nn {#1} {short}
+    \acro_property_get:nn {#1} {pdfstring}
   }
 
 % Short
 \acro_pdfstring_template_new:nn {Short}
   {
     \__acro_pdfstring_upper:n
-      { \acro_property_get:nn {#1} {short} }
+      { \acro_property_get:nn {#1} {pdfstring} }
   }
 
 % Indef-short
@@ -430,7 +432,7 @@
     \__acro_pdfstring_upper:n
       {
         \__acro_pdfstring_indefinite:nn {#1} {short}
-        \acro_property_get:nn {#1} {short}
+        \acro_property_get:nn {#1} {pdfstring}
       }
   }
 

@@ -56,7 +56,7 @@
           { \prg_return_true: }
       }
   }
-\prg_generate_conditional_variant:Nnn \acro_if_first:n {e} {TF}
+\prg_generate_conditional_variant:Nnn \acro_if_first:n {e,V} {T,F,TF}
 
 % --------------------------------------------------------------------------
 % check for single usage:
@@ -75,7 +75,7 @@
       { \prg_return_false: }
       { \prg_return_true: }
   }
-\prg_generate_conditional_variant:Nnn \acro_if_single:n {e,V} {TF}
+\prg_generate_conditional_variant:Nnn \acro_if_single:n {e,V} {p,TF}
 
 \bool_new:N \l__acro_use_only_first_bool
 \tl_new:N \l__acro_single_tl
@@ -283,8 +283,10 @@
             \__acro_index:e
               {
                 \acro_property_get:nn {#1} {index-sort} @
-                \acro_property_get:nn {#1} {short-format}
-                { \acro_property_get:nn {#1} {short} }
+                {
+                  \acro_property_get:nn {#1} {short-format}
+                  { \acro_property_get:nn {#1} {short} }
+                }
               }
           }
       }

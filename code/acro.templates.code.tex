@@ -31,9 +31,8 @@
 
 \msg_new:nnn {acro} {unknown-template}
   {
-    You~ are~ trying~ to~ load~ the~ template~ `#1'~ (template~ type~ `#2')~
-    \msg_line_context: .~ This~ template~ does~ not~ seem~ to~ be~ defined.~
-    I~ am~ using~ the~ template~ `#3'~ (template~ type~ `#2')~ instead.
+    The~ template~ `#1'~ (template~ type~ `#2')~ \msg_line_context: \
+    does~ not~ seem~ to~ be~ defined.
   }
 
 \msg_new:nnn {acro} {template-type-exists}
@@ -62,6 +61,18 @@
     \acro_attribute_set:nnn {template::#1} {#2} {#3}
   }
 
+% #1: template type
+% #2: template name
+% #3: code
+\cs_new_protected:Npn \__acro_template_change:nnn #1#2#3
+  {
+    \acro_template_if_exist:nnTF {#1} {#2}
+      { \acro_attribute_set:nnn {template::#1} {#2} {#3} }
+      { \msg_error:nnnn {acro} {unknown-template} {#2} {#1} }
+  }
+
+% #1: template type
+% #2: template name
 \prg_new_conditional:Npnn \acro_template_if_exist:nn #1#2 {T,F,TF}
   {
     \acro_attribute_if_set:nnTF {template::#1} {#2}
@@ -133,7 +144,9 @@
         {first} {
           \bool_if:NT \l__acro_tmpa_bool
             { \bool_set_true:N \l__acro_use_bool }
-          \acro_if_single:VTF \l_acro_id_tl
+          \bool_lazy_and:nnTF
+            { !\l__acro_first_bool }
+            { \acro_if_single_p:V \l_acro_id_tl }
             {
               \acro_property_if_set:VnTF \l_acro_id_tl {single-style}
                 {
@@ -143,8 +156,16 @@
                 { \__acro_template_use:nnV {#1} {#2} \l__acro_single_tl }
             }
             {
-              \__acro_template_use:nnx {#1} {#2}
-                { \acro_property_get:Vn \l_acro_id_tl {first-style} }
+              \acro_if_first:VTF \l_acro_id_tl
+                {
+                  \acro_property_if_set:VnTF \l_acro_id_tl {first-style}
+                    {
+                      \__acro_template_use:nnx {#1} {#2}
+                        { \acro_property_get:Vn \l_acro_id_tl {first-style} }
+                    }
+                    { \__acro_template_use:nnV {#1} {#2} \l__acro_first_style_tl }
+                }
+                { \__acro_template_use:nnn {#1} {#2} {short} }
             }
         }
         {single} {
@@ -158,17 +179,18 @@
       }
       { \__acro_template_use:nnn {#1} {#2} {#3} }
   }
+\cs_generate_variant:Nn \acro_template_use:nnn {nnV}
+
 \cs_new_protected:Npn \__acro_template_use:nnn #1#2#3
   {
     \acro_template_if_exist:nnTF {#2} {#3}
       { \__acro_template_get:nnn {#1} {#2} {#3} }
       {
-        \msg_warning:nnnnn {acro} {unknown-template} {#3} {#2} {first}
+        \msg_warning:nnnn {acro} {unknown-template} {#3} {#2}
         \__acro_template_get:nnn {#1} {#2} {first}
       }
   }
 \cs_generate_variant:Nn \__acro_template_use:nnn {nnx,nnV}
-\cs_generate_variant:Nn \acro_template_use:nnn {nnV}
 
 % ----------------------------------------------------------------------------
 % acronym templates:
@@ -179,6 +201,18 @@
 \cs_new_protected:Npn \acro_acronym_template_new:nn #1#2
   {
     \__acro_template_add:nnn {acronym} {#1}
+      {
+        \__acro_template_start:nn {acronym} {#1}
+        #2
+        \__acro_template_stop:nn {acronym} {#1}
+      }
+  }
+
+% #1: template name
+% #2: code
+\cs_new_protected:Npn \acro_acronym_template_renew:nn #1#2
+  {
+    \__acro_template_change:nnn {acronym} {#1}
       {
         \__acro_template_start:nn {acronym} {#1}
         #2
@@ -202,6 +236,18 @@
       }
   }
 
+% #1: template name
+% #2: code
+\cs_new_protected:Npn \acro_heading_template_renew:nn #1#2
+  {
+    \__acro_template_change:nnn {heading} {#1}
+      {
+        \__acro_template_start:nn {heading} {#1}
+        #2
+        \__acro_template_stop:nn {heading} {#1}
+      }
+  }
+
 % ----------------------------------------------------------------------------
 % list templates:
 \acro_template_type_new:n {list}
@@ -211,6 +257,18 @@
 \cs_new_protected:Npn \acro_list_template_new:nn #1#2
   {
     \__acro_template_add:nnn {list} {#1}
+      {
+        \__acro_template_start:nn {list} {#1}
+        #2
+        \__acro_template_stop:nn {list} {#1}
+      }
+  }
+
+% #1: template name
+% #2: code
+\cs_new_protected:Npn \acro_list_template_renew:nn #1#2
+  {
+    \__acro_template_change:nnn {list} {#1}
       {
         \__acro_template_start:nn {list} {#1}
         #2

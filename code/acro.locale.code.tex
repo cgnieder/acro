@@ -39,6 +39,7 @@
 
 % --------------------------------------------------------------------------
 \bool_new:N \l__acro_show_locale_bool
+\bool_new:N \l__acro_list_show_locale_bool
 \tl_new:N \l__acro_locale_format_tl
 
 % #1: id
@@ -47,7 +48,9 @@
   {
     \str_if_eq:nnTF {#2} {foreign}
       {
-        \acro_property_if_set:nnTF {#1} {foreign-locale}
+        \bool_lazy_or:nnTF
+          { \acro_property_if_set_p:nn {#1} {foreign-babel} }
+          { \acro_property_if_set_p:nn {#1} {foreign-locale} }
           { \prg_return_true: }
           { \prg_return_false: }
       }
@@ -64,13 +67,24 @@
         \__acro_foreign_language:en
           { \str_lowercase:e { \acro_property_get:nn {#1} {foreign-babel} } }
           {
-            \bool_lazy_and:nnT
+            \bool_lazy_or:nnT
               { \l__acro_show_locale_bool }
-              { \acro_property_if_set_p:nn {#1} {foreign-locale} }
+              {
+                \bool_lazy_and_p:nn
+                  { \l__acro_list_bool }
+                  { \l__acro_list_show_locale_bool }
+              }
               {
                 {
                   \l__acro_locale_format_tl
-                  { \acro_property_get:nn {#1} {foreign-locale} }
+                    {
+                      \acro_property_if_set:nnTF {#1} {foreign-locale}
+                        { \acro_property_get:nn {#1} {foreign-locale} }
+                        {
+                           \baselanguage
+                             { \acro_property_get:nn {#1} {foreign-babel} }
+                        }
+                    }
                 }
                 :~
               }
@@ -90,12 +104,18 @@
   }
 \cs_generate_variant:Nn \__acro_foreign_language:nn {e}
 
-\keys_define:nn {acro/list}
+\keys_define:nn {acro/locale}
   {
-    show-locale   .bool_set:N = \l__acro_show_locale_bool ,
-    show-locale   .initial:n  = false ,
-    locale-format .tl_set:N   = \l__acro_locale_format_tl ,
-    locale-format .initial:n  = \emph
+    display .bool_set:N = \l__acro_show_locale_bool ,
+    display .initial:n  = false ,
+    format  .tl_set:N   = \l__acro_locale_format_tl ,
+    format  .initial:n  = \em \text_titlecase_first:n
+  }
+
+\keys_define:nn {acro/list/locale}
+  {
+    display .bool_set:N = \l__acro_list_show_locale_bool ,
+    display .initial:n  = false
   }
 
 % --------------------------------------------------------------------------

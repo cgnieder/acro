@@ -167,11 +167,24 @@
   }
 
 % --------------------------------------------------------------------------
+% check for stuff changed in the new version:
+\bool_new:N \g__acro_upgrade_bool
+
+\prg_new_conditional:Npnn \acro_if_upgrade: {p,T,F,TF}
+  {
+    \bool_if:NTF \g__acro_upgrade_bool
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+% --------------------------------------------------------------------------
 % load-time options:
 \keys_define:nn {acro/package}
   {
     debug   .bool_gset:N = \g__acro_debug_bool ,
-    debug   .initial:n   = false
+    debug   .initial:n   = false ,
+    upgrade .bool_gset:N = \g__acro_upgrade_bool ,
+    upgrade .initial:n   = false
   }
 
 \ProcessKeysPackageOptions {acro/package}
@@ -179,18 +192,26 @@
 \keys_define:nn {acro/package}
   {
     debug   .code:n = \msg_error:nnn {acro} {load-time-option} {debug} ,
+    upgrade .code:n = \msg_error:nnn {acro} {load-time-option} {upgrade} ,
     % TODO: check for any other given option
   }
 
 % --------------------------------------------------------------------------
-% load module mechanism:
+% load package:
+
+% this sets up the module mechanism:
 \tl_set:Nn \l__acro_tmpa_tl {code.tex}
 \@onefilewithoptions {acro.modules} [][] \l__acro_tmpa_tl
 
+% this loads the whole package:
 \acro_module_load:n {definitions}
+
+\acro_if_upgrade:T
+  { \acro_module_load:n {upgrade} }
 
 % ----------------------------------------------------------------------------
 % house-keeping:
 \AtEndDocument { \acro_close_aux: \acro_do_rerun: }
 
+% ----------------------------------------------------------------------------
 \file_input_stop:
