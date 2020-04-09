@@ -1,30 +1,3 @@
-% ----------------------------------------------------------------------------
-% the ACRO package - tools module
-% 
-%   Typeset Acronyms
-% 
-% --------------------------------------------------------------------------
-% Clemens Niederberger
-% Web:    https://github.com/cgnieder/acro/
-% E-Mail: contact@mychemistry.eu
-% --------------------------------------------------------------------------
-% Copyright 2011--2020 Clemens Niederberger
-% 
-% This work may be distributed and/or modified under the
-% conditions of the LaTeX Project Public License, either version 1.3
-% of this license or (at your option) any later version.
-% The latest version of this license is in
-%   http://www.latex-project.org/lppl.txt
-% and version 1.3 or later is part of all distributions of LaTeX
-% version 2005/12/01 or later.
-% 
-% This work has the LPPL maintenance status `maintained'.
-% 
-% The Current Maintainer of this work is Clemens Niederberger.
-% --------------------------------------------------------------------------
-% If you have any ideas, questions, suggestions or bugs to report, please
-% feel free to contact me.
-% --------------------------------------------------------------------------
 \AcroModule{tools}{tools for treating different aspects}
 
 % ----------------------------------------------------------------------------
@@ -312,8 +285,9 @@
 % looking for trailing tokens and define action
 \bool_new:N \l__acro_trailing_tokens_bool
 \tl_new:N   \l__acro_trailing_tokens_tl
-\prop_new:N \l__acro_trailing_tokens_prop
-\prop_new:N \l__acro_trailing_actions_prop
+\tl_new:N \g__acro_trailing_tokens_tl
+\acro_attribute_new:n {trailing:token}
+\acro_attribute_new:n {trailing:action}
 
 \cs_new_protected:Npn \acro_trailing_action_new:n #1
   { \bool_new:c {l__acro_trailing_#1_bool} }
@@ -329,26 +303,27 @@
 % #2: action
 \cs_new_protected:Npn \acro_trailing_token_register:Nn #1#2
   {
-    \prop_put:Nnn \l__acro_trailing_tokens_prop {#2} {#1}
-    \prop_put:Nnn \l__acro_trailing_actions_prop {#1}
+    \tl_gput_right:Nn \g__acro_trailing_tokens_tl {{#1}}
+    \acro_attribute_set:nnn {trailing:token} {#2} {#1}
+    \acro_attribute_set:nnn {trailing:action} {#1}
       { \acro_trailing_action_activate:n {#2} }
     \acro_trailing_action_new:n {#2}
   }
 
 \cs_new_protected:Npn \acro_trailing_map:n #1
-  { \prop_map_inline:Nn \l__acro_trailing_tokens_prop {#1} }
+  { \tl_map_inline:Nn \g__acro_trailing_tokens_tl {#1} }
 
 % activate a token:
 \cs_new_protected:Npn \acro_trailing_token_activate:n #1
   {
-    \prop_get:NnN \l__acro_trailing_tokens_prop {#1} \l__acro_tmpa_tl
+    \tl_set:Ne \l__acro_tmpa_tl { \acro_attribute_get:nn {trailing:token} {#1} }
     \tl_put_right:NV \l__acro_trailing_tokens_tl \l__acro_tmpa_tl
   }
 
 % deactivate a token:
 \cs_new_protected:Npn \acro_trailing_token_deactivate:n #1
   {
-    \prop_get:NnN \l__acro_trailing_tokens_prop {#1} \l__acro_tmpa_tl
+    \tl_set:Ne \l__acro_tmpa_tl { \acro_attribute_get:nn {trailing:token} {#1} }
     \tl_remove_all:NV \l__acro_trailing_tokens_tl \l__acro_tmpa_tl
   }
 
@@ -382,7 +357,7 @@
     \tl_map_inline:Nn \l__acro_trailing_tokens_tl
       {
         \token_if_eq_meaning:NNT #1 ##1
-          { \prop_item:Nn \l__acro_trailing_actions_prop {##1} }
+          { \acro_attribute_get:nn {trailing:action} {##1} }
       }
   }
 
@@ -723,4 +698,4 @@
   }
 
 % ----------------------------------------------------------------------------
-\file_input_stop:
+\AcroModuleEnd

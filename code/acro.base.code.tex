@@ -1,30 +1,3 @@
-% ----------------------------------------------------------------------------
-% the ACRO package - base module
-% 
-%   Typeset Acronyms
-% 
-% --------------------------------------------------------------------------
-% Clemens Niederberger
-% Web:    https://github.com/cgnieder/acro/
-% E-Mail: contact@mychemistry.eu
-% --------------------------------------------------------------------------
-% Copyright 2011--2020 Clemens Niederberger
-% 
-% This work may be distributed and/or modified under the
-% conditions of the LaTeX Project Public License, either version 1.3
-% of this license or (at your option) any later version.
-% The latest version of this license is in
-%   http://www.latex-project.org/lppl.txt
-% and version 1.3 or later is part of all distributions of LaTeX
-% version 2005/12/01 or later.
-% 
-% This work has the LPPL maintenance status `maintained'.
-% 
-% The Current Maintainer of this work is Clemens Niederberger.
-% --------------------------------------------------------------------------
-% If you have any ideas, questions, suggestions or bugs to report, please
-% feel free to contact me.
-% --------------------------------------------------------------------------
 \AcroModule{base}{basic functionality of the package}
 
 % --------------------------------------------------------------------------
@@ -51,15 +24,9 @@
 \cs_generate_variant:Nn \file_get_mdfive_hash:nN {V}
 \cs_generate_variant:Nn \iow_open:Nn {NV}
 \cs_generate_variant:Nn \use_ii:nn {ne}
+\cs_generate_variant:Nn \keys_set:nn {nV}
 
 % --------------------------------------------------------------------------
-\prg_new_conditional:Npnn \acro_package_if_loaded:n #1 {p,T,F,TF}
-  {
-    \cs_if_exist:cTF {ver@#1.sty}
-      { \prg_return_true: }
-      { \prg_return_false: }
-  }
-
 \prg_new_conditional:Npnn \acro_class_if_loaded:n #1 {p,T,F,TF}
   {
     \cs_if_exist:cTF {ver@#1.cls}
@@ -84,8 +51,6 @@
 
 \msg_new:nnn {acro} {attribute-undefined}
   { The~ attribute~ `#1'~ is~ not~ yet~ defined~ \msg_line_context: }
-
-\seq_new:N \g__acro_attributes_seq
 
 \prg_new_conditional:Npnn \acro_attribute_if_exist:n #1 {p,T,F,TF}
   {
@@ -115,7 +80,7 @@
       }
       { \msg_error:nnn {acro} {attribute-undefined} {#1} }
   }
-\cs_generate_variant:Nn \acro_attribute_set:nnn {nnx}
+\cs_generate_variant:Nn \acro_attribute_set:nnn {nnx,nne}
 
 % #1: attribute
 % #2: item
@@ -189,4 +154,4 @@
   { \keys_set:nn {acro} {#1} }
 
 % ----------------------------------------------------------------------------
-\file_input_stop:
+\AcroModuleEnd

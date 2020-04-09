@@ -1,8 +1,8 @@
-% !arara: pdflatex: { interaction: nonstopmode }
-% !arara: biber
-% !arara: pdflatex: { interaction: nonstopmode }
 % arara: pdflatex: { interaction: nonstopmode }
+% arara: biber
 % arara: pdflatex: { interaction: nonstopmode }
+% !arara: pdflatex: { interaction: nonstopmode }
+% !arara: pdflatex: { interaction: nonstopmode }
 % --------------------------------------------------------------------------
 % the ACRO package
 % 
@@ -36,7 +36,7 @@
 % feel free to contact me.
 % --------------------------------------------------------------------------
 \PassOptionsToPackage{ngerman,latin,english}{babel}
-\PassOptionsToPackage{version=3,deprecation}{acro}
+\PassOptionsToPackage{version=3,upgrade}{acro}
 \documentclass{acro-manual}
 
 \usepackage{todonotes}
@@ -76,7 +76,7 @@
 \DeclareAcronym{ctan}{
   short     = ctan ,
   long      = Comprehensive \TeX\ Archive Network ,
-  format    = \scshape ,
+  short-format = \scshape ,
   pdfstring = CTAN ,
   short-acc = CTAN ,
   first-style = short-long ,
@@ -115,23 +115,22 @@
   long  = Joint Photographic Experts Group
 }
 \DeclareAcronym{la}{
-  short        = LA ,
-  short-plural = ,
-  long         = Los Angeles,
-  long-plural  = ,
-  class        = city
+  short = LA ,
+  long = Los Angeles,
+  plural = ,
+  class = city
 }
 \DeclareAcronym{lppl}{
-  short     = lppl ,
-  long      = \unexpanded{\LaTeX} Project Public License ,
-  format    = \scshape ,
+  short = lppl ,
+  long = \unexpanded{\LaTeX} Project Public License ,
+  short-format = \scshape ,
   pdfstring = LPPL ,
   short-acc = LPPL
 }
 \DeclareAcronym{MP}{
   short = MP ,
   long  = Member of Parliament ,
-  long-plural-form = Members of Parliament ,
+  plural-form = Members of Parliament ,
   long-possessive-form = Member's of Parliament
 }
 \DeclareAcronym{nato}{
@@ -143,17 +142,16 @@
   short-format = \scshape
 }
 \DeclareAcronym{ny}{
-  short        = NY ,
-  short-plural = ,
-  long         = New York ,
-  long-plural  = ,
-  class        = city ,
-  cite         = NewYork
+  short = NY ,
+  long = New York ,
+  plural = ,
+  class = city ,
+  cite = NewYork
 }
 \DeclareAcronym{pdf}{
-  short     = pdf ,
-  long      = Portable Document Format ,
-  format    = \scshape ,
+  short = pdf ,
+  long = Portable Document Format ,
+  short-format = \scshape ,
   pdfstring = PDF ,
   short-acc = PDF
 }
@@ -769,7 +767,7 @@ settings:
   \DeclareAcronym{MP}{
     short = MP ,
     long  = Member of Parliament ,
-    long-plural-form = Members of Parliament
+    plural-form = Members of Parliament
   }
 \end{sourcecode}
 The first one has another plural ending than the usual \enquote{s}. The second

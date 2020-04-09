@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------
-the ACRO package v3.0alpha-1 2020/04/07
+the ACRO package v3.0alpha-2 2020/04/09
 
   Typeset Acronyms
 
@@ -22,25 +22,8 @@ This work has the LPPL maintenance status `maintained'.
 
 The Current Maintainer of this work is Clemens Niederberger.
 --------------------------------------------------------------------------
---------------------------------------------------------------------------
-The acro package consists of the code files:
+The acro package consists of the files:
    acro.sty
-   acro.acronyms.code.tex
-   acro.aux.code.tex
-   acro.base.code.tex
-   acro.commands.code.tex
-   acro.definitions.code.tex
-   acro.interface.code.tex
-   acro.list.code.tex
-   acro.locale.code.tex
-   acro.modules.code.tex
-   acro.pdfsupport.code.tex
-   acro.properties.code.tex
-   acro.templates.code.tex
-   acro.tools.code.tex
-   acro.upgrade.code.tex
---------------------------------------------------------------------------
-The acro package consists of the documentation files:
    README
    acro.history
    acro-manual.tex, acro-manual.pdf

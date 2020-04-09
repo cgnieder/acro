@@ -1,0 +1,108 @@
+#!/bin/bash
+
+cleanup=false
+build=false
+manual=false
+verbose=false
+
+# option
+while [ -n "$1" ]; do
+  case "$1" in
+    -b|--build) build=true ;; # build sty      
+    -z|--cleanup) cleanup=true ;; # cleanup directories
+    -m|--manual) manual=true ;; # create manual
+    -v|--verbose) verbose=true ;; # messages
+    *) echo "unkown option $1" ;;
+  esac
+  shift
+done
+
+START_DIR="${PWD}"
+ACRO_DIR=~/LaTeX/dev/acro
+CODE_DIR=${ACRO_DIR}/code
+DOC_DIR=${ACRO_DIR}/doc
+
+# files to be removed
+AUX_FILES="${CODE_DIR}/*~
+           ${DOC_DIR}/*~
+           ${DOC_DIR}/*synctex*
+           ${DOC_DIR}/*.run.xml
+           ${DOC_DIR}/*.aux
+           ${DOC_DIR}/*.acro
+           ${DOC_DIR}/*.xsim
+           ${DOC_DIR}/*.log
+           ${DOC_DIR}/*.out
+           ${DOC_DIR}/*.bbl
+           ${DOC_DIR}/*.bcf
+           ${DOC_DIR}/*.bib
+           ${DOC_DIR}/*.blg
+           ${DOC_DIR}/*.idx
+           ${DOC_DIR}/*.ilg
+           ${DOC_DIR}/*.ind
+           ${DOC_DIR}/*.tmp
+           ${DOC_DIR}/*.toc
+           ${DOC_DIR}/*.lof
+           ${DOC_DIR}/*.lot"
+
+if [ "$build" = true ] ; then
+  # change to the code directory
+  cd ${CODE_DIR}
+  if [ "$verbose" = true ] ; then
+    echo "creating style file"
+  fi
+  # build sty file from modules:
+  cat \
+  acro.start.code.tex \
+  acro.base.code.tex \
+  acro.aux.code.tex \
+  acro.properties.code.tex \
+  acro.acronyms.code.tex \
+  acro.tools.code.tex \
+  acro.commands.code.tex \
+  acro.templates.code.tex \
+  acro.list.code.tex \
+  acro.locale.code.tex \
+  acro.pdfsupport.code.tex \
+  acro.interface.code.tex \
+  acro.definitions.code.tex \
+  acro.upgrade.code.tex \
+  > acro3.sty
+
+  # append necessary end:
+  echo -e "% finish package:\n\
+  \\AtEndDocument { \\\\acro_close_aux: \\\\acro_do_rerun: }\n\
+  %----------------------------------------------------------------------------\n\
+  \\\\file_input_stop:"\
+  >> acro3.sty
+  
+  cd ${START_DIR}
+fi
+
+# build manual
+if [ "$manual" = true ] ; then
+  if [ "$verbose" = true ] ; then
+    echo "running arara to build manual"
+  fi
+  cd ${DOC_DIR}
+  arara acro-manual.tex
+  cd ${START_DIR}
+fi
+
+# remove temporary and auxiliary files
+if [ "$cleanup" = true ] ; then
+  if [ "$verbose" = true ] ; then
+    echo "cleaning up directories"
+  fi
+  for file in ${AUX_FILES}
+  do
+    if [ ! -e "${file}" ]; then continue 
+    else
+      rm "${file}"
+      if [ "$verbose" = true ] ; then  
+        echo "deleted file ${file}"
+      fi
+    fi
+  done
+fi
+
+exit

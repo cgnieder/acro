@@ -30,14 +30,14 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\ProvidesPackage{acro}[2020/04/07 v3.0alpha-1 Typeset Acronyms]
+\ProvidesPackage{acro}[2020/04/09 v3.0alpha-2 Typeset Acronyms]
 
 \newif\ifnewacro
-\newif\ifacrodeprecation
+\newif\ifacroupgrade
 
 \DeclareOption{version=2}{\newacrofalse}
 \DeclareOption{version=3}{\newacrotrue}
-\DeclareOption{deprecation}{\acrodeprecationtrue}
+\DeclareOption{upgrade}{\acroupgradetrue}
 \DeclareOption*{%
   \PassOptionsToPackage{\CurrentOption}{acro2}%
   \PassOptionsToPackage{\CurrentOption}{acro3}%
@@ -45,18 +45,10 @@
 
 \ProcessOptions
 
-\RequirePackage{acro\ifnewacro3\else2\fi}
-
-\ifnewacro
-  \expandafter\@firstoftwo
-  \else
-  \expandafter\@secondoftwo
-\fi  
-\ifacrodeprecation\iffalse
-  \expandafter\@firstofone
-  \else
-  \expandafter\@gobble
+\ifacroupgrade
+  \RequirePackage[upgrade]{acro\ifnewacro3\else2\fi}
+\else
+  \RequirePackage{acro\ifnewacro3\else2\fi}
 \fi
-{\csname acro_module_load:n\endcsname{upgrade}}
 
 \endinput
