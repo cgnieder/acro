@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------
-the ACRO package v3.0alpha-2 2020/04/09
+the ACRO package v3.0alpha-2 2020/04/13
 
   Typeset Acronyms
 
@@ -26,6 +26,6 @@ The acro package consists of the files:
    acro.sty
    README
    acro.history
-   acro-manual.tex, acro-manual.pdf
-   acro-manual.cls
+   acro-manual.tex, acro-manual.pdf, acro-manual.cls
+   a number of example files
 --------------------------------------------------------------------------
