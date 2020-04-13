@@ -4168,7 +4168,7 @@
 \NewDocumentCommand \acroloadstyle {m}
   { \acro_style_load:n {#1} }
 
-\DeclareExpandableDocumentCommand \acroifusedTF {m}
+\NewExpandableDocumentCommand \acroifusedTF {m}
   { \acro_boolean_property_if:nnTF {#1} {used} }
 
 \NewDocumentCommand \acuse {m}
@@ -4270,6 +4270,9 @@
 \NewDocumentCommand \acronymsmap {+m}
   { \acronymsmapTF {#1} {} {} }
 
+\NewExpandableDocumentCommand \acrofield {mm}
+  { \acro_property_get:nn {#1} {#2} }
+
 \NewDocumentCommand \acrowrite {m}
   {
     \acro_property_if_eq:nnTF {#1} {list}
@@ -4299,6 +4302,9 @@
 
 \NewDocumentCommand \acrocite {}
   { \bool_set_true:N \l__acro_cite_always_bool }
+
+\NewExpandableDocumentCommand \acrofieldifTF {+m+m+m+m}
+  { \acro_property_if_set:nnTF {#1} {#2} {#3} {#4} }
 
 \NewDocumentCommand \acroifTF {m+m+m}
   { \acro_property_if_set:enTF { \AcronymID } {#1} {#2} {#3} }
