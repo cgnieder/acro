@@ -1,0 +1,231 @@
+\AcroModule{pages}{recording and printing of pages}
+% ----------------------------------------------------------------------------
+% record page numbers:
+\RequirePackage {zref-abspage}
+
+\group_begin:
+\char_set_catcode_other:N \@
+
+% #1: id
+\cs_new_protected:Npn \acro_record_page:n #1
+  {
+    \seq_if_in:ceF {g__acro_#1_pages_seq} { \arabic{abspage} @ \thepage }
+      {
+        \seq_gput_right:ce {g__acro_#1_pages_seq}
+          { \arabic{abspage} @ \thepage }
+      }
+    \seq_gremove_duplicates:c {g__acro_#1_pages_seq}
+    \acro_at_end_document:n
+      {
+        \acro_property_set:nnx {#1} {pages}
+          { \seq_use:cn {g__acro_#1_pages_seq} {|} }
+      }
+  }
+
+\cs_new:Npn \__acro_page:w #1@#2 \q_stop {#2}
+\cs_new:Npn \__acro_page_value:w  #1@#2 \q_stop {#1}
+
+\group_end:
+
+% #1: id
+% #2: one page
+% #3: more than one page
+\cs_new_protected:Npn \acro_print_pages:nnn #1#2#3
+  {
+    \bool_if:NTF \l__acro_pages_all_bool
+      {
+        \bool_if:NTF \l__acro_pages_name_display_bool
+          { \acro_print_page_ranges:nnn {#1} {#2} {#3} }
+          { \acro_print_page_ranges:nnn {#1} {} {} }
+      }
+      {
+        \bool_if:NT \l__acro_pages_name_display_bool {#2}
+        \pageref { \l_acro_label_prefix_tl #1 }
+      }
+  }
+\cs_generate_variant:Nn \acro_print_pages:nnn {e}
+
+% #1: id
+% #2: one page
+% #3: more than one page
+\cs_new_protected:Npn \acro_print_page_ranges:nnn #1#2#3
+  {
+    \seq_set_split:Nnx \l__acro_tmpa_seq {|}
+      { \acro_property_get:nn {#1} {pages} }
+    \seq_remove_all:Nn \l__acro_tmpa_seq {}
+    \seq_clear:N \l__acro_tmpb_seq
+    \int_zero:N \l__acro_tmpa_int
+    \int_zero:N \l__acro_tmpb_int
+    \int_zero:N \l__acro_tmpc_int
+    \tl_clear:N \l__acro_tmpa_tl
+    \tl_clear:N \l__acro_tmpb_tl
+    \seq_if_empty:NF \l__acro_tmpa_seq
+      {
+        \int_compare:nNnTF { \seq_count:N \l__acro_tmpa_seq } > 2
+          { % more than two appearances:
+            \seq_map_inline:Nn \l__acro_tmpa_seq
+              {
+                \int_incr:N \l__acro_tmpa_int
+                \int_compare:nNnF \l__acro_tmpa_int = 1
+                  {
+                    \int_compare:nNnTF
+                      { ( \__acro_page_value:w ##1 \q_stop ) - \l__acro_tmpb_int } = 1
+                      {% consecutive page
+                        \int_compare:nNnT \l__acro_tmpc_int = 1
+                          { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_tmpb_tl }
+                        \int_compare:nNnT
+                          \l__acro_tmpa_int = { \seq_count:N \l__acro_tmpa_seq }
+                          {
+                            \seq_put_right:NV \l__acro_tmpb_seq \l__acro_tmpa_tl
+                            \int_compare:nNnTF \l__acro_tmpc_int > 1
+                              {
+                                \bool_if:NTF \l__acro_sequentes_bool
+                                  {
+                                    \seq_put_right:Nn \l__acro_tmpb_seq
+                                      { \acro_translate:n {sequentes} }
+                                  }
+                                  { \seq_put_right:Nn \l__acro_tmpb_seq {--} }
+                              }
+                              {
+                                \bool_if:NTF \l__acro_sequentes_bool
+                                  {
+                                    \seq_put_right:Nn \l__acro_tmpb_seq
+                                      { \acro_translate:n {sequens} }
+                                  }
+                                  { \seq_put_right:Nn \l__acro_tmpb_seq {,~} }
+                              }
+                            \bool_if:NF \l__acro_sequentes_bool
+                              {
+                                \seq_put_right:Ne \l__acro_tmpb_seq
+                                  { \__acro_page:w ##1 \q_stop }
+                              }
+                          }
+                      }
+                      {
+                        \tl_if_empty:NTF \l__acro_tmpa_tl
+                          {
+                            \seq_put_right:NV \l__acro_tmpb_seq \l__acro_tmpb_tl
+                            \seq_put_right:Nn \l__acro_tmpb_seq {,~}
+                          }
+                          {
+                            \seq_put_right:NV \l__acro_tmpb_seq \l__acro_tmpa_tl
+                            \int_compare:nNnTF \l__acro_tmpc_int > 2
+                              {
+                                \bool_if:NTF \l__acro_sequentes_bool
+                                  {
+                                    \seq_put_right:Nn \l__acro_tmpb_seq
+                                      { \acro_translate:n {sequentes} }
+                                  }
+                                  { \seq_put_right:Nn \l__acro_tmpb_seq {--} }
+                              }
+                              {
+                                \bool_if:NTF \l__acro_sequentes_bool
+                                  {
+                                    \seq_put_right:Nn \l__acro_tmpb_seq
+                                      { \acro_translate:n {sequens} }
+                                  }
+                                  { \seq_put_right:Nn \l__acro_tmpb_seq {,~} }
+                              }
+                            \bool_if:NF \l__acro_sequentes_bool
+                              { \seq_put_right:NV \l__acro_tmpb_seq \l__acro_tmpb_tl }
+                            \tl_clear:N \l__acro_tmpa_tl
+                          }
+                        \int_zero:N \l__acro_tmpc_int
+                        \int_compare:nNnT
+                          \l__acro_tmpa_int = { \seq_count:N \l__acro_tmpa_seq }
+                          {
+                            \seq_put_right:Nn \l__acro_tmpb_seq {,~}
+                            \seq_put_right:Ne \l__acro_tmpb_seq
+                              { \__acro_page:w ##1 \q_stop }
+                          }
+                      }
+                  }
+                \int_set:Nn \l__acro_tmpb_int { \__acro_page_value:w ##1 \q_stop }
+                \tl_set:Ne \l__acro_tmpb_tl { \__acro_page:w ##1 \q_stop }
+                \int_incr:N \l__acro_tmpc_int
+              }
+            #3
+            \seq_use:Nn \l__acro_tmpb_seq {}
+          }
+          { % two or less appearances:
+            \seq_clear:N \l__acro_tmpb_seq
+            \seq_clear:N \l__acro_tmpc_seq
+            \seq_map_inline:Nn \l__acro_tmpa_seq
+              {
+                \seq_put_right:Ne \l__acro_tmpb_seq
+                  { \__acro_page:w ##1 \q_stop }
+              }
+            \seq_map_inline:Nn \l__acro_tmpa_seq
+              {
+                \seq_put_right:Ne \l__acro_tmpc_seq
+                  { \__acro_page_value:w ##1 \q_stop }
+              }
+            \int_compare:nNnTF { \seq_count:N \l__acro_tmpa_seq } = 2
+              {#3}
+              {#2}
+            \bool_if:NTF \l__acro_sequentes_bool
+              {
+                \int_compare:nNnTF
+                  {
+                    \seq_item:Nn \l__acro_tmpc_seq {2} -
+                    \seq_item:Nn \l__acro_tmpc_seq {1}
+                  }
+                  = 1
+                  { \seq_item:Nn \l__acro_tmpb_seq {1} \acro_translate:n {sequens} }
+                  { \seq_use:Nn \l__acro_tmpb_seq {,~} }
+              }
+              { \seq_use:Nn \l__acro_tmpb_seq {,~} }
+          }
+      }
+  }
+
+\bool_new:N \l__acro_pages_all_bool
+\bool_new:N \l__acro_pages_display_bool
+\bool_new:N \l__acro_sequentes_bool
+
+% #1: id
+\prg_new_conditional:Npnn \acro_if_pages:n #1 {p,T,F,TF}
+  {
+    \bool_lazy_and:nnTF
+      { \l__acro_pages_display_bool }
+      {
+        \bool_lazy_or_p:nn
+          { \int_compare_p:nNn \l__acro_minimal_usage_int = 0 }
+          { !\acro_if_single_p:n {#1} }
+      }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \acro_if_pages:n {e} {p,T,F,TF}
+
+\acro_at_begin_document:n
+  {
+    \bool_lazy_and:nnT
+      { \l__acro_pages_display_bool }
+      { !\l__acro_pages_all_bool }
+      { \bool_set_true:N \l__acro_label_bool }
+  }
+
+\tl_new:N \l__acro_pages_fill_tl
+
+\keys_define:nn {acro/pages}
+  {
+    display .choice: ,
+    display / all   .code:n =
+     \bool_set_true:N \l__acro_pages_display_bool
+     \bool_set_true:N \l__acro_pages_all_bool ,
+    display / first .code:n =
+      \bool_set_true:N \l__acro_pages_display_bool
+      \bool_set_false:N \l__acro_pages_all_bool ,
+    display / none   .code:n =
+      \bool_set_false:N \l__acro_pages_display_bool ,
+    seq    .bool_set:N = \l__acro_sequentes_bool ,
+    seq    .initial:n  = true ,
+    fill   .tl_set:N   = \l__acro_pages_fill_tl ,
+    fill   .initial:n  = \dotfill ,
+    name   .bool_set:N = \l__acro_pages_name_display_bool ,
+    name   .initial:n  = false
+  }
+
+% ----------------------------------------------------------------------------
+\AcroModuleEnd

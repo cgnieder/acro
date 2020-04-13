@@ -19,7 +19,7 @@
 \cs_new_protected:Npn \acro_first:
   { \bool_set_true:N \l__acro_first_bool }
 
-\prg_new_protected_conditional:Npnn \acro_if_first:n #1 {T,F,TF}
+\prg_new_conditional:Npnn \acro_if_first:n #1 {p,T,F,TF}
   {
     \bool_if:NTF \l__acro_first_bool
       { \prg_return_true: }
@@ -44,7 +44,12 @@
 \prg_new_conditional:Npnn \acro_if_single:n #1 {p,T,F,TF}
   {
     \int_compare:nNnTF
-      { \acro_property_get:nn {#1} {usage} } > \l__acro_minimal_usage_int
+      {
+        \bool_if:NTF \l__acro_usage_local_bool
+          { \acro_barrier_usage:n {#1} }
+          { \acro_property_get:nn {#1} {usage} }
+      }
+      > \l__acro_minimal_usage_int
       { \prg_return_false: }
       { \prg_return_true: }
   }
@@ -75,8 +80,10 @@
 % uppercasing the first letter:
 \bool_new:N \l__acro_upper_bool
 \bool_new:N \l__acro_upper_short_bool
+\bool_new:N \l__acro_upper_list_bool
 
 \cs_new:Npn \__acro_upper_case:n #1 {}
+\cs_new:Npn \__acro_list_upper_case:n #1 {}
 
 \cs_new_protected:Npn \acro_soft_upper:
   {
@@ -103,81 +110,47 @@
   {
     cmd   .cs_set:Np  = \__acro_upper_case:n ,
     cmd   .value_required:n = true ,
-    title .meta:n     = { cmd = \text_titlecase_first:n } ,
+    first .meta:n     = { cmd = \text_titlecase_first:n } ,
+    first .value_forbidden:n = true ,
     all   .meta:n     = { cmd = \text_uppercase:n } ,
+    all   .value_forbidden:n = true ,
     none  .meta:n     = { cmd = \text_lowercase:n } ,
-    first .meta:n     = { title } ,
+    none  .value_forbidden:n = true ,
+    title .meta:n     = { first } ,
+    title .value_forbidden:n = true ,
     short .bool_set:N = \l__acro_upper_short_bool ,
-    short .initial:n  = true
+    short .initial:n  = true ,
+    list  .bool_set:N = \l__acro_upper_list_bool ,
+    list  .initial:n  = false
   }
 
-\keys_set:nn {acro/uppercase} {first}
-
-% --------------------------------------------------------------------------
-% formatting:
-\bool_new:N \l__acro_format_replace_bool
-\tl_new:N \l__acro_format_short_tl
-\tl_new:N \l__acro_format_long_tl
-\tl_new:N \l__acro_format_alt_tl
-\tl_new:N \l__acro_format_extra_tl
-\tl_new:N \l__acro_format_foreign_tl
-
-% sets the format from the global option:
-% #1: property
-\cs_new_protected:Npn \__acro_property_format:n #1
+\keys_define:nn {acro/list/uppercase}
   {
-    \tl_use:c
-      {
-        \tl_if_exist:cTF {l__acro_format_ #1 _tl}
-          {l__acro_format_ #1 _tl}
-          {l__acro_format_ \acro_if_short:nTF {#1} {short} {long} _tl}
-      }
+    cmd   .cs_set:Np  = \__acro_list_upper_case:n ,
+    cmd   .value_required:n = true ,
+    first .meta:n     = { cmd = \text_titlecase_first:n } ,
+    first .value_forbidden:n = true ,
+    all   .meta:n     = { cmd = \text_uppercase:n } ,
+    all   .value_forbidden:n = true ,
+    none  .meta:n     = { cmd = \text_lowercase:n } ,
+    none  .value_forbidden:n = true ,
+    title .meta:n     = { first } ,
+    title .value_forbidden:n = true ,
   }
 
-% sets the individual format:
-% #1: id
-% #2: property
-% #3: text
-\cs_new_protected:Npn \__acro_format:nnn #1#2#3
-  {
-    \bool_if:NTF \l__acro_format_replace_bool
-      {
-        \acro_property_if_set:nnTF {#1} {#2-format}
-          { \acro_property_get:nn {#1} {#2-format} }
-          { \__acro_property_format:n {#2} }
-        {#3}
-      }
-      {
-        \__acro_property_format:n {#2}
-        {
-          \acro_property_if_set:nnT {#1} {#2-format}
-            { \acro_property_get:nn {#1} {#2-format} }
-            {#3}
-        }
-      }
-  }
+\keys_set:nn {acro} { list/uppercase/first , uppercase/first }
 
-\keys_define:nn {acro/format}
-  {
-    replace .bool_set:N = \l__acro_format_replace_bool ,
-    replace .initial:n  = false ,
-    short   .tl_set:N   = \l__acro_format_short_tl ,
-    short   .initial:n  = ,
-    long    .tl_set:N   = \l__acro_format_long_tl ,
-    long    .initial:n  = ,
-    alt     .tl_set:N   = \l__acro_format_alt_tl ,
-    alt     .initial:n  = ,
-    extra   .tl_set:N   = \l__acro_format_extra_tl ,
-    extra   .initial:n  = ,
-    foreign .tl_set:N   = \l__acro_format_foreign_tl ,
-    foreign .initial:n  = ,
-    unknown .meta:n     = { short = #1 , long = #1 }
-  }
+
 
 % --------------------------------------------------------------------------
 % citing:
+\bool_new:N \l__acro_cite_bool
+\bool_new:N \l__acro_cite_always_bool
 \bool_new:N \l__acro_cite_group_bool
 \bool_new:N \g__acro_cited_bool
+
+\tl_new:N \l__acro_cite_pre_tl
+\tl_new:N \l__acro_cite_between_tl
 
 % #1: id
 \cs_new_protected:Npn \__acro_cite:n #1
@@ -194,7 +167,26 @@
   }
 \cs_generate_variant:Nn \__acro_cite:n {e}
 
-\tl_new:N \l__acro_cite_pre_tl
+% #1: boolean, true if starred
+% #2: id
+\prg_new_conditional:Npnn \acro_cite_if:nn #1#2 {T,F,TF}
+  {
+    \bool_lazy_all:nTF
+      {
+        { \l__acro_cite_bool }
+        { \l__acro_use_bool }
+        { !#1 }
+      }
+      {
+        \bool_lazy_or:nnTF
+          { \l__acro_cite_always_bool }
+          { \acro_if_first_p:n {#2} }
+          { \prg_return_true: }
+          { \prg_return_false: }
+      }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \acro_cite_if:nn {ne} {T}
 
 % #1: cite key
 \cs_new_protected:Npn \acro_cite:n #1
@@ -223,56 +215,92 @@
   }
 
 \cs_new_protected:Npn \__acro_cite_cmd:w {}
+\cs_new_protected:Npn \__acro_cite_group_cmd:w {}
 
 \keys_define:nn {acro/cite}
   {
     cmd           .cs_set:Np  = \__acro_cite_cmd:w ,
     cmd           .initial:n  = \cite ,
     cmd           .value_required:n = true ,
-    group         .bool_set:N = \l__acro_cite_group_bool ,
+    % group         .bool_set:N = \l__acro_cite_group_bool ,
+    group         .code:n     =
+      \str_case:nnTF {#1}
+        { {true} {} {false} {} }
+        { \use:c {bool_set_#1:N} \l__acro_cite_group_bool }
+        { \msg_error:nnn {kernel} {boolean-values-only} {group} } ,
     group         .initial:n  = false ,
     display       .choice: ,
-    display/all   .code:n = ,
-    display/first .code:n = ,
-    display/none  .code:n = ,
-    pre           .tl_set:N = \l__acro_cite_pre_tl ,
-    pre           .initial:n = \nobreakspace
+    display/all   .code:n     =
+      \bool_set_true:N \l__acro_cite_bool
+      \bool_set_true:N \l__acro_cite_always_bool ,
+    display/first .code:n     =
+      \bool_set_true:N \l__acro_cite_bool
+      \bool_set_false:N \l__acro_cite_always_bool ,
+    display/none  .code:n     = \bool_set_false:N \l__acro_cite_bool ,
+    display       .initial:n  = first ,
+    pre           .tl_set:N   = \l__acro_cite_pre_tl ,
+    pre           .initial:n  = \nobreakspace ,
+    group / pre   .tl_set:N   = \l__acro_cite_between_tl ,
+    group / pre   .initial:n  = {,~} ,
+    group / cmd   .cs_set:Np  = \__acro_cite_group_cmd:w ,
+    group / cmd   .initial:n  = \cite
   }
 
 % --------------------------------------------------------------------------
 % indexing
 \bool_new:N \l__acro_index_bool
+\tl_new:N \l_acro_index_disable_tl
 
 \cs_new_protected:Npn   \__acro_index:n {}
 \cs_generate_variant:Nn \__acro_index:n {e}
 
+% #1: id
 \cs_new_protected:Npn \acro_index:n #1
   {
-    \bool_if:NT \l__acro_index_bool
+    \bool_lazy_and:nnT
+      { \l__acro_index_bool }
+      { !\acro_boolean_property_if_p:nn {#1} {no-index} }
       {
-        \acro_property_if_set:nnTF {#1} {index}
-          { \__acro_index:e { \acro_property_get:nn {#1} {index} } }
-          {
-            \__acro_index:e
-              {
-                \acro_property_get:nn {#1} {index-sort} @
+        \group_begin:
+          \acro_trailing_map:n
+            { \bool_set_false:c {l__acro_trailing_##1_bool} }
+          \l_acro_index_disable_tl
+          \acro_property_if_set:nnT {#1} {index-cmd}
+            {
+              \exp_args:NNe
+              \cs_set:Npn \__acro_index:n
+                { \acro_property_get:nn {#1} {index-cmd} }
+            }
+          \acro_property_if_set:nnTF {#1} {index}
+            { \__acro_index:e { \acro_property_get:nn {#1} {index} } }
+            {
+              \__acro_index:e
                 {
-                  \acro_property_get:nn {#1} {short-format}
-                  { \acro_property_get:nn {#1} {short} }
+                  \acro_property_get:nn {#1} {index-sort} @
+                  { % <<< don't let formatting bleed
+                    \acro_property_get:nn {#1} {short-format}
+                      { \acro_property_get:nn {#1} {short} }
+                  }
                 }
-              }
-          }
+            }
+        \group_end:
       }
   }
 
 \keys_define:nn {acro/index}
   {
-    use .bool_set:N = \l__acro_index_bool ,
-    use .initial:n  = false ,
-    cmd .cs_set:Np  = \__acro_index:n ,
-    cmd .initial:n  = \index ,
-    cmd .value_required:n = true
+    use     .bool_set:N = \l__acro_index_bool ,
+    use     .initial:n  = false ,
+    cmd     .cs_set:Np  = \__acro_index:n ,
+    cmd     .initial:n  = \index ,
+    cmd     .value_required:n  = true ,
+    disable .code:n     = \tl_put_right:Nn \l_acro_index_disable_tl {#1} ,
+    disable .value_required:n  = true ,
+    clear   .code:n     = \tl_clear:N \l_acro_index_disable_tl ,
+    clear   .value_forbidden:n = true
   }
+
+\keys_set:nn {acro/index} { disable = \def\@{} }
 
 % --------------------------------------------------------------------------
 % indefinite articles:
@@ -284,7 +312,7 @@
 % --------------------------------------------------------------------------
 % looking for trailing tokens and define action
 \bool_new:N \l__acro_trailing_tokens_bool
-\tl_new:N   \l__acro_trailing_tokens_tl
+\tl_new:N \l__acro_trailing_tokens_tl
 \tl_new:N \g__acro_trailing_tokens_tl
 \acro_attribute_new:n {trailing:token}
 \acro_attribute_new:n {trailing:action}
@@ -303,31 +331,39 @@
 % #2: action
 \cs_new_protected:Npn \acro_trailing_token_register:Nn #1#2
   {
-    \tl_gput_right:Nn \g__acro_trailing_tokens_tl {{#1}}
+    \tl_gput_right:Nn \g__acro_trailing_tokens_tl {{#2}}
     \acro_attribute_set:nnn {trailing:token} {#2} {#1}
     \acro_attribute_set:nnn {trailing:action} {#1}
       { \acro_trailing_action_activate:n {#2} }
     \acro_trailing_action_new:n {#2}
   }
 
+% maps over actions
 \cs_new_protected:Npn \acro_trailing_map:n #1
   { \tl_map_inline:Nn \g__acro_trailing_tokens_tl {#1} }
 
 % activate a token:
+% #1: action
 \cs_new_protected:Npn \acro_trailing_token_activate:n #1
   {
     \tl_set:Ne \l__acro_tmpa_tl { \acro_attribute_get:nn {trailing:token} {#1} }
-    \tl_put_right:NV \l__acro_trailing_tokens_tl \l__acro_tmpa_tl
+    \tl_if_blank:VF \l__acro_tmpa_tl
+      {
+        \tl_remove_all:NV \l__acro_trailing_tokens_tl \l__acro_tmpa_tl
+        \tl_put_right:NV \l__acro_trailing_tokens_tl \l__acro_tmpa_tl
+      }
   }
 
 % deactivate a token:
+% #1: action
 \cs_new_protected:Npn \acro_trailing_token_deactivate:n #1
   {
     \tl_set:Ne \l__acro_tmpa_tl { \acro_attribute_get:nn {trailing:token} {#1} }
-    \tl_remove_all:NV \l__acro_trailing_tokens_tl \l__acro_tmpa_tl
+    \tl_if_blank:VF \l__acro_tmpa_tl
+      { \tl_remove_once:NV \l__acro_trailing_tokens_tl \l__acro_tmpa_tl }
   }
 
-% #1: name
+% #1: action
 \prg_new_conditional:Npnn \acro_trailing_if_token:n #1 {p,T,F,TF}
   {
     \bool_if:cTF {l__acro_trailing_#1_bool}
@@ -335,21 +371,20 @@
       { \prg_return_false: }
   }
 
-% #1: csv list of names
-\prg_new_protected_conditional:Npnn \acro_trailing_if_tokens:n #1 {T,F,TF}
+% #1: csv list of actions
+\prg_new_conditional:Npnn \acro_trailing_if_tokens:n #1 {T,F,TF}
   {
-    \bool_set_false:N \l__acro_trailing_tokens_bool
-    \clist_map_inline:nn {#1}
-      {
-        \bool_if:cT {l__acro_trailing_##1_bool}
-          {
-            \bool_set_true:N \l__acro_trailing_tokens_bool
-            \clist_map_break:
-          }
-      }
-    \bool_if:NTF \l__acro_trailing_tokens_bool
+    \clist_map_function:nN {#1} \__acro_trailing_if_tokens:n
+    \use_ii:nn
       { \prg_return_true: }
       { \prg_return_false: }
+  }
+
+% #1: action
+\cs_new:Npn \__acro_trailing_if_tokens:n #1
+  {
+    \bool_if:cT {l__acro_trailing_#1_bool}
+      { \clist_map_break:n { \use_ii:nnn  } }
   }
 
 \cs_new_protected:Npn \__acro_trailing_check:N #1
@@ -386,20 +421,21 @@
 \acro_trailing_token_register:Nn \babelhyphen {babel-hyphen}
 
 % options for activating actions:
-\keys_define:nn {acro}
+\keys_define:nn {acro/trailing}
   {
-    activate-trailing-tokens   .code:n =
+    activate   .code:n =
       \clist_map_inline:nn {#1} { \acro_trailing_token_activate:n {##1} } ,
-    deactivate-trailing-tokens .code:n =
+    activate   .initial:n = dot ,
+    deactivate .code:n =
       \clist_map_inline:nn {#1} { \acro_trailing_token_deactivate:n {##1} } ,
-    activate-trailing-tokens   .initial:n = dot
+    register   .code:n = \acro_trailing_token_register:Nn #1
   }
 
 % some user macros:
-\cs_new_protected:Npn \acro_dot:
-  { \acro_trailing_if_tokens:nF {dot} {.\@} }
+\cs_new:Npn \acro_dot:
+  { \acro_trailing_if_token:nF {dot} {.\@} }
 
-\cs_new_protected:Npn \acro_space:
+\cs_new:Npn \acro_space:
   { \acro_trailing_if_tokens:nF {dash,babel-hyphen} { \c_space_tl } }
 
 % ----------------------------------------------------------------------------
@@ -441,260 +477,108 @@
       }
   }
 
-% ----------------------------------------------------------------------------
-% record page numbers:
-\RequirePackage {zref-abspage}
-
-\group_begin:
-\char_set_catcode_other:N \@
-
-% #1: id
-\cs_new_protected:Npn \acro_record_page:n #1
-  {
-    \seq_if_in:ceF {g__acro_#1_pages_seq} { \arabic{abspage} @ \thepage }
-      {
-        \seq_gput_right:ce {g__acro_#1_pages_seq}
-          { \arabic{abspage} @ \thepage }
-      }
-    \seq_gremove_duplicates:c {g__acro_#1_pages_seq}
-    \acro_at_end_document:n
-      {
-        \acro_property_set:nnx {#1} {pages}
-          { \seq_use:cn {g__acro_#1_pages_seq} {|} }
-      }
-  }
-
-\cs_new:Npn \__acro_page:w #1@#2 \q_stop {#2}
-\cs_new:Npn \__acro_page_value:w  #1@#2 \q_stop {#1}
-
-\group_end:
-
-% #1: id
-% #2: one page
-% #3: more than one page
-\cs_new_protected:Npn \acro_print_pages:nnn #1#2#3
-  {
-    \acro_boolean_property_if:nnT {#1} {used}
-      {
-        \bool_if:NTF \l__acro_pages_all_bool
-          { \acro_print_page_ranges:nnn {#1} {#2} {#3} }
-          { #2 \pageref { \l_acro_label_prefix_tl #1 } }
-      }
-  }
-\cs_generate_variant:Nn \acro_print_pages:nnn {e}
-
-% #1: id
-% #2: one page
-% #3: more than one page
-\cs_new_protected:Npn \acro_print_page_ranges:nnn #1#2#3
-  {
-    \seq_set_split:Nnx \l__acro_tmpa_seq {|}
-      { \acro_property_get:nn {#1} {pages} }
-    \seq_remove_all:Nn \l__acro_tmpa_seq {}
-    \seq_clear:N \l__acro_tmpb_seq
-    \int_zero:N \l__acro_tmpa_int
-    \int_zero:N \l__acro_tmpb_int
-    \int_zero:N \l__acro_tmpc_int
-    \tl_clear:N \l__acro_tmpa_tl
-    \tl_clear:N \l__acro_tmpb_tl
-    \seq_if_empty:NF \l__acro_tmpa_seq
-      {
-        \int_compare:nNnTF { \seq_count:N \l__acro_tmpa_seq } > 2
-          { % more than two appearances:
-            \seq_map_inline:Nn \l__acro_tmpa_seq
-              {
-                \int_incr:N \l__acro_tmpa_int
-                \int_compare:nNnF \l__acro_tmpa_int = 1
-                  {
-                    \int_compare:nNnTF
-                      { ( \__acro_page_value:w ##1 \q_stop ) - \l__acro_tmpb_int } = 1
-                      {% consecutive page
-                        \int_compare:nNnT \l__acro_tmpc_int = 1
-                          { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_tmpb_tl }
-                        \int_compare:nNnT
-                          \l__acro_tmpa_int = { \seq_count:N \l__acro_tmpa_seq }
-                          {
-                            \seq_put_right:NV \l__acro_tmpb_seq \l__acro_tmpa_tl
-                            \int_compare:nNnTF \l__acro_tmpc_int > 1
-                              {
-                                \bool_if:NTF \l__acro_next_page_bool
-                                  {
-                                    \seq_put_right:Nn \l__acro_tmpb_seq
-                                      { \acro_translate:n {next-pages} }
-                                  }
-                                  { \seq_put_right:Nn \l__acro_tmpb_seq {--} }
-                              }
-                              {
-                                \bool_if:NTF \l__acro_next_page_bool
-                                  {
-                                    \seq_put_right:Nn \l__acro_tmpb_seq
-                                      { \acro_translate:n {next-page} }
-                                  }
-                                  { \seq_put_right:Nn \l__acro_tmpb_seq {,~} }
-                              }
-                            \bool_if:NF \l__acro_next_page_bool
-                              {
-                                \seq_put_right:Ne \l__acro_tmpb_seq
-                                  { \__acro_page:w ##1 \q_stop }
-                              }
-                          }
-                      }
-                      {
-                        \tl_if_empty:NTF \l__acro_tmpa_tl
-                          {
-                            \seq_put_right:NV \l__acro_tmpb_seq \l__acro_tmpb_tl
-                            \seq_put_right:Nn \l__acro_tmpb_seq {,~}
-                          }
-                          {
-                            \seq_put_right:NV \l__acro_tmpb_seq \l__acro_tmpa_tl
-                            \int_compare:nNnTF \l__acro_tmpc_int > 2
-                              {
-                                \bool_if:NTF \l__acro_next_page_bool
-                                  {
-                                    \seq_put_right:Nn \l__acro_tmpb_seq
-                                      { \acro_translate:n {next-pages} }
-                                  }
-                                  { \seq_put_right:Nn \l__acro_tmpb_seq {--} }
-                              }
-                              {
-                                \bool_if:NTF \l__acro_next_page_bool
-                                  {
-                                    \seq_put_right:Nn \l__acro_tmpb_seq
-                                      { \acro_translate:n {next-page} }
-                                  }
-                                  { \seq_put_right:Nn \l__acro_tmpb_seq {,~} }
-                              }
-                            \bool_if:NF \l__acro_next_page_bool
-                              { \seq_put_right:NV \l__acro_tmpb_seq \l__acro_tmpb_tl }
-                            \tl_clear:N \l__acro_tmpa_tl
-                          }
-                        \int_zero:N \l__acro_tmpc_int
-                        \int_compare:nNnT
-                          \l__acro_tmpa_int = { \seq_count:N \l__acro_tmpa_seq }
-                          {
-                            \seq_put_right:Nn \l__acro_tmpb_seq {,~}
-                            \seq_put_right:Ne \l__acro_tmpb_seq
-                              { \__acro_page:w ##1 \q_stop }
-                          }
-                      }
-                  }
-                \int_set:Nn \l__acro_tmpb_int { \__acro_page_value:w ##1 \q_stop }
-                \tl_set:Ne \l__acro_tmpb_tl { \__acro_page:w ##1 \q_stop }
-                \int_incr:N \l__acro_tmpc_int
-              }
-            #3
-            \seq_use:Nn \l__acro_tmpb_seq {}
-          }
-          { % two or less appearances:
-            \seq_clear:N \l__acro_tmpb_seq
-            \seq_clear:N \l__acro_tmpc_seq
-            \seq_map_inline:Nn \l__acro_tmpa_seq
-              {
-                \seq_put_right:Ne \l__acro_tmpb_seq
-                  { \__acro_page:w ##1 \q_stop }
-              }
-            \seq_map_inline:Nn \l__acro_tmpa_seq
-              {
-                \seq_put_right:Ne \l__acro_tmpc_seq
-                  { \__acro_page_value:w ##1 \q_stop }
-              }
-            \int_compare:nNnTF { \seq_count:N \l__acro_tmpa_seq } = 2
-              {#3}
-              {#2}
-            \bool_if:NTF \l__acro_next_page_bool
-              {
-                \int_compare:nNnTF
-                  {
-                    \seq_item:Nn \l__acro_tmpc_seq {2} -
-                    \seq_item:Nn \l__acro_tmpc_seq {1}
-                  }
-                  = 1
-                  { \seq_item:Nn \l__acro_tmpb_seq {1} \acro_translate:n {next-page} }
-                  { \seq_use:Nn \l__acro_tmpb_seq {,~} }
-              }
-              { \seq_use:Nn \l__acro_tmpb_seq {,~} }
-          }
-      }
-  }
-
-\bool_new:N \l__acro_pages_all_bool
-\bool_new:N \l__acro_pages_display_bool
-\bool_new:N \l__acro_next_page_bool
-
-% #1: id
-\prg_new_conditional:Npnn \acro_if_pages:n #1 {p,T,F,TF}
-  {
-    \bool_lazy_and:nnTF
-      { \l__acro_pages_display_bool }
-      { \acro_boolean_property_if_p:nn {#1} {used} }
-      { \prg_return_true: }
-      { \prg_return_false: }
-  }
-\prg_generate_conditional_variant:Nnn \acro_if_pages:n {e} {p,T,F,TF}
-
-\acro_at_begin_document:n
-  {
-    \bool_lazy_and:nnT
-      { \l__acro_pages_display_bool }
-      { !\l__acro_pages_all_bool }
-      { \bool_set_true:N \l__acro_label_bool }
-  }
-
-\tl_new:N \l__acro_pages_fill_tl
-
-\keys_define:nn {acro/pages}
-  {
-    display .choice: ,
-    display / all   .code:n =
-     \bool_set_true:N \l__acro_pages_display_bool
-     \bool_set_true:N \l__acro_pages_all_bool ,
-    display / first .code:n =
-      \bool_set_true:N \l__acro_pages_display_bool
-      \bool_set_false:N \l__acro_pages_all_bool ,
-    display / none   .code:n =
-      \bool_set_false:N \l__acro_pages_display_bool ,
-    next   .bool_set:N = \l__acro_next_page_bool ,
-    next   .initial:n  = true ,
-    fill   .tl_set:N   = \l__acro_pages_fill_tl ,
-    fill   .initial:n  = \space \dotfill \space
-  }
-
 % --------------------------------------------------------------------------
 % barriers:
 \int_new:N \g_acro_barrier_int
-\bool_new:N \l__acro_reset_at_barriers_bool
+\int_new:N \g_acro_barrier_total_int
+\bool_new:N \l__acro_barriers_bool
+\bool_new:N \l__acro_barriers_reset_bool
+\bool_new:N \l__acro_usage_local_bool
+
+\msg_new:nnn {acro} {barriers}
+  {
+    You~ seem~ to~ be~ using~ barriers~ but~ haven't~ set~ `barriers/use~ =~
+    true',~ yet!
+  }
+
+\__acro_auxlist_field_new:cpn {total-barriers} #1
+  { \int_gset:Nn \g_acro_barrier_total_int {#1} }
 
 \acro_at_begin_document:n
   { \int_gset:Nn \g_acro_barrier_int {1} }
 
+\acro_at_end_document:n
+  {
+    \acro_auxlist_to_aux:nn
+      {total-barriers}
+      { { \int_use:N \g_acro_barrier_int } }
+  }
+
 \cs_new_protected:Npn \acro_barrier:
   {
     \int_gincr:N \g_acro_barrier_int
-    \bool_if:NT \l__acro_reset_at_barriers_bool
+    \bool_if:NT \l__acro_barriers_reset_bool
       { \acro_reset_all: }
+    \bool_if:NF \l__acro_barriers_bool
+      { \msg_warning:nnn {acro} {barriers} }
   }
 
 % #1: id
 \cs_new_protected:Npn \acro_record_barrier:n #1
   {
-    \seq_if_in:ceF {g__acro_#1_barriers_seq}
-      { \int_use:N \g_acro_barrier_int }
+    \bool_if:NT \l__acro_barriers_bool
       {
-        \seq_gput_right:ce {g__acro_#1_barriers_seq}
-          { \int_use:N \g_acro_barrier_int }
-      }
-    \seq_gremove_duplicates:c {g__acro_#1_barriers_seq}
-    \acro_at_end_document:n
-      {
-        \acro_property_set:nnx {#1} {barriers}
-          { \seq_use:cn {g__acro_#1_barriers_seq} {|} }
+        \int_compare:nNnTF
+          { \intarray_count:c {g__acro_#1_barriers_intarray} } > 0
+          {
+            \intarray_gset:cnn {g__acro_#1_barriers_intarray}
+              { \int_use:N \g_acro_barrier_int }
+              {
+                \intarray_item:cn {g__acro_#1_barriers_intarray}
+                  { \int_use:N \g_acro_barrier_int }
+                +1
+              }
+          }
+          { \acro_rerun:n {barriers} }
       }
   }
 
-\keys_define:nn {acro}
+% #1: id
+\cs_new:Npn \acro_barrier_usage:n #1
   {
-    reset-at-barriers .bool_set:N = \l__acro_reset_at_barriers_bool ,
-    reset-at-barriers .initial:n  = false
+    \clist_if_empty:eTF { \acro_property_get:nn {#1} {barriers} }
+      {0}
+      {
+        \clist_item:en
+          { \acro_property_get:nn {#1} {barriers} }
+          { \g_acro_barrier_int }
+      }
+  }
+
+% #1: id
+\cs_new_protected:Npn \acro_set_barriers:n #1
+  {
+    \bool_if:NT \l__acro_barriers_bool
+      {
+        \int_compare:nNnTF
+          { \intarray_count:c {g__acro_#1_barriers_intarray} } = 0
+          { \acro_rerun:n {barriers} }
+          {
+            \int_zero:N \l__acro_tmpa_int
+            \int_do_while:nNnn
+              \l__acro_tmpa_int < { \intarray_count:c {g__acro_#1_barriers_intarray} }
+              {
+                \int_incr:N \l__acro_tmpa_int
+                \seq_gput_right:ce {g__acro_#1_barriers_seq}
+                  {
+                    \intarray_item:cn {g__acro_#1_barriers_intarray}
+                      { \l__acro_tmpa_int }
+                  }
+              }
+            \acro_property_set:nnx {#1} {barriers}
+              { \seq_use:cn {g__acro_#1_barriers_seq} {,} }
+          }
+      }
+  }
+
+\keys_define:nn {acro/barriers}
+  {
+    use    .bool_set:N = \l__acro_barriers_bool ,
+    use    .initial:n  = false ,
+    reset  .bool_set:N = \l__acro_barriers_reset_bool ,
+    reset  .initial:n  = false ,
+    single .bool_set:N = \l__acro_usage_local_bool ,
+    single .initial:n  = false
   }
 
 % ----------------------------------------------------------------------------

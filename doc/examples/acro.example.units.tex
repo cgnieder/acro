@@ -26,7 +26,7 @@
   extra = Kombination aus \acs*{ecm} und \acs*{edm}
 }
 
-\AcroDeclareProperty{unit}
+\DeclareAcroProperty{unit}
 
 % "Acronyme" (tatsächlich physikalische Größen) einer speziellen Klasse:
 \DeclareAcronym{f}{
@@ -54,7 +54,7 @@
   class = physics
 }
 
-\AcroNewTemplate[list]{physics}{%
+\NewAcroTemplate[list]{physics}{%
   \def\TableCode{}%
   \acronymsmapT{%
     \AcroPutRight\TableCode{%

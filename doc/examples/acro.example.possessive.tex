@@ -1,0 +1,36 @@
+\documentclass{article}
+
+\usepackage[version=3,upgrade]{acro}
+
+\DeclareAcroEnding{possessive}{'s}{'s}
+
+\NewAcroCommand\acg{m}{\acropossessive\UseAcroTemplate{first}{#1}}
+\NewAcroCommand\acsg{m}{\acropossessive\UseAcroTemplate{short}{#1}}
+\NewAcroCommand\aclg{m}{\acropossessive\UseAcroTemplate{long}{#1}}
+\NewAcroCommand\acfg{m}{%
+  \acrofull
+  \acropossessive
+  \UseAcroTemplate{first}{#1}%
+}
+\NewAcroCommand\iacsg{m}{%
+  \acroindefinite
+  \acropossessive
+  \UseAcroTemplate{short}{#1}%
+}
+
+\DeclareAcronym{MP}{
+  short            = MP ,
+  long             = Member of Parliament ,
+  long-plural-form = Members of Parliament ,
+  long-possessive-form = Member's of Parliament
+}
+
+\begin{document}
+
+\acg{MP} \par
+\acsg{MP} \par
+\aclg{MP} \par
+\acfg{MP} \par
+\iacsg{MP} \par
+
+\end{document}

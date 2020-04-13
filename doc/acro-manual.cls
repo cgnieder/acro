@@ -36,8 +36,9 @@
 \RequirePackage{imakeidx}
 \RequirePackage[utf8]{inputenc}
 
-\usepackage{acro,accsupp}
+\RequirePackage{acro,accsupp}
 \acsetup{
+  use-id-as-short ,
   single = true ,
   index / use = true ,
   make-links = true ,
@@ -45,7 +46,8 @@
   list / heading = section ,
   list / display = all ,
   list / locale / display ,
-  pages / display = all
+  pages / display = all ,
+  trailing / activate = dash
 }
 
 \setcnltx{
@@ -64,18 +66,22 @@
     iac, Iac, iaca, Iaca, iacf, Iacf, iacl, Iacl, iacs, Iacs ,
     acp, Acp, acap, Acap, acfp, Acfp, aclp, Aclp, acsp, Acsp,
     % general commands:
-    acdot, acreset, acresetall, acspace, acsetup, acuse, acuseall,
+    acdot, aciftrailing, acreset, acresetall, acspace, acsetup, acuse,
+    acuseall, printacronyms,
     % used in templates and command definitions:
-    acroindefinite, acrofull, acrogroupcite, acroplural, acrowrite,
-    AcroUseTemplate,
+    acroindefinite, acrofull, acrogroupcite, acroheading, acroplural,
+    acropreamble, acrotranslate, acrowrite,
+    UseAcroTemplate,
     acroiffirstTF,
     % declaring stuff:
-    DeclareAcronym, DeclareAcroEnding,
+    DeclareAcronym, DeclareAcroEnding, DeclareAcroTranslation,
     NewAcroCommand,
     % demonstration of the possessive ending:
     acg, acfg, aclg, acsg, iacsg, acropossessive
   } ,
   add-silent-cmds = {
+    babelhyphen, parencite,
+    BeginAccSupp, EndAccSupp
   } ,
   index-setup = {
     level = \section , headers={\indexname}{\indexname} , noclearpage ,
@@ -88,8 +94,10 @@
 \renewcommand*\cnltx@module@text[2]{%
   \begingroup
     \reversemarginpar
+    \def\module@slash{\def\module@slash{\code{/}}}%
+    \def\do##1{\module@slash\module#1{##1}}%
     \setlength\marginparsep{1em}%
-    \marginnote{\hfill\llap{\module#1{#2}\cnltx@module@sep}}%
+    \marginnote{\hfill\llap{\docsvlist{#2}\cnltx@module@sep}}%
   \endgroup
 }
 
@@ -333,21 +341,61 @@
 \ChangeEmph{[}[,.02em]{]}[.055em,-.08em]
 \ChangeEmph{(}[-.01em,.04em]{)}[.04em,-.05em]
 
+\RequirePackage{hyperref}
+
+\newrobustcmd*\pdfdisable[1]{%
+  \csdef{acro@@\cnltx@stripbs#1}##1{##1}%
+  \def#1##1{%
+    \@backslashchar
+    \csuse{acro_if_star_gobble:nTF}{##1}%
+      {\csuse{acro@@\cnltx@stripbs#1}}%
+      {\csuse{acro@@\cnltx@stripbs#1}{##1}}%
+  }%
+}
+
+\pdfstringdefDisableCommands{%
+  \pdfdisable\property
+  \pdfdisable\cs
+  \pdfdisable\option
+  \def\oarg#1{[<#1>]}%
+  \def\Oarg#1{[#1]}%
+  \def\marg#1{\{<#1>\}}%
+  \def\Marg#1{\{#1\}}%
+  \def\acro{acro}%
+}
+
 % additional packages:
 \RequirePackage{longtable,array,booktabs,enumitem,amssymb}
 
-\newcommand*\h[1]{\textcolor{cnltx}{\textbf{#1}}}
-\newcommand*\mailto[1]{\texttt{\href{mailto:#1}{#1}}}
+\def\translationtable{}
+\newrobustcmd*\buildtranslationtable{%
+  \csname__acro_for_all_translations_do:n\endcsname
+    {%
+      \ifstrequal{##2}{English}{%
+        \expandafter\def\expandafter\translationtable\expandafter{%
+          \translationtable \texttt{##1} & ##3 %
+        }
+      }{%
+        \ifstrequal{##2}{German}{%
+          \expandafter\def\expandafter\translationtable\expandafter{%
+            \translationtable & ##3 \\ %
+          }%
+        }{}
+      }%
+    }%
+}
+
+\buildtranslationtable
 
 \DeclareAcroEnding{possessive}{'s}{'s}
 
 \NewAcroCommand\acfg{m}{%
   \acrofull
   \acropossessive
-  \AcroUseTemplate{first}{#1}%
+  \UseAcroTemplate{first}{#1}%
 }
 
-\AcroNewTemplate[list]{manual}{%
+\NewAcroTemplate[list]{manual}{%
   \acroheading
   \acropreamble
   \begin{description}
@@ -362,6 +410,15 @@
         \acroifT{extra}{\acrowrite{extra}}%
         \acroifanyT{foreign,extra}{)}%
         \acroifpagesT{ \dotfill\acropages{}{}}%
+    }%
+    { \item \AcroRerun{list} }%
+  \end {description}
+}
+
+\NewAcroTemplate[list]{glossary}{%
+  \begin{description}
+    \acronymsmapF{%
+      \item[\sffamily\acrowrite{short}] \acrowrite{long}%
     }%
     { \item \AcroRerun{list} }%
   \end {description}

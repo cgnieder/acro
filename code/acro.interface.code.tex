@@ -55,13 +55,16 @@
   { \acro_switch_on: }
 
 % --------------------------------------------------------------------------
-\NewDocumentCommand \AcroUseTemplate {O{1}D(){acronym}+m}
+\NewDocumentCommand \MakeAcroPropertyAlias {mm}
+  { \acro_property_make_alias:nn {#1} {#2} }
+
+\NewDocumentCommand \UseAcroTemplate {O{1}D(){acronym}+m}
   { \acro_template_use:nnn {#1} {#2} {#3} }
 
-\NewDocumentCommand \AcroNewTemplate {O{acronym}m+m}
+\NewDocumentCommand \NewAcroTemplate {O{acronym}m+m}
   { \use:c {acro_#1_template_new:nn} {#2} {#3} }
 
-\NewDocumentCommand \AcroRenewTemplate {O{acronym}m+m}
+\NewDocumentCommand \RenewAcroTemplate {O{acronym}m+m}
   { \use:c {acro_#1_template_renew:nn} {#2} {#3} }
 
 \NewDocumentCommand \DeclareAcronym {m+m}
@@ -79,8 +82,8 @@
 \NewExpandableDocumentCommand \aciftrailing {}
   { \acro_trailing_if_tokens:nTF }
 
-\NewDocumentCommand \acdot   {} { \acro_dot: }
-\NewDocumentCommand \acspace {} { \acro_space: }
+\NewExpandableDocumentCommand \acdot   {} { \acro_dot: }
+\NewExpandableDocumentCommand \acspace {} { \acro_space: }
 
 \NewDocumentCommand \acroupper {} { \acro_upper: }
 \NewDocumentCommand \acrofull {} { \acro_first: }
@@ -127,7 +130,14 @@
   { \acronymsmapTF {#1} {} {} }
 
 \NewDocumentCommand \acrowrite {m}
-  { \acro_write:en { \AcronymID } {#1} }
+  {
+    \acro_property_if_eq:nnTF {#1} {list}
+      {
+        \bool_if:NT \l__acro_upper_list_bool { \acro_upper: }
+        \acro_write:en { \AcronymID } {#1}
+      }
+      { \acro_write:en { \AcronymID } {#1} }
+  }
 
 \NewDocumentCommand \acroshow {m}
   { \acro_property_show:en { \AcronymID } {#1} }
@@ -138,8 +148,16 @@
 \NewDocumentCommand \acrogroupcite {}
   {
     \bool_if:NT \l__acro_cite_group_bool
-      { \acro_cite:e { \AcronymID } }
+      {
+        \tl_set_eq:NN \l__acro_cite_pre_tl \l__acro_cite_between_tl
+        \cs_set_eq:NN \__acro_cite_cmd:w \__acro_cite_group_cmd:w
+        \acro_cite_if:neT { \l__acro_star_bool } { \AcronymID }
+          { \acro_cite:e { \AcronymID } }
+      }
   }
+
+\NewDocumentCommand \acrocite {}
+  { \bool_set_true:N \l__acro_cite_always_bool }
 
 \NewDocumentCommand \acroifTF {m+m+m}
   { \acro_property_if_set:enTF { \AcronymID } {#1} {#2} {#3} }
@@ -175,6 +193,13 @@
   { \acro_if_first:eTF { \AcronymID } {#1} {} }
 \NewDocumentCommand \acroiffirstF {+m}
   { \acro_if_first:eTF { \AcronymID } {} {#1} }
+
+\NewDocumentCommand \acroiftagTF {m+m+m}
+  { \acro_if_tag:enTF { \AcronymID } {#1} {#2} {#3} }
+\NewDocumentCommand \acroiftagT {m+m}
+  { \acro_if_tag:enT { \AcronymID } {#1} {#2} }
+\NewDocumentCommand \acroiftagF {m+m}
+  { \acro_if_tag:enF { \AcronymID } {#1} {#2} }
 
 \NewDocumentCommand \acropages {mm}
   { \acro_print_pages:enn { \AcronymID } {#1} {#2} }

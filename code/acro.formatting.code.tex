@@ -1,0 +1,110 @@
+\AcroModule{formatting}{formatting of acronyms}
+% --------------------------------------------------------------------------
+% formatting:
+\bool_new:N \l__acro_format_replace_bool
+
+% sets the format from the global option:
+% #1: property
+\cs_new_protected:Npn \__acro_global_format:n #1
+  {
+    \acro_property_if_alias:nTF {#1}
+      {
+        \tl_if_empty:cTF {l__acro_format_ #1 _tl}
+          { \__acro_use_global_format:n { \acro_property_alias:n {#1} } }
+          { \__acro_use_global_format:n {#1} }
+      }
+      { \__acro_use_global_format:n {#1} }
+  }
+
+% #1: property
+\cs_new:Npn \__acro_use_global_format:n #1
+  {
+    \tl_if_exist:cT {l__acro_format_ #1 _tl}
+      { \tl_use:c {l__acro_format_ #1 _tl} }
+  }
+
+% #1: id
+% #2: property
+% #3: insert if false
+\cs_new_protected:Npn \__acro_property_format:nnF #1#2#3
+  {
+    \acro_property_if_set:nnTF {#1} {#2-format}
+      { \acro_property_get:nn {#1} {#2-format} }
+      {
+        \acro_if_format_alias:nnTF {#1} {#2}
+          {
+            \acro_property_get:nn {#1}
+              { \acro_property_alias:n {#2} -format }
+          }
+          {#3}
+      }
+  }
+
+% #1: id
+% #1: property
+\prg_new_conditional:Npnn \acro_if_format_alias:nn #1#2 {TF}
+  {
+    \acro_property_if_alias:nTF {#2}
+      {
+        \acro_property_if_set:nnTF {#1}
+          { \acro_property_alias:n {#2} -format }
+          { \prg_return_true: }
+          { \prg_return_false: }
+      }
+      { \prg_return_false: }
+  }
+
+% #1: id
+% #1: property
+\cs_new_protected:Npn \__acro_property_format:nn #1#2
+  { \__acro_property_format:nnF {#1} {#2} {} }
+
+% sets the individual format:
+% #1: id
+% #2: property
+% #3: text
+\cs_new_protected:Npn \__acro_format:nnn #1#2#3
+  {
+    \bool_if:NTF \l__acro_format_replace_bool
+      {
+        \__acro_property_format:nnF {#1} {#2}
+          { \__acro_global_format:n {#2} }
+        {#3}
+      }
+      {
+        \__acro_global_format:n {#2}
+          {
+            \__acro_property_format:nn {#1} {#2}
+            {#3}
+          }
+      }
+  }
+
+% #1: property:
+\cs_new_protected:Npn \acro_new_format:n #1
+  {
+    \tl_new:c {l__acro_format_#1_tl}
+    \keys_define:nn {acro/format}
+      {
+        #1 .tl_set:c  = l__acro_format_#1_tl ,
+        #1 .initial:n =
+      }
+  }
+
+\acro_new_format:n {short}
+\acro_new_format:n {long}
+\acro_new_format:n {alt}
+\acro_new_format:n {extra}
+\acro_new_format:n {foreign}
+\acro_new_format:n {list}
+\acro_new_format:n {first-long}
+
+\keys_define:nn {acro}
+  {
+    format .meta:n = { format/short = #1 , format/long = #1 } ,
+    format / replace .bool_set:N = \l__acro_format_replace_bool ,
+    format / replace .initial:n  = false
+  }
+
+% ----------------------------------------------------------------------------
+\AcroModuleEnd

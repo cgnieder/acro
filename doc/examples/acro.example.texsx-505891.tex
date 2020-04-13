@@ -1,0 +1,46 @@
+\documentclass{article}
+
+\usepackage[version=3,upgrade]{acro}
+
+\DeclareAcroProperty{alt2}
+\DeclareAcroProperty{alt2-format}
+
+\RenewAcroTemplate[list]{description}{%
+  \acroheading
+  \acropreamble
+  \begin{description}
+    \acronymsmapF{
+      \item [%
+          \acrowrite{short}%
+          \acroifT{alt}{/\acrowrite{alt}}%
+          \acroifT{alt2}{/\acrowrite{alt2}}%
+        ]
+        \acrowrite{long}%
+        \acroifanyT{foreign,extra}{ (}%
+        \acroifT{foreign}{%
+          \acrowrite{foreign}%
+          \acroifT{foreign-short}{, \acrowrite{foreign-short}}%
+          \acroifT{extra}{, }%
+        }%
+        \acroifT{extra}{\acrowrite{extra}}%
+        \acroifanyT{foreign,extra}{)}%
+        \acroifpagesT{%
+          \acropagefill
+          \acropages
+            {\acrotranslate{page}\nobreakspace}%
+            {\acrotranslate{pages}\nobreakspace}%
+        }%
+    }
+    { \item \AcroRerun{list} }
+  \end {description}
+}
+
+\DeclareAcronym{one}{ short = one , alt = two, alt2 = three, long = common description }
+\DeclareAcronym{four}{ short = four , long = another description }
+
+\begin{document}
+
+\printacronyms[display=all]
+
+\end{document}
+

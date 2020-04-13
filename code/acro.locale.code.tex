@@ -102,10 +102,8 @@
 \tl_set:Nn \l_acro_language_tl {english}
 \tl_new:N  \l__acro_current_language_tl
 
-\tl_const:Nn \c__acro_keyword_prefix_tl {acro-keyword-}
-
 % ----------------------------------------------------------------------------
-  
+\tl_const:Nn \c__acro_keyword_prefix_tl {acro-keyword-}
 \prop_new:N \g_acro_translations_prop
 
 % translate the key #1
@@ -135,19 +133,6 @@
   }
 
 % ----------------------------------------------------------------------------
-% #1: keyword
-% #2: language
-% #3: translation
-\cs_new_protected:Npn \__acro_declare_translation:nw #1#2=#3\q_stop
-  {
-    \tl_set:Nx \l__acro_tmpa_tl { \tl_trim_spaces:n {#2} }
-    \tl_set:Nx \l__acro_tmpb_tl { \tl_trim_spaces:n {#3} }
-    \acro_declare_translation:VnV
-      \l__acro_tmpa_tl
-      {#1}
-      \l__acro_tmpb_tl
-  }
-
 % #1: language
 % #2: keyword
 % #3: translation
@@ -169,12 +154,23 @@
       { \__acro_declare_translation:nw {#1} ##1 \q_stop }
   }
 
-% the purpose of the following is to easy documentation:
-\cs_new:Npn \__acro_parse_translate_list_entry:nnn #1#2#3 {}
+% #1: keyword
+% #2: language
+% #3: translation
+\cs_new_protected:Npn \__acro_declare_translation:nw #1#2=#3\q_stop
+  {
+    \tl_set:Nx \l__acro_tmpa_tl { \tl_trim_spaces:n {#2} }
+    \tl_set:Nx \l__acro_tmpb_tl { \tl_trim_spaces:n {#3} }
+    \acro_declare_translation:VnV
+      \l__acro_tmpa_tl
+      {#1}
+      \l__acro_tmpb_tl
+  }
 
-\cs_new_protected:Npn \__acro_parse_translate_list_entry:www #1(#2)\q_mark#3\q_stop
-  { \__acro_parse_translate_list_entry:nnn {#1} {#2} {#3} }
-
+% within the loop:
+% #1: keyword
+% #2: language
+% #3: translation
 \cs_new_protected:Npn \__acro_for_all_translations_do:n #1
   {
     \cs_set:Npn \__acro_parse_translate_list_entry:nnn ##1##2##3 {#1}
@@ -182,14 +178,20 @@
       { \__acro_parse_translate_list_entry:www ##1 \q_mark ##2 \q_stop }
   }
 
+% the purpose of the following is to easy documentation:
+\cs_new:Npn \__acro_parse_translate_list_entry:nnn #1#2#3 {}
+
+\cs_new_protected:Npn \__acro_parse_translate_list_entry:www #1(#2)\q_mark#3\q_stop
+  { \__acro_parse_translate_list_entry:nnn {#1} {#2} {#3} }
+
 % ----------------------------------------------------------------------------
 
 \keys_define:nn {acro}
   {
     language .value_required:n = true ,
     language .code:n =
-      \tl_if_eq:nnTF {#1} {auto}
-        { \bool_set_true:N \l__acro_language_auto_bool }
+      \str_case:nnF {#1} 
+        { {auto} { \bool_set_true:N \l__acro_language_auto_bool } }
         {
           \bool_set_false:N \l__acro_language_auto_bool
           \tl_set:Nn \l__acro_current_language_tl {#1}

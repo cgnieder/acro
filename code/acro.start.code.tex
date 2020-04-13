@@ -34,7 +34,8 @@
 \ExplSyntaxOn
 
 % setup package:
-\tl_const:Nn \c_acro_date_tl {2020/04/09}
+\tl_const:Nn \c_acro_package_name_tl {acro}
+\tl_const:Nn \c_acro_date_tl {2020/04/13}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
 \tl_const:Nn \c_acro_version_minor_number_tl {0}
 \tl_const:Nn \c_acro_version_subrelease_tl   {alpha-2}
@@ -48,40 +49,13 @@
     \c_acro_version_number_tl
     \c_acro_version_subrelease_tl
   }
-\tl_const:Nn \c_acro_info_tl {Typeset~ Acronyms}
+\tl_const:Nn \c_acro_info_tl {typeset~ acronyms~ and~ other~ abbreviations}
 
 \ProvidesExplPackage
-  {acro3}
+  {\c_acro_package_name_tl}
   {\c_acro_date_tl}
   {\c_acro_version_tl}
   {\c_acro_info_tl}
-
-% ----------------------------------------------------------------------------
-% temporary variables:
-\tl_new:N \l__acro_tmpa_tl
-\tl_new:N \l__acro_tmpb_tl
-\tl_new:N \l__acro_tmpc_tl
-% \tl_new:N \l__acro_tmpd_tl
-
-\str_new:N \l__acro_tmpa_str
-\str_new:N \l__acro_tmpb_str
-\str_new:N \l__acro_tmpc_str
-
-\bool_new:N \l__acro_tmpa_bool
-\bool_new:N \l__acro_tmpb_bool
-\bool_new:N \l__acro_tmpc_bool
-
-\seq_new:N \l__acro_tmpa_seq
-\seq_new:N \l__acro_tmpb_seq
-\seq_new:N \l__acro_tmpc_seq
-
-\int_new:N \l__acro_tmpa_int
-\int_new:N \l__acro_tmpb_int
-\int_new:N \l__acro_tmpc_int
-
-\clist_new:N \l__acro_tmpa_clist
-\clist_new:N \l__acro_tmpb_clist
-\clist_new:N \l__acro_tmpc_clist
 
 % --------------------------------------------------------------------------
 % document hooks:
@@ -106,10 +80,17 @@
     You~ need~ to~ use~ \token_to_str:N \usepackage [#1] {acro} .
   }
 
+\msg_new:nnn {acro} {unknown-option}
+  {
+    Unknown~ option~ `#1' \\
+    I~ dont'~ know~ the~ option~ `#1'.~ Please~ make~ sure~ there~ is~ no~
+    typo.~ Check~ the~ manual~ for~ help.
+  }
+
 % --------------------------------------------------------------------------
 % re-compile mechanism:
 \bool_new:N \g__acro_rerun_bool
-\str_new:N \g__acro_rerun_message_str
+\tl_new:N \g__acro_rerun_message_tl
 
 \tl_const:Nn \l__acro_rerun_general_tl
   { Rerun~ to~ get~ `acro'~ synchronized. }
@@ -139,19 +120,29 @@
 \cs_new_protected:Npn \acro_rerun:n #1
   {
     \bool_gset_true:N \g__acro_rerun_bool
-    \str_gput_right:Nn \g__acro_rerun_message_str {#1}
+    \tl_map_inline:Nn \g__acro_rerun_message_tl
+      {
+        \tl_if_eq:nnT {##1} {#1}
+          { \tl_map_break:n { \use_none:nn } }
+      }
+    \use:n { \tl_gput_right:Nn \g__acro_rerun_message_tl {{#1}} }
   }
 
 \cs_new_protected:Npn \acro_do_rerun:
   {
     \acro_if_rerun:T
       {
-        \str_case:VnF \g__acro_rerun_message_str
+        \tl_map_inline:Nn \g__acro_rerun_message_tl
           {
-            {property} { \msg_warning:nnn {acro} {rerun} {property} }
-            {list} { \msg_warning:nnn {acro} {rerun} {list} }
+            \str_case:nnTF {##1}
+              {
+                {property} { \msg_warning:nnn {acro} {rerun} {property} }
+                {list} { \msg_warning:nnn {acro} {rerun} {list} }
+                {general} { \msg_warning:nnn {acro} {rerun} {general} }
+              }
+              { \tl_map_break: }
+              { \msg_warning:nnn {acro} {rerun} {general} }
           }
-          { \msg_warning:nnn {acro} {rerun} {general} }
       }
   }
 
@@ -190,25 +181,73 @@
 
 % --------------------------------------------------------------------------
 % load-time options:
+% #1: message name
+\cs_new_protected:Npn \__acro_loadtime_error:n #1
+   { \msg_error:nnV {acro} {#1} \l_keys_key_str }
+
+\cs_new_protected:Npn \__acro_loadtime_warning:n #1
+   { \msg_warning:nnV {acro} {#1} \l_keys_key_str }
+
+\cs_generate_variant:Nn \msg_error:nnn {nnV}
+\cs_generate_variant:Nn \msg_warning:nnn {nnV}
+
+\int_new:N \g__acro_version_int
+
 \keys_define:nn {acro/package}
   {
-    debug   .bool_gset:N = \g__acro_debug_bool ,
-    debug   .initial:n   = false ,
-    upgrade .bool_gset:N = \g__acro_upgrade_bool ,
-    upgrade .initial:n   = false ,
-    final   .bool_set:N  = \g__acro_final_bool ,
-    final   .initial:n   = false
+    debug       .bool_gset:N = \g__acro_debug_bool ,
+    debug       .initial:n   = false ,
+    upgrade     .bool_gset:N = \g__acro_upgrade_bool ,
+    upgrade     .initial:n   = true ,
+    final       .bool_set:N  = \g__acro_final_bool ,
+    final       .initial:n   = false ,
+    version     .choice: ,
+    version / 2 .code:n      = \int_set:Nn \g__acro_version_int {2} ,
+    version / 3 .code:n      = \int_set:Nn \g__acro_version_int {3} ,
+    version     .initial:n   = 3 ,
+    unknown     .code:n      = \__acro_loadtime_warning:n {unknown-option}
   }
 
 \ProcessKeysPackageOptions {acro/package}
 
+\int_compare:nNnT \g__acro_version_int = 2
+  {
+    \RequirePackage {acro2}
+    \file_input_stop:
+  }
+
 \keys_define:nn {acro/package}
   {
-    debug   .code:n = \msg_error:nnn {acro} {load-time-option} {debug} ,
-    upgrade .code:n = \msg_error:nnn {acro} {load-time-option} {upgrade} ,
-    final   .code:n = \msg_error:nnn {acro} {load-time-option} {final} ,
-    % TODO: check for any other given option
+    debug   .code:n = \__acro_loadtime_error:n {load-time-option} ,
+    upgrade .code:n = \__acro_loadtime_error:n {load-time-option} ,
+    final   .code:n = \__acro_loadtime_error:n {load-time-option}
   }
+
+% ----------------------------------------------------------------------------
+% temporary variables:
+\tl_new:N \l__acro_tmpa_tl
+\tl_new:N \l__acro_tmpb_tl
+\tl_new:N \l__acro_tmpc_tl
+
+\str_new:N \l__acro_tmpa_str
+\str_new:N \l__acro_tmpb_str
+\str_new:N \l__acro_tmpc_str
+
+\bool_new:N \l__acro_tmpa_bool
+\bool_new:N \l__acro_tmpb_bool
+\bool_new:N \l__acro_tmpc_bool
+
+\seq_new:N \l__acro_tmpa_seq
+\seq_new:N \l__acro_tmpb_seq
+\seq_new:N \l__acro_tmpc_seq
+
+\int_new:N \l__acro_tmpa_int
+\int_new:N \l__acro_tmpb_int
+\int_new:N \l__acro_tmpc_int
+
+\clist_new:N \l__acro_tmpa_clist
+\clist_new:N \l__acro_tmpb_clist
+\clist_new:N \l__acro_tmpc_clist
 
 % ----------------------------------------------------------------------------
 % module mechanism:
@@ -395,7 +434,12 @@
   { \__acro_module_hook_use:Vn \g_acro_module_tl {after} }
 
 \cs_new_protected:Npn \__acro_gobble_module:w #1 \AcroModuleEnd {}
-  
+
+\bool_lazy_or:nnT
+  { \acro_if_final_p: }
+  { !\acro_if_upgrade_p: }  
+  { \acro_stop_module:n {upgrade} }
+
 % --------------------------------------------------------------------------
 % style files
 \NewDocumentCommand \AcroStyle {smO{}}

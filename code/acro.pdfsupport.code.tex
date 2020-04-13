@@ -100,6 +100,7 @@
 % accessibility support
 \bool_new:N \l__acro_accsupp_bool
 \tl_new:N \l__acro_accsupp_options_tl
+\tl_new:N \l__acro_accsupp_method_tl
 
 % #1: copied text
 % #2: printed text
@@ -121,7 +122,7 @@
 % #3: printed text
 \cs_new_protected:Npn \__acro_do_accsupp:nnn #1#2#3
   {
-    \BeginAccSupp { ActualText = {#2} , #1 }
+    \BeginAccSupp { method = \l__acro_accsupp_method_tl ,  ActualText = {#2} , #1 }
       #3
     \EndAccSupp { }
   }
@@ -129,18 +130,27 @@
 
 \acro_at_begin_document:n
   {
-    \bool_lazy_and:nnT
-      { \acro_package_if_loaded_p:n {accsupp} }
-      { \l__acro_use_accsupp_bool }
+    \bool_lazy_all:nT
+      {
+        { \acro_package_if_loaded_p:n {accsupp} }
+        { \acro_package_if_loaded_p:n {hyperref} }
+        { \l__acro_use_accsupp_bool }
+      }
       { \bool_set_true:N \l__acro_accsupp_bool }
   }
 
-\keys_define:nn {acro}
+\keys_define:nn {acro/accsupp}
   {
-    accsupp         .bool_set:N = \l__acro_use_accsupp_bool ,
-    accsupp         .initial:n  = true ,
-    accsupp-options .tl_set:N   = \l__acro_acc_supp_options_tl ,
-    accsupp-options .initial:n  =
+    use      .code:n     =
+      \str_case:nnTF {#1}
+        { {true} {} {false} {} }
+        { \use:c {bool_set_#1:N} \l__acro_use_accsupp_bool }
+        { \msg_error:nnn {kernel} {boolean-values-only} {group} } ,
+    use     .initial:n  = true ,
+    options .tl_set:N   = \l__acro_acc_supp_options_tl ,
+    options .initial:n  = ,
+    method  .tl_set:N   = \l__acro_accsupp_method_tl ,
+    method  .initial:n  = pdfstringdef
   }
 
 % --------------------------------------------------------------------------
@@ -166,7 +176,7 @@
       {#3}
   }
 
-\keys_define:nn {acro/pdfcomment}
+\keys_define:nn {acro/pdfcomments}
   {
     use .bool_set:N = \l__acro_pdfcomment_use_bool ,
     use .initial:n = false ,
@@ -269,7 +279,7 @@
 \acro_pdfstring_template_new:nn {long-short}
   {
     \acro_property_get:nn {#1} {long}
-    \c_space_tl
+    \acro_space:
     ( \acro_property_get:nn {#1} {pdfstring} )
   }
 
@@ -278,7 +288,7 @@
   {
     \__acro_pdfstring_indefinite:nn {#1} {long}
     \acro_property_get:nn {#1} {long}
-    \c_space_tl
+    \acro_space:
     ( \acro_property_get:nn {#1} {pdfstring} )
   }
 
@@ -287,7 +297,7 @@
   {
     \__acro_pdfstring_upper:n
       { \acro_property_get:nn {#1} {long} }
-    \c_space_tl
+    \acro_space:
     ( \acro_property_get:nn {#1} {pdfstring} )
   }
 
@@ -299,7 +309,7 @@
         \__acro_pdfstring_indefinite:nn {#1} {long}
         \acro_property_get:nn {#1} {long}
       }
-    \c_space_tl
+    \acro_space:
     ( \acro_property_get:nn {#1} {pdfstring} )
   }
 
@@ -307,7 +317,7 @@
 \acro_pdfstring_template_new:nn {long-short-plural}
   {
     \__acro_pdfstring_plural:nn {#1} {long}
-    \c_space_tl
+    \acro_space:
     ( \__acro_pdfstring_plural:nn {#1} {short} )
   }
 
@@ -316,7 +326,7 @@
   {
     \__acro_pdfstring_upper:n
       { \__acro_pdfstring_plural:nn {#1} {long} }
-    \c_space_tl
+    \acro_space:
     ( \__acro_pdfstring_plural:nn {#1} {short} )
   }
 
@@ -325,7 +335,7 @@
 \acro_pdfstring_template_new:nn {short-long}
   {
     \acro_property_get:nn {#1} {pdfstring}
-    \c_space_tl
+    \acro_space:
     ( \acro_property_get:nn {#1} {long} )
   }
 
@@ -334,7 +344,7 @@
   {
     \__acro_pdfstring_indefinite:nn {#1} {short}
     \acro_property_get:nn {#1} {pdfstring}
-    \c_space_tl
+    \acro_space:
     ( \acro_property_get:nn {#1} {long} )
   }
 
@@ -343,7 +353,7 @@
   {
     \__acro_pdfstring_upper:n
       { \acro_property_get:nn {#1} {pdfstring} }
-    \c_space_tl
+    \acro_space:
     ( \acro_property_get:nn {#1} {long} )
   }
 
@@ -355,7 +365,7 @@
         \__acro_pdfstring_indefinite:nn {#1} {short}
         \acro_property_get:nn {#1} {pdfstring}
       }
-    \c_space_tl
+    \acro_space:
     ( \acro_property_get:nn {#1} {long} )
   }
 
@@ -363,7 +373,7 @@
 \acro_pdfstring_template_new:nn {short-long-plural}
   {
     \__acro_pdfstring_plural:nn {#1} {short}
-    \c_space_tl
+    \acro_space:
     ( \__acro_pdfstring_plural:nn {#1} {long} )
   }
 
@@ -372,7 +382,7 @@
   {
     \__acro_pdfstring_upper:n
       { \__acro_pdfstring_plural:nn {#1} {short} }
-    \c_space_tl
+    \acro_space:
     ( \__acro_pdfstring_plural:nn {#1} {long} )
   }
 
@@ -569,6 +579,8 @@
             \acro_set_pdf_cs:Nn \Aclp {Long-plural}
             \acro_set_pdf_cs:Nn \acap {alt-plural}
             \acro_set_pdf_cs:Nn \Acap {Alt-plural}
+            \cs_set_eq:NN \__acro_format:nnn \use_iii:nnn
+            \cs_set:Npn \@ {}
           }
         \cs_set_protected:Npn \acro_hyper_page:n #1 { \hyperpage {#1} }
       } {}

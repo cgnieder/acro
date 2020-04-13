@@ -1,0 +1,63 @@
+\documentclass{article}
+\usepackage[english,ngerman]{babel}
+\usepackage{csquotes}
+\usepackage[version=3,upgrade]{acro}
+
+% issue #136
+\DeclareAcroProperty{foreign-short}
+
+\RenewAcroTemplate {long-short}{%
+  \acroiffirstTF{%
+    \acrowrite{long}\acspace
+    (%
+      \acrowrite{short}%
+      \acroifT{foreign}{, \acrowrite{foreign}}%
+      \acroifT{foreign-short}{, \acrowrite{foreign-short}}%
+      \acrogroupcite
+    )%
+  }
+  {\acrowrite{short}}%
+}
+
+\RenewAcroTemplate[list]{description}{%
+  \acroheading
+  \acropreamble
+  \begin{description}
+    \acronymsmapF{
+      \item [\acrowrite{short}\acroifT{alt}{/\acrowrite{alt}}]
+        \acrowrite{long}%
+        \acroifanyT{foreign,extra}{ (}%
+        \acroifT{foreign}{%
+          \acrowrite{foreign}%
+          \acroifT{foreign-short}{, \acrowrite{foreign-short}}%
+          \acroifT{extra}{, }%
+        }%
+        \acroifT{extra}{\acrowrite{extra}}%
+        \acroifanyT{foreign,extra}{)}%
+        \acroifpagesT{%
+          \acropagefill
+          \acropages
+            {\acrotranslate{page}\nobreakspace}%
+            {\acrotranslate{pages}\nobreakspace}%
+        }%
+    }
+    { \item \AcroRerun{list} }
+  \end {description}
+}
+
+\DeclareAcronym{dsgvo}{
+  short = DSGVO,
+  long = {Datenschutz-Grundverordnung},
+  foreign = General Data Protection Regulation ,
+  foreign-short = GDPR, % new line
+  foreign-babel = english,
+  foreign-format = \enquote
+}
+
+\begin{document}
+
+\ac{dsgvo}
+
+\printacronyms
+
+\end{document}

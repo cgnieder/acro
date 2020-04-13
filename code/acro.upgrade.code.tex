@@ -177,13 +177,13 @@
 % old properties:
 \acro_deprecated_property:nn {accsupp} {short-acc}
 \acro_deprecated_property:nn {tooltip} {pdfcomment}
+\acro_deprecated_property:nn {class} {tag}
 \acro_deprecated_property:nn {foreign-lang} {foreign-babel}
 
 \acro_removed_property:n {long-pre}
 \acro_removed_property:n {long-post}
 \acro_removed_property:n {before-citation}
 \acro_removed_property:n {after-citation}
-\acro_removed_property:n {first-long-format}
 \acro_removed_property:n {index-cmd}
 
 % ----------------------------------------------------------------------------
@@ -208,6 +208,7 @@
 \acro_remove_function:N \DeclareAcroFirstStyle
 \acro_remove_function:N \DeclareAcroExtraStyle
 \acro_remove_function:N \DeclareAcroPageStyle
+\acro_remove_function:N \AcroRegisterTrailing
 
 % ----------------------------------------------------------------------------
 % old options:
@@ -241,6 +242,8 @@
       \acro_deprecate_option:nn {cite/group} {true} ,
     cite-connect .code:n =
       \acro_deprecate_option:nn {cite/pre} {#1} ,
+    group-cite-connect .code:n =
+      \acro_deprecate_option:nn {cite/group/pre} {#1} ,
     group-cite-cmd .code:n =
       \acro_remove_option:n {Maybe~ the~ option~ `cite/cmd'~ helps.} ,
     index .code:n =
@@ -267,9 +270,9 @@
     page-name .code:n = \acro_remove_option: ,
     pages-name .code:n = \acro_remove_option: ,
     following-page .code:n =
-      \acro_deprecate_option:nn {pages/next} {true} ,
+      \acro_deprecate_option:nn {pages/seq} {true} ,
     following-pages .code:n =
-      \acro_deprecate_option:nn {pages/next} {true} ,
+      \acro_deprecate_option:nn {pages/seq} {true} ,
     next-page .code:n = \acro_remove_option: ,
     next-pages .code:n = \acro_remove_option: ,
     uc-cmd .code:n =
@@ -277,10 +280,16 @@
     uppercase-short .code:n =
       \acro_deprecate_option:nn {uppercase/short} {#1} ,
     tooltip .code:n =
-      \acro_deprecate_option:nn {pdfcomment/use} {#1} ,
+      \acro_deprecate_option:nn {pdfcomments/use} {#1} ,
     tooltip-cmd .code:n =
-      \acro_deprecate_option:nn {pdfcomment/cmd} {#1} ,
+      \acro_deprecate_option:nn {pdfcomments/cmd} {#1} ,
     use-barriers .code:n = \acro_remove_option: ,
+    reset-at-barriers .code:n =
+      \acro_deprecate_option:nn {barriers/reset} {#1} ,
+    activate-trailing-tokens .code:n =
+      \acro_deprecate_option:nn {trailing/activate} {#1} ,
+    deactivate-trailing-tokens .code:n =
+      \acro_deprecate_option:nn {trailing/deactivate} {#1} ,
     %%% list options:
     list-style .code:n =
       \acro_deprecate_option:nn {list/template} {#1} ,

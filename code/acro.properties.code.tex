@@ -1,5 +1,7 @@
 \AcroModule{properties}{properties of acronyms}
 
+% ----------------------------------------------------------------------------
+% messages:
 \msg_new:nnn {acro} {unknown-property}
   {
     You~ tried~ to~ set~ the~ property~ `#1'~ \msg_line_context: . \\
@@ -28,61 +30,19 @@
     \msg_line_context:
   }
 
+\msg_new:nnn {acro} {value-required}
+  {
+    The~ property~ `#2'~ for~ acroynm~ `#1'~ \msg_line_context: \
+    needs~ a~ (possibly~ empty)~ value!
+  }
+  
+
+% ----------------------------------------------------------------------------
+% declare properties:
 \seq_new:N \l__acro_properties_seq
 
 \cs_new_protected:Npn \acro_properties_map:n #1
   { \seq_map_inline:Nn \l__acro_properties_seq {#1} }
-
-% check if property exists:
-\prg_new_conditional:Npnn \acro_property_if_exist:n #1 {T,F,TF}
-  {
-    \acro_attribute_if_exist:nTF {property::#1}
-      { \prg_return_true: }
-      { \prg_return_false: }
-  }
-\cs_generate_variant:Nn \acro_property_if_exist:nTF {x}
-
-% check if property is set:
-% #1: id
-% #2: property
-\prg_new_conditional:Npnn \acro_property_if_set:nn #1#2 {p,T,F,TF}
-  {
-    \acro_attribute_if_set:neTF {#2} { \acro_case_insensitive:n {#1} }
-      { \prg_return_true: }
-      { \prg_return_false: }
-  }
-\prg_generate_conditional_variant:Nnn \acro_property_if_set:nn
-  {nx,xx,nV,e,ne}
-  {p,T,F,TF}
-
-
-% #1: id
-% #2: properties
-\prg_new_protected_conditional:Npnn \acro_property_if_any:nn #1#2 {T,F,TF}
-  {
-    \seq_set_from_clist:Nn \l__acro_tmpa_seq {#2}
-    \seq_set_map:NNn \l__acro_tmpa_seq \l__acro_tmpa_seq
-      { { \exp_not:N \acro_property_if_set_p:nn {#1} {##1} } }
-    \bool_lazy_any:eTF
-      { \seq_use:Nn \l__acro_tmpa_seq {} }
-      { \prg_return_true: }
-      { \prg_return_false: }
-  }
-\prg_generate_conditional_variant:Nnn \acro_property_if_any:nn {e} {TF}
-
-% #1: id
-% #2: properties
-\prg_new_protected_conditional:Npnn \acro_property_if_all:nn #1#2 {T,F,TF}
-  {
-    \seq_set_from_clist:Nn \l__acro_tmpa_seq {#2}
-    \seq_set_map:NNn \l__acro_tmpa_seq \l__acro_tmpa_seq
-      { { \exp_not:N \acro_property_if_set_p:nn {#1} {##1} } }
-    \bool_lazy_all:eTF
-      { \seq_use:Nn \l__acro_tmpa_seq {} }
-      { \prg_return_true: }
-      { \prg_return_false: }
-  }
-\prg_generate_conditional_variant:Nnn \acro_property_if_all:nn {e} {TF}
 
 \acro_attribute_new:n {boolean}
 \acro_attribute_new:n {unique}
@@ -128,6 +88,64 @@
       }
   }
 
+% ----------------------------------------------------------------------------
+% property conditionals:
+\prg_new_conditional:Npnn \acro_property_if_exist:n #1 {T,F,TF}
+  {
+    \acro_attribute_if_exist:nTF {property::#1}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\cs_generate_variant:Nn \acro_property_if_exist:nTF {x}
+
+% #1: id
+% #2: property
+\prg_new_conditional:Npnn \acro_property_if_set:nn #1#2 {p,T,F,TF}
+  {
+    \acro_attribute_if_set:neTF {#2} { \acro_case_insensitive:n {#1} }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \acro_property_if_set:nn
+  {nx,xx,nV,e,ne}
+  {p,T,F,TF}
+
+
+% #1: id
+% #2: properties
+\prg_new_protected_conditional:Npnn \acro_property_if_any:nn #1#2 {T,F,TF}
+  {
+    \seq_set_from_clist:Nn \l__acro_tmpa_seq {#2}
+    \seq_set_map:NNn \l__acro_tmpa_seq \l__acro_tmpa_seq
+      { { \exp_not:N \acro_property_if_set_p:nn {#1} {##1} } }
+    \bool_lazy_any:eTF
+      { \seq_use:Nn \l__acro_tmpa_seq {} }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \acro_property_if_any:nn {e} {TF}
+
+% #1: id
+% #2: properties
+\prg_new_protected_conditional:Npnn \acro_property_if_all:nn #1#2 {T,F,TF}
+  {
+    \seq_set_from_clist:Nn \l__acro_tmpa_seq {#2}
+    \seq_set_map:NNn \l__acro_tmpa_seq \l__acro_tmpa_seq
+      { { \exp_not:N \acro_property_if_set_p:nn {#1} {##1} } }
+    \bool_lazy_all:eTF
+      { \seq_use:Nn \l__acro_tmpa_seq {} }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \acro_property_if_all:nn {e} {TF}
+
+\prg_new_conditional:Npnn \acro_property_if_eq:nn #1#2 {p,T,F,TF}
+  {
+    \str_if_eq:nnTF {#1} {#2}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
 \prg_new_conditional:Npnn \acro_property_if_mandatory:n #1 {p,T,F,TF}
   {
     \acro_attribute_if_set:nnTF {mandatory} {#1}
@@ -166,6 +184,45 @@
       { \prg_return_false: }
   }
 
+% #1: id
+% #2: property
+\prg_new_conditional:Npnn \acro_property_get_if_set:nn #1#2 {T,F,TF}
+  {
+    \acro_property_if_set:nnTF {#1} {#2}
+      {
+        \acro_property_get:nn {#1} {#2}
+        \prg_return_true:
+      }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \acro_property_if_set:nn {V} {TF}
+
+% #1: id
+% #2: property
+\prg_new_conditional:Npnn \acro_boolean_property_if:nn #1#2 {p,T,F,TF}
+  {
+    \acro_property_if_exist:nTF {#2}
+      {
+        \acro_property_if_boolean:nTF {#2}
+          {
+            \acro_property_if_set:nnTF {#1} {#2}
+              {
+                \bool_if:cTF
+                  {c_ \acro_property_get:nn {#1} {#2} _bool}
+                  { \prg_return_true: }
+                  { \prg_return_false: }
+              }
+              { \prg_return_false: }
+          }
+          { \prg_return_false: }
+      }
+      { \prg_return_false: }
+  }
+\cs_generate_variant:Nn \acro_boolean_property_if:nnTF {oo}
+\cs_generate_variant:Nn \acro_boolean_property_if:nnF  {nV}
+
+% ----------------------------------------------------------------------------
+% set properties:
 % #1: id
 % #2: property
 % #3: value
@@ -251,21 +308,6 @@
   }
 \cs_generate_variant:Nn \__acro_property_set:nnn {VnV,nne}
 
-\cs_new_protected:Npn \acro_property_show:nn #1#2
-  {
-    \acro_property_if_set:nnT {#1} {#2}
-      {
-        \iow_term:x
-          {
-            \c_space_tl \c_space_tl
-            \tl_to_str:n {#2}
-            \c_space_tl \c_space_tl => \c_space_tl \c_space_tl
-            { \acro_property_get:nn {#1} {#2} }
-          }
-      }
-  }
-\cs_generate_variant:Nn \acro_property_show:nn {e}
-
 \tl_set:Nx \l__acro_tmpa_tl { \cs_to_str:N \{ }
 \tl_set:Nx \l__acro_tmpb_tl { \cs_to_str:N \} }
 \use:x
@@ -328,7 +370,11 @@
     \cs_set_protected:Npn \__acro_parse_property:nn ##1##2
       { \acro_property_set:nnn {#1} {##1} {##2} }
     \cs_set_protected:Npn \__acro_parse_property:n ##1
-      { \msg_error:nnnn {acro} {value-required} {#1} {##1} }
+      {
+        \acro_property_if_boolean:nTF {##1}
+          { \acro_property_set:nnn {#1} {##1} {true} }
+          { \msg_error:nnnn {acro} {value-required} {#1} {##1} }
+      }
     \keyval_parse:NNn
       \__acro_parse_property:n
       \__acro_parse_property:nn
@@ -337,15 +383,42 @@
 \cs_generate_variant:Nn \acro_properties_set:nnn {nnx,nxx,nV,nVx}
 
 % ----------------------------------------------------------------------------
+% inspect properties:
+\cs_new_protected:Npn \acro_property_show:nn #1#2
+  {
+    \acro_property_if_set:nnT {#1} {#2}
+      {
+        \iow_term:x
+          {
+            \c_space_tl \c_space_tl
+            \tl_to_str:n {#2}
+            \c_space_tl \c_space_tl => \c_space_tl \c_space_tl
+            { \acro_property_get:nn {#1} {#2} }
+          }
+      }
+  }
+\cs_generate_variant:Nn \acro_property_show:nn {e}
 
+% ----------------------------------------------------------------------------
+% alias properties:
 \tl_new:N \g__acro_property_aliases_tl
 
 % #1: property
 \prg_new_conditional:Npnn \acro_property_if_alias:n #1 {p,T,F,TF}
   {
-    \tl_if_in:NnTF \g__acro_property_aliases_tl {#1}
+    \tl_map_tokens:Nn \g__acro_property_aliases_tl
+      { \__acro_property_if_alias:nn {#1} }
+    \use_ii:nn
       { \prg_return_true: }
       { \prg_return_false: }
+  }
+
+% #1: tl
+% #2: tl
+\cs_new:Npn \__acro_property_if_alias:nn #1#2
+  {
+    \str_if_eq:nnT {#1} {#2}
+      { \tl_map_break:n { \use_ii:nnn } }
   }
 
 % #1: property
@@ -392,43 +465,6 @@
 \cs_new:Npn \acro_property_get:nn #1#2
   {  \acro_attribute_get:ne {#2} { \acro_case_insensitive:n {#1} } }
 \cs_generate_variant:Nn \acro_property_get:nn {nx,ne,V}
-
-% #1: id
-% #2: property
-\prg_new_conditional:Npnn \acro_property_get_if_set:nn #1#2 {T,F,TF}
-  {
-    \acro_property_if_set:nnTF {#1} {#2}
-      {
-        \acro_property_get:nn {#1} {#2}
-        \prg_return_true:
-      }
-      { \prg_return_false: }
-  }
-\prg_generate_conditional_variant:Nnn \acro_property_if_set:nn {V} {TF}
-
-% #1: id
-% #2: property
-\prg_new_conditional:Npnn \acro_boolean_property_if:nn #1#2 {p,T,F,TF}
-  {
-    \acro_property_if_exist:nTF {#2}
-      {
-        \acro_property_if_boolean:nTF {#2}
-          {
-            \acro_property_if_set:nnTF {#1} {#2}
-              {
-                \bool_if:cTF
-                  {c_ \acro_property_get:nn {#1} {#2} _bool}
-                  { \prg_return_true: }
-                  { \prg_return_false: }
-              }
-              { \prg_return_false: }
-          }
-          { \prg_return_false: }
-      }
-      { \prg_return_false: }
-  }
-\cs_generate_variant:Nn \acro_boolean_property_if:nnTF {oo}
-\cs_generate_variant:Nn \acro_boolean_property_if:nnF  {nV}
 
 % ----------------------------------------------------------------------------
 \AcroModuleEnd

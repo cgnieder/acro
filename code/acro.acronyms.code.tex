@@ -74,10 +74,10 @@
 
 % --------------------------------------------------------------------------
 % define necessary properties:
-\NewDocumentCommand \AcroDeclareProperty {st?t!t|m}
+\NewDocumentCommand \DeclareAcroProperty {st?t!t|m}
   { \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5} }
 
-\NewDocumentCommand \AcroDeclarePropertyAlias {st?t!t|mm}
+\NewDocumentCommand \DeclareAcroPropertyAlias {st?t!t|mm}
   {
     \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5}
     \acro_property_make_alias:nn {#5} {#6}
@@ -88,85 +88,89 @@
 \acro_list_add:nn {long}  {long,foreign,single,extra,list}
 
 % meta information:
-\AcroDeclareProperty*!{id}
-\AcroDeclareProperty ?{used}
-\AcroDeclareProperty |{usage}
-\AcroDeclareProperty |{pages}
-\AcroDeclareProperty |{barriers}
-\AcroDeclareProperty* {label}
+\DeclareAcroProperty*!{id}
+\DeclareAcroProperty ?{used}
+\DeclareAcroProperty |{usage}
+\DeclareAcroProperty |{pages}
+\DeclareAcroProperty |{barriers}
+\DeclareAcroProperty* {label}
 
 % main properties:
-\AcroDeclareProperty !{short}
-\AcroDeclareProperty  {alt}
-\AcroDeclareProperty !{long}
+\DeclareAcroProperty !{short}
+\DeclareAcroProperty  {alt}
+\DeclareAcroProperty !{long}
 
 % sorting, indexing, ... :
-\AcroDeclarePropertyAlias {sort}       {short}
-\AcroDeclareProperty      {index}
-\AcroDeclarePropertyAlias {index-sort} {sort}
-\AcroDeclarePropertyAlias {single}     {long}
-\AcroDeclarePropertyAlias {pdfstring}  {short}
-\AcroDeclareProperty      {pdfcomment}
+\DeclareAcroPropertyAlias {sort} {short}
+\DeclareAcroProperty {index}
+\DeclareAcroProperty?{no-index}
+\DeclareAcroPropertyAlias {index-sort} {sort}
+\DeclareAcroProperty {index-cmd}
+\DeclareAcroProperty {tag}
+\DeclareAcroProperty {cite}
+\DeclareAcroPropertyAlias {pdfstring} {short}
+\DeclareAcroProperty {pdfcomment}
 
 % locale:
-\AcroDeclareProperty {foreign}
-\AcroDeclareProperty {foreign-babel}
-\AcroDeclareProperty {foreign-locale}
+\DeclareAcroProperty {foreign}
+\DeclareAcroProperty {foreign-babel}
+\DeclareAcroProperty {foreign-locale}
 
 % indefinite articles:
-\AcroDeclareProperty {indefinite}
-
-% formatting:
-\AcroDeclareProperty {format}
-\AcroDeclarePropertyAlias {short-format} {format}
-\AcroDeclarePropertyAlias {alt-format}   {short-format}
-\AcroDeclarePropertyAlias {long-format}  {format}
-\AcroDeclareProperty {foreign-format}
-\AcroDeclarePropertyAlias {single-format} {long-format}
-\AcroDeclareProperty {extra-format}
+\DeclareAcroProperty {indefinite}
 
 % additional properties:
-\AcroDeclarePropertyAlias {list} {long}
-\AcroDeclareProperty {extra}
-\AcroDeclareProperty {post}
-\AcroDeclareProperty {first-style}
-\AcroDeclareProperty {single-style}
-\AcroDeclareProperty {class}
-\AcroDeclareProperty {cite}
+\DeclareAcroPropertyAlias {single} {long}
+\DeclareAcroPropertyAlias {list} {long}
+\DeclareAcroPropertyAlias {first-long} {long}
+\DeclareAcroProperty {extra}
+\DeclareAcroProperty {post}
+\DeclareAcroProperty {first-style}
+\DeclareAcroProperty {single-style}
+
+% formatting:
+\DeclareAcroProperty {format}
+\DeclareAcroPropertyAlias {short-format} {format}
+\DeclareAcroProperty {alt-format}
+\DeclareAcroPropertyAlias {long-format}  {format}
+\DeclareAcroProperty {first-long-format}
+\DeclareAcroProperty {foreign-format}
+\DeclareAcroProperty {single-format}
+\DeclareAcroProperty {list-format}
+\DeclareAcroProperty {extra-format}
 
 % Accessibility:
 \acro_list_map:nn {short}
   {
-    \AcroDeclarePropertyAlias {#1-acc} {#1}
+    \DeclareAcroPropertyAlias {#1-acc} {#1}
     \acro_list_add:nn {short} {#1-acc}
   }
 
-\AcroDeclarePropertyAlias {single-acc} {long-acc}
+\DeclareAcroPropertyAlias {single-acc} {long-acc}
 \acro_list_map:nn {long}
   {
-    \AcroDeclarePropertyAlias {#1-acc} {#1}
+    \DeclareAcroPropertyAlias {#1-acc} {#1}
     \acro_list_add:nn {long} {#1-acc}
   }
 
 % indefinite article:
 \acro_list_map:nn {short}
-  { \AcroDeclarePropertyAlias {#1-indefinite} {indefinite} }
+  { \DeclareAcroPropertyAlias {#1-indefinite} {indefinite} }
 
 \acro_list_map:nn {long}
-  { \AcroDeclarePropertyAlias {#1-indefinite} {indefinite} }
+  { \DeclareAcroPropertyAlias {#1-indefinite} {indefinite} }
 
 % --------------------------------------------------------------------------
 % use id as short entry:
-\bool_new:N \g__use_id_bool
+\bool_new:N \g__acro_use_id_bool
 
 \keys_define:nn {acro}
   {
     use-id-as-short         .choice: ,
     use-id-as-short / true  .code:n =
-      \acro_property_make_alias:nn {short} {id}
-      \bool_gset_true:N \g__use_id_bool ,
+      \bool_gset_true:N \g__acro_use_id_bool ,
     use-id-as-short / false .code:n =
-      \bool_gset_false:N \g__use_id_bool ,
+      \bool_gset_false:N \g__acro_use_id_bool ,
     use-id-as-short         .default:n = true
   }
 
@@ -297,6 +301,12 @@
     \int_new:c {g__acro_#1_int}
     \seq_new:c {g__acro_#1_pages_seq}
     \seq_new:c {g__acro_#1_barriers_seq}
+    \acro_at_begin_document:n
+      {
+        \intarray_new:cn
+          {g__acro_#1_barriers_intarray}
+          { \g_acro_barrier_total_int }
+      }
     \seq_gput_right:Nn \g__acro_acronyms_seq {#1}
     \acro_attribute_set:nnn {acronyms} {#1} {}
     % set defaults:
@@ -305,6 +315,10 @@
     \acro_properties_set:nn {#1} {#2}
     % set defaults which must not be overwritten:
     \acro_property_set:nnn {#1} {usage} {0}
+    \bool_lazy_and:nnT
+      { \g__acro_use_id_bool }
+      { !\acro_property_if_set_p:nn {#1} {short} }
+      { \acro_property_set:nnn {#1} {short} {#1} }
     \acro_property_set:nnn {#1} {id} {#1}
     \acro_property_set_aliases:n {#1}
     % check mandatory properties:
@@ -316,7 +330,10 @@
     % set endings:
     \acro_set_endings:n {#1}
     \acro_at_end_document:n
-      { \acro_property_set:nnx {#1} {usage} { \int_use:c {g__acro_#1_int} } }
+      {
+        \acro_property_set:nnx {#1} {usage} { \int_use:c {g__acro_#1_int} }
+        \acro_set_barriers:n {#1}
+      }
   }
 
 \prg_new_conditional:Npnn \acro_if_defined:n #1 {p,T,F,TF}
@@ -334,13 +351,14 @@
   }
 
 % --------------------------------------------------------------------------
+% use and reset:
 \bool_new:N \l__acro_use_bool
 \bool_set_true:N \l__acro_use_bool
 
 \cs_new_protected:Npn \acro_use_false:
   { \bool_set_false:N \l__acro_use_bool }
 
-\cs_new_protected:Npn \acro_use:n #1
+\cs_new_protected:Npn \__acro_use:n #1
   {
     \bool_if:NT \l__acro_use_bool
       {
@@ -348,12 +366,15 @@
         \acro_step:n {#1}
       }
   }
+
+\cs_new_protected:Npn \acro_use:n #1
+  { \clist_map_inline:nn {#1} { \__acro_use:n {#1} } }
 \cs_generate_variant:Nn \acro_use:n {e}
 
 \cs_new_protected:Npn \acro_use_all:
-  { \seq_map_inline:Nn \g__acro_acronyms_seq { \acro_use:n {##1} } }
+  { \seq_map_inline:Nn \g__acro_acronyms_seq { \__acro_use:n {##1} } }
 
-\cs_new_protected:Npn \acro_reset:n #1
+\cs_new_protected:Npn \__acro_reset:n #1
   {
     \acro_property_set:nnn {#1} {used} {false}
     \int_gzero:c {g__acro_ \acro_case_insensitive:n {#1} _int}
@@ -362,14 +383,30 @@
       { \acro_property_set:nnn {#1} {usage} {0} }
   }
 
+\cs_new_protected:Npn \acro_reset:n #1
+  { \clist_map_inline:nn {#1} { \__acro_reset:n {##1} } }
+
 \cs_new_protected:Npn \acro_reset_all:
-  { \seq_map_inline:Nn \g__acro_acronyms_seq { \acro_reset:n {##1} } }
+  { \seq_map_inline:Nn \g__acro_acronyms_seq { \__acro_reset:n {##1} } }
 
 \cs_new_protected:Npn \acro_switch_off:
   { \bool_set_false:N \l__acro_use_bool }
 
 \cs_new_protected:Npn \acro_switch_on:
   { \bool_set_true:N \l__acro_use_bool }
+
+% --------------------------------------------------------------------------
+% check for tags:
+% #1: id
+% #2: tag
+\prg_new_protected_conditional:Npnn \acro_tag_if:nn #1#2 {T,F,TF}
+  {
+    \clist_set:Ne \l__acro_tmpa_clist { \acro_property_get:nn {#1} {tag} }
+    \clist_if_in:NnTF \l__acro_tmpa_clist {#2}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \acro_tag_if:nn {en} {T,F,TF}
 
 % --------------------------------------------------------------------------
 \AcroModuleEnd

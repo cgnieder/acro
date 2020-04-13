@@ -9,18 +9,18 @@
 
 \tl_new:N \l__acro_list_tl
 
-\clist_new:N \l__acro_class_include_clist
-\clist_new:N \l__acro_class_exclude_clist
+\clist_new:N \l__acro_tag_include_clist
+\clist_new:N \l__acro_tag_exclude_clist
 
-\acro_at_begin_document:n
+\cs_new_protected:Npn \acro_list_choose_set:
   {
     \bool_if:NTF \l__acro_list_display_all_bool
-      { \seq_set_eq:NN \g__acro_list_seq \g__acro_acronyms_seq }
+      { \seq_gset_eq:NN \g__acro_list_seq \g__acro_acronyms_seq }
       {
         \seq_map_inline:Nn \g__acro_acronyms_seq
           {
-            \acro_if_single:nF {#1}
-              { \seq_gput_right:Nn \g__acro_list_seq {#1} }
+            \acro_if_single:nF {##1}
+              { \seq_gput_right:Nn \g__acro_list_seq {##1} }
           }
       }
   }
@@ -36,13 +36,17 @@
       { \bool_set_true:N \l__acro_tmpb_bool }
     \seq_map_inline:Nn #1
       {
-        \__acro_check_classes:Nn \l__acro_tmpa_bool {##1}
-        \bool_if:NT \l__acro_list_local_bool
+        \__acro_check_tags:Nn \l__acro_tmpa_bool {##1}
+        \bool_if:nT
+          {
+            \l__acro_list_local_bool &&
+            \int_compare_p:nNn
+            { \intarray_count:c {g__acro_##1_barriers_intarray} } > 0
+          }
           {
             \bool_set_false:N \l__acro_tmpb_bool
-            \seq_set_split:Nnx \l__acro_tmpb_seq {|}
-              { \acro_property_get:nn {##1} {barriers} }
-            \seq_if_in:NxT \l__acro_tmpb_seq { \int_use:N \g_acro_barrier_int }
+            \int_compare:nNnT
+              { \acro_barrier_usage:n {##1} } > 0
               { \bool_set_true:N \l__acro_tmpb_bool }
           }
         \bool_lazy_and:nnT { \l__acro_tmpa_bool } { \l__acro_tmpb_bool }
@@ -52,24 +56,24 @@
 
 % #1: boolean
 % #2: id
-\cs_new_protected:Npn \__acro_check_classes:Nn #1#2
+\cs_new_protected:Npn \__acro_check_tags:Nn #1#2
   {
     \bool_set_false:N #1
-    % get classes for acronym:
+    % get tags for acronym:
     \clist_set:Ne \l__acro_tmpa_clist
-      { \acro_property_get:nn {#2} {class} }
+      { \acro_property_get:nn {#2} {tag} }
     \clist_if_empty:NTF \l__acro_tmpa_clist
-      {% acronym does not have (a) class(es)
-        \clist_if_empty:NT \l__acro_class_include_clist
+      {% acronym does not have (a) tag(s)
+        \clist_if_empty:NT \l__acro_tag_include_clist
           { \bool_set_true:N #1 }
       }
-      {% acronym has (a) class(es)
-        \clist_if_empty:NTF \l__acro_class_include_clist
+      {% acronym has (a) tag(s)
+        \clist_if_empty:NTF \l__acro_tag_include_clist
           { \bool_set_true:N #1 }
           {
             \clist_map_inline:Nn \l__acro_tmpa_clist
               {
-                \clist_if_in:NnT \l__acro_class_include_clist {##1}
+                \clist_if_in:NnT \l__acro_tag_include_clist {##1}
                   {% acronym is included
                     \bool_set_true:N #1
                     \clist_map_break:
@@ -78,11 +82,11 @@
           }
         \bool_if:NT #1
           {% we only need to check if acronym is included:
-            \clist_if_empty:NF \l__acro_class_exclude_clist
+            \clist_if_empty:NF \l__acro_tag_exclude_clist
               {
                 \clist_map_inline:Nn \l__acro_tmpa_clist
                   {
-                    \clist_if_in:NnT \l__acro_class_exclude_clist {##1}
+                    \clist_if_in:NnT \l__acro_tag_exclude_clist {##1}
                       {% acronym is excluded
                         \bool_set_false:N #1
                         \clist_map_break:
@@ -109,6 +113,8 @@
   {
     \group_begin:
       \bool_set_true:N \l__acro_list_bool
+      \acro_list_choose_set:
+      \cs_set_eq:NN \__acro_upper_case:n \__acro_list_upper_case:n
       \bool_if:NT \l__acro_sort_bool { \acro_list_sort: }
       \acro_template_use:nnV {0} {list} \l__acro_list_tl
     \group_end:
@@ -137,15 +143,26 @@
     display/all  .code:n      = \bool_set_true:N \l__acro_list_display_all_bool ,
     display/used .code:n      = \bool_set_false:N \l__acro_list_display_all_bool ,
     display      .initial:n   = used ,
-    include      .clist_set:N = \l__acro_class_include_clist ,
-    exclude      .clist_set:N = \l__acro_class_exclude_clist ,
+    include      .clist_set:N = \l__acro_tag_include_clist ,
+    exclude      .clist_set:N = \l__acro_tag_exclude_clist ,
     local        .bool_set:N  = \l__acro_list_local_bool ,
     heading      .tl_set:N  = \l__acro_heading_tl ,
-    heading      .initial:n = section* ,
     preamble     .tl_set:N  = \l__acro_preamble_tl ,
     preamble     .initial:n = ,
     name         .tl_set:N  = \l__acro_list_name_tl ,
     name         .initial:n = \acro_translate:n {list-name}
+  }
+
+\acro_if_komascript:TF
+  {
+    \cs_if_exist:NTF \chapter
+      { \keys_set:nn {acro/list}{ heading = addchap } }
+      { \keys_set:nn {acro/list}{ heading = addsec } }
+  }
+  {
+    \cs_if_exist:NTF \chapter
+      { \keys_set:nn {acro/list}{ heading = chapter* } }
+      { \keys_set:nn {acro/list}{ heading = section* } }
   }
 
 % --------------------------------------------------------------------------
