@@ -72,7 +72,11 @@
 
 % --------------------------------------------------------------------------
 \DeclareAcroEnding {plural} {s} {s}
-  
+
+\DeclareAcroArticle {indefinite} {a}
+
+\ProvideExpandableDocumentCommand \nospace {} {}
+
 % --------------------------------------------------------------------------
 % acronym templates:
 \NewAcroTemplate {long-short}
@@ -244,11 +248,51 @@
     \acroheading
     \acropreamble
     \par \noindent
-    \begin {tabular} {>{\bfseries}lp{\dimexpr\linewidth-3cm\relax}}
+    \begin {tabular} {>{\bfseries}lp{.7\linewidth}}
       \TableCode
     \end {tabular}
   }
 
+\NewAcroTemplate[list] {longtable}
+  {
+    \def \TableCode {}
+    \acronymsmap
+      {
+        \AcroPutRight \TableCode
+          {
+            \def \AcronymID {##1}
+            \acrowrite {short}
+            \acroifT {alt} { / \acrowrite {alt} }
+            &
+            \def \AcronymID {##1}
+            \acrowrite {list}
+            \acroifanyT {foreign,extra} {~(}
+            \acroifT {foreign}
+              {
+                \acrowrite {foreign}
+                \acroifT {extra} {,~}
+              }
+            \acroifT {extra}
+              { \acrowrite {extra} }
+            \acroifanyT {foreign,extra} {)}
+            \acroifpagesT
+              {
+                \acropagefill
+                \acropages
+                  { \acrotranslate {page} \nobreakspace }
+                  { \acrotranslate {pages} \nobreakspace }
+              }
+            \tabularnewline
+          }
+      }
+    \acroheading
+    \acropreamble
+    \par \noindent
+    \begin {longtabu} {>{\bfseries}lX[l]}
+      \TableCode
+    \end {longtabu}
+  }
+  
 % --------------------------------------------------------------------------
 % translations:
 % list name

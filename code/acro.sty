@@ -1072,7 +1072,7 @@
       }
       { \msg_error:nnn {acro} {unknown-property} {#2} }  
   }
-\cs_generate_variant:Nn \acro_property_set:nnn {nnV,nxx,nnx,e,nne}
+\cs_generate_variant:Nn \acro_property_set:nnn {nnV,nxx,nnx,e,nne,nnv}
 
 % #1: id
 % #2: property
@@ -1402,9 +1402,6 @@
 \DeclareAcroProperty {foreign-babel}
 \DeclareAcroProperty {foreign-locale}
 
-% indefinite articles:
-\DeclareAcroProperty {indefinite}
-
 % additional properties:
 \DeclareAcroPropertyAlias {single} {long}
 \DeclareAcroPropertyAlias {list} {long}
@@ -1439,12 +1436,46 @@
     \acro_list_add:nn {long} {#1-acc}
   }
 
-% indefinite article:
-\acro_list_map:nn {short}
-  { \DeclareAcroPropertyAlias {#1-indefinite} {indefinite} }
+% --------------------------------------------------------------------------
+% articles
+\bool_new:N \l__acro_article_bool
+\tl_new:N \g__acro_articles_tl
 
-\acro_list_map:nn {long}
-  { \DeclareAcroPropertyAlias {#1-indefinite} {indefinite} }
+\cs_new_protected:Npn \acro_article_declare:nn #1#2
+  {
+    \tl_gput_right:Nn \g__acro_articles_tl {{#1}}
+    \DeclareAcroProperty {#1}
+    \acro_list_map:nn {short}
+      { \DeclareAcroPropertyAlias {##1-#1} {#1} }
+    \acro_list_map:nn {long}
+      { \DeclareAcroPropertyAlias {##1-#1} {#1} }
+    \bool_new:c {l__acro_article_#1_bool}
+    \tl_new:c {l__acro_article_#1_tl}
+    \exp_args:Nc \NewDocumentCommand {acro#1} {}
+      { \use:c {acro_#1:} }
+    \cs_new_protected:cpn {acro_#1:}
+      {
+        \bool_set_true:c {l__acro_article_#1_bool}
+        \bool_set_true:N \l__acro_article_bool
+      }
+    \keys_define:nn {acro}
+      {
+        #1 .tl_set:c  = {l__acro_article_#1_tl} ,
+        #1 .initial:n = #2
+      }
+  }
+
+% #1: id
+\cs_new_protected:Npn \__acro_set_article_defaults:n #1
+  {
+    \tl_map_tokens:Nn \g__acro_articles_tl
+      { \__acro_default_article:nn {#1} }
+  }
+
+% #1: id
+% #2: article
+\cs_new_protected:Npn \__acro_default_article:nn #1#2
+  { \acro_property_set:nnv {#1} {#2} {l__acro_article_#2_tl} }
 
 % --------------------------------------------------------------------------
 % use id as short entry:
@@ -1565,16 +1596,13 @@
 \seq_new:N \g__acro_acronyms_seq
 
 \tl_new:N \l__acro_first_style_tl
-\tl_new:N \l__acro_indefinite_tl
 
 \acro_attribute_new:n {acronyms}
 
 \keys_define:nn {acro}
   {
     first-style .tl_set:N  = \l__acro_first_style_tl ,
-    first-style .initial:n = long-short ,
-    indefinite  .tl_set:N  = \l__acro_indefinite_tl ,
-    indefinite  .initial:n = a
+    first-style .initial:n = long-short
   }
 
 \cs_new_protected:Npn \acro_declare_acronym:nn #1#2
@@ -1596,7 +1624,7 @@
     \seq_gput_right:Nn \g__acro_acronyms_seq {#1}
     \acro_attribute_set:nnn {acronyms} {#1} {}
     % set defaults:
-    \acro_property_set:nnV {#1} {indefinite} \l__acro_indefinite_tl
+    \__acro_set_article_defaults:n {#1}
     % set user input:
     \acro_properties_set:nn {#1} {#2}
     % set defaults which must not be overwritten:
@@ -1901,8 +1929,8 @@
 
 \cs_new_protected:Npn \acro_upper:
   {
-    \bool_if:NT \l__acro_indefinite_bool
-      { \bool_set_false:N \l__acro_indefinite_bool }
+    \bool_if:NT \l__acro_article_bool
+      { \bool_set_false:N \l__acro_article_bool }
     \bool_set_true:N \l__acro_upper_bool
   }
 
@@ -2030,7 +2058,6 @@
     cmd           .cs_set:Np  = \__acro_cite_cmd:w ,
     cmd           .initial:n  = \cite ,
     cmd           .value_required:n = true ,
-    % group         .bool_set:N = \l__acro_cite_group_bool ,
     group         .code:n     =
       \str_case:nnTF {#1}
         { {true} {} {false} {} }
@@ -2109,13 +2136,6 @@
   }
 
 \keys_set:nn {acro/index} { disable = \def\@{} }
-
-% --------------------------------------------------------------------------
-% indefinite articles:
-\bool_new:N \l__acro_indefinite_bool
-
-\cs_new_protected:Npn \acro_indefinite:
-  { \bool_set_true:N \l__acro_indefinite_bool }
 
 % --------------------------------------------------------------------------
 % looking for trailing tokens and define action
@@ -2508,17 +2528,32 @@
 % typeset acronyms:
 % #1: id
 % #2: property
-\cs_new:Npn \__acro_indefinite:nn #1#2
+\cs_new:Npn \__acro_article:nn #1#2
   {
-    \bool_if:NT \l__acro_indefinite_bool
-      { \acro_property_get:nn {#1} {#2-indefinite} \c_space_tl }
+    \bool_if:NT \l__acro_article_bool
+      {
+        \tl_map_tokens:Nn \g__acro_articles_tl
+          { \__acro_article:nnn {#1} {#2} }
+      }
+  }
+
+% #1: id
+% #2: property
+% #3: article
+\cs_new:Npn \__acro_article:nnn #1#2#3
+  {
+    \bool_if:cT {l__acro_article_#3_bool}
+      {
+        \tl_map_break:n
+          { \acro_property_get:nn {#1} {#2-#3} \c_space_tl }
+      }
   }
 
 % #1: id
 % #2: property
 \cs_new_protected:Npn \__acro_write:nn #1#2
   {
-    \__acro_indefinite:nn {#1} {#2}
+    \__acro_article:nn {#1} {#2}
     \acro_property_if_exist:nTF {#2-acc}
       {
         \__acro_accsupp:ee
@@ -2569,7 +2604,7 @@
           { \__acro_ending:nn {#1} {#2} }
       }
     \bool_set_false:N \l__acro_upper_bool
-    \bool_set_false:N \l__acro_indefinite_bool
+    \bool_set_false:N \l__acro_article_bool
   }
 \cs_generate_variant:Nn \acro_write:nn {e}
 
@@ -2641,6 +2676,7 @@
           { base \__acro_remove_bs:N ##1  } {##2}
           {
             \acro_begin:
+              \cs_set_eq:NN \nospace \use_none:n
               \acro_check_definition:n {####1}
               \bool_set_true:N \l__acro_use_bool
               \keys_set:nV {acro} \l__acro_options_tl
@@ -3139,7 +3175,12 @@
       }
   }
 
-\cs_new:Npn \__acro_page:w #1@#2 \q_stop {#2}
+\cs_new:Npn \__acro_page:w #1@#2 \q_stop
+  {
+    \acro_package_if_loaded:nTF {hyperref}
+      { \exp_not:N \hyperpage {#2} }
+      {#2}
+  }
 \cs_new:Npn \__acro_page_value:w  #1@#2 \q_stop {#1}
 
 \group_end:
@@ -3306,8 +3347,8 @@
     \bool_lazy_and:nnTF
       { \l__acro_pages_display_bool }
       {
-        \bool_lazy_or_p:nn
-          { \int_compare_p:nNn \l__acro_minimal_usage_int = 0 }
+        \bool_lazy_and_p:nn
+          { \acro_attribute_if_set_p:nn {pages} {#1} }
           { !\acro_if_single_p:n {#1} }
       }
       { \prg_return_true: }
@@ -4160,6 +4201,9 @@
 \NewDocumentCommand \AcroPropertiesMap {+m}
   { \acro_properties_map:n {#1} }
 
+\NewDocumentCommand \AcroMap {m+m}
+  { \acro_list_map:nn {#1} {#2} }
+
 % --------------------------------------------------------------------------
 % general commands:
 \NewDocumentCommand \acsetup {+m}
@@ -4214,6 +4258,9 @@
 \NewDocumentCommand \DeclareAcroEnding {mmm}
   { \acro_declare_ending:nnn {#1} {#2} {#3} }
 
+\NewDocumentCommand \DeclareAcroArticle {mm}
+  { \acro_article_declare:nn {#1} {#2} }
+
 \NewDocumentCommand \DeclareAcroTranslation {m+m}
   { \acro_declare_translations:nn {#1} {#2} }
 
@@ -4228,7 +4275,6 @@
 
 \NewDocumentCommand \acroupper {} { \acro_upper: }
 \NewDocumentCommand \acrofull {} { \acro_first: }
-\NewDocumentCommand \acroindefinite {} { \acro_indefinite: }
 
 \NewDocumentCommand \printacronyms {o}
   {
@@ -4273,15 +4319,18 @@
 \NewExpandableDocumentCommand \acrofield {mm}
   { \acro_property_get:nn {#1} {#2} }
 
-\NewDocumentCommand \acrowrite {m}
+\NewDocumentCommand \acroprintfield {mm}
   {
-    \acro_property_if_eq:nnTF {#1} {list}
+    \acro_property_if_eq:nnTF {#2} {list}
       {
         \bool_if:NT \l__acro_upper_list_bool { \acro_upper: }
-        \acro_write:en { \AcronymID } {#1}
+        \acro_write:en {#1} {#2}
       }
-      { \acro_write:en { \AcronymID } {#1} }
+      { \acro_write:en {#1} {#2} }
   }
+
+\NewDocumentCommand \acrowrite {m}
+  { \acroprintfield { \AcronymID } {#1} }
 
 \NewDocumentCommand \acroshow {m}
   { \acro_property_show:en { \AcronymID } {#1} }
@@ -4312,13 +4361,19 @@
   { \acro_property_if_set:enTF { \AcronymID } {#1} {#2} {} }
 \NewDocumentCommand \acroifF {m+m}
   { \acro_property_if_set:enTF { \AcronymID } {#1} {} {#2} }
-  
+
+\NewDocumentCommand \acroifanyfieldTF {mm+m+m}
+  { \acro_property_if_any:nnTF {#1} {#2} {#3} {#4} }
+
 \NewDocumentCommand \acroifanyTF {m+m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {#3} }
 \NewDocumentCommand \acroifanyT {m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {} }
 \NewDocumentCommand \acroifanyF {m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {} {#2} }
+
+\NewDocumentCommand \acroifallfieldsTF {mm+m+m}
+  { \acro_property_if_all:nnTF {#1} {#2} {#3} {#4} }
 
 \NewDocumentCommand \acroifallTF {m+m+m}
   { \acro_property_if_all:enTF { \AcronymID } {#1} {#2} {#3} }
@@ -4353,6 +4408,9 @@
 
 \NewDocumentCommand \acropagefill {}
   { \tl_use:N \l__acro_pages_fill_tl }
+
+\NewExpandableDocumentCommand \acroifpagefieldTF {m}
+  { \acro_if_pages:nTF {#1} }
 
 \NewExpandableDocumentCommand \acroifpagesTF {}
   { \acro_if_pages:eTF { \AcronymID } }
@@ -4439,7 +4497,11 @@
 
 % --------------------------------------------------------------------------
 \DeclareAcroEnding {plural} {s} {s}
-  
+
+\DeclareAcroArticle {indefinite} {a}
+
+\ProvideExpandableDocumentCommand \nospace {} {}
+
 % --------------------------------------------------------------------------
 % acronym templates:
 \NewAcroTemplate {long-short}
@@ -4611,11 +4673,51 @@
     \acroheading
     \acropreamble
     \par \noindent
-    \begin {tabular} {>{\bfseries}lp{\dimexpr\linewidth-3cm\relax}}
+    \begin {tabular} {>{\bfseries}lp{.7\linewidth}}
       \TableCode
     \end {tabular}
   }
 
+\NewAcroTemplate[list] {longtable}
+  {
+    \def \TableCode {}
+    \acronymsmap
+      {
+        \AcroPutRight \TableCode
+          {
+            \def \AcronymID {##1}
+            \acrowrite {short}
+            \acroifT {alt} { / \acrowrite {alt} }
+            &
+            \def \AcronymID {##1}
+            \acrowrite {list}
+            \acroifanyT {foreign,extra} {~(}
+            \acroifT {foreign}
+              {
+                \acrowrite {foreign}
+                \acroifT {extra} {,~}
+              }
+            \acroifT {extra}
+              { \acrowrite {extra} }
+            \acroifanyT {foreign,extra} {)}
+            \acroifpagesT
+              {
+                \acropagefill
+                \acropages
+                  { \acrotranslate {page} \nobreakspace }
+                  { \acrotranslate {pages} \nobreakspace }
+              }
+            \tabularnewline
+          }
+      }
+    \acroheading
+    \acropreamble
+    \par \noindent
+    \begin {longtabu} {>{\bfseries}lX[l]}
+      \TableCode
+    \end {longtabu}
+  }
+  
 % --------------------------------------------------------------------------
 % translations:
 % list name

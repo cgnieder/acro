@@ -19,6 +19,9 @@
 \NewDocumentCommand \AcroPropertiesMap {+m}
   { \acro_properties_map:n {#1} }
 
+\NewDocumentCommand \AcroMap {m+m}
+  { \acro_list_map:nn {#1} {#2} }
+
 % --------------------------------------------------------------------------
 % general commands:
 \NewDocumentCommand \acsetup {+m}
@@ -73,6 +76,9 @@
 \NewDocumentCommand \DeclareAcroEnding {mmm}
   { \acro_declare_ending:nnn {#1} {#2} {#3} }
 
+\NewDocumentCommand \DeclareAcroArticle {mm}
+  { \acro_article_declare:nn {#1} {#2} }
+
 \NewDocumentCommand \DeclareAcroTranslation {m+m}
   { \acro_declare_translations:nn {#1} {#2} }
 
@@ -87,7 +93,6 @@
 
 \NewDocumentCommand \acroupper {} { \acro_upper: }
 \NewDocumentCommand \acrofull {} { \acro_first: }
-\NewDocumentCommand \acroindefinite {} { \acro_indefinite: }
 
 \NewDocumentCommand \printacronyms {o}
   {
@@ -132,15 +137,18 @@
 \NewExpandableDocumentCommand \acrofield {mm}
   { \acro_property_get:nn {#1} {#2} }
 
-\NewDocumentCommand \acrowrite {m}
+\NewDocumentCommand \acroprintfield {mm}
   {
-    \acro_property_if_eq:nnTF {#1} {list}
+    \acro_property_if_eq:nnTF {#2} {list}
       {
         \bool_if:NT \l__acro_upper_list_bool { \acro_upper: }
-        \acro_write:en { \AcronymID } {#1}
+        \acro_write:en {#1} {#2}
       }
-      { \acro_write:en { \AcronymID } {#1} }
+      { \acro_write:en {#1} {#2} }
   }
+
+\NewDocumentCommand \acrowrite {m}
+  { \acroprintfield { \AcronymID } {#1} }
 
 \NewDocumentCommand \acroshow {m}
   { \acro_property_show:en { \AcronymID } {#1} }
@@ -171,13 +179,19 @@
   { \acro_property_if_set:enTF { \AcronymID } {#1} {#2} {} }
 \NewDocumentCommand \acroifF {m+m}
   { \acro_property_if_set:enTF { \AcronymID } {#1} {} {#2} }
-  
+
+\NewDocumentCommand \acroifanyfieldTF {mm+m+m}
+  { \acro_property_if_any:nnTF {#1} {#2} {#3} {#4} }
+
 \NewDocumentCommand \acroifanyTF {m+m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {#3} }
 \NewDocumentCommand \acroifanyT {m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {} }
 \NewDocumentCommand \acroifanyF {m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {} {#2} }
+
+\NewDocumentCommand \acroifallfieldsTF {mm+m+m}
+  { \acro_property_if_all:nnTF {#1} {#2} {#3} {#4} }
 
 \NewDocumentCommand \acroifallTF {m+m+m}
   { \acro_property_if_all:enTF { \AcronymID } {#1} {#2} {#3} }
@@ -212,6 +226,9 @@
 
 \NewDocumentCommand \acropagefill {}
   { \tl_use:N \l__acro_pages_fill_tl }
+
+\NewExpandableDocumentCommand \acroifpagefieldTF {m}
+  { \acro_if_pages:nTF {#1} }
 
 \NewExpandableDocumentCommand \acroifpagesTF {}
   { \acro_if_pages:eTF { \AcronymID } }

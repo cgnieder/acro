@@ -22,7 +22,12 @@
       }
   }
 
-\cs_new:Npn \__acro_page:w #1@#2 \q_stop {#2}
+\cs_new:Npn \__acro_page:w #1@#2 \q_stop
+  {
+    \acro_package_if_loaded:nTF {hyperref}
+      { \exp_not:N \hyperpage {#2} }
+      {#2}
+  }
 \cs_new:Npn \__acro_page_value:w  #1@#2 \q_stop {#1}
 
 \group_end:
@@ -189,8 +194,8 @@
     \bool_lazy_and:nnTF
       { \l__acro_pages_display_bool }
       {
-        \bool_lazy_or_p:nn
-          { \int_compare_p:nNn \l__acro_minimal_usage_int = 0 }
+        \bool_lazy_and_p:nn
+          { \acro_attribute_if_set_p:nn {pages} {#1} }
           { !\acro_if_single_p:n {#1} }
       }
       { \prg_return_true: }

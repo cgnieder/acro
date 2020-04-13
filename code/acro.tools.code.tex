@@ -93,8 +93,8 @@
 
 \cs_new_protected:Npn \acro_upper:
   {
-    \bool_if:NT \l__acro_indefinite_bool
-      { \bool_set_false:N \l__acro_indefinite_bool }
+    \bool_if:NT \l__acro_article_bool
+      { \bool_set_false:N \l__acro_article_bool }
     \bool_set_true:N \l__acro_upper_bool
   }
 
@@ -222,7 +222,6 @@
     cmd           .cs_set:Np  = \__acro_cite_cmd:w ,
     cmd           .initial:n  = \cite ,
     cmd           .value_required:n = true ,
-    % group         .bool_set:N = \l__acro_cite_group_bool ,
     group         .code:n     =
       \str_case:nnTF {#1}
         { {true} {} {false} {} }
@@ -301,13 +300,6 @@
   }
 
 \keys_set:nn {acro/index} { disable = \def\@{} }
-
-% --------------------------------------------------------------------------
-% indefinite articles:
-\bool_new:N \l__acro_indefinite_bool
-
-\cs_new_protected:Npn \acro_indefinite:
-  { \bool_set_true:N \l__acro_indefinite_bool }
 
 % --------------------------------------------------------------------------
 % looking for trailing tokens and define action
