@@ -8,7 +8,7 @@
 \cs_new_protected:Npn \acro_auxlist_to_aux:nn #1#2
   { \acro_write_to_aux:x { \token_to_str:N \ACRO {#1} #2 } }
 
-\tl_const:Nx \c_acro_auxfile_tl { \c_sys_jobname_str .acro }
+\tl_const:Nx \c_acro_auxfile_tl { \c_sys_jobname_str .acr }
 
 \iow_new:N \l__acro_aux_file_iow
 \tl_new:N \g__acro_mdfive_hash_tl
@@ -47,8 +47,8 @@
 
 \__acro_auxlist_field_new:cpn {readaux}
   {
-    \file_if_exist:nT { \c_sys_jobname_str .acro }
-      { \file_input:n { \c_sys_jobname_str .acro } }
+    \file_if_exist:nT { \c_sys_jobname_str .acr }
+      { \file_input:n { \c_sys_jobname_str .acr } }
   }
 
 % ----------------------------------------------------------------------------

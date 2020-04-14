@@ -140,7 +140,6 @@
 % #2: property
 \cs_new_protected:Npn \__acro_write:nn #1#2
   {
-    \__acro_article:nn {#1} {#2}
     \acro_property_if_exist:nTF {#2-acc}
       {
         \__acro_accsupp:ee
@@ -160,9 +159,13 @@
       { \__acro_format:nnn {#1} {first-#2} }
       { \__acro_format:nnn {#1} {#2} }
       {
-        \acro_if_ending_form:nnTF {#1} {#2}
-          { \__acro_upper:n { \acro_ending_form:nn {#1} {#2} } }
-          { \__acro_upper:n { \acro_property_get:nn {#1} {#2} } }
+        \__acro_upper:n
+          {
+            \__acro_article:nn {#1} {#2}
+            \acro_if_ending_form:nnTF {#1} {#2}
+              { \acro_ending_form:nn {#1} {#2} }
+              { \acro_property_get:nn {#1} {#2} }
+          }
       }
   }
 
@@ -263,7 +266,7 @@
           { base \__acro_remove_bs:N ##1  } {##2}
           {
             \acro_begin:
-              \cs_set_eq:NN \nospace \use_none:n
+              \cs_set_eq:NN \nospace \tex_ignorespaces:D
               \acro_check_definition:n {####1}
               \bool_set_true:N \l__acro_use_bool
               \keys_set:nV {acro} \l__acro_options_tl
