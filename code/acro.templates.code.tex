@@ -9,6 +9,12 @@
 \msg_new:nnn {acro} {template-type-exists}
   { The~ template~ type~ `#1'~ already~ exists~ \msg_line_context: }
 
+\msg_new:nnn {acro} {package-needed}
+  {
+    The~ template~ `#1'~ needs~ the~ package~ `#2'~ loaded~
+    \msg_line_context:
+  }
+
 % ----------------------------------------------------------------------------
 \seq_new:N \l__acro_template_types_seq
 
@@ -86,13 +92,19 @@
 % #1: template type
 % #2: template name
 \cs_new_protected:Npn \__acro_template_start:nn #1#2
-  { \group_begin: \__acro_template_setup:nn {#1} {#2} }
+  {
+    \group_begin:
+      \__acro_template_setup:nn {#1} {#2}
+      \tl_clear_new:N \TemplateType
+      \tl_set:Nn \TemplateType {#1}
+      \tl_clear_new:N \TemplateName
+      \tl_set:Nn \TemplateName {#2}
+  }
 
 % #1: template type
 % #2: template name
 \cs_new_protected:Npn \__acro_template_stop:nn #1#2
   { \group_end: \__acro_clear_template_setup:nn {#1} {#2} }
-
 
 % typesetting the first appearance of acronym: pseude template `first'
 
@@ -230,6 +242,7 @@
     \__acro_template_add:nnn {list} {#1}
       {
         \__acro_template_start:nn {list} {#1}
+        \tl_clear_new:N \AcronymTable
         #2
         \__acro_template_stop:nn {list} {#1}
       }
@@ -242,6 +255,7 @@
     \__acro_template_change:nnn {list} {#1}
       {
         \__acro_template_start:nn {list} {#1}
+        \tl_clear_new:N \AcronymTable
         #2
         \__acro_template_stop:nn {list} {#1}
       }

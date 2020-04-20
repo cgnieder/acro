@@ -68,7 +68,7 @@
   { \acrofull \acroupper \acroindefinite \UseAcroTemplate {first} {#1} }
 
 \NewAcroCommand \acshow {m}
-  { \UseAcroTemplate {show} {#1} }
+  { \acrodonotuse \UseAcroTemplate {show} {#1} }
 
 % --------------------------------------------------------------------------
 \DeclareAcroEnding {plural} {s} {s}
@@ -140,7 +140,6 @@
 
 \NewAcroTemplate {show}
   {
-    \acrousefalse
     \iow_term:n {}
     \iow_term:x
       {
@@ -201,30 +200,25 @@
             \acroifT {extra}
               { \acrowrite {extra} }
             \acroifanyT {foreign,extra} {)}
-            \acroifpagesT
-              {
-                \acropagefill
-                \acropages
-                  { \acrotranslate {page} \nobreakspace }
-                  { \acrotranslate {pages} \nobreakspace }
-              }
+            \acropagefill
+            \acropages
+              { \acrotranslate {page} \nobreakspace }
+              { \acrotranslate {pages} \nobreakspace }
         }
-        { \item \AcroRerun {list} }
+        { \item \AcroRerun }
     \end {description}
   }
 
 \NewAcroTemplate[list] {tabular}
   {
-    \def \TableCode {}
-    \acronymsmap
+    \AcroNeedPackage {array}
+    \acronymsmapF
       {
-        \AcroPutRight \TableCode
+        \AcroAddRow
           {
-            \def \AcronymID {##1}
             \acrowrite {short}
             \acroifT {alt} { / \acrowrite {alt} }
             &
-            \def \AcronymID {##1}
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
             \acroifT {foreign}
@@ -235,36 +229,33 @@
             \acroifT {extra}
               { \acrowrite {extra} }
             \acroifanyT {foreign,extra} {)}
-            \acroifpagesT
-              {
-                \acropagefill
-                \acropages
-                  { \acrotranslate {page} \nobreakspace }
-                  { \acrotranslate {pages} \nobreakspace }
-              }
+            \acropagefill
+            \acropages
+              { \acrotranslate {page} \nobreakspace }
+              { \acrotranslate {pages} \nobreakspace }
             \tabularnewline
           }
       }
+      { \AcroRerun }
     \acroheading
     \acropreamble
     \par \noindent
     \begin {tabular} {>{\bfseries}lp{.7\linewidth}}
-      \TableCode
+      \AcronymTable
     \end {tabular}
   }
 
 \NewAcroTemplate[list] {longtable}
   {
-    \def \TableCode {}
-    \acronymsmap
+    \AcroNeedPackage {array}
+    \AcroNeedPackage {longtable}
+    \acronymsmapF
       {
-        \AcroPutRight \TableCode
+        \AcroAddRow
           {
-            \def \AcronymID {##1}
             \acrowrite {short}
             \acroifT {alt} { / \acrowrite {alt} }
             &
-            \def \AcronymID {##1}
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
             \acroifT {foreign}
@@ -275,24 +266,110 @@
             \acroifT {extra}
               { \acrowrite {extra} }
             \acroifanyT {foreign,extra} {)}
-            \acroifpagesT
-              {
-                \acropagefill
-                \acropages
-                  { \acrotranslate {page} \nobreakspace }
-                  { \acrotranslate {pages} \nobreakspace }
-              }
+            \acropagefill
+            \acropages
+              { \acrotranslate {page} \nobreakspace }
+              { \acrotranslate {pages} \nobreakspace }
             \tabularnewline
           }
       }
+      { \AcroRerun }  
+    \acroheading
+    \acropreamble
+    \par \noindent
+    \begin {longtabu} {>{\bfseries}lp{.7\linewidth}}
+      \AcronymTable
+    \end {longtabu}
+  }
+  
+\NewAcroTemplate[list] {longtabu}
+  {
+    \AcroNeedPackage {array}
+    \AcroNeedPackage {longtable}
+    \AcroNeedPackage {tabu}
+    \acronymsmapF
+      {
+        \AcroAddRow
+          {
+            \acrowrite {short}
+            \acroifT {alt} { / \acrowrite {alt} }
+            &
+            \acrowrite {list}
+            \acroifanyT {foreign,extra} {~(}
+            \acroifT {foreign}
+              {
+                \acrowrite {foreign}
+                \acroifT {extra} {,~}
+              }
+            \acroifT {extra}
+              { \acrowrite {extra} }
+            \acroifanyT {foreign,extra} {)}
+            \acropagefill
+            \acropages
+              { \acrotranslate {page} \nobreakspace }
+              { \acrotranslate {pages} \nobreakspace }
+            \tabularnewline
+          }
+      }
+      { \AcroRerun }
     \acroheading
     \acropreamble
     \par \noindent
     \begin {longtabu} {>{\bfseries}lX[l]}
-      \TableCode
+      \AcronymTable
     \end {longtabu}
   }
-  
+
+\NewAcroTemplate [list] {lof}
+  {
+    \acroheading
+    \acropreamble
+    \acronopagerange
+    \let\l@acro\l@figure
+    \acronymsmapF
+      {
+        \contentsline {acro}
+          {
+            \numberline
+              { \acrowrite {short} \acroifT {alt} { / \acrowrite {alt} } }
+              {
+                \acrowrite {list}
+                \acroifT {foreign}
+                  { \acrowrite {foreign} \acroifT {extra} {,~} }
+                \acroifT {extra} { \acrowrite {extra} }
+                \acroifanyT {foreign,extra} {)}
+              }
+          }
+          { \acropages {} {} }
+          {}
+      }
+      { \AcroRerun }
+  }
+
+\NewAcroTemplate [list] {toc}
+  {
+    \acroheading
+    \acropreamble
+    \acronopagerange
+    \acronymsmapF
+      {
+        \contentsline { \acroifchapterTF {chapter} {section} }
+          { \acrowrite {short} \acroifT {alt} { / \acrowrite {alt} } }
+          {}{}
+        \contentsline { \acroifchapterF {sub} section }
+          {
+            \acrowrite {list}
+            \acroifT {foreign}
+              { \acrowrite {foreign} \acroifT {extra} {,~} }
+            \acroifT {extra} { \acrowrite {extra} }
+            \acroifanyT {foreign,extra} {) }
+          }
+          { \acropages {} {} }
+          {}
+      }
+      { \AcroRerun }
+  }
+
 % --------------------------------------------------------------------------
 % translations:
 % list name

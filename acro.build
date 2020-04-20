@@ -86,6 +86,9 @@ while [ -n "$1" ]; do
                 examples)
                     cleanup=true
                     cleanexamples=true ;;
+                *)
+                    echo "invalid value '$2'"
+                    exit 1 ;;
             esac
             shift ;;
         -f|--file)
@@ -196,7 +199,7 @@ if [ "$cleanup" == true ] ; then
                    ${DOC_DIR}/*synctex*
                    ${DOC_DIR}/*.run.xml
                    ${DOC_DIR}/*.aux
-                   ${DOC_DIR}/*.acro
+                   ${DOC_DIR}/*.acr
                    ${DOC_DIR}/*.xsim
                    ${DOC_DIR}/*.log
                    ${DOC_DIR}/*.out
@@ -218,7 +221,7 @@ if [ "$cleanup" == true ] ; then
                    ${EXAMPLES_DIR}/*synctex*
                    ${EXAMPLES_DIR}/*.run.xml
                    ${EXAMPLES_DIR}/*.aux
-                   ${EXAMPLES_DIR}/*.acro
+                   ${EXAMPLES_DIR}/*.acr
                    ${EXAMPLES_DIR}/*.xsim
                    ${EXAMPLES_DIR}/*.log
                    ${EXAMPLES_DIR}/*.out
@@ -247,6 +250,7 @@ if [ "$build" == true ] ; then
     cat \
     $pkgname.start.$moduleext \
     $pkgname.base.$moduleext \
+    $pkgname.interface.$moduleext \
     $pkgname.aux.$moduleext \
     $pkgname.properties.$moduleext \
     $pkgname.acronyms.$moduleext \
@@ -258,15 +262,14 @@ if [ "$build" == true ] ; then
     $pkgname.pages.$moduleext \
     $pkgname.locale.$moduleext \
     $pkgname.pdfsupport.$moduleext \
-    $pkgname.interface.$moduleext \
     $pkgname.definitions.$moduleext \
     $pkgname.upgrade.$moduleext \
     > $styname
     # append necessary end:
     echo -e "% finish package:\n\
-    \\AtEndDocument { \\\\acro_close_aux: \\\\acro_do_rerun: }\n\
-    %----------------------------------------------------------------------------\n\
-    \\\\file_input_stop:"\
+\\AtEndDocument { \\\\acro_close_aux: \\\\acro_do_rerun: }\n\
+%----------------------------------------------------------------------------\n\
+\\\\file_input_stop:"\
     >> $styname
 fi
 

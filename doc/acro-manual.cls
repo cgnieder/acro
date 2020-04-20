@@ -69,19 +69,30 @@
     acdot, aciftrailing, acreset, acresetall, acspace, acsetup, acuse,
     acuseall, printacronyms,
     % used in templates and command definitions:
-    acroindefinite, acrofull, acrogroupcite, acroheading, acroplural,
-    acropreamble, acrotranslate, acrowrite,
-    UseAcroTemplate,
-    acroiffirstTF,
+    acroindefinite, acrofull, acrogroupcite, acroheading, acronymsmap,
+    acronymsmapF, acronymsmapT, acroupper,
+    acronopagerange,
+    acroifF, acroifT, acroifTF, acroifallF, acroifallT, acroifallTF,
+    acroifanyF, acroifanyT, acroifanyTF, acroifchapterF, acroifchapterT,
+    acroifchapterTF, acroiffirstF, acroiffirstT, acroiffirstTF,
+    acropagefill, acropages, acroplural, acropreamble, acrotranslate,
+    acrowrite,
+    AcroAddRow, AcroNeedPackage, AcronymTable, AcroRerun,
+    NewAcroTemplate, RenewAcroTemplate, UseAcroTemplate,
     % declaring stuff:
-    DeclareAcronym, DeclareAcroEnding, DeclareAcroTranslation,
-    NewAcroCommand,
+    DeclareAcronym, DeclareAcroArticle, DeclareAcroEnding,
+    DeclareAcroProperty,
+    DeclareAcroTranslation, NewAcroCommand, RenewAcroCommand,
+    DeclareAcroCommand, ProvideAcroCommand,
     % demonstration of the possessive ending:
-    acg, acfg, aclg, acsg, iacsg, acropossessive
+    acg, acfg, aclg, acsg, iacsg, acropossessive,
+    % demonstration if definite article:
+    dacl, Dacl, dacs, Dacs, acrodefinite
   } ,
   add-silent-cmds = {
     babelhyphen, parencite,
-    BeginAccSupp, EndAccSupp
+    BeginAccSupp, EndAccSupp,
+    if@filesw,acro@list
   } ,
   index-setup = {
     level = \section , headers={\indexname}{\indexname} , noclearpage ,
@@ -90,6 +101,10 @@
   makeindex-setup = { columns=3 , columnsep=1em } ,
   module-sep = {\texttt{/}}%
 }
+
+\newcommand*\barg{\textcolor{argument}{\code{!}}}
+\newcommand*\qarg{\textcolor{argument}{\code{?}}}
+\newcommand*\uarg{\textcolor{argument}{\code{|}}}
 
 \renewcommand*\cnltx@module@text[2]{%
   \begingroup
@@ -101,7 +116,7 @@
   \endgroup
 }
 
-\colorlet{property}{blue}
+\colorlet{property}{cnltxblue}
 \newidxcmd\property{\code{\textcolor{property}{#1}}}[ (property)]
 \newrobustcmd*\prop{\@ifstar{\cnltx@prop@star}{\cnltx@prop@nostar}}
 
@@ -173,6 +188,18 @@
   \cnltxlist
 }
 {\endcnltxlist}
+
+
+\colorlet{template}{cnltxgreen}
+\newidxcmd\template{\textit{\textcolor{template}{\code{#1}}}}[ (template)]
+\cnltx@deflistitem{\cnltx@tmpl}{\template}
+
+\newenvironment{templates}
+  {%
+    \let\tmpl\cnltx@tmpl
+    \cnltxlist
+  }
+  {\endcnltxlist}
 
 \DeclareTranslation{english}{cnltx-default}{Initial}
 
@@ -354,6 +381,7 @@
 }
 
 \pdfstringdefDisableCommands{%
+  \pdfdisable\template
   \pdfdisable\property
   \pdfdisable\cs
   \pdfdisable\option
@@ -362,6 +390,8 @@
   \def\marg#1{\{<#1>\}}%
   \def\Marg#1{\{#1\}}%
   \def\acro{acro}%
+  \def\LaTeX{LaTeX}%
+  \def\TeX{TeX}%
 }
 
 % additional packages:
@@ -372,15 +402,15 @@
   \csname__acro_for_all_translations_do:n\endcsname
     {%
       \ifstrequal{##2}{English}{%
-        \expandafter\def\expandafter\translationtable\expandafter{%
-          \translationtable \texttt{##1} & ##3 %
-        }
+        \g@addto@macro\translationtable{\texttt{##1} & ##3}%
       }{%
         \ifstrequal{##2}{German}{%
-          \expandafter\def\expandafter\translationtable\expandafter{%
-            \translationtable & ##3 \\ %
-          }%
-        }{}
+          \g@addto@macro\translationtable{ & ##3 \\}%
+        }{%
+          \ifstrequal{##2}{French}{%
+            \g@addto@macro\translationtable{ & ##3}%
+          }{}%
+        }%
       }%
     }%
 }
@@ -389,11 +419,17 @@
 
 \DeclareAcroEnding{possessive}{'s}{'s}
 
+\NewAcroCommand\acg{m}{\acropossessive\UseAcroTemplate{first}{#1}}
 \NewAcroCommand\acfg{m}{%
   \acrofull
   \acropossessive
   \UseAcroTemplate{first}{#1}%
 }
+
+\DeclareAcroArticle{definite}{\nospace}
+
+\NewAcroCommand\dacs{m}{\acrodefinite\UseAcroTemplate{short}{#1}}
+\NewAcroCommand\dacl{m}{\acrodefinite\UseAcroTemplate{long}{#1}}
 
 \NewAcroTemplate[list]{manual}{%
   \acroheading
@@ -423,6 +459,108 @@
     { \item \AcroRerun{list} }%
   \end {description}
 }
+
+% ----------------------------------------------------------------------------
+
+\ExplSyntaxOn
+\cs_set:Npn \__acro_get_issue_number:w   issue-   #1 \q_stop: {#1}
+\cs_set:Npn \__acro_get_texsx_number:w   texsx-   #1 \q_stop: {#1}
+\cs_set:Npn \__acro_get_texwelt_number:w texwelt- #1 \q_stop: {#1}
+\cs_set:Npn \__acro_get_golatex_number:w golatex- #1 \q_stop: {#1}
+
+\cs_new_protected:Npn \acro@example@links #1 {
+  \href { \acro@example@texfile@path {#1} } { \color{white} [\TeX] } ~
+  \href { \acro@example@pdffile@path.#1.pdf } { \color{white} [PDF] }
+  \tl_if_in:nnT {#1} {issue}
+    {
+      \tl_set:Nx \l_tmpa_tl { \__acro_get_issue_number:w #1 \q_stop: }
+      \space \href
+        { https \c_colon_str //github.com/cgnieder/acro/issues/ \l_tmpa_tl / }
+        { \color {white} [github] }
+    }
+  \tl_if_in:nnT {#1} {texsx}
+    {
+      \tl_set:Nx \l_tmpa_tl { \__acro_get_texsx_number:w #1 \q_stop: }
+      \space \href
+        { https \c_colon_str //tex.stackexchange.com/q/ \l_tmpa_tl / }
+        { \color {white} [forum] }
+    }
+  \tl_if_in:nnT {#1} {texwelt}
+    {
+      \tl_set:Nx \l_tmpa_tl { \__acro_get_texwelt_number:w #1 \q_stop: }
+      \space \href
+        { http \c_colon_str //texwelt.de/wissen/fragen/ \l_tmpa_tl / }
+        { \color {white} [forum] }
+    }
+  \tl_if_in:nnT {#1} {golatex}
+    {
+      \tl_set:Nx \l_tmpa_tl { \__acro_get_golatex_number:w #1 \q_stop: }
+      \space \href
+        { http \c_colon_str //golatex.de/viewtopic,p, \l_tmpa_tl .html }
+        { \color {white} [forum] }
+    }
+}
+\ExplSyntaxOff
+
+\newcounter{examplefile}
+\newcounter{examplefiles}
+\newcommand*\acro@add@example[2]{%
+  \listadd\acro@examplefiles{#1}%
+  \csdef{acro@example@texfile@desc@#1}{#2}%
+  \stepcounter{examplefiles}%
+}
+\newrobustcmd*\listexamplefiles{%
+  \def\acro@example@texfile@path##1{./examples/acro.example.##1.tex}%
+  \def\acro@example@pdffile@path{./examples/acro.example}%
+  \def\acro@example@desc##1{\csuse{acro@example@texfile@desc@##1}}%
+  \def\acro@example@title##1{%
+    Example~\theexamplefile: \acro@example@desc{##1}
+    \\Links: \acro@example@links{##1}\hfill File: \code{acro.example.##1.tex}%
+  }%
+  \def\acro@example@bookmark##1{Example~\theexamplefile\ (\acro@example@desc{##1})}%
+  \def\do##1{%
+    \begin{cnltxcode}[
+      step and label={examplefile}{example:##1} ,
+      sidebyside align=top seam,sidebyside,
+      righthand width=.3\linewidth,
+      sidebyside gap=1em,
+      lower separated=false,
+      bottom=1mm,
+      title=\acro@example@title{##1}%
+    ]%
+    \bookmark[level=2,dest=examplefile.\arabic{examplefile}]{\acro@example@bookmark{##1}}%
+    \lstinputlisting[
+      style=cnltx,firstline=8,lastline=15,firstnumber=7]{\acro@example@texfile@path{##1}}%
+    \tcblower
+    \fbox{%
+      \href
+        {\acro@example@pdffile@path.##1.pdf}%
+        {%
+          \includegraphics[
+            type=pdf,
+            ext=.##1.pdf,
+            read=.##1.pdf,
+            pagebox=cropbox,
+            viewport=4.5cm 21.6cm 8.6cm 26cm,
+            clip]{\acro@example@pdffile@path}%
+        }%
+    }%
+    \end{cnltxcode}
+  }%
+  \dolistloop\acro@examplefiles
+}
+
+\acro@add@example{basic}{Basic usage}
+\acro@add@example{issue-109}{Invisible command for backref}
+\acro@add@example{issue-111}{Defining a definite article}
+\acro@add@example{issue-119}{Write the list of acronyms to an external file}
+\acro@add@example{issue-154}{Insert word between acronym and citation}
+\acro@add@example{possessive}{How to define a possessive ending}
+\acro@add@example{texsx-505891}{Additional alternative form}
+\acro@add@example{texsx-507726}{Foreign short form}% issue 136
+
+
+% ----------------------------------------------------------------------------
 
 \acro@add@version{2012-06-22}{0.1}
 \acro@add@version{2012-06-23}{0.1a}
@@ -498,5 +636,6 @@
 \acro@add@version{2020-01-24}{2.11b}
 \acro@add@version{2020-02-03}{2.11c}
 \acro@add@version{2020-04-06}{v3.0alpha}
+\acro@add@version{2020-04-20}{v3.0beta}
 
 \endinput

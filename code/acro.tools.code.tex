@@ -145,6 +145,8 @@
 \bool_new:N \l__acro_article_bool
 \tl_new:N \g__acro_articles_tl
 
+% #1: name
+% #2: default
 \cs_new_protected:Npn \acro_article_declare:nn #1#2
   {
     \tl_gput_right:Nn \g__acro_articles_tl {{#1}}
@@ -152,9 +154,17 @@
       { \c_false_bool } { \c_false_bool } { \c_false_bool } { \c_false_bool }
       {#1}
     \acro_list_map:nn {short}
-      { \DeclareAcroPropertyAlias {##1-#1} {#1} }
+      {
+        \DeclareAcroPropertyAlias {##1-#1} {#1}
+        \str_if_in:nnF {##1} {-acc}
+          { \DeclareAcroPropertyAlias {##1-acc-#1} {##1-#1} }
+      }
     \acro_list_map:nn {long}
-      { \DeclareAcroPropertyAlias {##1-#1} {#1} }
+      {
+        \DeclareAcroPropertyAlias {##1-#1} {#1}
+        \str_if_in:nnF {##1} {acc}
+          { \DeclareAcroPropertyAlias {##1-acc-#1} {##1-#1} }
+      }
     \bool_new:c {l__acro_article_#1_bool}
     \tl_new:c {l__acro_article_#1_tl}
     \exp_args:Nc \NewDocumentCommand {acro#1} {}

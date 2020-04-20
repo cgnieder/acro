@@ -47,7 +47,7 @@
 \acro_attribute_new:n {boolean}
 \acro_attribute_new:n {unique}
 \acro_attribute_new:n {mandatory}
-\acro_attribute_new:n {static}
+\acro_attribute_new:n {dynamic}
 
 % \seq_new:N \l__acro_mandatory_properties_seq
 \tl_new:N \l__acro_mandatory_properties_tl
@@ -56,7 +56,7 @@
 % #1: boolean (true = unique)
 % #2: boolean (true = boolean)
 % #3: boolean (true = mandatory)
-% #4: boolean (true = dynamic = not static)
+% #4: boolean (true = static != dynamic)
 % #5: property name
 \cs_new_protected:Npn \acro_property_declare:nnnnn #1#2#3#4#5
   {
@@ -65,7 +65,7 @@
         \seq_put_right:Ne \l__acro_properties_seq { \tl_to_str:n {#5} }
         \acro_attribute_new:n {property::#5}
         \bool_if:nF {#4}
-          { \acro_attribute_set:nnn {static} {#5} {true} }
+          { \acro_attribute_set:nnn {dynamic} {#5} {true} }
         \__acro_auxlist_new:n {#5}
         \bool_if:nT {#3}
           {

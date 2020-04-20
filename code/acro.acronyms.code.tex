@@ -74,15 +74,6 @@
 
 % --------------------------------------------------------------------------
 % define necessary properties:
-\NewDocumentCommand \DeclareAcroProperty {st?t!t|m}
-  { \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5} }
-
-\NewDocumentCommand \DeclareAcroPropertyAlias {st?t!t|mm}
-  {
-    \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5}
-    \acro_property_make_alias:nn {#5} {#6}
-  }
-
 % short and long properties:
 \acro_list_add:nn {short} {short,alt}
 \acro_list_add:nn {long}  {long,foreign,single,extra,list}
@@ -130,7 +121,7 @@
 \DeclareAcroPropertyAlias {short-format} {format}
 \DeclareAcroProperty {alt-format}
 \DeclareAcroPropertyAlias {long-format}  {format}
-\DeclareAcroProperty {first-long-format}
+\DeclareAcroPropertyAlias {first-long-format} {long-format}
 \DeclareAcroProperty {foreign-format}
 \DeclareAcroProperty {single-format}
 \DeclareAcroProperty {list-format}

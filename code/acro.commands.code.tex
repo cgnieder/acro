@@ -132,7 +132,7 @@
     \bool_if:cT {l__acro_article_#3_bool}
       {
         \tl_map_break:n
-          { \acro_property_get:nn {#1} {#2-#3} \c_space_tl }
+          { \acro_property_get:nn {#1} {#2-#3} \exp_stop_f: }
       }
   }
 
@@ -252,7 +252,7 @@
   { \exp_after:wN \use_none:n \token_to_str:N #1 }
 
 % #1: csname
-% #2: csname
+% #2: xparse csname
 % #3: action
 \cs_set_protected:Npn \acro_new_definition_command:NNn #1#2#3
   {
@@ -266,7 +266,7 @@
           { base \__acro_remove_bs:N ##1  } {##2}
           {
             \acro_begin:
-              \cs_set_eq:NN \nospace \tex_ignorespaces:D
+              \cs_set:Npn \nospace { \exp:w \exp_end_continue_f:w }
               \acro_check_definition:n {####1}
               \bool_set_true:N \l__acro_use_bool
               \keys_set:nV {acro} \l__acro_options_tl

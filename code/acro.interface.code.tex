@@ -2,25 +2,29 @@
 
 % --------------------------------------------------------------------------
 % helper commands
-\NewDocumentCommand \AcroPutRight {mm}
-  { \tl_put_right:Nn #1 {#2} }
-
-\NewDocumentCommand \AcroRerun {m}
+\NewDocumentCommand \AcroAddRow {+m}
   {
-    \str_case:nnTF {#1}
+    \tl_put_right:Ne \AcronymTable
       {
-        {property} {}
-        {list} {}
+        \exp_not:n { \tl_gset:Nn \AcronymID } { \AcronymID }
+        \exp_not:n {#1}
       }
-      { \acro_rerun:n {#1} }
-      { \acro_rerun:n {general} }
   }
+
+\NewDocumentCommand \AcroRerun {}
+  { \acro_rerun:n {list} }
 
 \NewDocumentCommand \AcroPropertiesMap {+m}
   { \acro_properties_map:n {#1} }
 
 \NewDocumentCommand \AcroMap {m+m}
   { \acro_list_map:nn {#1} {#2} }
+
+\NewDocumentCommand \AcroNeedPackage {m}
+  {
+    \acro_package_if_loaded:nF {m}
+      { \msg_error:nnen {acro} {package-needed} { \TemplateName } {#1} }
+  }
 
 % --------------------------------------------------------------------------
 % general commands:
@@ -58,11 +62,20 @@
   { \acro_switch_on: }
 
 % --------------------------------------------------------------------------
+\NewDocumentCommand \DeclareAcroProperty {st?t!t|m}
+  { \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5} }
+
+\NewDocumentCommand \DeclareAcroPropertyAlias {st?t!t|mm}
+  {
+    \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5}
+    \acro_property_make_alias:nn {#5} {#6}
+  }
+
 \NewDocumentCommand \MakeAcroPropertyAlias {mm}
   { \acro_property_make_alias:nn {#1} {#2} }
 
-\NewDocumentCommand \UseAcroTemplate {O{1}D(){acronym}+m}
-  { \acro_template_use:nnn {#1} {#2} {#3} }
+\NewDocumentCommand \UseAcroTemplate {O{acronym}mO{1}}
+  { \acro_template_use:nnn {#3} {#1} {#2} }
 
 \NewDocumentCommand \NewAcroTemplate {O{acronym}m+m}
   { \use:c {acro_#1_template_new:nn} {#2} {#3} }
@@ -117,7 +130,6 @@
   {
     \acro_acronyms_map:nTF
       {
-        \tl_set:Nn \l_acro_id_tl {##1}
         \tl_set:Nn \AcronymID {##1}
         #1
       }
@@ -147,13 +159,25 @@
       { \acro_write:en {#1} {#2} }
   }
 
+\NewExpandableDocumentCommand \acrofieldifTF {+m+m+m+m}
+  { \acro_property_if_set:nnTF {#1} {#2} {#3} {#4} }
+
+\NewDocumentCommand \acroifanyfieldTF {mm+m+m}
+  { \acro_property_if_any:nnTF {#1} {#2} {#3} {#4} }
+
+\NewDocumentCommand \acroifallfieldsTF {mm+m+m}
+  { \acro_property_if_all:nnTF {#1} {#2} {#3} {#4} }
+
+\NewExpandableDocumentCommand \acroifpagefieldTF {m}
+  { \acro_if_pages:nTF {#1} }
+
 \NewDocumentCommand \acrowrite {m}
   { \acroprintfield { \AcronymID } {#1} }
 
 \NewDocumentCommand \acroshow {m}
   { \acro_property_show:en { \AcronymID } {#1} }
 
-\NewDocumentCommand \acrousefalse {}
+\NewDocumentCommand \acrodonotuse {}
   { \acro_use_false: }
 
 \NewDocumentCommand \acrogroupcite {}
@@ -170,9 +194,6 @@
 \NewDocumentCommand \acrocite {}
   { \bool_set_true:N \l__acro_cite_always_bool }
 
-\NewExpandableDocumentCommand \acrofieldifTF {+m+m+m+m}
-  { \acro_property_if_set:nnTF {#1} {#2} {#3} {#4} }
-
 \NewDocumentCommand \acroifTF {m+m+m}
   { \acro_property_if_set:enTF { \AcronymID } {#1} {#2} {#3} }
 \NewDocumentCommand \acroifT {m+m}
@@ -180,18 +201,12 @@
 \NewDocumentCommand \acroifF {m+m}
   { \acro_property_if_set:enTF { \AcronymID } {#1} {} {#2} }
 
-\NewDocumentCommand \acroifanyfieldTF {mm+m+m}
-  { \acro_property_if_any:nnTF {#1} {#2} {#3} {#4} }
-
 \NewDocumentCommand \acroifanyTF {m+m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {#3} }
 \NewDocumentCommand \acroifanyT {m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {} }
 \NewDocumentCommand \acroifanyF {m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {} {#2} }
-
-\NewDocumentCommand \acroifallfieldsTF {mm+m+m}
-  { \acro_property_if_all:nnTF {#1} {#2} {#3} {#4} }
 
 \NewDocumentCommand \acroifallTF {m+m+m}
   { \acro_property_if_all:enTF { \AcronymID } {#1} {#2} {#3} }
@@ -224,11 +239,11 @@
 \NewDocumentCommand \acropages {mm}
   { \acro_print_pages:enn { \AcronymID } {#1} {#2} }
 
-\NewDocumentCommand \acropagefill {}
-  { \tl_use:N \l__acro_pages_fill_tl }
+\NewDocumentCommand \acronopagerange {}
+  { \acro_no_page_ranges:e { \TemplateName } }
 
-\NewExpandableDocumentCommand \acroifpagefieldTF {m}
-  { \acro_if_pages:nTF {#1} }
+\NewDocumentCommand \acropagefill {}
+  { \acro_if_pages:eT  { \AcronymID } { \tl_use:N \l__acro_pages_fill_tl } }
 
 \NewExpandableDocumentCommand \acroifpagesTF {}
   { \acro_if_pages:eTF { \AcronymID } }
@@ -238,6 +253,15 @@
 
 \NewExpandableDocumentCommand \acroifpagesF {}
   { \acro_if_pages:eF { \AcronymID } }
+
+\NewExpandableDocumentCommand \acroifchapterTF {}
+  { \cs_if_exist:NTF \chapter }
+
+\NewExpandableDocumentCommand \acroifchapterT {}
+  { \cs_if_exist:NT \chapter }
+
+\NewExpandableDocumentCommand \acroifchapterF {}
+  { \cs_if_exist:NF \chapter }
 
 % --------------------------------------------------------------------------
 \AcroModuleEnd
