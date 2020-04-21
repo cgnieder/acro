@@ -133,34 +133,44 @@
             {
               \acro_property_if_set:VnTF \l_acro_id_tl {single-style}
                 {
-                  \__acro_template_use:nnx {#1} {#2}
+                  \tl_set:Ne \l__acro_tmpa_tl
                     { \acro_property_get:Vn \l_acro_id_tl {single-style} }
                 }
-                { \__acro_template_use:nnV {#1} {#2} \l__acro_single_tl }
+                { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_single_tl }
             }
             {
               \acro_if_first:VTF \l_acro_id_tl
                 {
                   \acro_property_if_set:VnTF \l_acro_id_tl {first-style}
                     {
-                      \__acro_template_use:nnx {#1} {#2}
+                      \tl_set:Ne \l__acro_tmpa_tl
                         { \acro_property_get:Vn \l_acro_id_tl {first-style} }
                     }
-                    { \__acro_template_use:nnV {#1} {#2} \l__acro_first_style_tl }
+                    { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_first_style_tl }
                 }
-                { \__acro_template_use:nnn {#1} {#2} {short} }
+                { \tl_set:Nn \l__acro_tmpa_tl {short} }
             }
         }
         {single} {
           \acro_property_if_set:VnTF \l_acro_id_tl {single-style}
             {
-              \__acro_template_use:nnx {#1} {#2}
+              \tl_set:Ne \l__acro_tmpa_tl
                 { \acro_property_get:Vn \l_acro_id_tl {single-style} }
             }
-            { \__acro_template_use:nnV {#1} {#2} \l__acro_single_tl }
+            { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_single_tl }
         }
       }
-      { \__acro_template_use:nnn {#1} {#2} {#3} }
+      { \tl_set:Nn \l__acro_tmpa_tl {#3} }
+    \str_if_eq:VnT \l__acro_tmpa_tl {first}
+      {
+        \acro_property_if_set:VnTF \l_acro_id_tl {first-style}
+          {
+            \tl_set:Ne \l__acro_tmpa_tl
+              { \acro_property_get:Vn \l_acro_id_tl {first-style} }
+          }
+          { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_first_style_tl }
+      }
+    \__acro_template_use:nnV {#1} {#2} \l__acro_tmpa_tl
   }
 \cs_generate_variant:Nn \acro_template_use:nnn {nnV}
 

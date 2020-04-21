@@ -740,6 +740,9 @@
 \NewExpandableDocumentCommand \aciftrailing {}
   { \acro_trailing_if_tokens:nTF }
 
+\NewDocumentCommand \acgobbletrail {}
+  { \bool_gset_true:N \g__acro_gobble_trail_bool }
+
 \NewExpandableDocumentCommand \acdot   {} { \acro_dot: }
 \NewExpandableDocumentCommand \acspace {} { \acro_space: }
 
@@ -2122,8 +2125,8 @@
         { \int_set:Nn \l__acro_minimal_usage_int {#1} } ,
     minimal-usage  .meta:n    = { single = #1 } ,
     single         .initial:n = 0 ,
-    single-form    .tl_set:N   = \l__acro_single_tl ,
-    single-form    .initial:n  = long ,
+    single-style   .tl_set:N   = \l__acro_single_tl ,
+    single-style   .initial:n  = long ,
     use-only-first .bool_set:N = \l__acro_use_only_first_bool ,
     use-only-first .initial:n  = false
   }
@@ -2512,10 +2515,21 @@
     \peek_after:Nw \__acro_execute:
   }
 
-\cs_new_protected:Npn \acro_end: { \group_end: }
+\bool_new:N \g__acro_gobble_trail_bool
+
+\cs_new_protected:Npn \acro_end:
+  {
+    \bool_if:NT \g__acro_gobble_trail_bool
+      {
+        \bool_gset_false:N \g__acro_gobble_trail_bool
+        \use_i:nn
+      }
+    \group_end:
+  }
 
 % register some tokens to be checked for:
 \acro_trailing_token_register:Nn . {dot}
+\acro_trailing_token_register:Nn , {comma}
 \acro_trailing_token_register:Nn - {dash}
 \acro_trailing_token_register:Nn \babelhyphen {babel-hyphen}
 
@@ -2524,7 +2538,7 @@
   {
     activate   .code:n =
       \clist_map_inline:nn {#1} { \acro_trailing_token_activate:n {##1} } ,
-    activate   .initial:n = dot ,
+    activate   .initial:n = {dot,comma} ,
     deactivate .code:n =
       \clist_map_inline:nn {#1} { \acro_trailing_token_deactivate:n {##1} } ,
     register   .code:n = \acro_trailing_token_register:Nn #1
@@ -3163,34 +3177,44 @@
             {
               \acro_property_if_set:VnTF \l_acro_id_tl {single-style}
                 {
-                  \__acro_template_use:nnx {#1} {#2}
+                  \tl_set:Ne \l__acro_tmpa_tl
                     { \acro_property_get:Vn \l_acro_id_tl {single-style} }
                 }
-                { \__acro_template_use:nnV {#1} {#2} \l__acro_single_tl }
+                { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_single_tl }
             }
             {
               \acro_if_first:VTF \l_acro_id_tl
                 {
                   \acro_property_if_set:VnTF \l_acro_id_tl {first-style}
                     {
-                      \__acro_template_use:nnx {#1} {#2}
+                      \tl_set:Ne \l__acro_tmpa_tl
                         { \acro_property_get:Vn \l_acro_id_tl {first-style} }
                     }
-                    { \__acro_template_use:nnV {#1} {#2} \l__acro_first_style_tl }
+                    { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_first_style_tl }
                 }
-                { \__acro_template_use:nnn {#1} {#2} {short} }
+                { \tl_set:Nn \l__acro_tmpa_tl {short} }
             }
         }
         {single} {
           \acro_property_if_set:VnTF \l_acro_id_tl {single-style}
             {
-              \__acro_template_use:nnx {#1} {#2}
+              \tl_set:Ne \l__acro_tmpa_tl
                 { \acro_property_get:Vn \l_acro_id_tl {single-style} }
             }
-            { \__acro_template_use:nnV {#1} {#2} \l__acro_single_tl }
+            { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_single_tl }
         }
       }
-      { \__acro_template_use:nnn {#1} {#2} {#3} }
+      { \tl_set:Nn \l__acro_tmpa_tl {#3} }
+    \str_if_eq:VnT \l__acro_tmpa_tl {first}
+      {
+        \acro_property_if_set:VnTF \l_acro_id_tl {first-style}
+          {
+            \tl_set:Ne \l__acro_tmpa_tl
+              { \acro_property_get:Vn \l_acro_id_tl {first-style} }
+          }
+          { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_first_style_tl }
+      }
+    \__acro_template_use:nnV {#1} {#2} \l__acro_tmpa_tl
   }
 \cs_generate_variant:Nn \acro_template_use:nnn {nnV}
 
@@ -3918,6 +3942,12 @@
 \cs_new_eq:NN \__acro_hyper_target:nn \use_ii:nn
 \cs_new_eq:NN \__acro_hyper_link:nn   \use_ii:nn
 
+% TODO: respect barriers, maybe with testing \l__acro_barriers_bool
+% and prepending or appending the current barrier number to links.  In that
+% case the `target-set' option could not be used any more as we would need to
+% be able to set several targets; maybe then make records like we do for page
+% numbers?
+% TODO: only list page numbers from within the barriers
 \acro_property_declare:nnnnn
   { \c_false_bool } % not unique
   { \c_true_bool }  % boolean
@@ -4604,12 +4634,20 @@
           )
       }
   }
-
+  
 \NewAcroTemplate {footnote}
   {
     \acrowrite {short}
     \acroiffirstT
       {
+        % for fnpct: check if punctuation follows and insert it directly after
+        % the footnote
+        \tl_set:Ne \l__acro_tmpa_tl
+          {
+            \aciftrailing {dot}   { . \acgobbletrail } {}
+            \aciftrailing {comma} { , \acgobbletrail } {}
+          }
+        \exp_last_unbraced:Nno
         \footnote
           {
             \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} :~ }
@@ -4617,6 +4655,7 @@
             \acrowrite {long}
             \acrogroupcite
           }
+        \l__acro_tmpa_tl
       }
   }
 
@@ -5224,6 +5263,8 @@
     extra-format .code:n =
       \acro_deprecate_option:nn {format/extra} {#1} ,
     single-format .code:n = \acro_remove_option: ,
+    single-form   .code:n =
+      \acro_deprecate_option:nn {single-style} {#1} ,
     first-long-format .code:n = \acro_remove_option: ,
     list-foreign-format .code:n = \acro_remove_option: ,
     format-include-endings .code:n =

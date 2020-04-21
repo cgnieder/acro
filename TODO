@@ -1,8 +1,10 @@
 - page numbers and local lists
 - make-links and local lists
 - add gender property and extend article mechanism?
+- allow pseudo style `first' for single-style
 
 undocumented:
+- trailing token: comma
 - options acro/commands
 - pdfstring templates and \acsimple
 - load-time options debug and final

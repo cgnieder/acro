@@ -460,10 +460,21 @@
     \peek_after:Nw \__acro_execute:
   }
 
-\cs_new_protected:Npn \acro_end: { \group_end: }
+\bool_new:N \g__acro_gobble_trail_bool
+
+\cs_new_protected:Npn \acro_end:
+  {
+    \bool_if:NT \g__acro_gobble_trail_bool
+      {
+        \bool_gset_false:N \g__acro_gobble_trail_bool
+        \use_i:nn
+      }
+    \group_end:
+  }
 
 % register some tokens to be checked for:
 \acro_trailing_token_register:Nn . {dot}
+\acro_trailing_token_register:Nn , {comma}
 \acro_trailing_token_register:Nn - {dash}
 \acro_trailing_token_register:Nn \babelhyphen {babel-hyphen}
 
@@ -472,7 +483,7 @@
   {
     activate   .code:n =
       \clist_map_inline:nn {#1} { \acro_trailing_token_activate:n {##1} } ,
-    activate   .initial:n = dot ,
+    activate   .initial:n = {dot,comma} ,
     deactivate .code:n =
       \clist_map_inline:nn {#1} { \acro_trailing_token_deactivate:n {##1} } ,
     register   .code:n = \acro_trailing_token_register:Nn #1

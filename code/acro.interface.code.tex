@@ -101,6 +101,9 @@
 \NewExpandableDocumentCommand \aciftrailing {}
   { \acro_trailing_if_tokens:nTF }
 
+\NewDocumentCommand \acgobbletrail {}
+  { \bool_gset_true:N \g__acro_gobble_trail_bool }
+
 \NewExpandableDocumentCommand \acdot   {} { \acro_dot: }
 \NewExpandableDocumentCommand \acspace {} { \acro_space: }
 
