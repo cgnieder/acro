@@ -70,8 +70,8 @@
         { \int_set:Nn \l__acro_minimal_usage_int {#1} } ,
     minimal-usage  .meta:n    = { single = #1 } ,
     single         .initial:n = 0 ,
-    single-form    .tl_set:N   = \l__acro_single_tl ,
-    single-form    .initial:n  = long ,
+    single-style   .tl_set:N   = \l__acro_single_tl ,
+    single-style   .initial:n  = long ,
     use-only-first .bool_set:N = \l__acro_use_only_first_bool ,
     use-only-first .initial:n  = false
   }
@@ -247,6 +247,7 @@
   {
     \acro_property_if_set:nnT {#1} {cite}
       {
+        \acro_property_get:nn {#1} {before-citation}
         \l__acro_cite_pre_tl
         \__acro_cite:n {#1}
         \bool_gset_true:N \g__acro_cited_bool

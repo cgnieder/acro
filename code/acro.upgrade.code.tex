@@ -181,8 +181,6 @@
 \acro_deprecated_property:nn {foreign-lang} {foreign-babel}
 
 \acro_removed_property:n {long-pre}
-\acro_removed_property:n {long-post}
-\acro_removed_property:n {before-citation}
 \acro_removed_property:n {after-citation}
 \acro_removed_property:n {index-cmd}
 
@@ -259,6 +257,8 @@
     extra-format .code:n =
       \acro_deprecate_option:nn {format/extra} {#1} ,
     single-format .code:n = \acro_remove_option: ,
+    single-form   .code:n =
+      \acro_deprecate_option:nn {single-style} {#1} ,
     first-long-format .code:n = \acro_remove_option: ,
     list-foreign-format .code:n = \acro_remove_option: ,
     format-include-endings .code:n =

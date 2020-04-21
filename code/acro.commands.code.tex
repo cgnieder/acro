@@ -193,6 +193,8 @@
         \bool_if:NF \l__acro_include_endings_bool
           { \__acro_ending:nn {#1} {#2} }
       }
+    \acro_property_if_eq:nnT {#2} {long}
+      { \acro_property_get:nn {#1} {long-post} }
     \bool_set_false:N \l__acro_upper_bool
     \bool_set_false:N \l__acro_article_bool
   }
@@ -251,6 +253,9 @@
 \cs_new:Npn \__acro_remove_bs:N #1
   { \exp_after:wN \use_none:n \token_to_str:N #1 }
 
+\tl_new:N \l__acro_begin_command_hook_tl
+\tl_new:N \l__acro_end_command_hook_tl
+
 % #1: csname
 % #2: xparse csname
 % #3: action
@@ -266,6 +271,7 @@
           { base \__acro_remove_bs:N ##1  } {##2}
           {
             \acro_begin:
+              \l__acro_begin_command_hook_tl
               \cs_set:Npn \nospace { \exp:w \exp_end_continue_f:w }
               \acro_check_definition:n {####1}
               \bool_set_true:N \l__acro_use_bool
@@ -276,6 +282,7 @@
               \acro_finalize:ne
                 { \l__acro_star_bool }
                 { \acro_case_insensitive:n {####1} }
+              \l__acro_end_command_hook_tl
             \acro_end:
           }
         \use:x
@@ -318,6 +325,22 @@
   \ProvideAcroCommand
   \ProvideDocumentCommand
   {provide}
+
+\keys_define:nn {acro/commands}
+  {
+    begin .code:n =
+      \tl_put_right:Nn \l__acro_begin_command_hook_tl {#1} ,
+    end   .code:n =
+      \tl_put_right:Nn \l__acro_end_command_hook_tl {#1} ,
+    clear .choice: ,
+    clear / begin .code:n =
+      \tl_clear:N \l__acro_begin_command_hook_tl ,
+    clear / end   .code:n =
+      \tl_clear:N \l__acro_end_command_hook_tl ,
+    clear / all   .code:n =
+      \tl_clear:N \l__acro_begin_command_hook_tl
+      \tl_clear:N \l__acro_end_command_hook_tl
+  }
 
 % --------------------------------------------------------------------------
 \AcroModuleEnd

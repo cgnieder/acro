@@ -77,7 +77,7 @@
     acroifchapterTF, acroiffirstF, acroiffirstT, acroiffirstTF,
     acropagefill, acropages, acroplural, acropreamble, acrotranslate,
     acrowrite,
-    AcroAddRow, AcroNeedPackage, AcronymTable, AcroRerun,
+    AcroAddRow, AcroNeedPackage, AcronymTable, AcroRerun, AcroStyle,
     NewAcroTemplate, RenewAcroTemplate, UseAcroTemplate,
     % declaring stuff:
     DeclareAcronym, DeclareAcroArticle, DeclareAcroEnding,
@@ -92,7 +92,9 @@
   add-silent-cmds = {
     babelhyphen, parencite,
     BeginAccSupp, EndAccSupp,
-    if@filesw,acro@list
+    if@filesw, acro@list,
+    NewDocumentCommand,
+    newabbreviation, printabbreviations
   } ,
   index-setup = {
     level = \section , headers={\indexname}{\indexname} , noclearpage ,

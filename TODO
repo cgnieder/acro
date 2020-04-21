@@ -1,0 +1,8 @@
+- page numbers and local lists
+- make-links and local lists
+- add gender property and extend article mechanism?
+
+undocumented:
+- options acro/commands
+- pdfstring templates and \acsimple
+- load-time options debug and final

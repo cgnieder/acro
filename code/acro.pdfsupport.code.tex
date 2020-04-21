@@ -13,6 +13,12 @@
 \cs_new_eq:NN \__acro_hyper_target:nn \use_ii:nn
 \cs_new_eq:NN \__acro_hyper_link:nn   \use_ii:nn
 
+% TODO: respect barriers, maybe with testing \l__acro_barriers_bool
+% and prepending or appending the current barrier number to links.  In that
+% case the `target-set' option could not be used any more as we would need to
+% be able to set several targets; maybe then make records like we do for page
+% numbers?
+% TODO: only list page numbers from within the barriers
 \acro_property_declare:nnnnn
   { \c_false_bool } % not unique
   { \c_true_bool }  % boolean

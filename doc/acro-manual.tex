@@ -406,6 +406,10 @@ the same.  In that case you can use
   \propval{foreign}{long form in foreign language}\Default
     Can be useful when dealing with acronyms in foreign languages, see
     section~\vref{sec:fore-lang-acronyms} for details.
+  %% long-post
+  \propval{long-post}{text}\Default
+    \meta{text} is appended to the long form of the acronym in the text but
+    not in the list of acronyms.
   %% post
   \propval{post}{text}\Default
     \meta{text} is appended to the acronym in the text but not in the list of
@@ -426,6 +430,10 @@ the same.  In that case you can use
   \proplit-{cite}{\oarg{prenote}\oarg{postnote}\marg{citation keys}}\Default
     A citation that is printed to the acronym according to an option explained
     later.
+  %% before-citation
+  \propval{before-citation}{text}\Default
+    \meta{text} is prepended to the citation of the acronym when and where
+    the citation is printed.
   %% index
   \propval{index}{text}\Default
     This property allows to overwrite the automatic index entry with an
@@ -2296,6 +2304,47 @@ Now you can use it like this:
   This is the \acg{MP} first day at work after \dots
 \end{example}
 
+\section{Own \acro style files}
+When you want to use your definitions regarding \acro\ repeatedly then it
+makes sense to put them in a file which you put somewhere in your local
+\LaTeX\ tree.  There are three options:
+\begin{enumerate}
+  \item Put them in a simple \code{.tex} file in \cs*{input} it.
+  \item Put in in a \code{.sty} file and include it with \cs*{usepackage}
+    \emph{after} \acro.
+  \item Create a style file following this pattern decribed below.
+\end{enumerate}
+\begin{center}
+  \code{acro.style.\meta{name}.code.tex}
+\end{center}
+This file should start with
+\begin{sourcecode}
+  \AcroStyle{name}
+\end{sourcecode}
+and input the file with \cs{acsetup} using the option
+\begin{options}
+  \keyval{load-style}{name}
+    This is more or less the same as if you'd use the package variant but
+    naturally ensures that you load it after \acro\ and in the future might
+    provide other bells and whistles, too.
+\end{options}
+The command
+\begin{commands}
+  \command{AcroStyle}[\sarg\marg{style}\oarg{details}]
+    has an optional star which switches to expl3 syntax.  It also has an
+    optional argument \meta{details} with the same purpose and usage as
+    the one from \cs*{ProvidesPackage}. A typical usage would look like
+\end{commands}
+\begin{sourcecode}
+  \AcroStyle{abbrev}[2020/04/21 abbreviations with acro (CN)]
+  \NewDocumentCommand\newabbreviation{mmm}{%
+    \DeclareAcronym{#1}{ short = #2 , #3 , class = abbrev , no-index }%
+  }
+  \NewDocumentCommand\printabbreviations{O{}}{%
+    \printacronyms[#1,include=abbrev]%
+  }
+\end{sourcecode}
+  
 \clearpage
 \appendix
 \part{Appendix}\label{part:appendix}
