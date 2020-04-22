@@ -12,10 +12,11 @@
 % #1: id
 \cs_new_protected:Npn \acro_record_page:n #1
   {
-    \seq_if_in:ceF {g__acro_#1_pages_seq} { \arabic{abspage} @ \thepage }
+    \seq_if_in:ceF {g__acro_#1_pages_seq}
+      { \arabic{abspage} @ \int_use:N \g_acro_barrier_int @ \thepage }
       {
         \seq_gput_right:ce {g__acro_#1_pages_seq}
-          { \arabic{abspage} @ \thepage }
+          { \arabic{abspage} @ \int_use:N \g_acro_barrier_int @ \thepage }
       }
     \seq_gremove_duplicates:c {g__acro_#1_pages_seq}
     \acro_at_end_document:n
@@ -25,13 +26,16 @@
       }
   }
 
-\cs_new:Npn \__acro_page:w #1@#2 \q_stop
+\cs_new:Npn \__acro_page_name:w #1@#2@#3 \q_stop
   {
     \acro_package_if_loaded:nTF {hyperref}
-      { \exp_not:N \hyperpage { \exp_not:n {#2} } }
-      { \exp_not:n {#2} }
+      { \exp_not:N \hyperpage { \exp_not:n {#3} } }
+      { \exp_not:n {#3} }
   }
-\cs_new:Npn \__acro_page_value:w  #1@#2 \q_stop {#1}
+
+\cs_new:Npn \__acro_absolute_page:w  #1@#2@#3 \q_stop {#1}
+
+\cs_new:Npn \__acro_barrier:w  #1@#2@#3 \q_stop {#2}
 
 \group_end:
 
@@ -72,8 +76,32 @@
     \seq_map_inline:Nn \l__acro_tmpa_seq
       {
         \intarray_gset:Nnn \g__acro_pages_intarray
-          { \__acro_page_value:w ##1 \q_stop + 1 }
-          { 1 }
+          { \__acro_absolute_page:w ##1 \q_stop + 1 }
+          {
+            \bool_if:NTF \l__acro_list_local_bool
+              {
+                \int_compare:nNnTF
+                  { \__acro_barrier:w ##1 \q_stop }
+                  =
+                  \g_acro_barrier_int
+                  {1}
+                  {0}
+              }
+              {1}
+          }
+      }
+    \bool_if:NT \l__acro_list_local_bool
+      {
+        \seq_clear:N \l__acro_tmpb_seq
+        \seq_map_inline:Nn \l__acro_tmpa_seq
+          {
+            \int_compare:nNnT
+              { \__acro_barrier:w ##1 \q_stop }
+              =
+              \g_acro_barrier_int
+              { \seq_put_right:Nn \l__acro_tmpb_seq {##1} }
+          }
+        \seq_set_eq:NN \l__acro_tmpa_seq \l__acro_tmpb_seq
       }
     \seq_clear:N \l__acro_tmpb_seq
     \int_zero:N \l__acro_tmpb_int
@@ -81,11 +109,11 @@
       {
         % the current page
         \int_set:Nn \l__acro_tmpa_int
-          { \__acro_page_value:w ##1 \q_stop + 1 }
+          { \__acro_absolute_page:w ##1 \q_stop + 1 }
         \int_compare:nNnTF \l__acro_tmpa_int = 1
           { % first page, start range
             \seq_put_right:Ne \l__acro_tmpb_seq
-              { \__acro_page:w ##1 \q_stop }
+              { \__acro_page_name:w ##1 \q_stop }
             \int_incr:N \l__acro_tmpb_int
           }
           { % not first page
@@ -98,7 +126,7 @@
               { % start range
                 \int_zero:N \l__acro_tmpb_int
                 \seq_put_right:Ne \l__acro_tmpb_seq
-                  { \__acro_page:w ##1 \q_stop }
+                  { \__acro_page_name:w ##1 \q_stop }
                 \int_incr:N \l__acro_tmpb_int
               }
               { % continue range
@@ -154,7 +182,7 @@
               {
                 \exp_not:V \l__acro_tmpa_tl
                 --
-                \__acro_page:w #3 \q_stop
+                \__acro_page_name:w #3 \q_stop
               }
           }
       }
@@ -171,7 +199,7 @@
             \seq_put_right:Ne \l__acro_tmpb_seq
               { \exp_not:V \l__acro_tmpa_tl }
             \seq_put_right:Ne \l__acro_tmpb_seq
-              {  \__acro_page:w #3 \q_stop }
+              {  \__acro_page_name:w #3 \q_stop }
           }
       }
   }

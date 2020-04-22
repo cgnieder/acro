@@ -115,22 +115,13 @@
     \acrowrite {short}
     \acroiffirstT
       {
-        % for fnpct: check if punctuation follows and insert it directly after
-        % the footnote
-        \tl_set:Ne \l__acro_tmpa_tl
-          {
-            \aciftrailing {dot}   { . \acgobbletrail } {}
-            \aciftrailing {comma} { , \acgobbletrail } {}
-          }
-        \exp_last_unbraced:Nno
-        \footnote
+        \acfootnote
           {
             \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} :~ }
             \acroifT {foreign} { \acrowrite {foreign} ,~ }
             \acrowrite {long}
             \acrogroupcite
           }
-        \l__acro_tmpa_tl
       }
   }
 

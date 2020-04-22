@@ -6,6 +6,14 @@
 \msg_new:nnn {acro} {pdf-template-undefined}
   { The~ pdfstring~ template~ `#1'~ is~ not~ defined~ \msg_line_context: }
 
+\msg_new:nnn {acro} {local-links}
+  {
+    You~ are~ using~ the~ option~ `make-links'~ in~ combination~ with~ local~
+    acronym~ lists.~ Please~ make~ sure~ to~ also~ set \\
+    \ \ \ \ barriers/single~ =~ true \\
+    for~ referencing~ only~ existing~ and~ unique~ links.
+  }
+
 % --------------------------------------------------------------------------
 % hyper linking
 \bool_new:N \l__acro_hyperref_use_bool
@@ -13,18 +21,15 @@
 \cs_new_eq:NN \__acro_hyper_target:nn \use_ii:nn
 \cs_new_eq:NN \__acro_hyper_link:nn   \use_ii:nn
 
-% TODO: respect barriers, maybe with testing \l__acro_barriers_bool
-% and prepending or appending the current barrier number to links.  In that
-% case the `target-set' option could not be used any more as we would need to
-% be able to set several targets; maybe then make records like we do for page
-% numbers?
-% TODO: only list page numbers from within the barriers
-\acro_property_declare:nnnnn
-  { \c_false_bool } % not unique
-  { \c_true_bool }  % boolean
-  { \c_false_bool } % not mandatory
-  { \c_false_bool } % dynamic
-  {target-set}
+\cs_generate_variant:Nn \__acro_hyper_target:nn {e}
+\cs_generate_variant:Nn \__acro_hyper_link:nn {e}
+
+% \acro_property_declare:nnnnn
+%   { \c_false_bool } % not unique
+%   { \c_true_bool }  % boolean
+%   { \c_false_bool } % not mandatory
+%   { \c_false_bool } % dynamic
+%   {target-set}
 
 \cs_new_protected:Npn \__acro_activate_hyperref_support:
   {
@@ -59,21 +64,41 @@
           {
             \bool_if:NTF \l__acro_list_bool
               {
-                \acro_boolean_property_if:nnTF {#1} {target-set}
-                  {#3}
+                \__acro_hyper_target:en
                   {
-                    \__acro_hyper_target:nn {acro:#1} {#3}
-                    \acro_property_set:nnn {#1} {target-set} {true}
+                    acro : #1
+                    \bool_lazy_and:nnT
+                      { \l__acro_list_local_bool }
+                      { \l__acro_usage_local_bool }
+                      { : \int_use:N \g_acro_barrier_int }
                   }
+                  {#3}
               }
               {
-                \__acro_hyper_link:nn {acro:#1} { \phantom {#3} }
+                \__acro_hyper_link:en
+                  {
+                    acro : #1
+                    \bool_if:NT \l__acro_usage_local_bool
+                      { : \int_use:N \g_acro_barrier_int }
+                  }
+                  { \phantom {#3} }
                 \__acro_color_link:n { \hbox_overlap_left:n {#3} }
               }
           }
           {#3}
       }
       {#3}
+  }
+
+\acro_at_begin_document:n
+  {
+    \bool_if:nT
+      {
+        \l__acro_hyperref_use_bool &&
+        \l__acro_barriers_bool &&
+        ! \l__acro_usage_local_bool
+      }
+      { \msg_warning:nn {acro} {local-links} }
   }
 
 % #1: text

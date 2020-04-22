@@ -38,9 +38,9 @@
     \seq_map_inline:Nn #1
       {
         \__acro_check_tags:Nn \l__acro_tmpa_bool {##1}
-        \bool_if:nT
+        \bool_lazy_and:nnT
+          { \l__acro_list_local_bool }
           {
-            \l__acro_list_local_bool &&
             \int_compare_p:nNn
             { \intarray_count:c {g__acro_##1_barriers_intarray} } > 0
           }

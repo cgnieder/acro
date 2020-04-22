@@ -740,6 +740,9 @@
 \NewExpandableDocumentCommand \aciftrailing {}
   { \acro_trailing_if_tokens:nTF }
 
+\NewDocumentCommand \acfootnote {m}
+  { \acro_footnote:n {#1} }
+
 \NewDocumentCommand \acgobbletrail {}
   { \bool_gset_true:N \g__acro_gobble_trail_bool }
 
@@ -2533,15 +2536,29 @@
 \acro_trailing_token_register:Nn - {dash}
 \acro_trailing_token_register:Nn \babelhyphen {babel-hyphen}
 
+\tl_new:N \l__acro_fnpct_check_tl
+
+\cs_new_protected:Npn \acro_footnote:n #1
+  {
+    \tl_set:Ne \l__acro_fnpct_check_tl { \l__acro_fnpct_check_tl }
+    \exp_last_unbraced:Nno
+    \footnote {#1}
+    \l__acro_fnpct_check_tl
+  }
+
 % options for activating actions:
 \keys_define:nn {acro/trailing}
   {
-    activate   .code:n =
+    activate    .code:n    =
       \clist_map_inline:nn {#1} { \acro_trailing_token_activate:n {##1} } ,
-    activate   .initial:n = {dot,comma} ,
-    deactivate .code:n =
+    activate    .initial:n = {dot,comma} ,
+    deactivate  .code:n    =
       \clist_map_inline:nn {#1} { \acro_trailing_token_deactivate:n {##1} } ,
-    register   .code:n = \acro_trailing_token_register:Nn #1
+    register    .code:n    = \acro_trailing_token_register:Nn #1 ,
+    fnpct-check .tl_set:N  = \l__acro_fnpct_check_tl ,
+    fnpct-check .initial:n =
+      \aciftrailing {dot}   { . \acgobbletrail } {}
+      \aciftrailing {comma} { , \acgobbletrail } {}
   }
 
 % some user macros:
@@ -3357,9 +3374,9 @@
     \seq_map_inline:Nn #1
       {
         \__acro_check_tags:Nn \l__acro_tmpa_bool {##1}
-        \bool_if:nT
+        \bool_lazy_and:nnT
+          { \l__acro_list_local_bool }
           {
-            \l__acro_list_local_bool &&
             \int_compare_p:nNn
             { \intarray_count:c {g__acro_##1_barriers_intarray} } > 0
           }
@@ -3501,10 +3518,11 @@
 % #1: id
 \cs_new_protected:Npn \acro_record_page:n #1
   {
-    \seq_if_in:ceF {g__acro_#1_pages_seq} { \arabic{abspage} @ \thepage }
+    \seq_if_in:ceF {g__acro_#1_pages_seq}
+      { \arabic{abspage} @ \int_use:N \g_acro_barrier_int @ \thepage }
       {
         \seq_gput_right:ce {g__acro_#1_pages_seq}
-          { \arabic{abspage} @ \thepage }
+          { \arabic{abspage} @ \int_use:N \g_acro_barrier_int @ \thepage }
       }
     \seq_gremove_duplicates:c {g__acro_#1_pages_seq}
     \acro_at_end_document:n
@@ -3514,13 +3532,16 @@
       }
   }
 
-\cs_new:Npn \__acro_page:w #1@#2 \q_stop
+\cs_new:Npn \__acro_page_name:w #1@#2@#3 \q_stop
   {
     \acro_package_if_loaded:nTF {hyperref}
-      { \exp_not:N \hyperpage { \exp_not:n {#2} } }
-      { \exp_not:n {#2} }
+      { \exp_not:N \hyperpage { \exp_not:n {#3} } }
+      { \exp_not:n {#3} }
   }
-\cs_new:Npn \__acro_page_value:w  #1@#2 \q_stop {#1}
+
+\cs_new:Npn \__acro_absolute_page:w  #1@#2@#3 \q_stop {#1}
+
+\cs_new:Npn \__acro_barrier:w  #1@#2@#3 \q_stop {#2}
 
 \group_end:
 
@@ -3561,8 +3582,32 @@
     \seq_map_inline:Nn \l__acro_tmpa_seq
       {
         \intarray_gset:Nnn \g__acro_pages_intarray
-          { \__acro_page_value:w ##1 \q_stop + 1 }
-          { 1 }
+          { \__acro_absolute_page:w ##1 \q_stop + 1 }
+          {
+            \bool_if:NTF \l__acro_list_local_bool
+              {
+                \int_compare:nNnTF
+                  { \__acro_barrier:w ##1 \q_stop }
+                  =
+                  \g_acro_barrier_int
+                  {1}
+                  {0}
+              }
+              {1}
+          }
+      }
+    \bool_if:NT \l__acro_list_local_bool
+      {
+        \seq_clear:N \l__acro_tmpb_seq
+        \seq_map_inline:Nn \l__acro_tmpa_seq
+          {
+            \int_compare:nNnT
+              { \__acro_barrier:w ##1 \q_stop }
+              =
+              \g_acro_barrier_int
+              { \seq_put_right:Nn \l__acro_tmpb_seq {##1} }
+          }
+        \seq_set_eq:NN \l__acro_tmpa_seq \l__acro_tmpb_seq
       }
     \seq_clear:N \l__acro_tmpb_seq
     \int_zero:N \l__acro_tmpb_int
@@ -3570,11 +3615,11 @@
       {
         % the current page
         \int_set:Nn \l__acro_tmpa_int
-          { \__acro_page_value:w ##1 \q_stop + 1 }
+          { \__acro_absolute_page:w ##1 \q_stop + 1 }
         \int_compare:nNnTF \l__acro_tmpa_int = 1
           { % first page, start range
             \seq_put_right:Ne \l__acro_tmpb_seq
-              { \__acro_page:w ##1 \q_stop }
+              { \__acro_page_name:w ##1 \q_stop }
             \int_incr:N \l__acro_tmpb_int
           }
           { % not first page
@@ -3587,7 +3632,7 @@
               { % start range
                 \int_zero:N \l__acro_tmpb_int
                 \seq_put_right:Ne \l__acro_tmpb_seq
-                  { \__acro_page:w ##1 \q_stop }
+                  { \__acro_page_name:w ##1 \q_stop }
                 \int_incr:N \l__acro_tmpb_int
               }
               { % continue range
@@ -3643,7 +3688,7 @@
               {
                 \exp_not:V \l__acro_tmpa_tl
                 --
-                \__acro_page:w #3 \q_stop
+                \__acro_page_name:w #3 \q_stop
               }
           }
       }
@@ -3660,7 +3705,7 @@
             \seq_put_right:Ne \l__acro_tmpb_seq
               { \exp_not:V \l__acro_tmpa_tl }
             \seq_put_right:Ne \l__acro_tmpb_seq
-              {  \__acro_page:w #3 \q_stop }
+              {  \__acro_page_name:w #3 \q_stop }
           }
       }
   }
@@ -3935,6 +3980,14 @@
 \msg_new:nnn {acro} {pdf-template-undefined}
   { The~ pdfstring~ template~ `#1'~ is~ not~ defined~ \msg_line_context: }
 
+\msg_new:nnn {acro} {local-links}
+  {
+    You~ are~ using~ the~ option~ `make-links'~ in~ combination~ with~ local~
+    acronym~ lists.~ Please~ make~ sure~ to~ also~ set \\
+    \ \ \ \ barriers/single~ =~ true \\
+    for~ referencing~ only~ existing~ and~ unique~ links.
+  }
+
 % --------------------------------------------------------------------------
 % hyper linking
 \bool_new:N \l__acro_hyperref_use_bool
@@ -3942,18 +3995,15 @@
 \cs_new_eq:NN \__acro_hyper_target:nn \use_ii:nn
 \cs_new_eq:NN \__acro_hyper_link:nn   \use_ii:nn
 
-% TODO: respect barriers, maybe with testing \l__acro_barriers_bool
-% and prepending or appending the current barrier number to links.  In that
-% case the `target-set' option could not be used any more as we would need to
-% be able to set several targets; maybe then make records like we do for page
-% numbers?
-% TODO: only list page numbers from within the barriers
-\acro_property_declare:nnnnn
-  { \c_false_bool } % not unique
-  { \c_true_bool }  % boolean
-  { \c_false_bool } % not mandatory
-  { \c_false_bool } % dynamic
-  {target-set}
+\cs_generate_variant:Nn \__acro_hyper_target:nn {e}
+\cs_generate_variant:Nn \__acro_hyper_link:nn {e}
+
+% \acro_property_declare:nnnnn
+%   { \c_false_bool } % not unique
+%   { \c_true_bool }  % boolean
+%   { \c_false_bool } % not mandatory
+%   { \c_false_bool } % dynamic
+%   {target-set}
 
 \cs_new_protected:Npn \__acro_activate_hyperref_support:
   {
@@ -3988,21 +4038,41 @@
           {
             \bool_if:NTF \l__acro_list_bool
               {
-                \acro_boolean_property_if:nnTF {#1} {target-set}
-                  {#3}
+                \__acro_hyper_target:en
                   {
-                    \__acro_hyper_target:nn {acro:#1} {#3}
-                    \acro_property_set:nnn {#1} {target-set} {true}
+                    acro : #1
+                    \bool_lazy_and:nnT
+                      { \l__acro_list_local_bool }
+                      { \l__acro_usage_local_bool }
+                      { : \int_use:N \g_acro_barrier_int }
                   }
+                  {#3}
               }
               {
-                \__acro_hyper_link:nn {acro:#1} { \phantom {#3} }
+                \__acro_hyper_link:en
+                  {
+                    acro : #1
+                    \bool_if:NT \l__acro_usage_local_bool
+                      { : \int_use:N \g_acro_barrier_int }
+                  }
+                  { \phantom {#3} }
                 \__acro_color_link:n { \hbox_overlap_left:n {#3} }
               }
           }
           {#3}
       }
       {#3}
+  }
+
+\acro_at_begin_document:n
+  {
+    \bool_if:nT
+      {
+        \l__acro_hyperref_use_bool &&
+        \l__acro_barriers_bool &&
+        ! \l__acro_usage_local_bool
+      }
+      { \msg_warning:nn {acro} {local-links} }
   }
 
 % #1: text
@@ -4640,22 +4710,13 @@
     \acrowrite {short}
     \acroiffirstT
       {
-        % for fnpct: check if punctuation follows and insert it directly after
-        % the footnote
-        \tl_set:Ne \l__acro_tmpa_tl
-          {
-            \aciftrailing {dot}   { . \acgobbletrail } {}
-            \aciftrailing {comma} { , \acgobbletrail } {}
-          }
-        \exp_last_unbraced:Nno
-        \footnote
+        \acfootnote
           {
             \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} :~ }
             \acroifT {foreign} { \acrowrite {foreign} ,~ }
             \acrowrite {long}
             \acrogroupcite
           }
-        \l__acro_tmpa_tl
       }
   }
 

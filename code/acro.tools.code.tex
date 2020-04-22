@@ -478,15 +478,29 @@
 \acro_trailing_token_register:Nn - {dash}
 \acro_trailing_token_register:Nn \babelhyphen {babel-hyphen}
 
+\tl_new:N \l__acro_fnpct_check_tl
+
+\cs_new_protected:Npn \acro_footnote:n #1
+  {
+    \tl_set:Ne \l__acro_fnpct_check_tl { \l__acro_fnpct_check_tl }
+    \exp_last_unbraced:Nno
+    \footnote {#1}
+    \l__acro_fnpct_check_tl
+  }
+
 % options for activating actions:
 \keys_define:nn {acro/trailing}
   {
-    activate   .code:n =
+    activate    .code:n    =
       \clist_map_inline:nn {#1} { \acro_trailing_token_activate:n {##1} } ,
-    activate   .initial:n = {dot,comma} ,
-    deactivate .code:n =
+    activate    .initial:n = {dot,comma} ,
+    deactivate  .code:n    =
       \clist_map_inline:nn {#1} { \acro_trailing_token_deactivate:n {##1} } ,
-    register   .code:n = \acro_trailing_token_register:Nn #1
+    register    .code:n    = \acro_trailing_token_register:Nn #1 ,
+    fnpct-check .tl_set:N  = \l__acro_fnpct_check_tl ,
+    fnpct-check .initial:n =
+      \aciftrailing {dot}   { . \acgobbletrail } {}
+      \aciftrailing {comma} { , \acgobbletrail } {}
   }
 
 % some user macros:
