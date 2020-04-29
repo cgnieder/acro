@@ -6,6 +6,9 @@
 \msg_new:nnn {acro} {label}
   { The~ list~ template~ `#1'~ needs~ the~ option~ `labels'~ activated. }
 
+\msg_new:nnn {acro} {threshold}
+  { The~ sequentes~ threshold~ needs~ to~ be~ at~ least~ 3. }
+
 \group_begin:
 \char_set_catcode_other:N \@
 
@@ -158,7 +161,7 @@
               }
           }
       }
-    \seq_use:Nn \l__acro_tmpb_seq {,~}
+    \seq_use:Nn \l__acro_tmpb_seq { \l__acro_pages_sep_tl }
   }
 
 % #1: sequence
@@ -167,13 +170,16 @@
 \cs_new_protected:Npn \__acro_finish_range:Nnn #1#2#3
   {
     \seq_pop_right:NN #1 \l__acro_tmpa_tl
-    \int_compare:nNnTF #2 > 1
+    \int_compare:nNnTF {#2} > 1
       {
-        \bool_if:NTF \l__acro_sequentes_bool
+        \bool_lazy_and:nnTF
+          { \l__acro_seq_use_bool }
+          { \int_compare_p:nNn {#2} < \l__acro_pages_seq_threshold_int }
           {
             \seq_put_right:Ne \l__acro_tmpb_seq
               {
                 \exp_not:V \l__acro_tmpa_tl
+                \exp_not:V \l__acro_pages_seq_pre_tl
                 \acro_translate:n {sequentes}
               }
           }
@@ -187,11 +193,12 @@
           }
       }
       {
-        \bool_if:NTF \l__acro_sequentes_bool
+        \bool_if:NTF \l__acro_seq_use_bool
           {
             \seq_put_right:Ne \l__acro_tmpb_seq
               {
                 \exp_not:V \l__acro_tmpa_tl
+                \exp_not:V \l__acro_pages_seq_pre_tl
                 \acro_translate:n {sequens}
               }
           }
@@ -206,7 +213,7 @@
 
 \bool_new:N \l__acro_pages_all_bool
 \bool_new:N \l__acro_pages_display_bool
-\bool_new:N \l__acro_sequentes_bool
+\bool_new:N \l__acro_seq_use_bool
 
 % #1: id
 \prg_new_conditional:Npnn \acro_if_pages:n #1 {p,T,F,TF}
@@ -241,6 +248,10 @@
 \cs_generate_variant:Nn \acro_no_page_ranges:n {e}
 
 \tl_new:N \l__acro_pages_fill_tl
+\tl_new:N \l__acro_pages_sep_tl
+\tl_new:N \l__acro_pages_seq_pre_tl
+
+\int_new:N \l__acro_pages_seq_threshold_int
 
 \keys_define:nn {acro/pages}
   {
@@ -251,14 +262,23 @@
     display / first .code:n =
       \bool_set_true:N \l__acro_pages_display_bool
       \bool_set_false:N \l__acro_pages_all_bool ,
-    display / none   .code:n =
+    display / none  .code:n =
       \bool_set_false:N \l__acro_pages_display_bool ,
-    seq    .bool_set:N = \l__acro_sequentes_bool ,
-    seq    .initial:n  = true ,
-    fill   .tl_set:N   = \l__acro_pages_fill_tl ,
-    fill   .initial:n  = \dotfill ,
-    name   .bool_set:N = \l__acro_pages_name_display_bool ,
-    name   .initial:n  = false
+    seq / use       .bool_set:N = \l__acro_seq_use_bool ,
+    seq / use       .initial:n  = true ,
+    seq / pre       .tl_set:N   = \l__acro_pages_seq_pre_tl ,
+    seq / pre       .initial:n  = \, ,
+    seq / threshold .code:n     =
+      \int_compare:nNnTF {#1} < 3
+        { \msg_error:nn {acro} {threshold} }
+        { \int_set:Nn \l__acro_pages_seq_threshold_int {#1} } ,
+    seq / threshold .initial:n = 3 ,
+    fill            .tl_set:N   = \l__acro_pages_fill_tl ,
+    fill            .initial:n  = \dotfill ,
+    sep             .tl_set:N   = \l__acro_pages_sep_tl ,
+    sep             .initial:n  = {,~} ,
+    name            .bool_set:N = \l__acro_pages_name_display_bool ,
+    name            .initial:n  = false
   }
 
 % ----------------------------------------------------------------------------

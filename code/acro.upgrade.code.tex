@@ -259,8 +259,13 @@
     single-format .code:n = \acro_remove_option: ,
     single-form   .code:n =
       \acro_deprecate_option:nn {single-style} {#1} ,
-    first-long-format .code:n = \acro_remove_option: ,
+    first-long-format .code:n =
+      \acro_deprecate_option:nn {format/first-long} {#1} ,
+    list-short-format .code:n = \acro_remove_option: ,
+    list-long-format .code:n =
+      \acro_deprecate_option:nn {format/list} {#1} ,
     list-foreign-format .code:n = \acro_remove_option: ,
+    override-list-format .code:n = \acro_remove_option: ,
     format-include-endings .code:n =
       \acro_deprecate_option:nn {include-endings} {true} ,
     extra-style .code:n = \acro_remove_option: ,

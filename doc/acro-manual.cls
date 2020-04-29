@@ -63,14 +63,15 @@
   add-cmds = {
     % basic commands:
     ac, Ac, aca, Aca, acf, Acf, acl, Acl, acs, Acs,
-    iac, Iac, iaca, Iaca, iacf, Iacf, iacl, Iacl, iacs, Iacs ,
+    iac, Iac, iaca, Iaca, iacf, Iacf, iacl, Iacl, iacs, Iacs,
     acp, Acp, acap, Acap, acfp, Acfp, aclp, Aclp, acsp, Acsp,
+    acflike,
     % general commands:
-    acdot, aciftrailing, acreset, acresetall, acspace, acsetup, acuse,
-    acuseall, printacronyms,
+    abbrdot, acdot, aciftrailing, acreset, acresetall, acspace, acsetup,
+    acuse, acuseall, printacronyms,
     % used in templates and command definitions:
-    acroindefinite, acrofull, acrogroupcite, acroheading, acronymsmap,
-    acronymsmapF, acronymsmapT, acroupper,
+    acroindefinite, acroformat, acrofull, acrogroupcite, acroheading,
+    acronymsmap, acronymsmapF, acronymsmapT, acroupper,
     acronopagerange,
     acroifF, acroifT, acroifTF, acroifallF, acroifallT, acroifallTF,
     acroifanyF, acroifanyT, acroifanyTF, acroifchapterF, acroifchapterT,
@@ -82,8 +83,8 @@
     % declaring stuff:
     DeclareAcronym, DeclareAcroArticle, DeclareAcroEnding,
     DeclareAcroProperty,
-    DeclareAcroTranslation, NewAcroCommand, RenewAcroCommand,
-    DeclareAcroCommand, ProvideAcroCommand,
+    AddAcroTranslations, DeclareAcroTranslation,
+    NewAcroCommand, RenewAcroCommand, DeclareAcroCommand, ProvideAcroCommand,
     % demonstration of the possessive ending:
     acg, acfg, aclg, acsg, iacsg, acropossessive,
     % demonstration if definite article:
@@ -104,9 +105,13 @@
   module-sep = {\texttt{/}}%
 }
 
+\DeclareTranslation{English}{cnltx-toc}{Table of contents}
+
 \newcommand*\barg{\textcolor{argument}{\code{!}}}
 \newcommand*\qarg{\textcolor{argument}{\code{?}}}
 \newcommand*\uarg{\textcolor{argument}{\code{|}}}
+
+\newidxcmd\sym{\code{#1}}[ (symbol)]
 
 \renewcommand*\cnltx@module@text[2]{%
   \begingroup
@@ -516,7 +521,7 @@
   \def\acro@example@pdffile@path{./examples/acro.example}%
   \def\acro@example@desc##1{\csuse{acro@example@texfile@desc@##1}}%
   \def\acro@example@title##1{%
-    Example~\theexamplefile: \acro@example@desc{##1}
+    Example~\theexamplefile: \acro@example@desc{##1}%
     \\Links: \acro@example@links{##1}\hfill File: \code{acro.example.##1.tex}%
   }%
   \def\acro@example@bookmark##1{Example~\theexamplefile\ (\acro@example@desc{##1})}%
@@ -552,7 +557,10 @@
   \dolistloop\acro@examplefiles
 }
 
+\newidxcmd\cmd{\code{\textbackslash\textcolor{white}{#1}}}
+
 \acro@add@example{basic}{Basic usage}
+\acro@add@example{acflike}{Re-implement \cmd*{acflike}}
 \acro@add@example{issue-109}{Invisible command for backref}
 \acro@add@example{issue-111}{Defining a definite article}
 \acro@add@example{issue-119}{Write the list of acronyms to an external file}
@@ -563,7 +571,7 @@
 
 
 % ----------------------------------------------------------------------------
-
+% 2012: v0
 \acro@add@version{2012-06-22}{0.1}
 \acro@add@version{2012-06-23}{0.1a}
 \acro@add@version{2012-06-24}{0.1b}
@@ -581,6 +589,7 @@
 \acro@add@version{2012-11-30}{0.5}
 \acro@add@version{2012-12-14}{0.6}
 \acro@add@version{2013-01-02}{0.6a}
+% 2013: v1
 \acro@add@version{2013-01-16}{1.0}
 \acro@add@version{2013-01-26}{1.1}
 \acro@add@version{2013-01-29}{1.1a}
@@ -601,6 +610,7 @@
 \acro@add@version{2015-02-26}{1.6}
 \acro@add@version{2015-04-08}{1.6a}
 \acro@add@version{2015-05-10}{1.6b}
+% 2015: v2
 \acro@add@version{2015-08-16}{2.0}
 \acro@add@version{2015-08-25}{2.0a}
 \acro@add@version{2015-08-29}{2.0b}
@@ -637,7 +647,7 @@
 \acro@add@version{2020-01-16}{2.11a}
 \acro@add@version{2020-01-24}{2.11b}
 \acro@add@version{2020-02-03}{2.11c}
-\acro@add@version{2020-04-06}{v3.0alpha}
-\acro@add@version{2020-04-20}{v3.0beta}
+% 2020: v3
+\acro@add@version{2020-04-25}{v3.0}
 
 \endinput

@@ -255,6 +255,7 @@ if [ "$build" == true ] ; then
     $pkgname.properties.$moduleext \
     $pkgname.acronyms.$moduleext \
     $pkgname.formatting.$moduleext \
+    $pkgname.ppfixes.$moduleext \
     $pkgname.tools.$moduleext \
     $pkgname.commands.$moduleext \
     $pkgname.templates.$moduleext \

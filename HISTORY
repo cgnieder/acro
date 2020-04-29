@@ -30,6 +30,8 @@ The acro package consists of the files
 If you have any ideas, questions, suggestions or bugs to report, please
 feel free to contact me.
 --------------------------------------------------------------------------
+2012 VERSION 0
+--------------------------------------------------------------------------
 2012/06/22 v0.1   - first public release
 2012/06/23 v0.1a  - bug fix, added `strict' and `macros' option and creation of
                     shortcut macros
@@ -63,6 +65,9 @@ feel free to contact me.
                     short entry) resolved
                   - option `xspace' added
 2013/01/02 v0.6a  - \acuseall
+--------------------------------------------------------------------------
+2013 VERSION 1
+--------------------------------------------------------------------------
 2013/01/16 v1.0   - new syntax of \DeclareAcronym
                   - new option `version'
                   - new `accsupp' acronym property
@@ -146,6 +151,9 @@ feel free to contact me.
 2015/05/10 v1.6b  - \ProcessKeysPackageOptions ,
                   - correct bug http://tex.stackexchange.com/q/236860/ :
                     option `pages = first' works again
+--------------------------------------------------------------------------
+2015 VERSION 2
+--------------------------------------------------------------------------
 2015/08/16 v2.0   - fix https://github.com/cgnieder/acro/issue/36
                   - implement https://github.com/cgnieder/acro/issue/39
                   - implement https://github.com/cgnieder/acro/issue/40
@@ -284,7 +292,8 @@ feel free to contact me.
 2020/01/24 v2.11b - fix issue #147
 2020/02/03 v2.11c - fix issue #76
 2020/03/07 v2.11c - fix issues #149 and #150
-2020/04/06 v3.0alpha   - pre-release of v3.0 without proper documentation
-2020/04/07 v3.0alpha-1 - upgrade module included
-2020/04/13 v3.0alpha-2 - mutiple imrovements
-2020/04/19 v3.0beta - ready?
+--------------------------------------------------------------------------
+2020 VERSION 3
+--------------------------------------------------------------------------
+2020/04/29 v3.0   - complete re-write of acro with new features and all open
+                    issues resolved

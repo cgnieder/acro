@@ -95,6 +95,9 @@
 \NewDocumentCommand \DeclareAcroTranslation {m+m}
   { \acro_declare_translations:nn {#1} {#2} }
 
+\NewDocumentCommand \AddAcroTranslations {m+m}
+  { \acro_add_translations:nn {#1} {#2} }
+
 \NewExpandableDocumentCommand \acrotranslate {m}
   { \acro_translate:n {#1} }
 
@@ -109,6 +112,7 @@
 
 \NewExpandableDocumentCommand \acdot   {} { \acro_dot: }
 \NewExpandableDocumentCommand \acspace {} { \acro_space: }
+\NewExpandableDocumentCommand \abbrdot {} { .\@ }
 
 \NewDocumentCommand \acroupper {} { \acro_upper: }
 \NewDocumentCommand \acrofull {} { \acro_first: }
@@ -185,6 +189,9 @@
 
 \NewDocumentCommand \acrodonotuse {}
   { \acro_use_false: }
+
+\NewDocumentCommand \acroformat {mm}
+  { \acro_format:enn { \AcronymID } {#1} {#2} }
 
 \NewDocumentCommand \acrogroupcite {}
   {

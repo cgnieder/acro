@@ -156,8 +156,8 @@
     \bool_lazy_and:nnTF
       { \acro_property_if_eq_p:nn {#2} {long} }
       { \acro_if_first_p:n {#1} }
-      { \__acro_format:nnn {#1} {first-#2} }
-      { \__acro_format:nnn {#1} {#2} }
+      { \acro_format:nnn {#1} {first-#2} }
+      { \acro_format:nnn {#1} {#2} }
       {
         \__acro_upper:n
           {

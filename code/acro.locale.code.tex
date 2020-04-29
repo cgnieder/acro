@@ -10,6 +10,9 @@
     Otherwise~ contact~ the~ author~ and~ he'll~ probably~ add~ your~ language.
   }
 
+\msg_new:nnn {acro} {translation-value}
+  { You~ need~ to~ give~ a~ value~ to~ `#1'~ \msg_line_context: }
+
 % --------------------------------------------------------------------------
 \bool_new:N \l__acro_show_locale_bool
 \bool_new:N \l__acro_list_show_locale_bool
@@ -150,21 +153,28 @@
 % #2: csv list: { <lang1> = <translation1> , <lang2> = <translation2> }
 \cs_new_protected:Npn \acro_declare_translations:nn #1#2
   {
-    \clist_map_inline:nn {#2}
-      { \__acro_declare_translation:nw {#1} ##1 \q_stop }
+    \cs_set:Npn \__acro_declare_translation_aux:n ##1
+      { \msg_error:nnn {acro} {translation-value} {##1} }
+    \cs_set:Npn \__acro_declare_translation_aux:nn ##1##2
+      { \acro_declare_translation:nnn {##1} {#1} {##2} }
+    \keyval_parse:NNn
+      \__acro_declare_translation_aux:n
+      \__acro_declare_translation_aux:nn
+      {#2}
   }
 
-% #1: keyword
-% #2: language
-% #3: translation
-\cs_new_protected:Npn \__acro_declare_translation:nw #1#2=#3\q_stop
+% #1: language
+% #2: csv list: { <key1> = <translation1> , <key2> = <translation2> }
+\cs_new_protected:Npn \acro_add_translations:nn #1#2
   {
-    \tl_set:Nx \l__acro_tmpa_tl { \tl_trim_spaces:n {#2} }
-    \tl_set:Nx \l__acro_tmpb_tl { \tl_trim_spaces:n {#3} }
-    \acro_declare_translation:VnV
-      \l__acro_tmpa_tl
-      {#1}
-      \l__acro_tmpb_tl
+    \cs_set:Npn \__acro_declare_translation_aux:n ##1
+      { \msg_error:nnn {acro} {translation-value} {##1} }
+    \cs_set:Npn \__acro_declare_translation_aux:nn ##1##2
+      { \acro_declare_translation:nnn {#1} {##1} {##2} }
+    \keyval_parse:NNn
+      \__acro_declare_translation_aux:n
+      \__acro_declare_translation_aux:nn
+      {#2}
   }
 
 % within the loop:

@@ -185,7 +185,7 @@
 % declare glossary terms:
 \DeclareAcronym{property}{
   long = A \property*{property} is an option to the second argument of the
-    \cs*{DeclareAcroym} command.  This are options of an individual acronym if
+    \cs*{DeclareAcroym} command.  They are options of an individual acronym if
     you will. ,
   tag = glossary , no-index
 }
@@ -207,27 +207,24 @@
 }
 \DeclareAcronym{articles}{
   long = {Articles are prefixes to acronyms, usually separated with a blank.
-    \emph{They are mutually exclusive.}} ,
+    \emph{Different types of articles are mutually exclusive.}} ,
   tag = glossary , no-index
 }
 \DeclareAcronym{endings}{
-  long = {Endings are postfixes to acronyms, usually no separated from the
-    acronym.} ,
+  long = {Endings are postfixes to acronyms, usually not separated from the
+    acronym. \emph{Different types of endings are mutually exclusive.}} ,
   tag = glossary , no-index
 }
 \DeclareAcronym{translations}{
-  long = Localisation strings which can be modified and extended. ,
+  long = Localisation strings which can be modified. ,
   tag = glossary , no-index
 }
 
 \newcommand*\issues{\url{https://github.com/cgnieder/acro/issues}}
 
-\begin{document}
+\newcommand*\latin[1]{\textit{#1}}
 
-\begin{bewareofthedog}
-  Hi and thanks that you are testing v3.0 of \acro\ before it is released to
-  \ac{ctan}.
-\end{bewareofthedog}
+\begin{document}
 
 \clearpage
 \part{Get started with \acro}\label{part:get-started-with}
@@ -244,7 +241,8 @@ Acronyms are defined in the preamble via the command
 \begin{commands}
   \command{DeclareAcronym}[\marg{id}\marg{properties}]
     where \meta{id} is a unique string to identify the acronym and
-    \meta{properties} is a key\slash value list of properties.  These include:
+    \meta{properties} is a key\slash value list of acronym properties.  These
+    include:
 \end{commands}
 \begin{properties}
   %% short
@@ -303,14 +301,15 @@ Then the usage is
 argument to \cs*{usepackage}:
 \begin{options}
   \keychoice{version}{2,3}\Default{3}
-    This option allows you to use the last version prior to the update to
-    version~3.  This may help if you don't have the time to fix issues with
-    the new version.
+    The option allows you to use the last version prior to the update to
+    version~3.  This may help if you don't have the time to fix issues after
+    upgrading to the new version.
   \keybool{upgrade}\Default{true}
     When this option is used \acro\ tries to give as much helpful and
     meaningful warning or error messages when a deprecated or removed command,
     property, or option is used.  This is especially useful if you are
-    upgrading from version~2.
+    upgrading from version~2.  The option will initially be true for a few
+    months after the upgrade to version~3.
 \end{options}
 
 \subsection{Setup command}\label{sec:setup-command}
@@ -320,8 +319,8 @@ section~\ref{sec:load-time-options} have to be set up either with this command
   \command{acsetup}[\marg{options}]
     or as option to other commands.  If the latter is possible then it is
     described when the corresponding commands are explained.  Options usually
-    follow a key\slash value syntax like and are always described in the
-    following way:
+    follow a key\slash value syntax and are always described in the following
+    way:
 \end{commands}
 \begin{options}
   \opt*{option}
@@ -353,17 +352,16 @@ All of the above is probably clear from an example (using real options):
 
 All acronyms have to be declared in the preamble with the following command in
 order to be used in the document. Any usage of an acronym which has not been
-declared leeds to an error message.
+declared leads to an error message.
 \begin{commands}
   \command{DeclareAcronym}[\marg{id}\marg{list of properties}]
     The basic command for declaring an acronym where \meta{id} is a unique
-    string identifying the acronym.  Per default behavior this is case
-    sensitive which means \code{id} is different from \code{ID}, for example.
-    There is an option \option{case-sensitive} to change this.
+    string identifying the acronym.  Per default this is case sensitive which
+    means \code{id} is different from \code{ID}, for example.
 \end{commands}
-This command understands a number of properties which are listed in the
+The command understands a number of properties which are listed in the
 following sections.  This is a comprehensive overview over the existing
-properties. Most of these properties are explained in more detail in later
+properties. Many properties are also explained in more detail in later
 sections of this manual.
 \begin{options}
   \keybool{case-sensitive}\Default{false}
@@ -863,11 +861,17 @@ the list of acronym you can use these options:
     Decide wether to include page numbers in the list of acroynms and wether
     to add the first page or every page.  When you choose \code{first} and
     have \pkg{hyperref} loaded you will also get a backlink to that page.
-  \keybool{seq}\Module{pages}\Default{true}
-    When you chose \module{pages}\code{/}\keyis{display}{all} then you can
-    decide wether you want a page list like 2,3,5,6,7 be displayed as 2f.\
-    5ff. (when this option is true) or as 2,3,5--6 (when this option is
-    false).
+  \keybool{use}\Module{pages,seq}\Default{true}
+    Turns a two-page range into \meta{num}\,f.\ (\latin{sequens}) and a
+    three-page range into \meta{num}\,ff.\ (\latin{sequentes}) when set to
+    \code{true}.
+  \keyval{pre}{code}\Module{pages,seq}\Default{\cs*{,}}
+    \meta{code} is inserted between the page number and the sequens or
+    sequentes symbol.
+  \keyval{threshold}{num}\Module{pages,seq}\Default{3}
+    The threshold for a page range to be turned into \latin{sequentes}.  A
+    page range above the threshold is still typeset as a range:
+    \meta{num1}--\meta{num2}.
   \keyval{fill}{code}\Module{pages}\Default{\cs*{dotfill}}
     This is the code that is placed between acronym description and actual
     page numbers.
@@ -1410,8 +1414,8 @@ barriers with
 \subsection{What is it about?}
 \acro\ has the possibility to look ahead for certain tokens and switch a
 boolean variable if it finds them.  Per default \acro\ knows about three
-tokens: the \enquote{\code{dot}} (\code{.}), the \enquote{\code{dash}}
-(\code{-}) and the \enquote{\code{babel-hyphen}} (\cs*{babelhyphen}).
+tokens: the \enquote{\code{dot}} (\sym{.}), the \enquote{\code{dash}}
+(\sym{-}) and the \enquote{\code{babel-hyphen}} (\cs*{babelhyphen}).
 
 Yeu have seen an example for this already:
 \begin{sourcecode}
@@ -1478,9 +1482,10 @@ The package itself does this:
 \begin{sourcecode}
   \acsetup{
     trailing/define   = . {dot} ,
+    trailing/define   = {, {comma}} ,
     trailing/define   = - {dash}
     trailing/define   = \babelhyphen {babel-hyphen} ,
-    trailing/activate = dot
+    trailing/activate = {dot,comma}
   }
 \end{sourcecode}
 
@@ -1494,14 +1499,15 @@ In order to make use of this mechanism there is the following command:
 \end{commands}
 This command is used to define the two commands you already know:
 \begin{commands}
-  \expandable\command{acdot} Inserts \code{.}\cs*{@} if no \code{dot} follows.
+  \expandable\command{acdot} Inserts \cs{abbrdot} if no \code{dot} follows.
   \expandable\command{acspace} Inserts a \cs*{space} if no \code{dash} or
     \code{babel-hyphen} follows.
+  \expandable\command{abbrdot} Inserts \sym{.}\cs*{@}
 \end{commands}
 The definitions are equivalent\footnote{Not \emph{quite}: \acro's definitions
   are engine protected.} to the following code:
 \begin{sourcecode}
-  \newcommand*\acdot{\aciftrailing{dot}{}{.\@}}
+  \newcommand*\acdot{\aciftrailing{dot}{}{\abbrdot}}
   \newcommand*\acspace{\aciftrailing{dash,babel-hyphen}{}{\space}}
 \end{sourcecode}
 You are of course free to redefine them according to your needs.
@@ -1693,8 +1699,8 @@ supported, yet\footnote{If you like you can always open an issue at \issues\
     language.  It is meant for usage in template definitions.
 \end{commands}
 
-Available keywords and their English and German translations are shown in
-table~\vref{tab:translations}.
+Available keywords and their English, French, and German translations are
+shown in table~\vref{tab:translations}.
 
 \begin{table}
   \centering
@@ -1864,6 +1870,11 @@ and \cs*{acroifF} each have an argument less than \cs*{acroifTF}.
     ending either in uppercase or lowercase form.  Default is the lowercase
     form without ending or article. The actual outcome is determined by
     switches which are explained in section~\vref{sec:own-acronym-commands}.
+  \command{acroformat}[\marg{type}\marg{text}]
+    This formats \meta{text} according to \meta{type} where \meta{type} has
+    either been set as property or as option from the \module{format} module.
+    Valid values are \code{short}, \code{long}, \code{alt}, \code{extra},
+    \code{foreign}, \code{list}, and \code{first-long}.
   \command{acroshow}[\marg{property}]
     For debugging puposes: writes the property \meta{property} of the current
     acronym to the log file.
@@ -2156,18 +2167,34 @@ For adding additional keywords, or for adding translations to existing
 keywords, or for changing existing translations \acro\ uses this command:
 \begin{commands}
   \command{DeclareAcroTranslation}[\marg{key}\marg{language=translation list}]
-    With this command new translations can be added or existing translations
-    can be changed.
+    With this command new translations keywords can be added and translations
+    for existing keywords can be changed.
+  \command{AddAcroTranslations}[\marg{key}\marg{language=translation list}]
+    Basically the same but this time per language rather than per keyword.
 \end{commands}
 As an example this is how \acro\ declares translations for the \code{pages}
 keyword:
 \begin{sourcecode}
   \DeclareAcroTranslation{pages}{
-    Fallback   = pp. ,
-    English    = pp. ,
-    French     = pp. ,
-    German     = S. ,
-    Portuguese = pp.
+    Fallback   = pp\abbrdot ,
+    English    = pp\abbrdot ,
+    French     = pp\abbrdot ,
+    German     = S\abbrdot ,
+    Portuguese = pp\abbrdot
+  }
+\end{sourcecode}
+Translations for a language could be added this way\footnote{\acro\ already
+  has the translations for Italian.}:
+\begin{sourcecode}
+  \AddAcroTranslations{Italian}{
+    list-name = Acronimi ,
+    page      = p\abbrdot ,
+    pages     = pp\abbrdot ,
+    sequens   = s\abbrdot ,
+    sequentes = ss\abbrdot ,
+    also      = anche ,
+    and       = e ,
+    or        = o
   }
 \end{sourcecode}
 The existing keywords had been shown in table~\vref{tab:translations}.
@@ -2181,15 +2208,15 @@ to use. \acro\ provides this command:
   \command{DeclareAcroProperty}[\sarg\qarg\barg\uarg\marg{name}]
     This defines the new property \meta{name}.  The command has four optional
     arguments most of which you probably never need. \par
-    The optional star \code{*} ensures that each acronym gets a \emph{unique}
+    The optional star \sym{*} ensures that each acronym gets a \emph{unique}
     value for the property. \par
-    The optional question mark \code{?} creates a \emph{boolean} property.
+    The optional question mark \sym{?} creates a \emph{boolean} property.
     That is a property that only can get the values \code{true} or
     \code{false} and when it is used without value (not an empty value!) then
     \code{true} is assumed. \par
-    The optional bang \code{!} creates a \emph{mandatory} property. An error
-    if raised if an acronym does not set it. \par
-    The optional pipe \code{|} creates a \emph{static} property which means
+    The optional exclamation mark \sym{!} creates a \emph{mandatory}
+    property. An error if raised if an acronym does not set it. \par
+    The optional pipe \sym{|} creates a \emph{static} property which means
     its value is written to an auxiliary file and read in again at begin
     document.  Once set the value is the same throughout the document
   \command{DeclareAcroPropertyAlias}[\sarg\qarg\barg\uarg\marg{name1}\marg{name2}]
@@ -2225,10 +2252,12 @@ package~\cite{pkg:xparse}.
     count usage, index, and add a citation if necessary.
   \command{RenewAcroCommand}[\marg{command}\marg{arg. spec.}\marg{code}]
     Like \cs{NewAcroCommand} but redefines an existing command.
-  \command{UseAcrotemplate}[\oarg{type}\marg{name}\oarg{argument number}]
-    The argument \meta{type} defaults to \code{acronym} and meta{argument
-      number} defaults to \code{1}.  All predefined acronym templates use
-    the first argument as \ac{id} so they must at least use one argument.
+  \command{UseAcroTemplate}[\oarg{type}\marg{name}\oarg{argument number}\meta{arguments}]
+    The argument \meta{type} defaults to \code{acronym} and \meta{argument
+      number} defaults to \code{1}.  The command must be followed by as many
+    mandatory arguments as you specify with \meta{argument number}.  All
+    predefined acronym templates use the first argument as \ac{id} so they
+    must use one argument.
 \end{commands}
 Let's see an example. This is the definition of \cs{ac}:
 \begin{sourcecode}
@@ -2304,7 +2333,7 @@ Now you can use it like this:
   This is the \acg{MP} first day at work after \dots
 \end{example}
 
-\section{Own \acro style files}
+\section{Own \acro\ style files}
 When you want to use your definitions regarding \acro\ repeatedly then it
 makes sense to put them in a file which you put somewhere in your local
 \LaTeX\ tree.  There are three options:

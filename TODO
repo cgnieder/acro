@@ -1,7 +1,7 @@
 - add gender property and extend article mechanism?
 
-undocumented:
-- trailing token: comma, \acgobbletrail
+willingly undocumented:
+- \acgobbletrail
   option acro/trailing/fnpct-check
   \acfootnote
 - options acro/commands

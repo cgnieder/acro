@@ -5,7 +5,7 @@
 
 % sets the format from the global option:
 % #1: property
-\cs_new_protected:Npn \__acro_global_format:n #1
+\cs_new:Npn \__acro_global_format:n #1
   {
     \acro_property_if_alias:nTF {#1}
       {
@@ -26,7 +26,7 @@
 % #1: id
 % #2: property
 % #3: insert if false
-\cs_new_protected:Npn \__acro_property_format:nnF #1#2#3
+\cs_new:Npn \__acro_property_format:nnF #1#2#3
   {
     \acro_property_if_set:nnTF {#1} {#2-format}
       { \acro_property_get:nn {#1} {#2-format} }
@@ -56,29 +56,32 @@
 
 % #1: id
 % #1: property
-\cs_new_protected:Npn \__acro_property_format:nn #1#2
+\cs_new:Npn \__acro_property_format:nn #1#2
   { \__acro_property_format:nnF {#1} {#2} {} }
 
 % sets the individual format:
 % #1: id
 % #2: property
 % #3: text
-\cs_new_protected:Npn \__acro_format:nnn #1#2#3
+\cs_new:Npn \acro_format:nnn #1#2#3
   {
-    \bool_if:NTF \l__acro_format_replace_bool
-      {
-        \__acro_property_format:nnF {#1} {#2}
-          { \__acro_global_format:n {#2} }
-        {#3}
-      }
-      {
-        \__acro_global_format:n {#2}
-          {
-            \__acro_property_format:nn {#1} {#2}
-            {#3}
-          }
-      }
+    {
+      \bool_if:NTF \l__acro_format_replace_bool
+        {
+          \__acro_property_format:nnF {#1} {#2}
+            { \__acro_global_format:n {#2} }
+          {#3}
+        }
+        {
+          \__acro_global_format:n {#2}
+            {
+              \__acro_property_format:nn {#1} {#2}
+              {#3}
+            }
+        }
+    }
   }
+\cs_generate_variant:Nn \acro_format:nnn {e}
 
 % #1: property:
 \cs_new_protected:Npn \acro_new_format:n #1

@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------
-the ACRO package v3.0beta 2020/04/20
+the ACRO package v3.0 2020/04/29
 
   Typeset Acronyms
 
@@ -29,8 +29,6 @@ The acro package consists of the code file:
 The acro package consists of documentation files:
 
   README
-  LICENSE
-  HISTORY
   acro-manual.tex
   acro-manual.pdf
   acro-manual.cls
@@ -38,14 +36,15 @@ The acro package consists of documentation files:
 The acro package consists of example files -- these should be placed in a
 folder examples/ in the same folder as acro-manual.pdf:
 
+  acro.example.acflike.pdf, acro.example.acflike.tex
   acro.example.basic.pdf, acro.example.basic.tex
+  acro.example.possessive.pdf, acro.example.possessive.tex
+  acro.example.units.pdf, acro.example.units.tex
   acro.example.issue-109.pdf, acro.example.issue-109.tex
   acro.example.issue-111.pdf, acro.example.issue-111.tex
   acro.example.issue-119.pdf, acro.example.issue-119.tex
   acro.example.issue-154.pdf, acro.example.issue-154.tex
-  acro.example.possessive.pdf, acro.example.possessive.tex
   acro.example.texsx-505891.pdf, acro.example.texsx-505891.tex
   acro.example.texsx-507726.pdf, acro.example.texsx-507726.tex
-  acro.example.units.pdf, acro.example.units.tex
 
 --------------------------------------------------------------------------
