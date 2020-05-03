@@ -11,33 +11,25 @@
 % Copyright 2011--2020 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
-% conditions of the LaTeX Project Public License, either version 1.3
+% conditions of the LaTeX Project Public License, either version 1.3c
 % of this license or (at your option) any later version.
 % The latest version of this license is in
 %   http://www.latex-project.org/lppl.txt
-% and version 1.3 or later is part of all distributions of LaTeX
-% version 2005/12/01 or later.
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2008/05/04 or later.
 % 
 % This work has the LPPL maintenance status `maintained'.
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
-% --------------------------------------------------------------------------
-% The acro package consists of the files
-% - acro.sty, acro.definitions.tex, acro.cfg
-% - acro-manual.tex, acro-manual.pdf, acro-manual.cls
-% - acro.history, README
-% --------------------------------------------------------------------------
-% If you have any ideas, questions, suggestions or bugs to report, please
-% feel free to contact me.
 % --------------------------------------------------------------------------
 \RequirePackage{expl3,xparse,l3keys2e}
 \ExplSyntaxOn
 
 % setup package:
 \tl_const:Nn \c_acro_package_name_tl {acro}
-\tl_const:Nn \c_acro_date_tl {2020/04/29}
+\tl_const:Nn \c_acro_date_tl {2020/05/04}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
-\tl_const:Nn \c_acro_version_minor_number_tl {0}
+\tl_const:Nn \c_acro_version_minor_number_tl {1}
 \tl_const:Nn \c_acro_version_subrelease_tl   {}
 \tl_const:Nx \c_acro_version_number_tl
   {
@@ -769,6 +761,7 @@
 % commands for list templates
 \NewDocumentCommand \acroheading  {} { \acro_heading: }
 \NewDocumentCommand \acropreamble {} { \acro_preamble: }
+\NewDocumentCommand \acropostamble {} { \acro_postamble: }
 
 \NewExpandableDocumentCommand \acrolistname {}
   { \tl_use:N \l__acro_list_name_tl }
@@ -846,12 +839,25 @@
 \NewDocumentCommand \acrocite {}
   { \bool_set_true:N \l__acro_cite_always_bool }
 
-\NewDocumentCommand \acroifTF {m+m+m}
-  { \acro_property_if_set:enTF { \AcronymID } {#1} {#2} {#3} }
-\NewDocumentCommand \acroifT {m+m}
-  { \acro_property_if_set:enTF { \AcronymID } {#1} {#2} {} }
-\NewDocumentCommand \acroifF {m+m}
-  { \acro_property_if_set:enTF { \AcronymID } {#1} {} {#2} }
+\NewExpandableDocumentCommand \acroifbooleanTF {m}
+  { \acro_boolean_property_if:enTF { \AcronymID } {#1} }
+
+\NewExpandableDocumentCommand \acroifbooleanT {m}
+  { \acro_boolean_property_if:enT { \AcronymID } {#1} }
+
+\NewExpandableDocumentCommand \acroifbooleanF {m}
+  { \acro_boolean_property_if:enF { \AcronymID } {#1} }
+
+\NewExpandableDocumentCommand \acroifTF {+m+m+m}
+  {
+    \acro_property_if_set:enTF { \AcronymID } {#1}
+      { \acro_check_foreign:nn {#1} {#2} }
+      {#3}
+  }
+\NewExpandableDocumentCommand \acroifT {+m+m}
+  { \acroifTF {#1} {#2} {} }
+\NewExpandableDocumentCommand \acroifF {+m+m}
+  { \acroifTF {#1} {} {#2} }
 
 \NewDocumentCommand \acroifanyTF {m+m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {#3} }
@@ -1317,8 +1323,7 @@
       }
       { \prg_return_false: }
   }
-\cs_generate_variant:Nn \acro_boolean_property_if:nnTF {oo}
-\cs_generate_variant:Nn \acro_boolean_property_if:nnF  {nV}
+\prg_generate_conditional_variant:Nnn \acro_boolean_property_if:nn {nV,oo,e} {T,F,TF}
 
 % ----------------------------------------------------------------------------
 % set properties:
@@ -1567,33 +1572,6 @@
 
 % ----------------------------------------------------------------------------
 \AcroModuleEnd
-% ----------------------------------------------------------------------------
-% the ACRO package - acronyms module
-% 
-%   Typeset Acronyms
-% 
-% --------------------------------------------------------------------------
-% Clemens Niederberger
-% Web:    https://github.com/cgnieder/acro/
-% E-Mail: contact@mychemistry.eu
-% --------------------------------------------------------------------------
-% Copyright 2011--2020 Clemens Niederberger
-% 
-% This work may be distributed and/or modified under the
-% conditions of the LaTeX Project Public License, either version 1.3
-% of this license or (at your option) any later version.
-% The latest version of this license is in
-%   http://www.latex-project.org/lppl.txt
-% and version 1.3 or later is part of all distributions of LaTeX
-% version 2005/12/01 or later.
-% 
-% This work has the LPPL maintenance status `maintained'.
-% 
-% The Current Maintainer of this work is Clemens Niederberger.
-% --------------------------------------------------------------------------
-% If you have any ideas, questions, suggestions or bugs to report, please
-% feel free to contact me.
-% --------------------------------------------------------------------------
 \AcroModule{acronyms}{define acronyms}
 
 % --------------------------------------------------------------------------
@@ -1860,8 +1838,7 @@
 % --------------------------------------------------------------------------
 \AcroModuleEnd
 \AcroModule{formatting}{formatting of acronyms}
-% --------------------------------------------------------------------------
-% formatting:
+
 \bool_new:N \l__acro_format_replace_bool
 
 % sets the format from the global option:
@@ -1880,8 +1857,26 @@
 % #1: property
 \cs_new:Npn \__acro_use_global_format:n #1
   {
-    \tl_if_exist:cT {l__acro_format_ #1 _tl}
-      { \tl_use:c {l__acro_format_ #1 _tl} }
+    \tl_if_exist:cTF {l__acro_format_ #1 _tl}
+      {
+        \tl_if_empty:cTF {l__acro_format_ #1 _tl}
+          { \use:n }
+          { \tl_use:c {l__acro_format_ #1 _tl} }
+      }
+      {
+        \acro_property_if_alias:nTF {#1}
+          {
+            \tl_if_exist:cTF
+              {l__acro_format_ \acro_property_alias:n {#1} _tl}
+              {
+                \tl_if_empty:cTF {l__acro_format_ \acro_property_alias:n {#1} _tl}
+                  { \use:n }
+                  { \tl_use:c {l__acro_format_ \acro_property_alias:n {#1} _tl} }
+              }
+              { \use:n }
+          }
+          { \use:n }
+      }
   }
 
 % #1: id
@@ -1918,7 +1913,7 @@
 % #1: id
 % #1: property
 \cs_new:Npn \__acro_property_format:nn #1#2
-  { \__acro_property_format:nnF {#1} {#2} {} }
+  { \__acro_property_format:nnF {#1} {#2} { \use:n } }
 
 % sets the individual format:
 % #1: id
@@ -1931,18 +1926,34 @@
         {
           \__acro_property_format:nnF {#1} {#2}
             { \__acro_global_format:n {#2} }
-          {#3}
+          { \__acro_pdf_comment:nnn {#1} {#2} {#3} }
         }
         {
           \__acro_global_format:n {#2}
             {
               \__acro_property_format:nn {#1} {#2}
-              {#3}
+              { \__acro_pdf_comment:nnn {#1} {#2} {#3} }
             }
         }
     }
   }
 \cs_generate_variant:Nn \acro_format:nnn {e}
+
+\cs_new:Npn \acro_index_format:nnn #1#2#3
+  {
+    {
+      \bool_if:NTF \l__acro_format_replace_bool
+        {
+          \__acro_property_format:nnF {#1} {#2}
+            { \__acro_global_format:n {#2} }
+          {#3}
+        }
+        {
+          \__acro_global_format:n {#2}
+            { \__acro_property_format:nn {#1} {#2} {#3} }
+        }
+    }
+  }
 
 % #1: property:
 \cs_new_protected:Npn \acro_new_format:n #1
@@ -1950,8 +1961,7 @@
     \tl_new:c {l__acro_format_#1_tl}
     \keys_define:nn {acro/format}
       {
-        #1 .tl_set:c  = l__acro_format_#1_tl ,
-        #1 .initial:n =
+        #1 .tl_set:c  = l__acro_format_#1_tl
       }
   }
 
@@ -2410,7 +2420,7 @@
               \__acro_index:e
                 {
                   \acro_property_get:nn {#1} {index-sort} @
-                  \acro_format:nnn
+                  \acro_index_format:nnn
                     {#1}
                     {short}
                     { \acro_property_get:nn {#1} {short} }
@@ -2879,7 +2889,7 @@
     \acro_property_if_exist:nTF {#2-acc}
       {
         \__acro_accsupp:ee
-          { \__acro_write_acronym:nn {#1} {#2-acc} }
+          { \__acro_write_acronym_acc:nn {#1} {#2-acc} }
           { \__acro_write_acronym:nn {#1} {#2} }
       }
       { \__acro_write_acronym:nn {#1} {#2} }
@@ -2902,6 +2912,19 @@
               { \acro_ending_form:nn {#1} {#2} }
               { \acro_property_get:nn {#1} {#2} }
           }
+      }
+  }
+
+% #1: id
+% #2: property
+\cs_new:Npn \__acro_write_acronym_acc:nn #1#2
+  {
+    \__acro_upper:n
+      {
+        \__acro_article:nn {#1} {#2}
+        \acro_if_ending_form:nnTF {#1} {#2}
+          { \acro_ending_form:nn {#1} {#2} }
+          { \acro_property_get:nn {#1} {#2} }
       }
   }
 
@@ -3010,7 +3033,6 @@
               \l__acro_begin_command_hook_tl
               \cs_set:Npn \nospace { \exp:w \exp_end_continue_f:w }
               \acro_check_definition:n {####1}
-              \bool_set_true:N \l__acro_use_bool
               \keys_set:nV {acro} \l__acro_options_tl
               \tl_set:Ne \AcronymID { \acro_case_insensitive:n {####1} }
               \tl_set:Ne \l_acro_id_tl { \acro_case_insensitive:n {####1} }
@@ -3196,13 +3218,12 @@
 \cs_new_protected:Npn \acro_template_use:nnn #1#2#3
   {
     \bool_set_false:N \l__acro_tmpa_bool
-    \bool_if:NT \l__acro_use_only_first_bool
+    \bool_lazy_and:nnT
+      { \l__acro_use_only_first_bool }
+      { \l__acro_use_bool }
       {
-        \bool_if:NT \l__acro_use_bool
-          {
-            \bool_set_true:N \l__acro_tmpa_bool
-            \bool_set_false:N \l__acro_use_bool
-          }
+        \bool_set_true:N \l__acro_tmpa_bool
+        \bool_set_false:N \l__acro_use_bool
       }
     \str_case:nnF {#3}
       {
@@ -3356,8 +3377,7 @@
 % ----------------------------------------------------------------------------
 \AcroModuleEnd
 \AcroModule{list}{the list of acronyms}
-% --------------------------------------------------------------------------
-% list of acronyms:
+
 \bool_new:N \l__acro_list_display_all_bool
 \bool_new:N \l__acro_list_bool
 \bool_new:N \l__acro_list_local_bool
@@ -3481,12 +3501,16 @@
 % --------------------------------------------------------------------------
 \tl_new:N \l__acro_heading_tl
 \tl_new:N \l__acro_preamble_tl
+\tl_new:N \l__acro_postamble_tl
 
 \cs_new_protected:Npn \acro_heading:
   { \acro_template_use:nnV {0} {heading} \l__acro_heading_tl }
 
 \cs_new_protected:Npn \acro_preamble:
   { \tl_use:N \l__acro_preamble_tl }
+
+\cs_new_protected:Npn \acro_postamble:
+  { \tl_use:N \l__acro_postamble_tl }
 
 \tl_new:N \l__acro_list_name_tl
 
@@ -3507,6 +3531,8 @@
     heading      .tl_set:N  = \l__acro_heading_tl ,
     preamble     .tl_set:N  = \l__acro_preamble_tl ,
     preamble     .initial:n = ,
+    postamble    .tl_set:N  = \l__acro_postamble_tl ,
+    postamble    .initial:n = ,
     name         .tl_set:N  = \l__acro_list_name_tl ,
     name         .initial:n = \acro_translate:n {list-name}
   }
@@ -3826,15 +3852,33 @@
   { You~ need~ to~ give~ a~ value~ to~ `#1'~ \msg_line_context: }
 
 % --------------------------------------------------------------------------
+\bool_new:N \l__acro_show_foreign_bool
 \bool_new:N \l__acro_show_locale_bool
 \bool_new:N \l__acro_list_show_locale_bool
 \tl_new:N \l__acro_locale_format_tl
+
+% #1: property
+\prg_new_conditional:Npnn \acro_if_foreign:n #1 {p,T,F,TF}
+  {
+    \str_if_eq:nnTF {#1} {foreign}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+% #1: property
+% #2: text
+\cs_new:Npn \acro_check_foreign:nn #1#2
+  {
+    \acro_if_foreign:nTF {#1}
+      { \bool_if:NT \l__acro_show_foreign_bool {#2} }
+      {#2}
+  }
 
 % #1: id
 % #2: property
 \prg_new_conditional:Npnn \acro_if_locale:nn #1#2 {p,T,F,TF}
   {
-    \str_if_eq:nnTF {#2} {foreign}
+    \acro_if_foreign:nTF {#2}
       {
         \bool_lazy_or:nnTF
           { \acro_property_if_set_p:nn {#1} {foreign-babel} }
@@ -3850,33 +3894,38 @@
 % #3: text
 \cs_new_protected:Npn \acro_locale:nnn #1#2#3
   {
-    \acro_if_locale:nnTF {#1} {#2}
+    \acro_if_foreign:nTF {#2}
       {
-        \__acro_foreign_language:en
-          { \str_lowercase:e { \acro_property_get:nn {#1} {foreign-babel} } }
+        \bool_if:NT \l__acro_show_foreign_bool
           {
-            \bool_lazy_or:nnT
-              { \l__acro_show_locale_bool }
+            \acro_if_locale:nnTF {#1} {#2}
               {
-                \bool_lazy_and_p:nn
-                  { \l__acro_list_bool }
-                  { \l__acro_list_show_locale_bool }
-              }
-              {
-                {
-                  \l__acro_locale_format_tl
+                \bool_lazy_or:nnT
+                  { \l__acro_show_locale_bool }
+                  {
+                    \bool_lazy_and_p:nn
+                      { \l__acro_list_bool }
+                      { \l__acro_list_show_locale_bool }
+                  }
+                  {
                     {
-                      \acro_property_if_set:nnTF {#1} {foreign-locale}
-                        { \acro_property_get:nn {#1} {foreign-locale} }
+                      \l__acro_locale_format_tl
                         {
-                           \baselanguage
-                             { \acro_property_get:nn {#1} {foreign-babel} }
+                          \acro_property_if_set:nnTF {#1} {foreign-locale}
+                            { \acro_property_get:nn {#1} {foreign-locale} }
+                            {
+                               \baselanguage
+                                 { \acro_property_get:nn {#1} {foreign-babel} }
+                            }
                         }
                     }
-                }
-                :~
+                    :~
+                  }
+                \__acro_foreign_language:en
+                  { \str_lowercase:e { \acro_property_get:nn {#1} {foreign-babel} } }
+                  {#3}
               }
-            #3
+              {#3}
           }
       }
       {#3}
@@ -3904,6 +3953,12 @@
   {
     display .bool_set:N = \l__acro_list_show_locale_bool ,
     display .initial:n  = false
+  }
+
+\keys_define:nn {acro/foreign}
+  {
+    display .bool_set:N = \l__acro_show_foreign_bool ,
+    display .initial:n  = true
   }
 
 % --------------------------------------------------------------------------
@@ -4216,7 +4271,7 @@
 % #1: id
 % #2: property
 % #3: text
-\cs_new_protected:Npn \__acro_pdf_comment:nnn #1#2#3
+\cs_new:Npn \__acro_pdf_comment:nnn #1#2#3
   {
     \bool_lazy_all:nTF
       {
@@ -4225,18 +4280,21 @@
         { \acro_if_short_p:n {#2} }
       }
       {
-        \__acro_pdf_comment_cmd:nn
+        \__acro_pdf_comment_cmd:ee
           {#3}
           { \acro_property_get:nn {#1} {pdfcomment} }
       }
       {#3}
   }
 
+\cs_new:Npn \__acro_pdf_comment_cmd:nn #1#2 {#1}
+\cs_generate_variant:Nn \__acro_pdf_comment_cmd:nn {ee}
+
 \keys_define:nn {acro/pdfcomments}
   {
     use .bool_set:N = \l__acro_pdfcomment_use_bool ,
     use .initial:n = false ,
-    cmd .cs_set:Np = \__acro_pdf_comment_cmd:nn #1#2 ,
+    cmd .cs_set_protected:Np = \__acro_pdf_comment_cmd:nn #1#2 ,
     cmd .initial:n = \pdftooltip {#1} {#2}
   }
 
@@ -4644,6 +4702,50 @@
 
 % ----------------------------------------------------------------------------
 \AcroModuleEnd
+\AcroModule{patch}{patch other code}
+
+\msg_new:nnn {acro} {patch}
+  { Patching~ `#1'~ failed.~ Please~ contact~ the~ acro~ author. }
+
+\AtEndPreamble
+  {
+    % floats:
+    \apptocmd \@floatboxreset
+      { \acswitchoff }
+      {}
+      { \msg_error:nnn {acro} {patch} {floats} }
+    % tables:
+    % * tabularx
+    \cs_if_exist:NT \TX@trial
+      {
+        \patchcmd \TX@trial
+          { \let\hbadness\@tempcnta }
+          { \acswitchoff\let\hbadness\@tempcnta }
+          {}
+          { \msg_error:nnn {acro} {patch} {tabularx} }
+      }
+    % * ltxtable
+    \cs_if_exist:NT \LTXtable
+      {
+        \patchcmd \LTXtable
+          { \input }
+          { \acswitchoff\input }
+          {}
+          { \msg_error:nnn {acro} {patch} {ltxtable} }
+      }
+    % * tabu
+    \cs_if_exist:NT \tabuDisableCommands
+      { \tabuDisableCommands { \acswitchoff } }
+    % contents lists:
+    \addtocontents {toc} { \acswitchoff }
+    \addtocontents {lof} { \acswitchoff }
+    \addtocontents {lot} { \acswitchoff }
+    % caption package:
+    \cs_if_exist:NT \caption@prepareslc
+      { \tl_gput_right:Nn \caption@prepareslc { \acswitchoff } }
+  }
+
+\AcroModuleEnd
 \AcroModule{definitions}{definitions of user commands}
 
 % --------------------------------------------------------------------------
@@ -4835,16 +4937,12 @@
     \begin {description}
       \acronymsmapF
         {
-          \item [ \acrowrite {short} \acroifT {alt} { / \acrowrite {alt} } ]
+          \item [ \acrowrite {short} \acroifT {alt} { / } \acrowrite {alt} ]
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
-            \acroifT {foreign}
-              {
-                \acrowrite {foreign}
-                \acroifT {extra} {,~}
-              }
-            \acroifT {extra}
-              { \acrowrite {extra} }
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
             \acroifanyT {foreign,extra} {)}
             \acropagefill
             \acropages
@@ -4863,17 +4961,13 @@
         \AcroAddRow
           {
             \acrowrite {short}
-            \acroifT {alt} { / \acrowrite {alt} }
+            \acroifT {alt} { / } \acrowrite {alt}
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
-            \acroifT {foreign}
-              {
-                \acrowrite {foreign}
-                \acroifT {extra} {,~}
-              }
-            \acroifT {extra}
-              { \acrowrite {extra} }
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
             \acroifanyT {foreign,extra} {)}
             \acropagefill
             \acropages
@@ -4900,17 +4994,13 @@
         \AcroAddRow
           {
             \acrowrite {short}
-            \acroifT {alt} { / \acrowrite {alt} }
+            \acroifT {alt} { / } \acrowrite {alt}
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
-            \acroifT {foreign}
-              {
-                \acrowrite {foreign}
-                \acroifT {extra} {,~}
-              }
-            \acroifT {extra}
-              { \acrowrite {extra} }
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
             \acroifanyT {foreign,extra} {)}
             \acropagefill
             \acropages
@@ -4938,17 +5028,13 @@
         \AcroAddRow
           {
             \acrowrite {short}
-            \acroifT {alt} { / \acrowrite {alt} }
+            \acroifT {alt} { / } \acrowrite {alt}
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
-            \acroifT {foreign}
-              {
-                \acrowrite {foreign}
-                \acroifT {extra} {,~}
-              }
-            \acroifT {extra}
-              { \acrowrite {extra} }
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
             \acroifanyT {foreign,extra} {)}
             \acropagefill
             \acropages
@@ -4977,12 +5063,13 @@
         \contentsline {acro}
           {
             \numberline
-              { \acrowrite {short} \acroifT {alt} { / \acrowrite {alt} } }
+              { \acrowrite {short} \acroifT {alt} { / } \acrowrite {alt} }
               {
                 \acrowrite {list}
-                \acroifT {foreign}
-                  { \acrowrite {foreign} \acroifT {extra} {,~} }
-                \acroifT {extra} { \acrowrite {extra} }
+                \acroifanyT {foreign,extra} {~(}
+                \acrowrite {foreign}
+                \acroifallT {foreign,extra} {,~}
+                \acrowrite {extra}
                 \acroifanyT {foreign,extra} {)}
               }
           }
@@ -5000,15 +5087,16 @@
     \acronymsmapF
       {
         \contentsline { \acroifchapterTF {chapter} {section} }
-          { \acrowrite {short} \acroifT {alt} { / \acrowrite {alt} } }
+          { \acrowrite {short} \acroifT {alt} { / } \acrowrite {alt} }
           {}{}
         \contentsline { \acroifchapterF {sub} section }
           {
             \acrowrite {list}
-            \acroifT {foreign}
-              { \acrowrite {foreign} \acroifT {extra} {,~} }
-            \acroifT {extra} { \acrowrite {extra} }
-            \acroifanyT {foreign,extra} {) }
+            \acroifanyT {foreign,extra} {~(}
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
+            \acroifanyT {foreign,extra} {)}
           }
           { \acropages {} {} }
           {}
@@ -5357,7 +5445,8 @@
       \acro_deprecate_option:nn {use-only-first} {true} ,
     sort .code:n =
       \acro_deprecate_option:nn {list/sort} {true} ,
-    display-foreign .code:n = \acro_remove_option: ,
+    display-foreign .code:n =
+      \acro_deprecate_option:nn {foreign/display} {#1} ,
     cite .code:n =
       \acro_deprecate_option:nn {cite/display} {#1} ,
     cite-cmd .code:n =

@@ -1,6 +1,5 @@
 \AcroModule{formatting}{formatting of acronyms}
-% --------------------------------------------------------------------------
-% formatting:
+
 \bool_new:N \l__acro_format_replace_bool
 
 % sets the format from the global option:
@@ -19,8 +18,26 @@
 % #1: property
 \cs_new:Npn \__acro_use_global_format:n #1
   {
-    \tl_if_exist:cT {l__acro_format_ #1 _tl}
-      { \tl_use:c {l__acro_format_ #1 _tl} }
+    \tl_if_exist:cTF {l__acro_format_ #1 _tl}
+      {
+        \tl_if_empty:cTF {l__acro_format_ #1 _tl}
+          { \use:n }
+          { \tl_use:c {l__acro_format_ #1 _tl} }
+      }
+      {
+        \acro_property_if_alias:nTF {#1}
+          {
+            \tl_if_exist:cTF
+              {l__acro_format_ \acro_property_alias:n {#1} _tl}
+              {
+                \tl_if_empty:cTF {l__acro_format_ \acro_property_alias:n {#1} _tl}
+                  { \use:n }
+                  { \tl_use:c {l__acro_format_ \acro_property_alias:n {#1} _tl} }
+              }
+              { \use:n }
+          }
+          { \use:n }
+      }
   }
 
 % #1: id
@@ -57,7 +74,7 @@
 % #1: id
 % #1: property
 \cs_new:Npn \__acro_property_format:nn #1#2
-  { \__acro_property_format:nnF {#1} {#2} {} }
+  { \__acro_property_format:nnF {#1} {#2} { \use:n } }
 
 % sets the individual format:
 % #1: id
@@ -70,18 +87,34 @@
         {
           \__acro_property_format:nnF {#1} {#2}
             { \__acro_global_format:n {#2} }
-          {#3}
+          { \__acro_pdf_comment:nnn {#1} {#2} {#3} }
         }
         {
           \__acro_global_format:n {#2}
             {
               \__acro_property_format:nn {#1} {#2}
-              {#3}
+              { \__acro_pdf_comment:nnn {#1} {#2} {#3} }
             }
         }
     }
   }
 \cs_generate_variant:Nn \acro_format:nnn {e}
+
+\cs_new:Npn \acro_index_format:nnn #1#2#3
+  {
+    {
+      \bool_if:NTF \l__acro_format_replace_bool
+        {
+          \__acro_property_format:nnF {#1} {#2}
+            { \__acro_global_format:n {#2} }
+          {#3}
+        }
+        {
+          \__acro_global_format:n {#2}
+            { \__acro_property_format:nn {#1} {#2} {#3} }
+        }
+    }
+  }
 
 % #1: property:
 \cs_new_protected:Npn \acro_new_format:n #1
@@ -89,8 +122,7 @@
     \tl_new:c {l__acro_format_#1_tl}
     \keys_define:nn {acro/format}
       {
-        #1 .tl_set:c  = l__acro_format_#1_tl ,
-        #1 .initial:n =
+        #1 .tl_set:c  = l__acro_format_#1_tl
       }
   }
 

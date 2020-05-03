@@ -1,0 +1,44 @@
+\AcroModule{patch}{patch other code}
+
+\msg_new:nnn {acro} {patch}
+  { Patching~ `#1'~ failed.~ Please~ contact~ the~ acro~ author. }
+
+\AtEndPreamble
+  {
+    % floats:
+    \apptocmd \@floatboxreset
+      { \acswitchoff }
+      {}
+      { \msg_error:nnn {acro} {patch} {floats} }
+    % tables:
+    % * tabularx
+    \cs_if_exist:NT \TX@trial
+      {
+        \patchcmd \TX@trial
+          { \let\hbadness\@tempcnta }
+          { \acswitchoff\let\hbadness\@tempcnta }
+          {}
+          { \msg_error:nnn {acro} {patch} {tabularx} }
+      }
+    % * ltxtable
+    \cs_if_exist:NT \LTXtable
+      {
+        \patchcmd \LTXtable
+          { \input }
+          { \acswitchoff\input }
+          {}
+          { \msg_error:nnn {acro} {patch} {ltxtable} }
+      }
+    % * tabu
+    \cs_if_exist:NT \tabuDisableCommands
+      { \tabuDisableCommands { \acswitchoff } }
+    % contents lists:
+    \addtocontents {toc} { \acswitchoff }
+    \addtocontents {lof} { \acswitchoff }
+    \addtocontents {lot} { \acswitchoff }
+    % caption package:
+    \cs_if_exist:NT \caption@prepareslc
+      { \tl_gput_right:Nn \caption@prepareslc { \acswitchoff } }
+  }
+
+\AcroModuleEnd

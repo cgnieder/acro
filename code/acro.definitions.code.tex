@@ -189,16 +189,12 @@
     \begin {description}
       \acronymsmapF
         {
-          \item [ \acrowrite {short} \acroifT {alt} { / \acrowrite {alt} } ]
+          \item [ \acrowrite {short} \acroifT {alt} { / } \acrowrite {alt} ]
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
-            \acroifT {foreign}
-              {
-                \acrowrite {foreign}
-                \acroifT {extra} {,~}
-              }
-            \acroifT {extra}
-              { \acrowrite {extra} }
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
             \acroifanyT {foreign,extra} {)}
             \acropagefill
             \acropages
@@ -217,17 +213,13 @@
         \AcroAddRow
           {
             \acrowrite {short}
-            \acroifT {alt} { / \acrowrite {alt} }
+            \acroifT {alt} { / } \acrowrite {alt}
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
-            \acroifT {foreign}
-              {
-                \acrowrite {foreign}
-                \acroifT {extra} {,~}
-              }
-            \acroifT {extra}
-              { \acrowrite {extra} }
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
             \acroifanyT {foreign,extra} {)}
             \acropagefill
             \acropages
@@ -254,17 +246,13 @@
         \AcroAddRow
           {
             \acrowrite {short}
-            \acroifT {alt} { / \acrowrite {alt} }
+            \acroifT {alt} { / } \acrowrite {alt}
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
-            \acroifT {foreign}
-              {
-                \acrowrite {foreign}
-                \acroifT {extra} {,~}
-              }
-            \acroifT {extra}
-              { \acrowrite {extra} }
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
             \acroifanyT {foreign,extra} {)}
             \acropagefill
             \acropages
@@ -292,17 +280,13 @@
         \AcroAddRow
           {
             \acrowrite {short}
-            \acroifT {alt} { / \acrowrite {alt} }
+            \acroifT {alt} { / } \acrowrite {alt}
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
-            \acroifT {foreign}
-              {
-                \acrowrite {foreign}
-                \acroifT {extra} {,~}
-              }
-            \acroifT {extra}
-              { \acrowrite {extra} }
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
             \acroifanyT {foreign,extra} {)}
             \acropagefill
             \acropages
@@ -331,12 +315,13 @@
         \contentsline {acro}
           {
             \numberline
-              { \acrowrite {short} \acroifT {alt} { / \acrowrite {alt} } }
+              { \acrowrite {short} \acroifT {alt} { / } \acrowrite {alt} }
               {
                 \acrowrite {list}
-                \acroifT {foreign}
-                  { \acrowrite {foreign} \acroifT {extra} {,~} }
-                \acroifT {extra} { \acrowrite {extra} }
+                \acroifanyT {foreign,extra} {~(}
+                \acrowrite {foreign}
+                \acroifallT {foreign,extra} {,~}
+                \acrowrite {extra}
                 \acroifanyT {foreign,extra} {)}
               }
           }
@@ -354,15 +339,16 @@
     \acronymsmapF
       {
         \contentsline { \acroifchapterTF {chapter} {section} }
-          { \acrowrite {short} \acroifT {alt} { / \acrowrite {alt} } }
+          { \acrowrite {short} \acroifT {alt} { / } \acrowrite {alt} }
           {}{}
         \contentsline { \acroifchapterF {sub} section }
           {
             \acrowrite {list}
-            \acroifT {foreign}
-              { \acrowrite {foreign} \acroifT {extra} {,~} }
-            \acroifT {extra} { \acrowrite {extra} }
-            \acroifanyT {foreign,extra} {) }
+            \acroifanyT {foreign,extra} {~(}
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
+            \acroifanyT {foreign,extra} {)}
           }
           { \acropages {} {} }
           {}

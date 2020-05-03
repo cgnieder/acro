@@ -1,6 +1,5 @@
 \AcroModule{list}{the list of acronyms}
-% --------------------------------------------------------------------------
-% list of acronyms:
+
 \bool_new:N \l__acro_list_display_all_bool
 \bool_new:N \l__acro_list_bool
 \bool_new:N \l__acro_list_local_bool
@@ -124,12 +123,16 @@
 % --------------------------------------------------------------------------
 \tl_new:N \l__acro_heading_tl
 \tl_new:N \l__acro_preamble_tl
+\tl_new:N \l__acro_postamble_tl
 
 \cs_new_protected:Npn \acro_heading:
   { \acro_template_use:nnV {0} {heading} \l__acro_heading_tl }
 
 \cs_new_protected:Npn \acro_preamble:
   { \tl_use:N \l__acro_preamble_tl }
+
+\cs_new_protected:Npn \acro_postamble:
+  { \tl_use:N \l__acro_postamble_tl }
 
 \tl_new:N \l__acro_list_name_tl
 
@@ -150,6 +153,8 @@
     heading      .tl_set:N  = \l__acro_heading_tl ,
     preamble     .tl_set:N  = \l__acro_preamble_tl ,
     preamble     .initial:n = ,
+    postamble    .tl_set:N  = \l__acro_postamble_tl ,
+    postamble    .initial:n = ,
     name         .tl_set:N  = \l__acro_list_name_tl ,
     name         .initial:n = \acro_translate:n {list-name}
   }

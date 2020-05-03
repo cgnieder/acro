@@ -231,7 +231,8 @@
       \acro_deprecate_option:nn {use-only-first} {true} ,
     sort .code:n =
       \acro_deprecate_option:nn {list/sort} {true} ,
-    display-foreign .code:n = \acro_remove_option: ,
+    display-foreign .code:n =
+      \acro_deprecate_option:nn {foreign/display} {#1} ,
     cite .code:n =
       \acro_deprecate_option:nn {cite/display} {#1} ,
     cite-cmd .code:n =

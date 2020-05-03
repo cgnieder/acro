@@ -1,8 +1,3 @@
-% arara: pdflatex: { interaction: nonstopmode }
-% !arara: biber
-% arara: pdflatex: { interaction: nonstopmode }
-% !arara: pdflatex: { interaction: nonstopmode }
-% !arara: pdflatex: { interaction: nonstopmode }
 % --------------------------------------------------------------------------
 % the ACRO package
 % 
@@ -16,24 +11,16 @@
 % Copyright 2011--2020 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
-% conditions of the LaTeX Project Public License, either version 1.3
+% conditions of the LaTeX Project Public License, either version 1.3c
 % of this license or (at your option) any later version.
 % The latest version of this license is in
 %   http://www.latex-project.org/lppl.txt
-% and version 1.3 or later is part of all distributions of LaTeX
-% version 2005/12/01 or later.
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2008/05/04 or later.
 % 
 % This work has nce status `maintained'.
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
-% --------------------------------------------------------------------------
-% The acro package consists of the files
-% - acro.sty, acro.definitions.tex, acro.cfg
-% - acro-manual.tex, acro-manual.pdf, acro-manual.cls
-% - acro.history, README
-% --------------------------------------------------------------------------
-% If you have any ideas, questions, suggestions or bugs to report, please
-% feel free to contact me.
 % --------------------------------------------------------------------------
 \PassOptionsToPackage{ngerman,latin,english}{babel}
 \PassOptionsToPackage{version=3,upgrade}{acro}
@@ -190,19 +177,22 @@
   tag = glossary , no-index
 }
 \DeclareAcronym{option}{
-  long = An \option*{option} is a package option of \acro\ which must set
-    with \cs*{acsetup}. It \emph{cannot} be set as option to \cs*{usepackage}. ,
+  long = {An \option*{option} is a package option of \acro\ which must set
+    with \cs*{acsetup}. It \emph{cannot} be set as option to \cs*{usepackage}.
+    Options usually also can be set in the optional argument of \cs*{ac} and
+    friends.} ,
   tag = glossary , no-index
 }
 \DeclareAcronym{load-time option}{
-  long = A load-time \option*{option} is a package option of \acro\ which must
-    be set as option to \cs*{usepackage}\oarg{options}\Marg{acro}. ,
+  long = {A load-time \option*{option} is a package option of \acro\ which
+    \emph{must} be set as option to
+    \cs*{usepackage}\oarg{options}\Marg{acro}.} ,
   tag = glossary , no-index
 }
 \DeclareAcronym{template}{
-  long = A template determines how different objects of \acro\ are printed.
+  long = {A template determines how different objects of \acro\ are printed.
     This includes the acronyms themselves but also for example the list of
-    acronyms as a whole. ,
+    acronyms as a whole.} ,
   tag = glossary , no-index
 }
 \DeclareAcronym{articles}{
@@ -216,12 +206,11 @@
   tag = glossary , no-index
 }
 \DeclareAcronym{translations}{
-  long = Localisation strings which can be modified. ,
+  long = {Localisation strings which can be modified.} ,
   tag = glossary , no-index
 }
 
 \newcommand*\issues{\url{https://github.com/cgnieder/acro/issues}}
-
 \newcommand*\latin[1]{\textit{#1}}
 
 \begin{document}
@@ -660,6 +649,13 @@ Then typical outputs look like this:
   \Iacf{ufo} \\
   \acfp{ufo}
 \end{example}
+
+\begin{bewareofthedog}
+  In a number of contexts all acronym commands act as if their starred form is
+  used: in the table of contents, in the list of figures, and in the list of
+  tables.  The same is true for floats and the measuring phase of common
+  table environments like \env*{tabularx} or \env*{ltxtable}.
+\end{bewareofthedog}
 
 \section{Alternative short forms}\label{sec:altern-short-forms}
 Sometimes expressions have two different short forms. And example might be
@@ -1181,6 +1177,8 @@ properties for such cases:
 \end{properties}
 There are also some options:
 \begin{options}
+  \keybool{display}\Module{foreign}\Default{true}
+    Determine wether to hide or display the foreign form.
   \keybool{display}\Module{locale}\Default{false}
     This options determines wether the language of the foreign form is printed
     or not when the full form of the acronym is printed.
@@ -1526,6 +1524,13 @@ used.  You have already seen one of the commands which make it possible:
   \command{acresetall}
     Every acronym will be reset.
 \end{commands}
+
+\begin{bewareofthedog}
+  In a number of contexts all acronym commands act as if their starred form is
+  used: in the table of contents, in the list of figures, and in the list of
+  tables.  The same is true for floats and the measuring phase of common
+  table environments like \env*{tabularx} or \env*{ltxtable}.
+\end{bewareofthedog}
 
 \section{Bookmarks, backlinks and accessibility support}\label{sec:pdf-properties}
 \subsection{Backlinks}\label{sec:backlinks}
@@ -1881,6 +1886,9 @@ and \cs*{acroifF} each have an argument less than \cs*{acroifTF}.
   \command{acroif\TF}[\marg{property}\marg{true}\marg{false}]
     Checks if the property \meta{property} has been set for the current
     acronym and either leaves \meta{true} or \meta{false} in the input stream.
+  \command{acroifboolean\TF}[\marg{property}\marg{true}\marg{false}]
+    \sinceversion{3.1}Returns \meta{true} if the boolean property
+    \meta{property} has been set to \code{true} and \meta{false} otherwise.
   \command{acroifall\TF}[\marg{properties}\marg{true}\marg{false}]
     Checks if all properties in the csv list \meta{properties} have been set
     for the current acronym and either leaves \meta{true} or \meta{false} in

@@ -1,18 +1,20 @@
 \documentclass{article}
 \usepackage[english,ngerman]{babel}
 \usepackage{csquotes}
-\usepackage[version=3]{acro}
+\usepackage{acro}
 
 % issue #136
 \DeclareAcroProperty{foreign-short}
 
-\RenewAcroTemplate {long-short}{%
+\RenewAcroTemplate{long-short}{%
   \acroiffirstTF{%
     \acrowrite{long}\acspace
     (%
       \acrowrite{short}%
-      \acroifT{foreign}{, \acrowrite{foreign}}%
-      \acroifT{foreign-short}{, \acrowrite{foreign-short}}%
+      \acroifT{foreign}{, }%
+      \acrowrite{foreign}%
+      \acroifT{foreign-short}{, }%
+      \acrowrite{foreign-short}%
       \acrogroupcite
     )%
   }
@@ -26,14 +28,13 @@
     \acronymsmapF{
       \item [\acrowrite{short}\acroifT{alt}{/\acrowrite{alt}}]
         \acrowrite{long}%
-        \acroifanyT{foreign,extra}{ (}%
-        \acroifT{foreign}{%
-          \acrowrite{foreign}%
-          \acroifT{foreign-short}{, \acrowrite{foreign-short}}%
-          \acroifT{extra}{, }%
-        }%
-        \acroifT{extra}{\acrowrite{extra}}%
-        \acroifanyT{foreign,extra}{)}%
+        \acroifanyT{foreign,extra,foreign-short}{ (}%
+        \acrowrite{foreign}%
+        \acroifallT{foreign-short,foreign}{, }%
+        \acrowrite{foreign-short}%
+        \acroifanyT{foreign-short,foreign}{\acroifT{extra}{, }}%
+        \acrowrite{extra}%
+        \acroifanyT{foreign,extra,foreign-short}{)}%
         \acroifpagesT{%
           \acropagefill
           \acropages

@@ -218,8 +218,7 @@
       }
       { \prg_return_false: }
   }
-\cs_generate_variant:Nn \acro_boolean_property_if:nnTF {oo}
-\cs_generate_variant:Nn \acro_boolean_property_if:nnF  {nV}
+\prg_generate_conditional_variant:Nnn \acro_boolean_property_if:nn {nV,oo,e} {T,F,TF}
 
 % ----------------------------------------------------------------------------
 % set properties:

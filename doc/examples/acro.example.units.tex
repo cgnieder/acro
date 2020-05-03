@@ -65,10 +65,12 @@
       \acrowrite{unit}%
       &
       \def\AcronymID{##1}%
-      \acrowrite{long}%
+      \acrowrite{list}%
       &
       \def\AcronymID{##1}%
-      \acroifpagesT{\acropages{S. }{S. }}%
+      \acropages
+        {\acrotranslate{page}\nobreakspace}%
+        {\acrotranslate{pages}\nobreakspace}%
       \tabularnewline
     }%
   }%

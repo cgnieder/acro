@@ -143,7 +143,7 @@
     \acro_property_if_exist:nTF {#2-acc}
       {
         \__acro_accsupp:ee
-          { \__acro_write_acronym:nn {#1} {#2-acc} }
+          { \__acro_write_acronym_acc:nn {#1} {#2-acc} }
           { \__acro_write_acronym:nn {#1} {#2} }
       }
       { \__acro_write_acronym:nn {#1} {#2} }
@@ -166,6 +166,19 @@
               { \acro_ending_form:nn {#1} {#2} }
               { \acro_property_get:nn {#1} {#2} }
           }
+      }
+  }
+
+% #1: id
+% #2: property
+\cs_new:Npn \__acro_write_acronym_acc:nn #1#2
+  {
+    \__acro_upper:n
+      {
+        \__acro_article:nn {#1} {#2}
+        \acro_if_ending_form:nnTF {#1} {#2}
+          { \acro_ending_form:nn {#1} {#2} }
+          { \acro_property_get:nn {#1} {#2} }
       }
   }
 
@@ -274,7 +287,6 @@
               \l__acro_begin_command_hook_tl
               \cs_set:Npn \nospace { \exp:w \exp_end_continue_f:w }
               \acro_check_definition:n {####1}
-              \bool_set_true:N \l__acro_use_bool
               \keys_set:nV {acro} \l__acro_options_tl
               \tl_set:Ne \AcronymID { \acro_case_insensitive:n {####1} }
               \tl_set:Ne \l_acro_id_tl { \acro_case_insensitive:n {####1} }

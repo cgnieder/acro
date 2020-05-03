@@ -114,13 +114,12 @@
 \cs_new_protected:Npn \acro_template_use:nnn #1#2#3
   {
     \bool_set_false:N \l__acro_tmpa_bool
-    \bool_if:NT \l__acro_use_only_first_bool
+    \bool_lazy_and:nnT
+      { \l__acro_use_only_first_bool }
+      { \l__acro_use_bool }
       {
-        \bool_if:NT \l__acro_use_bool
-          {
-            \bool_set_true:N \l__acro_tmpa_bool
-            \bool_set_false:N \l__acro_use_bool
-          }
+        \bool_set_true:N \l__acro_tmpa_bool
+        \bool_set_false:N \l__acro_use_bool
       }
     \str_case:nnF {#3}
       {

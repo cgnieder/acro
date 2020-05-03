@@ -377,30 +377,6 @@
 
 \RequirePackage{hyperref}
 
-\newrobustcmd*\pdfdisable[1]{%
-  \csdef{acro@@\cnltx@stripbs#1}##1{##1}%
-  \def#1##1{%
-    \@backslashchar
-    \csuse{acro_if_star_gobble:nTF}{##1}%
-      {\csuse{acro@@\cnltx@stripbs#1}}%
-      {\csuse{acro@@\cnltx@stripbs#1}{##1}}%
-  }%
-}
-
-\pdfstringdefDisableCommands{%
-  \pdfdisable\template
-  \pdfdisable\property
-  \pdfdisable\cs
-  \pdfdisable\option
-  \def\oarg#1{[<#1>]}%
-  \def\Oarg#1{[#1]}%
-  \def\marg#1{\{<#1>\}}%
-  \def\Marg#1{\{#1\}}%
-  \def\acro{acro}%
-  \def\LaTeX{LaTeX}%
-  \def\TeX{TeX}%
-}
-
 % additional packages:
 \RequirePackage{longtable,array,booktabs,enumitem,amssymb}
 
@@ -559,6 +535,32 @@
 
 \newidxcmd\cmd{\code{\textbackslash\textcolor{white}{#1}}}
 
+% ----------------------------------------------------------------------------
+\newrobustcmd*\pdfdisable[2]{%
+  \csdef{acro@@\cnltx@stripbs#1}##1{#2}%
+  \def#1##1{%
+    \csuse{acro_if_star_gobble:nTF}{##1}%
+      {\csuse{acro@@\cnltx@stripbs#1}}%
+      {\csuse{acro@@\cnltx@stripbs#1}{##1}}%
+  }%
+}
+
+\pdfstringdefDisableCommands{%
+  \pdfdisable\template{#1}%
+  \pdfdisable\property{#1}
+  \pdfdisable\cs{\string\\#1}%
+  \pdfdisable\cmd{\string\\#1}%
+  \pdfdisable\option{#1}%
+  \def\oarg#1{[<#1>]}%
+  \def\Oarg#1{[#1]}%
+  \def\marg#1{\{<#1>\}}%
+  \def\Marg#1{\{#1\}}%
+  \def\acro{acro}%
+  \def\LaTeX{LaTeX}%
+  \def\TeX{TeX}%
+}
+% ----------------------------------------------------------------------------
+
 \acro@add@example{basic}{Basic usage}
 \acro@add@example{acflike}{Re-implement \cmd*{acflike}}
 \acro@add@example{issue-109}{Invisible command for backref}
@@ -648,6 +650,7 @@
 \acro@add@version{2020-01-24}{2.11b}
 \acro@add@version{2020-02-03}{2.11c}
 % 2020: v3
-\acro@add@version{2020-04-25}{v3.0}
+\acro@add@version{2020-04-29}{v3.0}
+\acro@add@version{2020-05-03}{v3.1}
 
 \endinput

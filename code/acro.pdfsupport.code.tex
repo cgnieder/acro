@@ -191,7 +191,7 @@
 % #1: id
 % #2: property
 % #3: text
-\cs_new_protected:Npn \__acro_pdf_comment:nnn #1#2#3
+\cs_new:Npn \__acro_pdf_comment:nnn #1#2#3
   {
     \bool_lazy_all:nTF
       {
@@ -200,18 +200,21 @@
         { \acro_if_short_p:n {#2} }
       }
       {
-        \__acro_pdf_comment_cmd:nn
+        \__acro_pdf_comment_cmd:ee
           {#3}
           { \acro_property_get:nn {#1} {pdfcomment} }
       }
       {#3}
   }
 
+\cs_new:Npn \__acro_pdf_comment_cmd:nn #1#2 {#1}
+\cs_generate_variant:Nn \__acro_pdf_comment_cmd:nn {ee}
+
 \keys_define:nn {acro/pdfcomments}
   {
     use .bool_set:N = \l__acro_pdfcomment_use_bool ,
     use .initial:n = false ,
-    cmd .cs_set:Np = \__acro_pdf_comment_cmd:nn #1#2 ,
+    cmd .cs_set_protected:Np = \__acro_pdf_comment_cmd:nn #1#2 ,
     cmd .initial:n = \pdftooltip {#1} {#2}
   }
 

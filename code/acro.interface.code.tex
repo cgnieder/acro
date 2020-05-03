@@ -130,6 +130,7 @@
 % commands for list templates
 \NewDocumentCommand \acroheading  {} { \acro_heading: }
 \NewDocumentCommand \acropreamble {} { \acro_preamble: }
+\NewDocumentCommand \acropostamble {} { \acro_postamble: }
 
 \NewExpandableDocumentCommand \acrolistname {}
   { \tl_use:N \l__acro_list_name_tl }
@@ -207,12 +208,25 @@
 \NewDocumentCommand \acrocite {}
   { \bool_set_true:N \l__acro_cite_always_bool }
 
-\NewDocumentCommand \acroifTF {m+m+m}
-  { \acro_property_if_set:enTF { \AcronymID } {#1} {#2} {#3} }
-\NewDocumentCommand \acroifT {m+m}
-  { \acro_property_if_set:enTF { \AcronymID } {#1} {#2} {} }
-\NewDocumentCommand \acroifF {m+m}
-  { \acro_property_if_set:enTF { \AcronymID } {#1} {} {#2} }
+\NewExpandableDocumentCommand \acroifbooleanTF {m}
+  { \acro_boolean_property_if:enTF { \AcronymID } {#1} }
+
+\NewExpandableDocumentCommand \acroifbooleanT {m}
+  { \acro_boolean_property_if:enT { \AcronymID } {#1} }
+
+\NewExpandableDocumentCommand \acroifbooleanF {m}
+  { \acro_boolean_property_if:enF { \AcronymID } {#1} }
+
+\NewExpandableDocumentCommand \acroifTF {+m+m+m}
+  {
+    \acro_property_if_set:enTF { \AcronymID } {#1}
+      { \acro_check_foreign:nn {#1} {#2} }
+      {#3}
+  }
+\NewExpandableDocumentCommand \acroifT {+m+m}
+  { \acroifTF {#1} {#2} {} }
+\NewExpandableDocumentCommand \acroifF {+m+m}
+  { \acroifTF {#1} {} {#2} }
 
 \NewDocumentCommand \acroifanyTF {m+m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {#3} }
