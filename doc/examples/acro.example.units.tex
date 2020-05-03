@@ -33,41 +33,36 @@
   short = \ensuremath{f} ,
   long  = Frequenz ,
   unit  = \si{\hertz} ,
-  class = physics
+  tag   = physics
 }
 \DeclareAcronym{A}{
   short = \ensuremath{A} ,
   long  = Fläche ,
   unit  = \si{\metre^2} ,
-  class = physics
+  tag   = physics
 }
 \DeclareAcronym{C}{
   short = \ensuremath{C} ,
   long  = Kapazität ,
   unit  = \si{\farad} ,
-  class = physics
+  tag   = physics
 }
 \DeclareAcronym{F}{
   short = \ensuremath{F} ,
   long  = Kraft ,
   unit  = \si{\newton} ,
-  class = physics
+  tag   = physics
 }
 
 \NewAcroTemplate[list]{physics}{%
-  \def\TableCode{}%
   \acronymsmapT{%
-    \AcroPutRight\TableCode{%
-      \def\AcronymID{##1}%
+    \AcroAddRow{%
       \acrowrite{short}%
       &
-      \def\AcronymID{##1}%
       \acrowrite{unit}%
       &
-      \def\AcronymID{##1}%
       \acrowrite{list}%
       &
-      \def\AcronymID{##1}%
       \acropages
         {\acrotranslate{page}\nobreakspace}%
         {\acrotranslate{pages}\nobreakspace}%
@@ -80,7 +75,7 @@
   \setlength\LTleft{0pt}%
   \setlength\LTright{0pt}%
   \begin{longtable}{@{}lll@{\extracolsep{\fill}}l@{}}
-    \TableCode
+    \AcronymTable
   \end{longtable}
 }
 
