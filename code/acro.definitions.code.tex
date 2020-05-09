@@ -239,8 +239,7 @@
 
 \NewAcroTemplate[list] {longtable}
   {
-    \AcroNeedPackage {array}
-    \AcroNeedPackage {longtable}
+    \AcroNeedPackage {array,longtable}
     \acronymsmapF
       {
         \AcroAddRow
@@ -265,16 +264,46 @@
     \acroheading
     \acropreamble
     \par \noindent
-    \begin {longtabu} {>{\bfseries}lp{.7\linewidth}}
+    \begin {longtable} {>{\bfseries}lp{.7\linewidth}}
       \AcronymTable
-    \end {longtabu}
+    \end {longtable}
   }
   
 \NewAcroTemplate[list] {longtabu}
   {
-    \AcroNeedPackage {array}
-    \AcroNeedPackage {longtable}
-    \AcroNeedPackage {tabu}
+    \AcroNeedPackage {array,longtable,tabu}
+    \acronymsmapF
+      {
+        \AcroAddRow
+          {
+            \acrowrite {short}
+            \acroifT {alt} { / } \acrowrite {alt}
+            &
+            \acrowrite {list}
+            \acroifanyT {foreign,extra} {~(}
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
+            \acroifanyT {foreign,extra} {)}
+            \acropagefill
+            \acropages
+              { \acrotranslate {page} \nobreakspace }
+              { \acrotranslate {pages} \nobreakspace }
+            \strut \tabularnewline
+          }
+      }
+      { \AcroRerun }
+    \acroheading
+    \acropreamble
+    \par \noindent
+    \begin {longtabu} {>{\bfseries}lX[l]}
+      \AcronymTable
+    \end {longtabu}
+  }
+
+\NewAcroTemplate[list] {supertabular}
+  {
+    \AcroNeedPackage {array,supertabular}
     \acronymsmapF
       {
         \AcroAddRow
@@ -295,15 +324,15 @@
             \tabularnewline
           }
       }
-      { \AcroRerun }
+      { \AcroRerun }  
     \acroheading
     \acropreamble
     \par \noindent
-    \begin {longtabu} {>{\bfseries}lX[l]}
+    \begin {supertabular} {>{\bfseries}lp{.7\linewidth}}
       \AcronymTable
-    \end {longtabu}
+    \end {supertabular}
   }
-
+  
 \NewAcroTemplate [list] {lof}
   {
     \acroheading

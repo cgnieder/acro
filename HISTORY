@@ -299,3 +299,12 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - \acroifboolean(TF)
                   - add missing code in some of the list templates
                   - improve examples code
+2020/05/?? v3.2   - fix units example
+                  - prevent to early expansion of formatting instructions
+                  - fix error in \AcroNeedPackage
+                  - fix wrong usage of `longtabu` in the `longtable` template
+                  - add supertabular template
+                  - add further examples
+                  - new: `display properties'
+                    adds `list/foreign/display'
+

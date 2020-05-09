@@ -49,44 +49,73 @@
 \acro_attribute_new:n {mandatory}
 \acro_attribute_new:n {dynamic}
 
-% \seq_new:N \l__acro_mandatory_properties_seq
 \tl_new:N \l__acro_mandatory_properties_tl
 
+\bool_new:N \l__acro_property_define_unique_bool
+\bool_new:N \l__acro_property_define_boolean_bool
+\bool_new:N \l__acro_property_define_mandatory_bool
+\bool_new:N \l__acro_property_define_static_bool
+\bool_new:N \l__acro_property_define_display_bool
+
+\cs_new_protected:Npn \__acro_setup_property:nn #1#2
+  { \use:c {bool_set_#2:c} {l__acro_property_define_#1_bool} }
+\cs_new_protected:Npn \__acro_setup_property:n #1
+  { \__acro_setup_property:nn {#1} {true} }
+
 % new property:
-% #1: boolean (true = unique)
-% #2: boolean (true = boolean)
-% #3: boolean (true = mandatory)
-% #4: boolean (true = static != dynamic)
-% #5: property name
-\cs_new_protected:Npn \acro_property_declare:nnnnn #1#2#3#4#5
+% #1: attributes
+% #2: property name
+\cs_new_protected:Npn \acro_property_declare:nn #1#2
   {
-    \acro_property_if_exist:nF {#5}
+    \acro_property_if_exist:nF {#2}
       {
-        \seq_put_right:Ne \l__acro_properties_seq { \tl_to_str:n {#5} }
-        \acro_attribute_new:n {property::#5}
-        \bool_if:nF {#4}
-          { \acro_attribute_set:nnn {dynamic} {#5} {true} }
-        \__acro_auxlist_new:n {#5}
-        \bool_if:nT {#3}
+        \seq_put_right:Ne \l__acro_properties_seq { \tl_to_str:n {#2} }
+        \acro_attribute_new:n {property::#2}
+        \bool_set_false:N \l__acro_property_define_unique_bool
+        \bool_set_false:N \l__acro_property_define_boolean_bool
+        \bool_set_false:N \l__acro_property_define_mandatory_bool
+        \bool_set_false:N \l__acro_property_define_static_bool
+        \bool_set_false:N \l__acro_property_define_display_bool
+        \keyval_parse:NNn
+          \__acro_setup_property:n
+          \__acro_setup_property:nn
+          {#1}
+        \bool_if:NF \l__acro_property_define_static_bool
+          { \acro_attribute_set:nnn {dynamic} {#2} {true} }
+        \__acro_auxlist_new:n {#2}
+        \bool_if:NT \l__acro_property_define_mandatory_bool
           {
-            \acro_attribute_set:nnn {mandatory} {#5} {true}
-            % \seq_put_right:Nn \l__acro_mandatory_properties_seq {#5}
-            \tl_put_right:Nn \l__acro_mandatory_properties_tl {{#5}}
+            \acro_attribute_set:nnn {mandatory} {#2} {true}
+            \tl_put_right:Nn \l__acro_mandatory_properties_tl {{#2}}
           }
-        \bool_if:nT {#2}
-          { \acro_attribute_set:nnn {boolean} {#5} {true} }
-        \bool_if:nT {#1}
+        \bool_if:NT \l__acro_property_define_boolean_bool
+          { \acro_attribute_set:nnn {boolean} {#2} {true} }
+        \bool_if:NT \l__acro_property_define_unique_bool
           {
-            \acro_attribute_set:nnn {unique} {#5} {true}
-            \seq_new:c {l__acro_unique_#5_seq}
+            \acro_attribute_set:nnn {unique} {#2} {true}
+            \seq_new:c {l__acro_unique_#2_seq}
           }
-        \bool_if:nT {#4}
+        \bool_if:NT \l__acro_property_define_static_bool
           {
-            \AtEndDocument { \__acro_auxlist_update:n {#5} }
-            \acro_at_begin_document:n { \__acro_property_set_from_auxlist:n {#5} }
+            \AtEndDocument { \__acro_auxlist_update:n {#2} }
+            \acro_at_begin_document:n
+              { \__acro_property_set_from_auxlist:n {#2} }
+          }
+        \bool_if:NT \l__acro_property_define_display_bool
+          {
+            \bool_new:c {l__acro_#2_display_bool}
+            \bool_new:c {l__acro_#2_list_display_bool}
+            \keys_define:nn {acro}
+              {
+                #2/display .bool_set:c = {l__acro_#2_display_bool} ,
+                #2/display .initial:n  = true ,
+                list/#2/display .bool_set:c = {l__acro_#2_list_display_bool} ,
+                list/#2/display .initial:n  = true
+              }
           }
       }
   }
+\cs_generate_variant:Nn \acro_property_declare:nn {e}
 
 % ----------------------------------------------------------------------------
 % property conditionals:
@@ -103,7 +132,17 @@
 \prg_new_conditional:Npnn \acro_property_if_set:nn #1#2 {p,T,F,TF}
   {
     \acro_attribute_if_set:neTF {#2} { \acro_case_insensitive:n {#1} }
-      { \prg_return_true: }
+      {
+        \cs_if_exist:cTF {l__acro_#2_display_bool}
+          {
+            \bool_if:NTF \l__acro_list_bool
+              { \bool_if:cTF {l__acro_#2_list_display_bool} }
+              { \bool_if:cTF {l__acro_#2_display_bool} }
+              { \prg_return_true: }
+              { \prg_return_false: }
+          }
+          { \prg_return_true: }
+      }
       { \prg_return_false: }
   }
 \prg_generate_conditional_variant:Nnn \acro_property_if_set:nn

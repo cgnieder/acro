@@ -24,13 +24,6 @@
 \cs_generate_variant:Nn \__acro_hyper_target:nn {e}
 \cs_generate_variant:Nn \__acro_hyper_link:nn {e}
 
-% \acro_property_declare:nnnnn
-%   { \c_false_bool } % not unique
-%   { \c_true_bool }  % boolean
-%   { \c_false_bool } % not mandatory
-%   { \c_false_bool } % dynamic
-%   {target-set}
-
 \cs_new_protected:Npn \__acro_activate_hyperref_support:
   {
     \bool_lazy_and:nnT

@@ -186,30 +186,33 @@
 % #2: property
 \cs_new_protected:Npn \acro_write:nn #1#2
   {
-    \group_begin:
-      \acro_if_short:nT {#2} { \acro_soft_upper: }
-      \__acro_make_link:nnn {#1} {#2}
-        {
-          \acro_locale:nnn {#1} {#2}
+    \acro_property_if_set:nnT {#1} {#2}
+      {
+        \group_begin:
+          \acro_if_short:nT {#2} { \acro_soft_upper: }
+          \__acro_make_link:nnn {#1} {#2}
             {
-              \__acro_write:nn {#1} {#2}
-              \bool_if:NT \l__acro_include_endings_bool
+              \acro_locale:nnn {#1} {#2}
                 {
-                  \acro_if_ending_form:nnF {#1} {#2}
-                    { \__acro_ending:nn {#1} {#2} }
+                  \__acro_write:nn {#1} {#2}
+                  \bool_if:NT \l__acro_include_endings_bool
+                    {
+                      \acro_if_ending_form:nnF {#1} {#2}
+                        { \__acro_ending:nn {#1} {#2} }
+                    }
                 }
             }
-        }
-    \group_end:
-    \acro_if_ending_form:nnF {#1} {#2}
-      {
-        \bool_if:NF \l__acro_include_endings_bool
-          { \__acro_ending:nn {#1} {#2} }
+        \group_end:
+        \acro_if_ending_form:nnF {#1} {#2}
+          {
+            \bool_if:NF \l__acro_include_endings_bool
+              { \__acro_ending:nn {#1} {#2} }
+          }
+        \acro_property_if_eq:nnT {#2} {long}
+          { \acro_property_get:nn {#1} {long-post} }
+        \bool_set_false:N \l__acro_upper_bool
+        \bool_set_false:N \l__acro_article_bool
       }
-    \acro_property_if_eq:nnT {#2} {long}
-      { \acro_property_get:nn {#1} {long-post} }
-    \bool_set_false:N \l__acro_upper_bool
-    \bool_set_false:N \l__acro_article_bool
   }
 \cs_generate_variant:Nn \acro_write:nn {e}
 

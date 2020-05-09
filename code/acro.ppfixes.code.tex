@@ -9,9 +9,7 @@
 \cs_new_protected:Npn \acro_article_declare:nn #1#2
   {
     \tl_gput_right:Nn \g__acro_articles_tl {{#1}}
-    \acro_property_declare:nnnnn
-      { \c_false_bool } { \c_false_bool } { \c_false_bool } { \c_false_bool }
-      {#1}
+    \acro_property_declare:nn {} {#1}
     \acro_list_map:nn {short}
       {
         \DeclareAcroPropertyAlias {##1-#1} {#1}
@@ -65,12 +63,8 @@
 
 \cs_new_protected:Npn \__acro_declare_ending_properties:n #1
   {
-    \acro_property_declare:nnnnn
-      { \c_false_bool } { \c_false_bool } { \c_false_bool } { \c_false_bool }
-      {#1}
-    \acro_property_declare:nnnnn
-      { \c_false_bool } { \c_false_bool } { \c_false_bool } { \c_false_bool }
-      {#1-form}
+    \acro_property_declare:nn {} {#1}
+    \acro_property_declare:nn {} {#1-form}
   }
 
 % #1: ending

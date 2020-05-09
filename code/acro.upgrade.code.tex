@@ -118,24 +118,14 @@
 \cs_new_protected:Npn \acro_deprecated_property:nn #1#2
   {
     \acro_deprecate:nn {#1} {#2}
-    \acro_property_declare:nnnnn
-      { \c_false_bool }
-      { \c_false_bool }
-      { \c_false_bool }
-      { \c_false_bool }
-      {#1}
+    \acro_property_declare:nn {} {#1}
   }
 
 % #1: old
 \cs_new_protected:Npn \acro_removed_property:n #1
   {
     \acro_remove:n {#1}
-    \acro_property_declare:nnnnn
-      { \c_false_bool }
-      { \c_false_bool }
-      { \c_false_bool }
-      { \c_false_bool }
-      {#1}
+    \acro_property_declare:nn {} {#1}
   }
 
 % ----------------------------------------------------------------------------

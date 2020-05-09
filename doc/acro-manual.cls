@@ -570,7 +570,9 @@
 \acro@add@example{possessive}{How to define a possessive ending}
 \acro@add@example{texsx-505891}{Additional alternative form}
 \acro@add@example{texsx-507726}{Foreign short form}% issue 136
-
+\acro@add@example{texsx-513623}{Species}
+\acro@add@example{texsx-515295}{Capitalization}
+\acro@add@example{texsx-542461}{Articles and possessive forms}
 
 % ----------------------------------------------------------------------------
 % 2012: v0

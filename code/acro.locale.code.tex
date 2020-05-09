@@ -14,9 +14,7 @@
   { You~ need~ to~ give~ a~ value~ to~ `#1'~ \msg_line_context: }
 
 % --------------------------------------------------------------------------
-\bool_new:N \l__acro_show_foreign_bool
 \bool_new:N \l__acro_show_locale_bool
-\bool_new:N \l__acro_list_show_locale_bool
 \tl_new:N \l__acro_locale_format_tl
 
 % #1: property
@@ -25,15 +23,6 @@
     \str_if_eq:nnTF {#1} {foreign}
       { \prg_return_true: }
       { \prg_return_false: }
-  }
-
-% #1: property
-% #2: text
-\cs_new:Npn \acro_check_foreign:nn #1#2
-  {
-    \acro_if_foreign:nTF {#1}
-      { \bool_if:NT \l__acro_show_foreign_bool {#2} }
-      {#2}
   }
 
 % #1: id
@@ -58,37 +47,30 @@
   {
     \acro_if_foreign:nTF {#2}
       {
-        \bool_if:NT \l__acro_show_foreign_bool
+        \acro_if_locale:nnTF {#1} {#2}
           {
-            \acro_if_locale:nnTF {#1} {#2}
+            \bool_if:NTF \l__acro_list_bool
+              { \bool_if:NT \l__acro_list_show_locale_bool }
+              { \bool_if:NT \l__acro_show_locale_bool }
               {
-                \bool_lazy_or:nnT
-                  { \l__acro_show_locale_bool }
-                  {
-                    \bool_lazy_and_p:nn
-                      { \l__acro_list_bool }
-                      { \l__acro_list_show_locale_bool }
-                  }
-                  {
+                {
+                  \l__acro_locale_format_tl
                     {
-                      \l__acro_locale_format_tl
+                      \acro_property_if_set:nnTF {#1} {foreign-locale}
+                        { \acro_property_get:nn {#1} {foreign-locale} }
                         {
-                          \acro_property_if_set:nnTF {#1} {foreign-locale}
-                            { \acro_property_get:nn {#1} {foreign-locale} }
-                            {
-                               \baselanguage
-                                 { \acro_property_get:nn {#1} {foreign-babel} }
-                            }
+                          \baselanguage
+                            { \acro_property_get:nn {#1} {foreign-babel} }
                         }
                     }
-                    :~
-                  }
-                \__acro_foreign_language:en
-                  { \str_lowercase:e { \acro_property_get:nn {#1} {foreign-babel} } }
-                  {#3}
+                }
+                :~
               }
+            \__acro_foreign_language:en
+              { \str_lowercase:e { \acro_property_get:nn {#1} {foreign-babel} } }
               {#3}
           }
+          {#3}
       }
       {#3}
   }
@@ -115,12 +97,6 @@
   {
     display .bool_set:N = \l__acro_list_show_locale_bool ,
     display .initial:n  = false
-  }
-
-\keys_define:nn {acro/foreign}
-  {
-    display .bool_set:N = \l__acro_show_foreign_bool ,
-    display .initial:n  = true
   }
 
 % --------------------------------------------------------------------------

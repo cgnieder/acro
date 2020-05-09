@@ -22,8 +22,11 @@
 
 \NewDocumentCommand \AcroNeedPackage {m}
   {
-    \acro_package_if_loaded:nF {m}
-      { \msg_error:nnen {acro} {package-needed} { \TemplateName } {#1} }
+    \clist_map_inline:nn {#1}
+      {
+        \acro_package_if_loaded:nF {##1}
+          { \msg_error:nnen {acro} {package-needed} { \TemplateName } {##1} }
+      }
   }
 
 % --------------------------------------------------------------------------
@@ -62,13 +65,31 @@
   { \acro_switch_on: }
 
 % --------------------------------------------------------------------------
-\NewDocumentCommand \DeclareAcroProperty {st?t!t|m}
-  { \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5} }
-
-\NewDocumentCommand \DeclareAcroPropertyAlias {st?t!t|mm}
+\NewDocumentCommand \DeclareAcroProperty {st?t!t|t>m}
   {
-    \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5}
-    \acro_property_make_alias:nn {#5} {#6}
+    \acro_property_declare:en
+      {
+        \IfBooleanT {#1} {unique=true,}
+        \IfBooleanT {#2} {boolean=true,}
+        \IfBooleanT {#3} {mandatory=true,}
+        \IfBooleanT {#4} {static=true,}
+        \IfBooleanT {#5} {display=true}
+      }
+      {#6}
+  }
+
+\NewDocumentCommand \DeclareAcroPropertyAlias {st?t!t|t>mm}
+  {
+    \acro_property_declare:en
+      {
+        \IfBooleanT {#1} {unique=true,}
+        \IfBooleanT {#2} {boolean=true,}
+        \IfBooleanT {#3} {mandatory=true,}
+        \IfBooleanT {#4} {static=true,}
+        \IfBooleanT {#5} {display=true}
+      }
+      {#6}
+    \acro_property_make_alias:nn {#6} {#7}
   }
 
 \NewDocumentCommand \MakeAcroPropertyAlias {mm}
@@ -217,16 +238,12 @@
 \NewExpandableDocumentCommand \acroifbooleanF {m}
   { \acro_boolean_property_if:enF { \AcronymID } {#1} }
 
-\NewExpandableDocumentCommand \acroifTF {+m+m+m}
-  {
-    \acro_property_if_set:enTF { \AcronymID } {#1}
-      { \acro_check_foreign:nn {#1} {#2} }
-      {#3}
-  }
-\NewExpandableDocumentCommand \acroifT {+m+m}
-  { \acroifTF {#1} {#2} {} }
-\NewExpandableDocumentCommand \acroifF {+m+m}
-  { \acroifTF {#1} {} {#2} }
+\NewExpandableDocumentCommand \acroifTF {m}
+  { \acro_property_if_set:enTF { \AcronymID } {#1} }
+\NewExpandableDocumentCommand \acroifT {m}
+  { \acro_property_if_set:enT { \AcronymID } {#1} }
+\NewExpandableDocumentCommand \acroifF {m}
+  { \acro_property_if_set:enF { \AcronymID } {#1} }
 
 \NewDocumentCommand \acroifanyTF {m+m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {#3} }

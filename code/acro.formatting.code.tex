@@ -22,22 +22,9 @@
       {
         \tl_if_empty:cTF {l__acro_format_ #1 _tl}
           { \use:n }
-          { \tl_use:c {l__acro_format_ #1 _tl} }
+          { \exp_not:v {l__acro_format_ #1 _tl} }
       }
-      {
-        \acro_property_if_alias:nTF {#1}
-          {
-            \tl_if_exist:cTF
-              {l__acro_format_ \acro_property_alias:n {#1} _tl}
-              {
-                \tl_if_empty:cTF {l__acro_format_ \acro_property_alias:n {#1} _tl}
-                  { \use:n }
-                  { \tl_use:c {l__acro_format_ \acro_property_alias:n {#1} _tl} }
-              }
-              { \use:n }
-          }
-          { \use:n }
-      }
+      { \use:n }
   }
 
 % #1: id
@@ -93,7 +80,7 @@
           \__acro_global_format:n {#2}
             {
               \__acro_property_format:nn {#1} {#2}
-              { \__acro_pdf_comment:nnn {#1} {#2} {#3} }
+                { \__acro_pdf_comment:nnn {#1} {#2} {#3} }
             }
         }
     }

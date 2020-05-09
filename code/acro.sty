@@ -653,8 +653,11 @@
 
 \NewDocumentCommand \AcroNeedPackage {m}
   {
-    \acro_package_if_loaded:nF {m}
-      { \msg_error:nnen {acro} {package-needed} { \TemplateName } {#1} }
+    \clist_map_inline:nn {#1}
+      {
+        \acro_package_if_loaded:nF {##1}
+          { \msg_error:nnen {acro} {package-needed} { \TemplateName } {##1} }
+      }
   }
 
 % --------------------------------------------------------------------------
@@ -693,13 +696,31 @@
   { \acro_switch_on: }
 
 % --------------------------------------------------------------------------
-\NewDocumentCommand \DeclareAcroProperty {st?t!t|m}
-  { \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5} }
-
-\NewDocumentCommand \DeclareAcroPropertyAlias {st?t!t|mm}
+\NewDocumentCommand \DeclareAcroProperty {st?t!t|t>m}
   {
-    \acro_property_declare:nnnnn {#1} {#2} {#3} {#4} {#5}
-    \acro_property_make_alias:nn {#5} {#6}
+    \acro_property_declare:en
+      {
+        \IfBooleanT {#1} {unique=true,}
+        \IfBooleanT {#2} {boolean=true,}
+        \IfBooleanT {#3} {mandatory=true,}
+        \IfBooleanT {#4} {static=true,}
+        \IfBooleanT {#5} {display=true}
+      }
+      {#6}
+  }
+
+\NewDocumentCommand \DeclareAcroPropertyAlias {st?t!t|t>mm}
+  {
+    \acro_property_declare:en
+      {
+        \IfBooleanT {#1} {unique=true,}
+        \IfBooleanT {#2} {boolean=true,}
+        \IfBooleanT {#3} {mandatory=true,}
+        \IfBooleanT {#4} {static=true,}
+        \IfBooleanT {#5} {display=true}
+      }
+      {#6}
+    \acro_property_make_alias:nn {#6} {#7}
   }
 
 \NewDocumentCommand \MakeAcroPropertyAlias {mm}
@@ -848,16 +869,12 @@
 \NewExpandableDocumentCommand \acroifbooleanF {m}
   { \acro_boolean_property_if:enF { \AcronymID } {#1} }
 
-\NewExpandableDocumentCommand \acroifTF {+m+m+m}
-  {
-    \acro_property_if_set:enTF { \AcronymID } {#1}
-      { \acro_check_foreign:nn {#1} {#2} }
-      {#3}
-  }
-\NewExpandableDocumentCommand \acroifT {+m+m}
-  { \acroifTF {#1} {#2} {} }
-\NewExpandableDocumentCommand \acroifF {+m+m}
-  { \acroifTF {#1} {} {#2} }
+\NewExpandableDocumentCommand \acroifTF {m}
+  { \acro_property_if_set:enTF { \AcronymID } {#1} }
+\NewExpandableDocumentCommand \acroifT {m}
+  { \acro_property_if_set:enT { \AcronymID } {#1} }
+\NewExpandableDocumentCommand \acroifF {m}
+  { \acro_property_if_set:enF { \AcronymID } {#1} }
 
 \NewDocumentCommand \acroifanyTF {m+m+m}
   { \acro_property_if_any:enTF { \AcronymID } {#1} {#2} {#3} }
@@ -1154,44 +1171,73 @@
 \acro_attribute_new:n {mandatory}
 \acro_attribute_new:n {dynamic}
 
-% \seq_new:N \l__acro_mandatory_properties_seq
 \tl_new:N \l__acro_mandatory_properties_tl
 
+\bool_new:N \l__acro_property_define_unique_bool
+\bool_new:N \l__acro_property_define_boolean_bool
+\bool_new:N \l__acro_property_define_mandatory_bool
+\bool_new:N \l__acro_property_define_static_bool
+\bool_new:N \l__acro_property_define_display_bool
+
+\cs_new_protected:Npn \__acro_setup_property:nn #1#2
+  { \use:c {bool_set_#2:c} {l__acro_property_define_#1_bool} }
+\cs_new_protected:Npn \__acro_setup_property:n #1
+  { \__acro_setup_property:nn {#1} {true} }
+
 % new property:
-% #1: boolean (true = unique)
-% #2: boolean (true = boolean)
-% #3: boolean (true = mandatory)
-% #4: boolean (true = static != dynamic)
-% #5: property name
-\cs_new_protected:Npn \acro_property_declare:nnnnn #1#2#3#4#5
+% #1: attributes
+% #2: property name
+\cs_new_protected:Npn \acro_property_declare:nn #1#2
   {
-    \acro_property_if_exist:nF {#5}
+    \acro_property_if_exist:nF {#2}
       {
-        \seq_put_right:Ne \l__acro_properties_seq { \tl_to_str:n {#5} }
-        \acro_attribute_new:n {property::#5}
-        \bool_if:nF {#4}
-          { \acro_attribute_set:nnn {dynamic} {#5} {true} }
-        \__acro_auxlist_new:n {#5}
-        \bool_if:nT {#3}
+        \seq_put_right:Ne \l__acro_properties_seq { \tl_to_str:n {#2} }
+        \acro_attribute_new:n {property::#2}
+        \bool_set_false:N \l__acro_property_define_unique_bool
+        \bool_set_false:N \l__acro_property_define_boolean_bool
+        \bool_set_false:N \l__acro_property_define_mandatory_bool
+        \bool_set_false:N \l__acro_property_define_static_bool
+        \bool_set_false:N \l__acro_property_define_display_bool
+        \keyval_parse:NNn
+          \__acro_setup_property:n
+          \__acro_setup_property:nn
+          {#1}
+        \bool_if:NF \l__acro_property_define_static_bool
+          { \acro_attribute_set:nnn {dynamic} {#2} {true} }
+        \__acro_auxlist_new:n {#2}
+        \bool_if:NT \l__acro_property_define_mandatory_bool
           {
-            \acro_attribute_set:nnn {mandatory} {#5} {true}
-            % \seq_put_right:Nn \l__acro_mandatory_properties_seq {#5}
-            \tl_put_right:Nn \l__acro_mandatory_properties_tl {{#5}}
+            \acro_attribute_set:nnn {mandatory} {#2} {true}
+            \tl_put_right:Nn \l__acro_mandatory_properties_tl {{#2}}
           }
-        \bool_if:nT {#2}
-          { \acro_attribute_set:nnn {boolean} {#5} {true} }
-        \bool_if:nT {#1}
+        \bool_if:NT \l__acro_property_define_boolean_bool
+          { \acro_attribute_set:nnn {boolean} {#2} {true} }
+        \bool_if:NT \l__acro_property_define_unique_bool
           {
-            \acro_attribute_set:nnn {unique} {#5} {true}
-            \seq_new:c {l__acro_unique_#5_seq}
+            \acro_attribute_set:nnn {unique} {#2} {true}
+            \seq_new:c {l__acro_unique_#2_seq}
           }
-        \bool_if:nT {#4}
+        \bool_if:NT \l__acro_property_define_static_bool
           {
-            \AtEndDocument { \__acro_auxlist_update:n {#5} }
-            \acro_at_begin_document:n { \__acro_property_set_from_auxlist:n {#5} }
+            \AtEndDocument { \__acro_auxlist_update:n {#2} }
+            \acro_at_begin_document:n
+              { \__acro_property_set_from_auxlist:n {#2} }
+          }
+        \bool_if:NT \l__acro_property_define_display_bool
+          {
+            \bool_new:c {l__acro_#2_display_bool}
+            \bool_new:c {l__acro_#2_list_display_bool}
+            \keys_define:nn {acro}
+              {
+                #2/display .bool_set:c = {l__acro_#2_display_bool} ,
+                #2/display .initial:n  = true ,
+                list/#2/display .bool_set:c = {l__acro_#2_list_display_bool} ,
+                list/#2/display .initial:n  = true
+              }
           }
       }
   }
+\cs_generate_variant:Nn \acro_property_declare:nn {e}
 
 % ----------------------------------------------------------------------------
 % property conditionals:
@@ -1208,7 +1254,17 @@
 \prg_new_conditional:Npnn \acro_property_if_set:nn #1#2 {p,T,F,TF}
   {
     \acro_attribute_if_set:neTF {#2} { \acro_case_insensitive:n {#1} }
-      { \prg_return_true: }
+      {
+        \cs_if_exist:cTF {l__acro_#2_display_bool}
+          {
+            \bool_if:NTF \l__acro_list_bool
+              { \bool_if:cTF {l__acro_#2_list_display_bool} }
+              { \bool_if:cTF {l__acro_#2_display_bool} }
+              { \prg_return_true: }
+              { \prg_return_false: }
+          }
+          { \prg_return_true: }
+      }
       { \prg_return_false: }
   }
 \prg_generate_conditional_variant:Nnn \acro_property_if_set:nn
@@ -1651,7 +1707,7 @@
 \DeclareAcroProperty {pdfcomment}
 
 % locale:
-\DeclareAcroProperty {foreign}
+\DeclareAcroProperty>{foreign}
 \DeclareAcroProperty {foreign-babel}
 \DeclareAcroProperty {foreign-locale}
 
@@ -1861,22 +1917,9 @@
       {
         \tl_if_empty:cTF {l__acro_format_ #1 _tl}
           { \use:n }
-          { \tl_use:c {l__acro_format_ #1 _tl} }
+          { \exp_not:v {l__acro_format_ #1 _tl} }
       }
-      {
-        \acro_property_if_alias:nTF {#1}
-          {
-            \tl_if_exist:cTF
-              {l__acro_format_ \acro_property_alias:n {#1} _tl}
-              {
-                \tl_if_empty:cTF {l__acro_format_ \acro_property_alias:n {#1} _tl}
-                  { \use:n }
-                  { \tl_use:c {l__acro_format_ \acro_property_alias:n {#1} _tl} }
-              }
-              { \use:n }
-          }
-          { \use:n }
-      }
+      { \use:n }
   }
 
 % #1: id
@@ -1932,7 +1975,7 @@
           \__acro_global_format:n {#2}
             {
               \__acro_property_format:nn {#1} {#2}
-              { \__acro_pdf_comment:nnn {#1} {#2} {#3} }
+                { \__acro_pdf_comment:nnn {#1} {#2} {#3} }
             }
         }
     }
@@ -1993,9 +2036,7 @@
 \cs_new_protected:Npn \acro_article_declare:nn #1#2
   {
     \tl_gput_right:Nn \g__acro_articles_tl {{#1}}
-    \acro_property_declare:nnnnn
-      { \c_false_bool } { \c_false_bool } { \c_false_bool } { \c_false_bool }
-      {#1}
+    \acro_property_declare:nn {} {#1}
     \acro_list_map:nn {short}
       {
         \DeclareAcroPropertyAlias {##1-#1} {#1}
@@ -2049,12 +2090,8 @@
 
 \cs_new_protected:Npn \__acro_declare_ending_properties:n #1
   {
-    \acro_property_declare:nnnnn
-      { \c_false_bool } { \c_false_bool } { \c_false_bool } { \c_false_bool }
-      {#1}
-    \acro_property_declare:nnnnn
-      { \c_false_bool } { \c_false_bool } { \c_false_bool } { \c_false_bool }
-      {#1-form}
+    \acro_property_declare:nn {} {#1}
+    \acro_property_declare:nn {} {#1-form}
   }
 
 % #1: ending
@@ -2932,30 +2969,33 @@
 % #2: property
 \cs_new_protected:Npn \acro_write:nn #1#2
   {
-    \group_begin:
-      \acro_if_short:nT {#2} { \acro_soft_upper: }
-      \__acro_make_link:nnn {#1} {#2}
-        {
-          \acro_locale:nnn {#1} {#2}
+    \acro_property_if_set:nnT {#1} {#2}
+      {
+        \group_begin:
+          \acro_if_short:nT {#2} { \acro_soft_upper: }
+          \__acro_make_link:nnn {#1} {#2}
             {
-              \__acro_write:nn {#1} {#2}
-              \bool_if:NT \l__acro_include_endings_bool
+              \acro_locale:nnn {#1} {#2}
                 {
-                  \acro_if_ending_form:nnF {#1} {#2}
-                    { \__acro_ending:nn {#1} {#2} }
+                  \__acro_write:nn {#1} {#2}
+                  \bool_if:NT \l__acro_include_endings_bool
+                    {
+                      \acro_if_ending_form:nnF {#1} {#2}
+                        { \__acro_ending:nn {#1} {#2} }
+                    }
                 }
             }
-        }
-    \group_end:
-    \acro_if_ending_form:nnF {#1} {#2}
-      {
-        \bool_if:NF \l__acro_include_endings_bool
-          { \__acro_ending:nn {#1} {#2} }
+        \group_end:
+        \acro_if_ending_form:nnF {#1} {#2}
+          {
+            \bool_if:NF \l__acro_include_endings_bool
+              { \__acro_ending:nn {#1} {#2} }
+          }
+        \acro_property_if_eq:nnT {#2} {long}
+          { \acro_property_get:nn {#1} {long-post} }
+        \bool_set_false:N \l__acro_upper_bool
+        \bool_set_false:N \l__acro_article_bool
       }
-    \acro_property_if_eq:nnT {#2} {long}
-      { \acro_property_get:nn {#1} {long-post} }
-    \bool_set_false:N \l__acro_upper_bool
-    \bool_set_false:N \l__acro_article_bool
   }
 \cs_generate_variant:Nn \acro_write:nn {e}
 
@@ -3852,9 +3892,7 @@
   { You~ need~ to~ give~ a~ value~ to~ `#1'~ \msg_line_context: }
 
 % --------------------------------------------------------------------------
-\bool_new:N \l__acro_show_foreign_bool
 \bool_new:N \l__acro_show_locale_bool
-\bool_new:N \l__acro_list_show_locale_bool
 \tl_new:N \l__acro_locale_format_tl
 
 % #1: property
@@ -3863,15 +3901,6 @@
     \str_if_eq:nnTF {#1} {foreign}
       { \prg_return_true: }
       { \prg_return_false: }
-  }
-
-% #1: property
-% #2: text
-\cs_new:Npn \acro_check_foreign:nn #1#2
-  {
-    \acro_if_foreign:nTF {#1}
-      { \bool_if:NT \l__acro_show_foreign_bool {#2} }
-      {#2}
   }
 
 % #1: id
@@ -3896,37 +3925,30 @@
   {
     \acro_if_foreign:nTF {#2}
       {
-        \bool_if:NT \l__acro_show_foreign_bool
+        \acro_if_locale:nnTF {#1} {#2}
           {
-            \acro_if_locale:nnTF {#1} {#2}
+            \bool_if:NTF \l__acro_list_bool
+              { \bool_if:NT \l__acro_list_show_locale_bool }
+              { \bool_if:NT \l__acro_show_locale_bool }
               {
-                \bool_lazy_or:nnT
-                  { \l__acro_show_locale_bool }
-                  {
-                    \bool_lazy_and_p:nn
-                      { \l__acro_list_bool }
-                      { \l__acro_list_show_locale_bool }
-                  }
-                  {
+                {
+                  \l__acro_locale_format_tl
                     {
-                      \l__acro_locale_format_tl
+                      \acro_property_if_set:nnTF {#1} {foreign-locale}
+                        { \acro_property_get:nn {#1} {foreign-locale} }
                         {
-                          \acro_property_if_set:nnTF {#1} {foreign-locale}
-                            { \acro_property_get:nn {#1} {foreign-locale} }
-                            {
-                               \baselanguage
-                                 { \acro_property_get:nn {#1} {foreign-babel} }
-                            }
+                          \baselanguage
+                            { \acro_property_get:nn {#1} {foreign-babel} }
                         }
                     }
-                    :~
-                  }
-                \__acro_foreign_language:en
-                  { \str_lowercase:e { \acro_property_get:nn {#1} {foreign-babel} } }
-                  {#3}
+                }
+                :~
               }
+            \__acro_foreign_language:en
+              { \str_lowercase:e { \acro_property_get:nn {#1} {foreign-babel} } }
               {#3}
           }
+          {#3}
       }
       {#3}
   }
@@ -3953,12 +3975,6 @@
   {
     display .bool_set:N = \l__acro_list_show_locale_bool ,
     display .initial:n  = false
-  }
-
-\keys_define:nn {acro/foreign}
-  {
-    display .bool_set:N = \l__acro_show_foreign_bool ,
-    display .initial:n  = true
   }
 
 % --------------------------------------------------------------------------
@@ -4103,13 +4119,6 @@
 
 \cs_generate_variant:Nn \__acro_hyper_target:nn {e}
 \cs_generate_variant:Nn \__acro_hyper_link:nn {e}
-
-% \acro_property_declare:nnnnn
-%   { \c_false_bool } % not unique
-%   { \c_true_bool }  % boolean
-%   { \c_false_bool } % not mandatory
-%   { \c_false_bool } % dynamic
-%   {target-set}
 
 \cs_new_protected:Npn \__acro_activate_hyperref_support:
   {
@@ -4987,8 +4996,7 @@
 
 \NewAcroTemplate[list] {longtable}
   {
-    \AcroNeedPackage {array}
-    \AcroNeedPackage {longtable}
+    \AcroNeedPackage {array,longtable}
     \acronymsmapF
       {
         \AcroAddRow
@@ -5013,16 +5021,14 @@
     \acroheading
     \acropreamble
     \par \noindent
-    \begin {longtabu} {>{\bfseries}lp{.7\linewidth}}
+    \begin {longtable} {>{\bfseries}lp{.7\linewidth}}
       \AcronymTable
-    \end {longtabu}
+    \end {longtable}
   }
   
 \NewAcroTemplate[list] {longtabu}
   {
-    \AcroNeedPackage {array}
-    \AcroNeedPackage {longtable}
-    \AcroNeedPackage {tabu}
+    \AcroNeedPackage {array,longtable,tabu}
     \acronymsmapF
       {
         \AcroAddRow
@@ -5332,24 +5338,14 @@
 \cs_new_protected:Npn \acro_deprecated_property:nn #1#2
   {
     \acro_deprecate:nn {#1} {#2}
-    \acro_property_declare:nnnnn
-      { \c_false_bool }
-      { \c_false_bool }
-      { \c_false_bool }
-      { \c_false_bool }
-      {#1}
+    \acro_property_declare:nn {} {#1}
   }
 
 % #1: old
 \cs_new_protected:Npn \acro_removed_property:n #1
   {
     \acro_remove:n {#1}
-    \acro_property_declare:nnnnn
-      { \c_false_bool }
-      { \c_false_bool }
-      { \c_false_bool }
-      { \c_false_bool }
-      {#1}
+    \acro_property_declare:nn {} {#1}
   }
 
 % ----------------------------------------------------------------------------
