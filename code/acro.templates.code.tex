@@ -35,6 +35,7 @@
 \cs_new_protected:Npn \__acro_template_add:nnn #1#2#3
   {
     \tl_new:c {l__acro_template_#1_#2_setup_tl}
+    \tl_new:c {l__acro_next_template_#1_#2_setup_tl}
     \acro_attribute_set:nnn {template::#1} {#2} {#3}
   }
 
@@ -77,28 +78,33 @@
 % #3: setup code
 \cs_new_protected:Npn \acro_template_setup:nnn #1#2#3
   { \tl_set:cn {l__acro_template_#1_#2_setup_tl} {#3} }
-\cs_generate_variant:Nn \acro_template_setup:nnn {nnV,nVn}
+
+\cs_new_protected:Npn \acro_next template_setup:nnn #1#2#3
+  { \tl_set:cn {l__acro_next_template_#1_#2_setup_tl} {#3} }
 
 % #1: template type
 % #2: template name
-\cs_new_protected:Npn \__acro_template_setup:nn #1#2
-  { \tl_use:c {l__acro_template_#1_#2_setup_tl} }
+\cs_new_protected:Npn \__acro_template_do_setup:nn #1#2
+  {
+    \tl_use:c {l__acro_template_#1_#2_setup_tl}
+    \tl_use:c {l__acro_next_template_#1_#2_setup_tl}
+  }
 
 % #1: template type
 % #2: template name
 \cs_new_protected:Npn \__acro_clear_template_setup:nn #1#2
-  { \tl_clear:c {l__acro_template_#1_#2_setup_tl} }
+  { \tl_clear:c {l__acro_next_template_#1_#2_setup_tl} }
 
 % #1: template type
 % #2: template name
 \cs_new_protected:Npn \__acro_template_start:nn #1#2
   {
     \group_begin:
-      \__acro_template_setup:nn {#1} {#2}
-      \tl_clear_new:N \TemplateType
-      \tl_set:Nn \TemplateType {#1}
-      \tl_clear_new:N \TemplateName
-      \tl_set:Nn \TemplateName {#2}
+      \__acro_template_do_setup:nn {#1} {#2}
+      \tl_clear_new:N \AcroTemplateType
+      \tl_set:Nn \AcroTemplateType {#1}
+      \tl_clear_new:N \AcroTemplateName
+      \tl_set:Nn \AcroTemplateName {#2}
   }
 
 % #1: template type

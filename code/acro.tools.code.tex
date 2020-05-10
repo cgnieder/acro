@@ -426,10 +426,10 @@
 
 \cs_new_protected:Npn \acro_footnote:n #1
   {
-    \tl_set:Ne \l__acro_fnpct_check_tl { \l__acro_fnpct_check_tl }
+    \tl_set:Ne \l__acro_tmpa_tl { \l__acro_fnpct_check_tl }
     \exp_last_unbraced:Nno
     \footnote {#1}
-    \l__acro_fnpct_check_tl
+    \l__acro_tmpa_tl
   }
 
 % options for activating actions:

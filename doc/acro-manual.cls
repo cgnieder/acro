@@ -94,8 +94,10 @@
     babelhyphen, parencite,
     BeginAccSupp, EndAccSupp,
     if@filesw, acro@list,
+    iupac, enquote,
     NewDocumentCommand,
-    newabbreviation, printabbreviations
+    newabbreviation, printabbreviations,
+    newspecies
   } ,
   index-setup = {
     level = \section , headers={\indexname}{\indexname} , noclearpage ,
@@ -107,9 +109,7 @@
 
 \DeclareTranslation{English}{cnltx-toc}{Table of contents}
 
-\newcommand*\barg{\textcolor{argument}{\code{!}}}
-\newcommand*\qarg{\textcolor{argument}{\code{?}}}
-\newcommand*\uarg{\textcolor{argument}{\code{|}}}
+\renewcommand*\arg[1]{\textcolor{argument}{\code{#1}}}
 
 \newidxcmd\sym{\code{#1}}[ (symbol)]
 
@@ -233,15 +233,15 @@
 \renewrobustcmd*\sinceversion[1]{%
   \ac@ifnew{#1}%
     {\cnltx@version@note{\textcolor{red}{\ac@NEW}}}%
-    {\cnltx@version@note{\GetTranslation{cnltx-introduced}~#1\ac@date{#1}}}%
+    {\cnltx@version@note{\GetTranslation{cnltx-introduced}~v#1\ac@date{#1}}}%
 }
 \renewrobustcmd*\changedversion[1]{%
-  \cnltx@version@note{\GetTranslation{cnltx-changed}~#1\ac@date{#1}}%
+  \cnltx@version@note{\GetTranslation{cnltx-changed}~v#1\ac@date{#1}}%
 }
 
 \newnote*\sincechanged[2]{%
   \GetTranslation{cnltx-introduced}~#1\ac@date{#1},
-  changed with version~#2\ac@date{#2}\ac@ifnew{#2}{ \ac@NEW}{}%
+  changed with ~v#2\ac@date{#2}\ac@ifnew{#2}{ \ac@NEW}{}%
 }
 
 \RenewDocumentEnvironment{commands}{}
@@ -652,7 +652,8 @@
 \acro@add@version{2020-01-24}{2.11b}
 \acro@add@version{2020-02-03}{2.11c}
 % 2020: v3
-\acro@add@version{2020-04-29}{v3.0}
-\acro@add@version{2020-05-03}{v3.1}
+\acro@add@version{2020-04-29}{3.0}
+\acro@add@version{2020-05-03}{3.1}
+\acro@add@version{2020-05-10}{3.2}
 
 \endinput

@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------
-the ACRO package v3.1 2020/05/03
+the ACRO package v3.2 2020/05/10
 
   Typeset Acronyms
 
@@ -22,9 +22,10 @@ This work has the LPPL maintenance status `maintained'.
 
 The Current Maintainer of this work is Clemens Niederberger.
 --------------------------------------------------------------------------
-The acro package consists of the code file:
+The acro package consists of code files:
 
   acro.sty
+  acro2.sty
 
 The acro package consists of documentation files:
 
@@ -46,5 +47,8 @@ folder examples/ in the same folder as acro-manual.pdf:
   acro.example.issue-154.pdf, acro.example.issue-154.tex
   acro.example.texsx-505891.pdf, acro.example.texsx-505891.tex
   acro.example.texsx-507726.pdf, acro.example.texsx-507726.tex
-
+  acro.example.texsx-513623.pdf, acro.example.texsx-513623.tex
+  acro.example.texsx-515295.pdf, acro.example.texsx-515295.tex
+  acro.example.texsx-542461.pdf, acro.example.texsx-542461.tex
+  
 --------------------------------------------------------------------------

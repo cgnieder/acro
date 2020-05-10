@@ -1123,7 +1123,7 @@ have different indefinite articles\footnote{This may very well be a language
   an \ac{ufo}
 \end{example}
 And what good would it be to use a package like \acro\ if you have to keep
-track of of and second uses, anyway?  This is why \acs{ufo} should be defined
+track of first and second uses, anyway?  This is why \acs{ufo} should be defined
 like we did on page~\pageref{ufo}.  We then can just use the dedicated
 commands and let them decide for us:
 \begin{example}[side-by-side]
@@ -1179,6 +1179,9 @@ There are also some options:
 \begin{options}
   \keybool{display}\Module{foreign}\Default{true}
     Determine wether to hide or display the foreign form.
+  \keybool{display}\Module{list,foreign}\Default{true}
+    \sinceversion{3.2}Determine wether to hide or display the foreign form in
+    the list of acronyms.
   \keybool{display}\Module{locale}\Default{false}
     This options determines wether the language of the foreign form is printed
     or not when the full form of the acronym is printed.
@@ -1249,6 +1252,8 @@ have no effect, of course.
     long = Unidentified Flying Object
   }
 \end{sourcecode}
+
+\pagebreak
 
 There are a number of options to control the uppercasing behavior:
 \begin{options}
@@ -1374,7 +1379,7 @@ for an acronym individually.
 \end{properties}
 This manual is an example for the indexing feature.  Each acronym from
 section~\vref{sec:acronyms} that has been used in this manual is also listed
-in the manual.
+in the index.
 
 \section{Barriers}\label{sec:barriers}
 The main purpose of the concept of barriers is to be able to have \emph{local}
@@ -1401,10 +1406,10 @@ barriers with
 \begin{commands}
   \command{acbarrier}
     For this command to have any effect you must set
-    \module{barriers}\code{/}\option{single} to \code{true}!
+    \module{barriers}\code{/}\option{use} to \code{true}!
 \end{commands}
 \begin{bewareofthedog}
-  It takes usually two or even three \LaTeX\ runs until acronym usages
+  It usually takes two or even three \LaTeX\ runs until acronym usages
   between barriers are properly counted.
 \end{bewareofthedog}
 
@@ -1415,7 +1420,7 @@ boolean variable if it finds them.  Per default \acro\ knows about three
 tokens: the \enquote{\code{dot}} (\sym{.}), the \enquote{\code{dash}}
 (\sym{-}) and the \enquote{\code{babel-hyphen}} (\cs*{babelhyphen}).
 
-Yeu have seen an example for this already:
+You have seen an example for this already:
 \begin{sourcecode}
   \DeclareAcronym{etc}{
     short = etc\acdot ,
@@ -1502,8 +1507,7 @@ This command is used to define the two commands you already know:
     \code{babel-hyphen} follows.
   \expandable\command{abbrdot} Inserts \sym{.}\cs*{@}
 \end{commands}
-The definitions are equivalent\footnote{Not \emph{quite}: \acro's definitions
-  are engine protected.} to the following code:
+The definitions are equivalent to the following code:
 \begin{sourcecode}
   \newcommand*\acdot{\aciftrailing{dot}{}{\abbrdot}}
   \newcommand*\acspace{\aciftrailing{dash,babel-hyphen}{}{\space}}
@@ -1802,7 +1806,13 @@ to defines own such objects:
     A style that uses a \env*{longtabu} environment for building the
     list. This needs the \pkg{longtable} package and the \pkg{tabu}
     package~\cite{pkg:tabu} loaded\footnote{Please note that this package
-      currently is un-maintained and has a number of open bugs.}.
+      currently is un-maintained and has a number of open bugs. For further
+      information refer to
+      \url{https://github.com/tabu-issues-for-future-maintainer/tabu}}.
+  \tmpl{supertabular}
+    A\sinceversion{3.2} style that uses a \env*{supertabular} environment for
+    building the list.  This needs the \pkg{supertabular}
+    package~\cite{pkg:supertabular} loaded.
   \tmpl{tabular}
     A style that uses a \env*{tabular} environment for building the list.
     Since a \env*{tabular} cannot break across pages this is only suited for
@@ -1828,7 +1838,7 @@ to defines own such objects:
   \tmpl{section}
     Uses \cs*{section} for the heading.
   \tmpl{section*}
-    Uses \cs*{section}\sarg* for the heading.
+    Uses \cs*{section}\sarg\ for the heading.
 \end{templates}
 
 \subsection{Defining new templates}\label{sec:defin-new-templ}
@@ -1842,6 +1852,19 @@ For the definition of templates these commends are available:
     This re-defines a template of type \meta{type} woth the name \meta{name}
     which inserts \meta{code} when used.  A template of type \meta{type} with
     name \meta{name} must exist.  The default type is \code{acronym}.
+  \command{SetupAcroTemplate}[\oarg{type}\marg{name}\marg{code}]
+    Adds\sinceversion{3.2} \meta{code} to the beginning of the template
+    \meta{name} of type \meta{type}.  The default type is \code{acronym}.
+  \command{SetupNextAcroTemplate}[\oarg{type}\marg{name}\marg{code}]
+    Adds\sinceversion{3.2} \meta{code} to the beginning of \emph{the next use}
+    of the template \meta{name} of type \meta{type}.  The default type is
+    \code{acronym}.
+  \expandable\command{AcroTemplateType}
+    Within a template this expands to the \meta{type} of the current
+    template.
+  \expandable\command{AcroTemplateName}
+    Within a template this expands to the \meta{name} of the current
+    template.
 \end{commands}
 
 How to use these commands is best explained by examples of how the existing
@@ -1868,7 +1891,7 @@ and \cs*{acroifF} each have an argument less than \cs*{acroifTF}.
 \subsubsection{Commands for common uses}
 \begin{commands}
   \expandable\command{acrolistname}
-    Expnads to whatever is currently set with
+    Expands to whatever is currently set with
     \module{list}\code{/}\option{name}.
   \command{acrowrite}[\marg{property}]
     Prints the property \meta{property} of the current acronym.  Depending on
@@ -2138,7 +2161,7 @@ define and use additional articles.
 \begin{commands}
   \command{DeclareAcroArticle}[\marg{name}\marg{default}]
     This command can be used to define properties and options analoguous to
-    the indefnite article which have been defined this way:
+    the indefinite article which have been defined this way:
 \end{commands}
 \begin{sourcecode}
   \DeclareAcroArticle{indefinite}{a}
@@ -2164,7 +2187,7 @@ template definitions.
     This command tells the template that the article \meta{foo} should be
     used.
 \end{commands}
-Section~\vref{sec:own-acronym-commands} has an example of how this can be used
+Section~\vref{sec:own-acronym-commands} has examples of how this can be used
 to define definite articles and commands that make use of them like this:
 \begin{example}
   \dacs{hadopi} \par
@@ -2209,13 +2232,13 @@ Translations for a language could be added this way\footnote{\acro\ already
 The existing keywords had been shown in table~\vref{tab:translations}.
 
 \section{Properties}\label{sec:new-properties}
-As you know from section~\ref{sec:decl-acronyms-other} \acro\ comes with
-quiute a number of predefined properties for the control of acronyms.
-However, there are cases when additional properties would be nice to have and
-to use. \acro\ provides this command:
+As you know from section~\ref{sec:decl-acronyms-other} \acro\ comes with quite
+a number of predefined properties which control various aspects of
+acronyms. However, there are cases when additional properties would be nice to
+have and to use. It can be done with the following command:
 \begin{commands}
-  \command{DeclareAcroProperty}[\sarg\qarg\barg\uarg\marg{name}]
-    This defines the new property \meta{name}.  The command has four optional
+  \command{DeclareAcroProperty}[\sarg\arg{?}\arg{!}\arg{|}\arg{>}\marg{name}]
+    This defines the new property \meta{name}.  The command has five optional
     arguments most of which you probably never need. \par
     The optional star \sym{*} ensures that each acronym gets a \emph{unique}
     value for the property. \par
@@ -2224,11 +2247,18 @@ to use. \acro\ provides this command:
     \code{false} and when it is used without value (not an empty value!) then
     \code{true} is assumed. \par
     The optional exclamation mark \sym{!} creates a \emph{mandatory}
-    property. An error if raised if an acronym does not set it. \par
+    property. An error is raised if an acronym does not set it. \par
     The optional pipe \sym{|} creates a \emph{static} property which means
     its value is written to an auxiliary file and read in again at begin
-    document.  Once set the value is the same throughout the document
-  \command{DeclareAcroPropertyAlias}[\sarg\qarg\barg\uarg\marg{name1}\marg{name2}]
+    document.  Once set the value is the same throughout the document. \par
+    The optional greater as symbol\sinceversion{3.2} \sym{>} creates a
+    \emph{display} property.  This additionally defines the two boolean
+    options \meta{name}\code{/}\option{display} and
+    \module{list}\code{/}\meta{name}\code{/}\option{display}, both initially
+    set to true.  If these options are set to false the acronym commands or
+    the list act as if the property \meta{name} has not been set.  The
+    \property{foreign} property is an example.
+  \command{DeclareAcroPropertyAlias}[\sarg\arg{?}\arg{!}\arg{|}\arg{>}\marg{name1}\marg{name2}]
     This newly declares property \meta{name1} and makes it an alias of
     property \meta{name2}.  This means that \meta{name1} gets the same value
     that \meta{name2} has unless it is set explicitly.  Property \meta{name2}

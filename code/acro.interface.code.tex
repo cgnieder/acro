@@ -104,6 +104,12 @@
 \NewDocumentCommand \RenewAcroTemplate {O{acronym}m+m}
   { \use:c {acro_#1_template_renew:nn} {#2} {#3} }
 
+\NewDocumentCommand \SetupAcroTemplate {O{acronym}m+m}
+  { \acro_template_setup:nnn {#1} {#2} {#3} }
+
+\NewDocumentCommand \SetupNextAcroTemplate {O{acronym}m+m}
+  { \acro_next_template_setup:nnn {#1} {#2} {#3} }
+
 \NewDocumentCommand \DeclareAcronym {m+m}
   { \acro_declare_acronym:nn {#1} {#2} }
 

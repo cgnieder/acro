@@ -27,9 +27,9 @@
 
 % setup package:
 \tl_const:Nn \c_acro_package_name_tl {acro}
-\tl_const:Nn \c_acro_date_tl {2020/05/04}
+\tl_const:Nn \c_acro_date_tl {2020/05/10}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
-\tl_const:Nn \c_acro_version_minor_number_tl {1}
+\tl_const:Nn \c_acro_version_minor_number_tl {2}
 \tl_const:Nn \c_acro_version_subrelease_tl   {}
 \tl_const:Nx \c_acro_version_number_tl
   {
@@ -734,6 +734,12 @@
 
 \NewDocumentCommand \RenewAcroTemplate {O{acronym}m+m}
   { \use:c {acro_#1_template_renew:nn} {#2} {#3} }
+
+\NewDocumentCommand \SetupAcroTemplate {O{acronym}m+m}
+  { \acro_template_setup:nnn {#1} {#2} {#3} }
+
+\NewDocumentCommand \SetupNextAcroTemplate {O{acronym}m+m}
+  { \acro_next_template_setup:nnn {#1} {#2} {#3} }
 
 \NewDocumentCommand \DeclareAcronym {m+m}
   { \acro_declare_acronym:nn {#1} {#2} }
@@ -2608,10 +2614,10 @@
 
 \cs_new_protected:Npn \acro_footnote:n #1
   {
-    \tl_set:Ne \l__acro_fnpct_check_tl { \l__acro_fnpct_check_tl }
+    \tl_set:Ne \l__acro_tmpa_tl { \l__acro_fnpct_check_tl }
     \exp_last_unbraced:Nno
     \footnote {#1}
-    \l__acro_fnpct_check_tl
+    \l__acro_tmpa_tl
   }
 
 % options for activating actions:
@@ -3179,6 +3185,7 @@
 \cs_new_protected:Npn \__acro_template_add:nnn #1#2#3
   {
     \tl_new:c {l__acro_template_#1_#2_setup_tl}
+    \tl_new:c {l__acro_next_template_#1_#2_setup_tl}
     \acro_attribute_set:nnn {template::#1} {#2} {#3}
   }
 
@@ -3221,28 +3228,33 @@
 % #3: setup code
 \cs_new_protected:Npn \acro_template_setup:nnn #1#2#3
   { \tl_set:cn {l__acro_template_#1_#2_setup_tl} {#3} }
-\cs_generate_variant:Nn \acro_template_setup:nnn {nnV,nVn}
+
+\cs_new_protected:Npn \acro_next template_setup:nnn #1#2#3
+  { \tl_set:cn {l__acro_next_template_#1_#2_setup_tl} {#3} }
 
 % #1: template type
 % #2: template name
-\cs_new_protected:Npn \__acro_template_setup:nn #1#2
-  { \tl_use:c {l__acro_template_#1_#2_setup_tl} }
+\cs_new_protected:Npn \__acro_template_do_setup:nn #1#2
+  {
+    \tl_use:c {l__acro_template_#1_#2_setup_tl}
+    \tl_use:c {l__acro_next_template_#1_#2_setup_tl}
+  }
 
 % #1: template type
 % #2: template name
 \cs_new_protected:Npn \__acro_clear_template_setup:nn #1#2
-  { \tl_clear:c {l__acro_template_#1_#2_setup_tl} }
+  { \tl_clear:c {l__acro_next_template_#1_#2_setup_tl} }
 
 % #1: template type
 % #2: template name
 \cs_new_protected:Npn \__acro_template_start:nn #1#2
   {
     \group_begin:
-      \__acro_template_setup:nn {#1} {#2}
-      \tl_clear_new:N \TemplateType
-      \tl_set:Nn \TemplateType {#1}
-      \tl_clear_new:N \TemplateName
-      \tl_set:Nn \TemplateName {#2}
+      \__acro_template_do_setup:nn {#1} {#2}
+      \tl_clear_new:N \AcroTemplateType
+      \tl_set:Nn \AcroTemplateType {#1}
+      \tl_clear_new:N \AcroTemplateName
+      \tl_set:Nn \AcroTemplateName {#2}
   }
 
 % #1: template type
@@ -5046,7 +5058,7 @@
             \acropages
               { \acrotranslate {page} \nobreakspace }
               { \acrotranslate {pages} \nobreakspace }
-            \tabularnewline
+            \strut \tabularnewline
           }
       }
       { \AcroRerun }
@@ -5058,6 +5070,38 @@
     \end {longtabu}
   }
 
+\NewAcroTemplate[list] {supertabular}
+  {
+    \AcroNeedPackage {array,supertabular}
+    \acronymsmapF
+      {
+        \AcroAddRow
+          {
+            \acrowrite {short}
+            \acroifT {alt} { / } \acrowrite {alt}
+            &
+            \acrowrite {list}
+            \acroifanyT {foreign,extra} {~(}
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
+            \acroifanyT {foreign,extra} {)}
+            \acropagefill
+            \acropages
+              { \acrotranslate {page} \nobreakspace }
+              { \acrotranslate {pages} \nobreakspace }
+            \tabularnewline
+          }
+      }
+      { \AcroRerun }  
+    \acroheading
+    \acropreamble
+    \par \noindent
+    \begin {supertabular} {>{\bfseries}lp{.7\linewidth}}
+      \AcronymTable
+    \end {supertabular}
+  }
+  
 \NewAcroTemplate [list] {lof}
   {
     \acroheading
