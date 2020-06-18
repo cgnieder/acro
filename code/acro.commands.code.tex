@@ -231,7 +231,7 @@
     \bool_if:NF \g__acro_cited_bool
       { \acro_cite_if:nnT {#1} {#2} { \acro_cite:n {#2} } }
     \bool_gset_false:N \g__acro_cited_bool
-    \acro_property_if_set:nnT {#1} {post}
+    \acro_property_if_set:nnT {#2} {post}
       { \acro_property_get:nn {#2} {post} }
     \bool_lazy_all:nT
       {
