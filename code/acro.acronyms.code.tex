@@ -231,9 +231,9 @@
   {
     \acro_property_set:nnn {#1} {used} {false}
     \int_gzero:c {g__acro_ \acro_case_insensitive:n {#1} _int}
-    \int_compare:nNnF
-      { \acro_property_get:nn {#1} {usage} } > 0
-      { \acro_property_set:nnn {#1} {usage} {0} }
+    % \int_compare:nNnF
+    %   { \acro_property_get:nn {#1} {usage} } > 0
+    %   { \acro_property_set:nnn {#1} {usage} {0} }
   }
 
 \cs_new_protected:Npn \acro_reset:n #1

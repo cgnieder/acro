@@ -1867,9 +1867,9 @@
   {
     \acro_property_set:nnn {#1} {used} {false}
     \int_gzero:c {g__acro_ \acro_case_insensitive:n {#1} _int}
-    \int_compare:nNnF
-      { \acro_property_get:nn {#1} {usage} } > 0
-      { \acro_property_set:nnn {#1} {usage} {0} }
+    % \int_compare:nNnF
+    %   { \acro_property_get:nn {#1} {usage} } > 0
+    %   { \acro_property_set:nnn {#1} {usage} {0} }
   }
 
 \cs_new_protected:Npn \acro_reset:n #1
@@ -3406,8 +3406,8 @@
   {
     \__acro_template_add:nnn {list} {#1}
       {
-        \__acro_template_start:nn {list} {#1}
         \tl_clear_new:N \AcronymTable
+        \__acro_template_start:nn {list} {#1}
         #2
         \__acro_template_stop:nn {list} {#1}
       }
