@@ -4895,7 +4895,11 @@
   }
 
 \NewAcroTemplate {long}
-  { \acrowrite {long} }
+  {
+    \acroifTF {single}
+      { \acrowrite {single} }
+      { \acrowrite {long} }
+  }
 
 \NewAcroTemplate {short}
   { \acrowrite {short} }
