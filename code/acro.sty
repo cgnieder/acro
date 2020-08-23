@@ -295,7 +295,7 @@
 
 \cs_new_protected:Npn \__acro_module_load:n #1
   {
-    \acro_if_module_loaded:nF {#1}
+    \acro_module_if_loaded:nF {#1}
       {
         \acro_module_if_exist:nTF {#1}
           {
@@ -311,7 +311,7 @@
   }
 \cs_generate_variant:Nn \__acro_module_load:n {V}
 
-\prg_new_conditional:Npnn \acro_if_module_loaded:n #1 {p,T,F,TF}
+\prg_new_conditional:Npnn \acro_module_if_loaded:n #1 {p,T,F,TF}
   {
     \tl_if_in:NnTF \g__acro_modules_loaded_tl {#1}
       { \prg_return_true: }
@@ -332,7 +332,7 @@
 % #2: code
 \cs_new_protected:Npn \acro_module_after:nn #1#2
   {
-    \acro_if_module_loaded:nTF {#1}
+    \acro_module_if_loaded:nTF {#1}
       {#2}
       { \__acro_add_to_module_hook:nnn {#1} {after} {#2} }
   }
@@ -342,7 +342,7 @@
 \cs_new_protected:Npn \acro_module_before:nn #1#2
   {
     % TODO: error in T case?
-    \acro_if_module_loaded:nF {#1}
+    \acro_module_if_loaded:nF {#1}
       { \__acro_add_to_module_hook:nnn {#1} {before} {#2} }
   }
 
@@ -351,7 +351,7 @@
 % #3: code
 \cs_new_protected:Npn \__acro_add_to_module_hook:nnn #1#2#3
   {
-    \acro_if_module_loaded:nF {#1}
+    \acro_module_if_loaded:nF {#1}
       {
         \tl_if_exist:cF {g__acro_module_hook_#1_#2_tl}
           { \tl_new:c {g__acro_module_hook_#1_#2_tl} }
@@ -4729,13 +4729,41 @@
 \msg_new:nnn {acro} {patch}
   { Patching~ `#1'~ failed.~ Please~ contact~ the~ acro~ author. }
 
+\cs_new_protected:Npn \acro_new_patch:n #1
+  {
+    \bool_new:c {l__acro_patch_#1_bool}
+    \keys_define:nn
+      {acro}
+      {
+        patch / #1 .bool_set:c = {l__acro_patch_#1_bool} ,
+        patch / #1 .initial:n  = true
+      }
+  }
+
+\prg_new_conditional:Npnn \acro_if_patch:n #1 {T,F,TF}
+  {
+    \cs_if_exist:cTF {l__acro_patch_#1_bool}
+      {
+        \bool_if:cTF {l__acro_patch_#1_bool}
+          { \prg_return_true: }
+          { \prg_return_false: }
+      }
+      { \prg_return_false: }
+  }
+
+\acro_new_patch:n {floats}
+\acro_new_patch:n {lists}
+
 \AtEndPreamble
   {
     % floats:
-    \apptocmd \@floatboxreset
-      { \acswitchoff }
-      {}
-      { \msg_error:nnn {acro} {patch} {floats} }
+    \acro_if_patch:nT {floats}
+      {
+        \apptocmd \@floatboxreset
+          { \acswitchoff }
+          {}
+          { \msg_error:nnn {acro} {patch} {floats} }
+      }
     % tables:
     % * tabularx
     \cs_if_exist:NT \TX@trial
@@ -4759,9 +4787,12 @@
     \cs_if_exist:NT \tabuDisableCommands
       { \tabuDisableCommands { \acswitchoff } }
     % contents lists:
-    \addtocontents {toc} { \acswitchoff }
-    \addtocontents {lof} { \acswitchoff }
-    \addtocontents {lot} { \acswitchoff }
+    \acro_if_patch:nT {lists}
+      {
+        \addtocontents {toc} { \acswitchoff }
+        \addtocontents {lof} { \acswitchoff }
+        \addtocontents {lot} { \acswitchoff }
+      }
     % caption package:
     \cs_if_exist:NT \caption@prepareslc
       { \tl_gput_right:Nn \caption@prepareslc { \acswitchoff } }
