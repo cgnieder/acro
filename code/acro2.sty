@@ -2482,6 +2482,8 @@
 \cs_new_protected:Npn \acro@pages #1#2
   { \tl_gset:cn {g__acro_#1_recorded_pages_tl} {#2} }
 
+\bool_new:N \g__acro_rerun_bool
+  
 \cs_new_protected:Npn \acro@rerun@check
   {
     \bool_if:NT \g__acro_rerun_bool

@@ -27,9 +27,9 @@
 
 % setup package:
 \tl_const:Nn \c_acro_package_name_tl {acro}
-\tl_const:Nn \c_acro_date_tl {2020/05/10}
+\tl_const:Nn \c_acro_date_tl {2020/08/24}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
-\tl_const:Nn \c_acro_version_minor_number_tl {2}
+\tl_const:Nn \c_acro_version_minor_number_tl {3}
 \tl_const:Nn \c_acro_version_subrelease_tl   {}
 \tl_const:Nx \c_acro_version_number_tl
   {
@@ -4753,6 +4753,10 @@
 
 \acro_new_patch:n {floats}
 \acro_new_patch:n {lists}
+\acro_new_patch:n {tabularx}
+\acro_new_patch:n {tabu}
+\acro_new_patch:n {ltxtable}
+\acro_new_patch:n {caption}
 
 \AtEndPreamble
   {
@@ -4766,26 +4770,35 @@
       }
     % tables:
     % * tabularx
-    \cs_if_exist:NT \TX@trial
+    \acro_if_patch:nT {tabularx}
       {
-        \patchcmd \TX@trial
-          { \let\hbadness\@tempcnta }
-          { \acswitchoff\let\hbadness\@tempcnta }
-          {}
-          { \msg_error:nnn {acro} {patch} {tabularx} }
+        \cs_if_exist:NT \TX@trial
+          {
+            \patchcmd \TX@trial
+              { \let\hbadness\@tempcnta }
+              { \acswitchoff\let\hbadness\@tempcnta }
+              {}
+              { \msg_error:nnn {acro} {patch} {tabularx} }
+          }
       }
     % * ltxtable
-    \cs_if_exist:NT \LTXtable
+    \acro_if_patch:nT {ltxtable}
       {
-        \patchcmd \LTXtable
-          { \input }
-          { \acswitchoff\input }
-          {}
-          { \msg_error:nnn {acro} {patch} {ltxtable} }
+        \cs_if_exist:NT \LTXtable
+          {
+            \patchcmd \LTXtable
+              { \input }
+              { \acswitchoff\input }
+              {}
+              { \msg_error:nnn {acro} {patch} {ltxtable} }
+          }
       }
     % * tabu
-    \cs_if_exist:NT \tabuDisableCommands
-      { \tabuDisableCommands { \acswitchoff } }
+    \acro_if_patch:nT {tabu}
+      {
+        \cs_if_exist:NT \tabuDisableCommands
+          { \tabuDisableCommands { \acswitchoff } }
+      }
     % contents lists:
     \acro_if_patch:nT {lists}
       {
@@ -4794,8 +4807,11 @@
         \addtocontents {lot} { \acswitchoff }
       }
     % caption package:
-    \cs_if_exist:NT \caption@prepareslc
-      { \tl_gput_right:Nn \caption@prepareslc { \acswitchoff } }
+    \acro_if_patch:nT {caption}
+      {
+        \cs_if_exist:NT \caption@prepareslc
+          { \tl_gput_right:Nn \caption@prepareslc { \acswitchoff } }
+      }
   }
 
 \AcroModuleEnd

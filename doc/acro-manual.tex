@@ -641,7 +641,7 @@ The usage should be clear. Let's assume you have defined an acronym
     long-indefinite = an
   }
 \end{sourcecode}
-Then typical outputs look like this:
+The typical outputs look like this:
 \begin{example}
   \ac{ufo} \\
   \iac{ufo} \\
@@ -1723,6 +1723,44 @@ shown in table~\vref{tab:translations}.
   \caption{Available translation keywords.}
   \label{tab:translations}
 \end{table}
+
+\section{Patches}\label{sec:patches}
+In several situations it can lead to wrong results if \acro\ marks an acronym
+as used too early or at all.  This is why it is possible to disable the
+mechanism which is responsible:
+\begin{commands}
+  \command{acswitchoff}
+    This disables the mechanism which marks acronyms as used. After this
+    command every acronym command like \cs{ac} acts like its starred version.
+  \command{acswitchon}
+    This command enables the mechanism again.
+\end{commands}
+
+In certain circumstances \acro\ uses these commands itself. For example it is
+often preferable that acronyms are not counted as used in floats, the table of
+contents or the lists of figures and tables.  This is why \acro\ turns the
+mechanism off in these places.
+
+Certain table environments typeset their contents twice for measurement
+purposes.  \acro\ tries to disable the usage mechanism during these phases.
+The same is true for single line captions from the \pkg{caption} package.
+
+All these patches can be turned off:
+\begin{options}
+  \keybool{floats}\Module{patch}\Default{true}
+    En-/disable the \option{floats} patch.
+  \keybool{lists}\Module{patch}\Default{true}
+    En-/disable the \option{lists} patch for the table of contents, the list
+    of figures and the list of tables.
+  \keybool{tabularx}\Module{patch}\Default{true}
+    En-/disable the \option{tabularx} patch.
+  \keybool{ltxtable}\Module{patch}\Default{true}
+    En-/disable the \option{ltxtable} patch.
+  \keybool{tabu}\Module{patch}\Default{true}
+    En-/disable the \option{tabu} patch.
+  \keybool{caption}\Module{patch}\Default{true}
+    En-/disable the \option{caption} patch.
+\end{options}
 
 \part{Extending \acro}\label{part:extending-acro}
 \section{Background}\label{sec:background}
