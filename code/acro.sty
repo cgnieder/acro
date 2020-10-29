@@ -656,7 +656,7 @@
     \clist_map_inline:nn {#1}
       {
         \acro_package_if_loaded:nF {##1}
-          { \msg_error:nnen {acro} {package-needed} { \TemplateName } {##1} }
+          { \msg_error:nnen {acro} {package-needed} { \AcroTemplateName } {##1} }
       }
   }
 
@@ -921,7 +921,7 @@
   { \acro_print_pages:enn { \AcronymID } {#1} {#2} }
 
 \NewDocumentCommand \acronopagerange {}
-  { \acro_no_page_ranges:e { \TemplateName } }
+  { \acro_no_page_ranges:e { \AcroTemplateName } }
 
 \NewDocumentCommand \acropagefill {}
   { \acro_if_pages:eT  { \AcronymID } { \tl_use:N \l__acro_pages_fill_tl } }
