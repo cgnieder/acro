@@ -151,8 +151,11 @@
 
 % #1: id
 % #2: property
-\cs_new:Npn \__acro_write_acronym:nn #1#2
+\cs_new_protected:Npn \__acro_write_acronym:nn #1#2
   {
+    \__acro_upper:n { \__acro_article:nn {#1} {#2} }
+    \bool_if:NT \l__acro_article_bool
+      { \bool_set_false:N \l__acro_upper_bool }
     \bool_lazy_and:nnTF
       { \acro_property_if_eq_p:nn {#2} {long} }
       { \acro_if_first_p:n {#1} }
@@ -161,7 +164,6 @@
       {
         \__acro_upper:n
           {
-            \__acro_article:nn {#1} {#2}
             \acro_if_ending_form:nnTF {#1} {#2}
               { \acro_ending_form:nn {#1} {#2} }
               { \acro_property_get:nn {#1} {#2} }

@@ -221,7 +221,7 @@
   }
 
 \cs_new_protected:Npn \acro_use:n #1
-  { \clist_map_inline:nn {#1} { \__acro_use:n {#1} } }
+  { \clist_map_inline:nn {#1} { \__acro_use:n {##1} } }
 \cs_generate_variant:Nn \acro_use:n {e}
 
 \cs_new_protected:Npn \acro_use_all:
