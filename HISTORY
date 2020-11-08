@@ -310,7 +310,9 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - \SetupAcroTemplate, \SetupNextAcroTemplate
                   - properly define and document \AcroTemplateName and
                     \AcroTemplateType
-2020/11/08 v3.2a  - fix issue #166
+2020/11/08 v3.2a  - fix issue #163
+                  - fix issue #164
+                  - fix issue #166
                   - fix issue #172
                   - fix issue #175
                   - fix issue #176
