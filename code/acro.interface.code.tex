@@ -290,7 +290,7 @@
   { \acro_print_pages:enn { \AcronymID } {#1} {#2} }
 
 \NewDocumentCommand \acronopagerange {}
-  { \acro_no_page_ranges:e { \TemplateName } }
+  { \acro_no_page_ranges:e { \AcroTemplateName } }
 
 \NewDocumentCommand \acropagefill {}
   { \acro_if_pages:eT  { \AcronymID } { \tl_use:N \l__acro_pages_fill_tl } }
