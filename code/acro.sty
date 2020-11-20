@@ -656,7 +656,7 @@
     \clist_map_inline:nn {#1}
       {
         \acro_package_if_loaded:nF {##1}
-          { \msg_error:nnen {acro} {package-needed} { \TemplateName } {##1} }
+          { \msg_error:nnen {acro} {package-needed} { \AcroTemplateName } {##1} }
       }
   }
 
@@ -2413,8 +2413,9 @@
       \str_case:nnTF {#1}
         { {true} {} {false} {} }
         { \use:c {bool_set_#1:N} \l__acro_cite_group_bool }
-        { \msg_error:nnn {kernel} {boolean-values-only} {group} } ,
+        { \msg_error:nnn {acro} {boolean-values-only} {cite/group} } ,
     group         .initial:n  = false ,
+    group         .default:n  = true ,
     display       .choice: ,
     display/all   .code:n     =
       \bool_set_true:N \l__acro_cite_bool
@@ -2430,6 +2431,12 @@
     group / pre   .initial:n  = {,~} ,
     group / cmd   .cs_set:Np  = \__acro_cite_group_cmd:w ,
     group / cmd   .initial:n  = \cite
+  }
+
+\msg_new:nnn {acro} {boolean-values-only}
+  {
+    The~ option~ `#1'~ can~ only~ receive~ boolean~ values,~ i.e.~ either~
+    `true'~ or~ `false'.
   }
 
 % --------------------------------------------------------------------------
