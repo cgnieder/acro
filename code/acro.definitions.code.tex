@@ -126,11 +126,10 @@
   }
 
 \NewAcroTemplate {long}
-  {
-    \acroifsingleTF
-      { \acrowrite {single} }
-      { \acrowrite {long} }
-  }
+  { \acrowrite {long} }
+
+\NewAcroTemplate {single}
+  { \acrowrite {single} }
 
 \NewAcroTemplate {short}
   { \acrowrite {short} }

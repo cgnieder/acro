@@ -185,7 +185,7 @@
           { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_first_style_tl }
       }
     \bool_if:NTF \l__acro_tmpb_bool
-      { \acro_property_get:Vn \l_acro_id_tl {single} }
+      { \__acro_template_use:nnn {#1} {#2} {single} }
       { \__acro_template_use:nnV {#1} {#2} \l__acro_tmpa_tl }
   }
 \cs_generate_variant:Nn \acro_template_use:nnn {nnV}

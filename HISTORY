@@ -323,3 +323,5 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - remove double declaration of \g__acro_rerun_bool in
                     acro2.sty
                   - change default of `format/replace'
+                  - correct the behavior of the `single' property
+                  - remove property `single-format'

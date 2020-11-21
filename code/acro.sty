@@ -29,8 +29,8 @@
 \tl_const:Nn \c_acro_package_name_tl {acro}
 \tl_const:Nn \c_acro_date_tl {2020/11/20}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
-\tl_const:Nn \c_acro_version_minor_number_tl {2}
-\tl_const:Nn \c_acro_version_subrelease_tl   {b}
+\tl_const:Nn \c_acro_version_minor_number_tl {3}
+\tl_const:Nn \c_acro_version_subrelease_tl   {}
 \tl_const:Nx \c_acro_version_number_tl
   {
     \c_acro_version_major_number_tl .
@@ -1718,7 +1718,7 @@
 \DeclareAcroProperty {foreign-locale}
 
 % additional properties:
-\DeclareAcroPropertyAlias {single} {long}
+\DeclareAcroProperty {single}
 \DeclareAcroPropertyAlias {list} {long}
 \DeclareAcroPropertyAlias {first-long} {long}
 \DeclareAcroProperty {extra}
@@ -1734,7 +1734,7 @@
 \DeclareAcroPropertyAlias {long-format}  {format}
 \DeclareAcroPropertyAlias {first-long-format} {long-format}
 \DeclareAcroProperty {foreign-format}
-\DeclareAcroProperty {single-format}
+% \DeclareAcroProperty {single-format}
 \DeclareAcroProperty {list-format}
 \DeclareAcroProperty {extra-format}
 
@@ -1745,7 +1745,6 @@
     \acro_list_add:nn {short} {#1-acc}
   }
 
-\DeclareAcroPropertyAlias {single-acc} {long-acc}
 \acro_list_map:nn {long}
   {
     \DeclareAcroPropertyAlias {#1-acc} {#1}
@@ -3342,7 +3341,7 @@
           { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_first_style_tl }
       }
     \bool_if:NTF \l__acro_tmpb_bool
-      { \acro_property_get:Vn \l_acro_id_tl {single} }
+      { \__acro_template_use:nnn {#1} {#2} {single} }
       { \__acro_template_use:nnV {#1} {#2} \l__acro_tmpa_tl }
   }
 \cs_generate_variant:Nn \acro_template_use:nnn {nnV}
@@ -4960,11 +4959,10 @@
   }
 
 \NewAcroTemplate {long}
-  {
-    \acroifsingleTF
-      { \acrowrite {single} }
-      { \acrowrite {long} }
-  }
+  { \acrowrite {long} }
+
+\NewAcroTemplate {single}
+  { \acrowrite {single} }
 
 \NewAcroTemplate {short}
   { \acrowrite {short} }
@@ -5506,6 +5504,7 @@
 \acro_removed_property:n {long-pre}
 \acro_removed_property:n {after-citation}
 \acro_removed_property:n {index-cmd}
+\acro_removed_property:n {single-format}
 
 % ----------------------------------------------------------------------------
 % old functions

@@ -82,7 +82,7 @@
 \DeclareAcroProperty {foreign-locale}
 
 % additional properties:
-\DeclareAcroPropertyAlias {single} {long}
+\DeclareAcroProperty {single}
 \DeclareAcroPropertyAlias {list} {long}
 \DeclareAcroPropertyAlias {first-long} {long}
 \DeclareAcroProperty {extra}
@@ -98,7 +98,7 @@
 \DeclareAcroPropertyAlias {long-format}  {format}
 \DeclareAcroPropertyAlias {first-long-format} {long-format}
 \DeclareAcroProperty {foreign-format}
-\DeclareAcroProperty {single-format}
+% \DeclareAcroProperty {single-format}
 \DeclareAcroProperty {list-format}
 \DeclareAcroProperty {extra-format}
 
@@ -109,7 +109,6 @@
     \acro_list_add:nn {short} {#1-acc}
   }
 
-\DeclareAcroPropertyAlias {single-acc} {long-acc}
 \acro_list_map:nn {long}
   {
     \DeclareAcroPropertyAlias {#1-acc} {#1}
