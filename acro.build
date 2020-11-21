@@ -22,6 +22,7 @@
 pkgname="acro"
 moduleext="code.tex"
 styname="$pkgname.sty"
+styoldname="${pkgname}2.sty"
 program="arara --verbose"
 manualfile="$pkgname-manual"
 zipname="$pkgname"
@@ -313,7 +314,8 @@ if [ "$update" == true ] ; then
         mkdir ${LATEXLOCAL_DIR}/$pkgname
     fi
     cd ${CODE_DIR}
-    cp $pkgname.sty ${LATEXLOCAL_DIR}/$pkgname
+    cp $styname ${LATEXLOCAL_DIR}/$pkgname
+    cp $styoldname ${LATEXLOCAL_DIR}/$pkgname
     if [ "$runmktexlsr" == true ] ; then
         if [ "$verbose" == true ] ; then
             echo "running mktexlsr ..."
