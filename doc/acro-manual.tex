@@ -1018,10 +1018,10 @@ also give each acronym its own formatting individually:
     The style of a single appearance of the acronym, see also
     section~\vref{sec:single-appe-an}.
 \end{properties}
-Per default the individual formatting instructions are \emph{additive} to the
-global ones.  This can be changed through the option
+Per default the individual formatting instructions replace the global ones.
+This can be changed through the option
 \begin{options}
-  \keybool{replace}\Module{format}\Default{false}
+  \keybool{replace}\Module{format}\Default{true}
     With this option active local options will \emph{replace} the global ones.
 \end{options}
 
@@ -1036,7 +1036,7 @@ Let's see an example:
 \begin{example}
   \acsetup{format = \itshape}
   \acf{pdf} \par
-  \acsetup{format/replace=true}
+  \acsetup{format/replace=false}
   \acf{pdf}
 \end{example}
 

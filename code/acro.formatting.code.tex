@@ -107,10 +107,7 @@
 \cs_new_protected:Npn \acro_new_format:n #1
   {
     \tl_new:c {l__acro_format_#1_tl}
-    \keys_define:nn {acro/format}
-      {
-        #1 .tl_set:c  = l__acro_format_#1_tl
-      }
+    \keys_define:nn {acro/format} { #1 .tl_set:c  = l__acro_format_#1_tl }
   }
 
 \acro_new_format:n {short}
@@ -125,7 +122,7 @@
   {
     format .meta:n = { format/short = #1 , format/long = #1 } ,
     format / replace .bool_set:N = \l__acro_format_replace_bool ,
-    format / replace .initial:n  = false
+    format / replace .initial:n  = true
   }
 
 % ----------------------------------------------------------------------------

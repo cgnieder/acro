@@ -27,10 +27,10 @@
 
 % setup package:
 \tl_const:Nn \c_acro_package_name_tl {acro}
-\tl_const:Nn \c_acro_date_tl {2020/11/08}
+\tl_const:Nn \c_acro_date_tl {2020/11/20}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
 \tl_const:Nn \c_acro_version_minor_number_tl {2}
-\tl_const:Nn \c_acro_version_subrelease_tl   {a}
+\tl_const:Nn \c_acro_version_subrelease_tl   {b}
 \tl_const:Nx \c_acro_version_number_tl
   {
     \c_acro_version_major_number_tl .
@@ -2008,10 +2008,7 @@
 \cs_new_protected:Npn \acro_new_format:n #1
   {
     \tl_new:c {l__acro_format_#1_tl}
-    \keys_define:nn {acro/format}
-      {
-        #1 .tl_set:c  = l__acro_format_#1_tl
-      }
+    \keys_define:nn {acro/format} { #1 .tl_set:c  = l__acro_format_#1_tl }
   }
 
 \acro_new_format:n {short}
@@ -2026,7 +2023,7 @@
   {
     format .meta:n = { format/short = #1 , format/long = #1 } ,
     format / replace .bool_set:N = \l__acro_format_replace_bool ,
-    format / replace .initial:n  = false
+    format / replace .initial:n  = true
   }
 
 % ----------------------------------------------------------------------------
@@ -3280,6 +3277,7 @@
 \cs_new_protected:Npn \acro_template_use:nnn #1#2#3
   {
     \bool_set_false:N \l__acro_tmpa_bool
+    \bool_set_false:N \l__acro_tmpb_bool
     \bool_lazy_and:nnT
       { \l__acro_use_only_first_bool }
       { \l__acro_use_bool }
@@ -3296,12 +3294,16 @@
             { !\l__acro_first_bool }
             { \acro_if_single_p:V \l_acro_id_tl }
             {
-              \acro_property_if_set:VnTF \l_acro_id_tl {single-style}
+              \acro_property_if_set:VnTF \l_acro_id_tl {single}
+                { \bool_set_true:N \l__acro_tmpb_bool }
                 {
-                  \tl_set:Ne \l__acro_tmpa_tl
-                    { \acro_property_get:Vn \l_acro_id_tl {single-style} }
+                  \acro_property_if_set:VnTF \l_acro_id_tl {single-style}
+                    {
+                      \tl_set:Ne \l__acro_tmpa_tl
+                        { \acro_property_get:Vn \l_acro_id_tl {single-style} }
+                    }
+                    { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_single_tl }
                 }
-                { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_single_tl }
             }
             {
               \acro_if_first:VTF \l_acro_id_tl
@@ -3317,12 +3319,16 @@
             }
         }
         {single} {
-          \acro_property_if_set:VnTF \l_acro_id_tl {single-style}
+          \acro_property_if_set:VnTF \l_acro_id_tl {single}
+            { \bool_set_true:N \l__acro_tmpb_bool }
             {
-              \tl_set:Ne \l__acro_tmpa_tl
-                { \acro_property_get:Vn \l_acro_id_tl {single-style} }
+              \acro_property_if_set:VnTF \l_acro_id_tl {single-style}
+                {
+                  \tl_set:Ne \l__acro_tmpa_tl
+                    { \acro_property_get:Vn \l_acro_id_tl {single-style} }
+                }
+                { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_single_tl }
             }
-            { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_single_tl }
         }
       }
       { \tl_set:Nn \l__acro_tmpa_tl {#3} }
@@ -3335,7 +3341,9 @@
           }
           { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_first_style_tl }
       }
-    \__acro_template_use:nnV {#1} {#2} \l__acro_tmpa_tl
+    \bool_if:NTF \l__acro_tmpb_bool
+      { \acro_property_get:Vn \l_acro_id_tl {single} }
+      { \__acro_template_use:nnV {#1} {#2} \l__acro_tmpa_tl }
   }
 \cs_generate_variant:Nn \acro_template_use:nnn {nnV}
 
