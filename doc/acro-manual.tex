@@ -18,7 +18,7 @@
 % and version 1.3c or later is part of all distributions of LaTeX
 % version 2008/05/04 or later.
 % 
-% This work has nce status `maintained'.
+% This work has the LPPL maintenance status `maintained'.
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
@@ -876,6 +876,11 @@ the list of acronym you can use these options:
   \keybool{name}\Module{pages}\Default{false}
     If set to true the page numbers are preceded with p.\ or pp.
 \end{options}
+Additionally\sinceversion{3.3} to setting these options with \cs{acsetup} they
+can be set as options to \cs{printacronyms}:
+\begin{sourcecode}
+  \printacronyms[pages={display=all,seq/use=false}]
+\end{sourcecode}
 
 \subsection{Filter lists using tags}\label{sec:lists-tags}
 With the property \property{tag} you can assign one or more tags to an
@@ -1020,11 +1025,12 @@ also give each acronym its own formatting individually:
     The style of a single appearance of the acronym, see also
     section~\vref{sec:single-appe-an}.
 \end{properties}
-Per default the individual formatting instructions replace the global ones.
-This can be changed through the option
+Per\changedversion{3.3} default the individual formatting instructions
+\emph{replace} the global ones. This can be changed through the option
 \begin{options}
   \keybool{replace}\Module{format}\Default{true}
-    With this option active local options will \emph{replace} the global ones.
+    With this option active local options will \emph{replace} the global
+    ones.
 \end{options}
 
 Let's see an example:
@@ -1382,6 +1388,8 @@ for an acronym individually.
 This manual is an example for the indexing feature.  Each acronym from
 section~\vref{sec:acronyms} that has been used in this manual is also listed
 in the index.
+
+%% TODO: document the label property
 
 \section{Barriers}\label{sec:barriers}
 The main purpose of the concept of barriers is to be able to have \emph{local}

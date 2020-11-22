@@ -327,4 +327,4 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - remove property `single-format'
                   - fix bug in \acro_print_pages:nnn
                   - allow page option setting in the argument of
-                    \printacronyms
+                    \printacronyms (implements issue #189)
