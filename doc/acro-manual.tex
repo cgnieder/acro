@@ -499,9 +499,9 @@ the same.  In that case you can use
   \propval{foreign-format}{code}\Default
     The format used for the foreign form of the acronym.
   %% single-format
-  \propval{single-format}{code}\Default={long-format}
-    The format used for the acronym if the acronym is only used a single
-    time.
+  % \propval{single-format}{code}\Default={long-format}
+  %   The format used for the acronym if the acronym is only used a single
+  %   time.
   %% list-format
   \propval{list-format}{code}\Default={long-format}
     The format used for the long form of the acronym in the list if the list
@@ -762,13 +762,15 @@ The single appearance of an acronym is determined by this option:
 
 If you like you can also set the single appearance of an acronym individually:
 \begin{properties}
-  \propval{single}{text}\Default={long}
-    If provided \meta{text} will be used instead of the long form if the
-    acronym is only used a single time \emph{and} the option
-    \option{single} has been set.
-  \propval{single-format}{code}\Default={long-format}
-    The format used for the acronym if the acronym is only used a single
-    time.
+  \propval{single}{text}\Default
+    If provided \meta{text} will be used instead of whatever template
+    (\enquote{style}) has been set for the single appearance if the acronym is
+    only used a single time \emph{and} the option \option{single} has been
+    set\footnote{Actually the template \template{single} is used which
+      typesets the \property{single} property.}.
+  % \propval{single-format}{code}\Default={long-format}
+  %   The format used for the acronym if the acronym is only used a single
+  %   time.
   \propchoice{single-style}{long-short,short-long,short,long,footnote}\Default
     The style of the single appearance of the acronym.
 \end{properties}
@@ -1815,15 +1817,15 @@ to defines own such objects:
   \tmpl{long-short}
     A template for the first appearance where the long form is printed and the
     short form follows in parentheses.
-  \tmpl{first}
-    This is a \emph{pseudo} template which always displays what is
-    set through the \option{single-style} or the property
-    \property{single-style}.
   \tmpl{short}
     Display the short form of an acronym.
   \tmpl{short-long}
     A template for the first appearance where the short form is printed and the
     long form follows in parentheses.
+  \tmpl{single}
+    A template which is used when the property \property{single} has been set
+    \emph{and} the option \option{single} has been set \emph{and} if the
+    acronym is only used a single time.
   \tmpl{show}
     A template which writes all properties of an acronym into the log file.
 \end{templates}

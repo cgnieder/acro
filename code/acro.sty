@@ -3603,7 +3603,8 @@
     postamble    .tl_set:N  = \l__acro_postamble_tl ,
     postamble    .initial:n = ,
     name         .tl_set:N  = \l__acro_list_name_tl ,
-    name         .initial:n = \acro_translate:n {list-name}
+    name         .initial:n = \acro_translate:n {list-name} ,
+    pages        .meta:nn   = {acro/pages} {#1}
   }
 
 \acro_if_komascript:TF
@@ -3684,11 +3685,20 @@
           }
           {
             \bool_if:NT \l__acro_pages_name_display_bool {#2}
-            \pageref { \l_acro_label_prefix_tl #1 }
+            \acro_print_first_page:n {#1}
           }
       }
   }
 \cs_generate_variant:Nn \acro_print_pages:nnn {e}
+
+% #1: id
+\cs_set_protected:Npn \acro_print_first_page:n #1
+  {
+    \seq_set_split:Nnx \l__acro_tmpa_seq {|}
+      { \acro_property_get:nn {#1} {pages} }
+    \exp_last_unbraced:Ne
+    \__acro_page_name:w { \seq_item:Nn \l__acro_tmpa_seq {1} } \q_stop
+  }
 
 % #1: id
 % #2: one page
@@ -3783,6 +3793,7 @@
               }
           }
       }
+    \int_compare:nNnTF { \seq_count:N \l__acro_tmpb_seq } = 1 {#2} {#3}
     \seq_use:Nn \l__acro_tmpb_seq { \l__acro_pages_sep_tl }
   }
 
@@ -3852,13 +3863,13 @@
   }
 \prg_generate_conditional_variant:Nnn \acro_if_pages:n {e} {p,T,F,TF}
 
-\acro_at_begin_document:n
-  {
-    \bool_lazy_and:nnT
-      { \l__acro_pages_display_bool }
-      { !\l__acro_pages_all_bool }
-      { \bool_set_true:N \l__acro_label_bool }
-  }
+% \acro_at_begin_document:n
+%   {
+%     \bool_lazy_and:nnT
+%       { \l__acro_pages_display_bool }
+%       { !\l__acro_pages_all_bool }
+%       { \bool_set_true:N \l__acro_label_bool }
+%   }
 
 % #1: style name
 \cs_new_protected:Npn \acro_no_page_ranges:n #1

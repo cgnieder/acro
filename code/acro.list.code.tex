@@ -156,7 +156,8 @@
     postamble    .tl_set:N  = \l__acro_postamble_tl ,
     postamble    .initial:n = ,
     name         .tl_set:N  = \l__acro_list_name_tl ,
-    name         .initial:n = \acro_translate:n {list-name}
+    name         .initial:n = \acro_translate:n {list-name} ,
+    pages        .meta:nn   = {acro/pages} {#1}
   }
 
 \acro_if_komascript:TF

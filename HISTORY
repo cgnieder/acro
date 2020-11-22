@@ -317,7 +317,7 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - fix issue #175
                   - fix issue #176
                   - fix issue #180
-2020/11/20 v3.3   - fix issue #183
+2020/11/21 v3.3   - fix issue #183
                   - fix issue #184
                   - fix issue #188
                   - remove double declaration of \g__acro_rerun_bool in
@@ -325,3 +325,6 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - change default of `format/replace'
                   - correct the behavior of the `single' property
                   - remove property `single-format'
+                  - fix bug in \acro_print_pages:nnn
+                  - allow page option setting in the argument of
+                    \printacronyms
