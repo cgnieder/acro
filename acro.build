@@ -343,6 +343,9 @@ if [ "$createzip" == true ] ; then
     cp README $pkgname/
     zip -r $zipname.zip $pkgname/
     rm -r $pkgname/
+    if [ "$verbose" == true ] ; then
+      echo "moving zip archive $zipname.zip ..."
+    fi
     mv $zipname.zip ${SNAPSHOT_DIR}/$pkgname
 fi
     

@@ -117,6 +117,15 @@
       }
   }
 
+\cs_new_protected:Npn \acro_disable_endings:
+  {
+    \tl_map_tokens:Nn \l__acro_endings_tl
+      { \__acro_disable_ending:n }
+  }
+
+\cs_new_protected:Npn \__acro_disable_ending:n #1
+  { \bool_set_false:c {l__acro_ending_#1_bool} }
+
 % #1: id
 % #2: short|long
 \cs_new_protected:Npn \__acro_set_endings:nn #1#2
