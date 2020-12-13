@@ -57,6 +57,12 @@
 \AtBeginDocument { \tl_use:N \g_acro_begin_document_hook_tl }
 \AtEndDocument   { \tl_use:N \g_acro_end_document_hook_tl }
 
+% \cs_new_protected:Npn \acro_at_begin_document:n #1
+%   { \hook_gput_code:nnn {begindocument} {acro} {#1} }
+
+% \cs_new_protected:Npn \acro_at_end_document:n #1
+%   { \hook_gput_code:nnn {enddocument} {acro} {#1} }
+
 \cs_new_protected:Npn \acro_at_begin_document:n #1
   { \tl_gput_right:Nn \g_acro_begin_document_hook_tl {#1} }
 

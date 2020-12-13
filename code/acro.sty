@@ -57,6 +57,12 @@
 \AtBeginDocument { \tl_use:N \g_acro_begin_document_hook_tl }
 \AtEndDocument   { \tl_use:N \g_acro_end_document_hook_tl }
 
+% \cs_new_protected:Npn \acro_at_begin_document:n #1
+%   { \hook_gput_code:nnn {begindocument} {acro} {#1} }
+
+% \cs_new_protected:Npn \acro_at_end_document:n #1
+%   { \hook_gput_code:nnn {enddocument} {acro} {#1} }
+
 \cs_new_protected:Npn \acro_at_begin_document:n #1
   { \tl_gput_right:Nn \g_acro_begin_document_hook_tl {#1} }
 
@@ -1852,6 +1858,7 @@
       {
         \acro_property_set:nnn {#1} {used} {true}
         \acro_step:n {#1}
+        \acro_record_barrier:n {#1}
       }
   }
 
@@ -2238,7 +2245,13 @@
   {
     \int_compare:nNnTF
       {
-        \bool_if:NTF \l__acro_usage_local_bool
+        \bool_lazy_or:nnTF
+          { \l__acro_usage_local_bool }
+          {
+            \bool_lazy_and_p:nn
+              { \l__acro_list_bool }
+              { \l__acro_list_local_bool }
+          }
           { \acro_barrier_usage:n {#1} }
           { \acro_property_get:nn {#1} {usage} }
       }
@@ -3079,7 +3092,7 @@
       {
         \acro_use:n {#2}
         \acro_record_page:n {#2}
-        \acro_record_barrier:n {#2}
+        % \acro_record_barrier:n {#2}
         \acro_index:n {#2}
       }
   }
@@ -3517,7 +3530,7 @@
           { \l__acro_list_local_bool }
           {
             \int_compare_p:nNn
-            { \intarray_count:c {g__acro_##1_barriers_intarray} } > 0
+              { \intarray_count:c {g__acro_##1_barriers_intarray} } > 0
           }
           {
             \bool_set_false:N \l__acro_tmpb_bool

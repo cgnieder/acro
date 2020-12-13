@@ -45,7 +45,13 @@
   {
     \int_compare:nNnTF
       {
-        \bool_if:NTF \l__acro_usage_local_bool
+        \bool_lazy_or:nnTF
+          { \l__acro_usage_local_bool }
+          {
+            \bool_lazy_and_p:nn
+              { \l__acro_list_bool }
+              { \l__acro_list_local_bool }
+          }
           { \acro_barrier_usage:n {#1} }
           { \acro_property_get:nn {#1} {usage} }
       }
