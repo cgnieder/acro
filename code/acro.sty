@@ -3499,6 +3499,7 @@
 
 \clist_new:N \l__acro_tag_include_clist
 \clist_new:N \l__acro_tag_exclude_clist
+\clist_new:N \l__acro_tag_add_clist
 
 \cs_new_protected:Npn \acro_list_choose_set:
   {
@@ -3508,7 +3509,19 @@
         \seq_gclear:N \g__acro_list_seq
         \seq_map_inline:Nn \g__acro_acronyms_seq
           {
-            \acro_if_single:nF {##1}
+            \acro_if_single:nTF {##1}
+              {
+                \clist_set:Ne \l__acro_tmpa_clist
+                  { \acro_property_get:nn {##1} {tag} }
+                \clist_map_inline:Nn \l__acro_tmpa_clist
+                  {
+                    \clist_if_in:NnT \l__acro_tag_add_clist {####1}
+                      {% acronym is included
+                        \seq_gput_right:Nn \g__acro_list_seq {##1}
+                        \clist_map_break:
+                      }
+                  }
+              }
               { \seq_gput_right:Nn \g__acro_list_seq {##1} }
           }
       }
@@ -3638,6 +3651,7 @@
     display      .initial:n   = used ,
     include      .clist_set:N = \l__acro_tag_include_clist ,
     exclude      .clist_set:N = \l__acro_tag_exclude_clist ,
+    add          .clist_set:N = \l__acro_tag_add_clist ,
     local        .bool_set:N  = \l__acro_list_local_bool ,
     heading      .tl_set:N  = \l__acro_heading_tl ,
     preamble     .tl_set:N  = \l__acro_preamble_tl ,
