@@ -22,14 +22,14 @@
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-\RequirePackage{expl3,xparse,l3keys2e}
+\RequirePackage{l3keys2e}
 \ExplSyntaxOn
 
 % setup package:
 \tl_const:Nn \c_acro_package_name_tl {acro}
-\tl_const:Nn \c_acro_date_tl {2020/11/21}
+\tl_const:Nn \c_acro_date_tl {2020/12/25}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
-\tl_const:Nn \c_acro_version_minor_number_tl {3}
+\tl_const:Nn \c_acro_version_minor_number_tl {4}
 \tl_const:Nn \c_acro_version_subrelease_tl   {}
 \tl_const:Nx \c_acro_version_number_tl
   {
@@ -54,14 +54,8 @@
 \tl_new:N \g_acro_end_document_hook_tl
 \tl_new:N \g_acro_begin_document_hook_tl
 
-\AtBeginDocument { \tl_use:N \g_acro_begin_document_hook_tl }
-\AtEndDocument   { \tl_use:N \g_acro_end_document_hook_tl }
-
-% \cs_new_protected:Npn \acro_at_begin_document:n #1
-%   { \hook_gput_code:nnn {begindocument} {acro} {#1} }
-
-% \cs_new_protected:Npn \acro_at_end_document:n #1
-%   { \hook_gput_code:nnn {enddocument} {acro} {#1} }
+\hook_gput_code:nnn {begindocument} {acro} { \tl_use:N \g_acro_begin_document_hook_tl }
+\hook_gput_code:nnn {enddocument}   {acro} { \tl_use:N \g_acro_end_document_hook_tl }
 
 \cs_new_protected:Npn \acro_at_begin_document:n #1
   { \tl_gput_right:Nn \g_acro_begin_document_hook_tl {#1} }
@@ -929,6 +923,9 @@
 \NewDocumentCommand \acronopagerange {}
   { \acro_no_page_ranges:e { \AcroTemplateName } }
 
+\NewDocumentCommand \acroneedpages {}
+  { \acro_need_pages: }
+
 \NewDocumentCommand \acropagefill {}
   { \acro_if_pages:eT  { \AcronymID } { \tl_use:N \l__acro_pages_fill_tl } }
 
@@ -1731,6 +1728,7 @@
 \DeclareAcroProperty {post}
 \DeclareAcroProperty {long-post}
 \DeclareAcroProperty {first-style}
+\DeclareAcroProperty {subsequent-style}
 \DeclareAcroProperty {single-style}
 
 % formatting:
@@ -1781,8 +1779,10 @@
 
 \keys_define:nn {acro}
   {
-    first-style .tl_set:N  = \l__acro_first_style_tl ,
-    first-style .initial:n = long-short
+    first-style      .tl_set:N  = \l__acro_first_style_tl ,
+    first-style      .initial:n = long-short ,
+    subsequent-style .tl_set:N  = \l__acro_subsequent_tl ,
+    subsequent-style .initial:n = short
   }
 
 \cs_new_protected:Npn \acro_declare_acronym:nn #1#2
@@ -3310,7 +3310,7 @@
 \cs_new_protected:Npn \__acro_template_stop:nn #1#2
   { \group_end: \__acro_clear_template_setup:nn {#1} {#2} }
 
-% typesetting the first appearance of acronym: pseude template `first'
+% typesetting the first appearance of acronym: pseudo template `first'
 
 % #1: parameter number
 % #2: template type
@@ -3356,7 +3356,14 @@
                     }
                     { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_first_style_tl }
                 }
-                { \tl_set:Nn \l__acro_tmpa_tl {short} }
+                {
+                  \acro_property_if_set:VnTF \l_acro_id_tl {subsequent-style}
+                    {
+                      \tl_set:Ne \l__acro_tmpa_tl
+                        { \acro_property_get:Vn \l_acro_id_tl {subsequent-style} }
+                    }
+                    { \tl_set_eq:NN \l__acro_tmpa_tl \l__acro_subsequent_tl }
+                }
             }
         }
         {single} {
@@ -3682,8 +3689,10 @@
 % record page numbers:
 \RequirePackage {zref-abspage}
 
-\msg_new:nnn {acro} {label}
-  { The~ list~ template~ `#1'~ needs~ the~ option~ `labels'~ activated. }
+\msg_new:nnn {acro} {no-page-range}
+  {
+    The~ list~ template~ `#1'~ cannot~ display~ a~ page~ range.
+  }
 
 \msg_new:nnn {acro} {threshold}
   { The~ sequentes~ threshold~ needs~ to~ be~ at~ least~ 3. }
@@ -3919,22 +3928,17 @@
   }
 \prg_generate_conditional_variant:Nnn \acro_if_pages:n {e} {p,T,F,TF}
 
-% \acro_at_begin_document:n
-%   {
-%     \bool_lazy_and:nnT
-%       { \l__acro_pages_display_bool }
-%       { !\l__acro_pages_all_bool }
-%       { \bool_set_true:N \l__acro_label_bool }
-%   }
-
 % #1: style name
 \cs_new_protected:Npn \acro_no_page_ranges:n #1
   {
-    \bool_if:NF \l__acro_label_bool
-      { \msg_warning:nnn {acro} {label} {#1} }
+    \bool_if:NT \l__acro_pages_all_bool
+      { \msg_warning:nnn {acro} {no-page-range} {#1} }
     \bool_set_false:N \l__acro_pages_all_bool
   }
 \cs_generate_variant:Nn \acro_no_page_ranges:n {e}
+
+\cs_new_protected:Npn \acro_need_pages:
+  { \bool_set_true:N \l__acro_pages_display_bool }
 
 \tl_new:N \l__acro_pages_fill_tl
 \tl_new:N \l__acro_pages_sep_tl
@@ -5235,13 +5239,15 @@
       \AcronymTable
     \end {supertabular}
   }
+
+\let\l@acro\l@figure
   
 \NewAcroTemplate [list] {lof}
   {
     \acroheading
     \acropreamble
     \acronopagerange
-    \let\l@acro\l@figure
+    \acroneedpages
     \acronymsmapF
       {
         \contentsline {acro}
@@ -5268,6 +5274,7 @@
     \acroheading
     \acropreamble
     \acronopagerange
+    \acroneedpages
     \acronymsmapF
       {
         \contentsline { \acroifchapterTF {chapter} {section} }
@@ -5652,6 +5659,7 @@
     first-long-format .code:n =
       \acro_deprecate_option:nn {format/first-long} {#1} ,
     list-short-format .code:n = \acro_remove_option: ,
+    list-short-width  .code:n = \acro_remove_option: ,
     list-long-format .code:n =
       \acro_deprecate_option:nn {format/list} {#1} ,
     list-foreign-format .code:n = \acro_remove_option: ,

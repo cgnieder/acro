@@ -72,7 +72,7 @@
     % used in templates and command definitions:
     acroindefinite, acroformat, acrofull, acrogroupcite, acroheading,
     acronymsmap, acronymsmapF, acronymsmapT, acroupper,
-    acronopagerange,
+    acroneedpages, acronopagerange,
     acroifF, acroifT, acroifTF, acroifallF, acroifallT, acroifallTF,
     acroifanyF, acroifanyT, acroifanyTF, acroifchapterF, acroifchapterT,
     acroifchapterTF, acroiffirstF, acroiffirstT, acroiffirstTF,
@@ -657,5 +657,6 @@
 \acro@add@version{2020-05-10}{3.2}
 \acro@add@version{2020-11-08}{3.2a}
 \acro@add@version{2020-11-21}{3.3}
+\acro@add@version{2020-12-25}{3.4}
 
 \endinput

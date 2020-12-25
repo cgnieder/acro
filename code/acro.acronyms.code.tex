@@ -89,6 +89,7 @@
 \DeclareAcroProperty {post}
 \DeclareAcroProperty {long-post}
 \DeclareAcroProperty {first-style}
+\DeclareAcroProperty {subsequent-style}
 \DeclareAcroProperty {single-style}
 
 % formatting:
@@ -139,8 +140,10 @@
 
 \keys_define:nn {acro}
   {
-    first-style .tl_set:N  = \l__acro_first_style_tl ,
-    first-style .initial:n = long-short
+    first-style      .tl_set:N  = \l__acro_first_style_tl ,
+    first-style      .initial:n = long-short ,
+    subsequent-style .tl_set:N  = \l__acro_subsequent_tl ,
+    subsequent-style .initial:n = short
   }
 
 \cs_new_protected:Npn \acro_declare_acronym:nn #1#2

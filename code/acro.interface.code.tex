@@ -292,6 +292,9 @@
 \NewDocumentCommand \acronopagerange {}
   { \acro_no_page_ranges:e { \AcroTemplateName } }
 
+\NewDocumentCommand \acroneedpages {}
+  { \acro_need_pages: }
+
 \NewDocumentCommand \acropagefill {}
   { \acro_if_pages:eT  { \AcronymID } { \tl_use:N \l__acro_pages_fill_tl } }
 

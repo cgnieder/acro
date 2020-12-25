@@ -335,13 +335,15 @@
       \AcronymTable
     \end {supertabular}
   }
+
+\let\l@acro\l@figure
   
 \NewAcroTemplate [list] {lof}
   {
     \acroheading
     \acropreamble
     \acronopagerange
-    \let\l@acro\l@figure
+    \acroneedpages
     \acronymsmapF
       {
         \contentsline {acro}
@@ -368,6 +370,7 @@
     \acroheading
     \acropreamble
     \acronopagerange
+    \acroneedpages
     \acronymsmapF
       {
         \contentsline { \acroifchapterTF {chapter} {section} }

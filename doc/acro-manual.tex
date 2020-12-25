@@ -328,11 +328,11 @@ section~\ref{sec:load-time-options} have to be set up either with this command
 All of the above is probably clear from an example (using real options):
 \begin{sourcecode}
   \acsetup{
-    make-links = true , % boolean
-    index ,             % boolean
-    format = \emph ,    % standard
-    list / local ,      % boolean option of the list module
-    list/display = all  % choice option of the list module
+    make-links = true ,   % boolean
+    index ,               % boolean
+    format = \emph ,      % standard
+    list / local ,        % boolean option of the list module
+    list / display = all  % choice option of the list module
   }
 \end{sourcecode}
 
@@ -511,6 +511,10 @@ the same.  In that case you can use
   \propchoice{first-style}{long-short,short-long,short,long,footnote}\Default
     The style of the first appearance of the acronym, see also
     section~\vref{sec:first-or-full}.
+  %% first-style
+  \propchoice{subsequent-style}{long-short,short-long,short,long,footnote}\Default
+    \sinceversion{3.4}The style of the appearance of the acronym after the
+    first time.
   %% single-style
   \propchoice{single-style}{long-short,short-long,short,long,footnote}\Default
     The style of a single appearance of the acronym, see also
@@ -701,6 +705,12 @@ The first or full appearance of an acronym is determined by this option:
     appearance for all acronyms.  Available options in reality are the names
     of all defined templates of the type \code{acronym}. All pre-defined
     templates can be found in section~\vref{sec:pre-defin-templ}.
+  \keychoice{subsequent-style}{long-short,short-long,short,long,footnote}\Default{short}
+    \sinceversion{3.4}The style of the appearance of the acronym after the
+    first time. This options sets the appearance for all acronyms.  Available
+    options in reality are the names of all defined templates of the type
+    \code{acronym}. All pre-defined templates can be found in
+    section~\vref{sec:pre-defin-templ}.
 \end{options}
 It might be desirable to set the first appearance of an acronym
 individually. This is possible by setting the corresponding property:
@@ -816,8 +826,11 @@ The options controlling the list are these:
     Set a list of tags to exclude from the list.  Only acronyms not
     belonging to one of these tags will be included.
   \keyval{include}{csv list of tags}\Module{list}\Default
-    Set a list of tags to include in  the list.  Only acronyms belonging to
+    Set a list of tags to include in the list.  Only acronyms belonging to
     one of these tags will be included.
+  \keybool{add}\Module{list}\Default
+    \sinceversion{3.4}Set a list of tags to include in the list.  These
+    acronyms will be included in any case.
   \keychoice{heading}{none,section,section*,chapter,chapter*}\Module{list}
     Choose the heading template for the list of acronyms.
 
@@ -1472,7 +1485,7 @@ This works because the template \code{long-short}\footnote{The template that
   is used by default for the first appearance.} uses \cs{acspace} at the
 appropriate place and the manual setup does
 \begin{sourcecode}
-  \acsetup{activate-trailing-tokens = dash}
+  \acsetup{trailing/activate = dash}
 \end{sourcecode}
 \cs{acspace} looks ahead for a trailing dash and adds a space it it doesn't
 find it.
@@ -2011,6 +2024,9 @@ and \cs*{acroifF} each have an argument less than \cs*{acroifTF}.
   \command{acronopagerange}
     This disables page ranges.  Used in the \template{toc} and \template{lof}
     templates.
+  \command{acroneedpages}
+    \sinceversion{3.4}This enables the page number displayed.  Used in the
+    \template{toc} and \template{lof} templates. 
   \command{acropagefill}
     If \cs{acroifpages\TF} would be \meta{false} this would do
     nothing. Otherwise it prints whatever is set by

@@ -317,6 +317,7 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - fix issue #175
                   - fix issue #176
                   - fix issue #180
+                  - add `patch' options
 2020/11/21 v3.3   - fix issue #183
                   - fix issue #184
                   - fix issue #188
@@ -328,3 +329,8 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - fix bug in \acro_print_pages:nnn
                   - allow page option setting in the argument of
                     \printacronyms (implements issue #189)
+2020/12/25 v3.4   - fix issue #194
+                  - new option `list/add'
+                  - new: \acroneedpages
+                  - add option `subsequent-style'
+                  - add property `subsequent-style'

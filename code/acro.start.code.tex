@@ -22,14 +22,14 @@
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-\RequirePackage{expl3,xparse,l3keys2e}
+\RequirePackage{l3keys2e}
 \ExplSyntaxOn
 
 % setup package:
 \tl_const:Nn \c_acro_package_name_tl {acro}
-\tl_const:Nn \c_acro_date_tl {2020/11/21}
+\tl_const:Nn \c_acro_date_tl {2020/12/25}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
-\tl_const:Nn \c_acro_version_minor_number_tl {3}
+\tl_const:Nn \c_acro_version_minor_number_tl {4}
 \tl_const:Nn \c_acro_version_subrelease_tl   {}
 \tl_const:Nx \c_acro_version_number_tl
   {
@@ -54,14 +54,8 @@
 \tl_new:N \g_acro_end_document_hook_tl
 \tl_new:N \g_acro_begin_document_hook_tl
 
-\AtBeginDocument { \tl_use:N \g_acro_begin_document_hook_tl }
-\AtEndDocument   { \tl_use:N \g_acro_end_document_hook_tl }
-
-% \cs_new_protected:Npn \acro_at_begin_document:n #1
-%   { \hook_gput_code:nnn {begindocument} {acro} {#1} }
-
-% \cs_new_protected:Npn \acro_at_end_document:n #1
-%   { \hook_gput_code:nnn {enddocument} {acro} {#1} }
+\hook_gput_code:nnn {begindocument} {acro} { \tl_use:N \g_acro_begin_document_hook_tl }
+\hook_gput_code:nnn {enddocument}   {acro} { \tl_use:N \g_acro_end_document_hook_tl }
 
 \cs_new_protected:Npn \acro_at_begin_document:n #1
   { \tl_gput_right:Nn \g_acro_begin_document_hook_tl {#1} }

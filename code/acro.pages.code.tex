@@ -3,8 +3,10 @@
 % record page numbers:
 \RequirePackage {zref-abspage}
 
-\msg_new:nnn {acro} {label}
-  { The~ list~ template~ `#1'~ needs~ the~ option~ `labels'~ activated. }
+\msg_new:nnn {acro} {no-page-range}
+  {
+    The~ list~ template~ `#1'~ cannot~ display~ a~ page~ range.
+  }
 
 \msg_new:nnn {acro} {threshold}
   { The~ sequentes~ threshold~ needs~ to~ be~ at~ least~ 3. }
@@ -240,22 +242,17 @@
   }
 \prg_generate_conditional_variant:Nnn \acro_if_pages:n {e} {p,T,F,TF}
 
-% \acro_at_begin_document:n
-%   {
-%     \bool_lazy_and:nnT
-%       { \l__acro_pages_display_bool }
-%       { !\l__acro_pages_all_bool }
-%       { \bool_set_true:N \l__acro_label_bool }
-%   }
-
 % #1: style name
 \cs_new_protected:Npn \acro_no_page_ranges:n #1
   {
-    \bool_if:NF \l__acro_label_bool
-      { \msg_warning:nnn {acro} {label} {#1} }
+    \bool_if:NT \l__acro_pages_all_bool
+      { \msg_warning:nnn {acro} {no-page-range} {#1} }
     \bool_set_false:N \l__acro_pages_all_bool
   }
 \cs_generate_variant:Nn \acro_no_page_ranges:n {e}
+
+\cs_new_protected:Npn \acro_need_pages:
+  { \bool_set_true:N \l__acro_pages_display_bool }
 
 \tl_new:N \l__acro_pages_fill_tl
 \tl_new:N \l__acro_pages_sep_tl
