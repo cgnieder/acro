@@ -8,7 +8,7 @@
 % Web:    https://github.com/cgnieder/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2011--2020 Clemens Niederberger
+% Copyright 2011--2021 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -21,14 +21,6 @@
 % This work has the LPPL maintenance status `maintained'.
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
-% --------------------------------------------------------------------------
-% The acro package consists of the files
-% - acro.sty, acro.definitions.tex, acro.cfg
-% - acro-manual.tex, acro-manual.pdf, acro-manual.cls
-% - acro.history, README
-% --------------------------------------------------------------------------
-% If you have any ideas, questions, suggestions or bugs to report, please
-% feel free to contact me.
 % --------------------------------------------------------------------------
 \ProvidesClass{acro-manual}[2020/01/24]
 

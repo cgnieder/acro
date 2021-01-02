@@ -2,8 +2,8 @@
 
 willingly undocumented:
 - \acgobbletrail
-  option acro/trailing/fnpct-check
+  option 'acro/trailing/fnpct-check'
   \acfootnote
-- options acro/commands
+- options 'acro/commands'
 - pdfstring templates and \acsimple
 - load-time options debug and final
