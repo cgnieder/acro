@@ -37,8 +37,23 @@
 \NewDocumentCommand \acroloadstyle {m}
   { \acro_style_load:n {#1} }
 
+\NewExpandableDocumentCommand \acroifstarredTF {}
+  { \bool_if:NTF \l__acro_star_bool }
+
+\NewExpandableDocumentCommand \acroifstarredT {}
+  { \bool_if:NT \l__acro_star_bool }
+
+\NewExpandableDocumentCommand \acroifstarredF {}
+  { \bool_if:NF \l__acro_star_bool }
+  
 \NewExpandableDocumentCommand \acroifusedTF {m}
   { \acro_boolean_property_if:nnTF {#1} {used} }
+
+\NewExpandableDocumentCommand \acroifusedT {m}
+  { \acro_boolean_property_if:nnT {#1} {used} }
+
+\NewExpandableDocumentCommand \acroifusedF {m}
+  { \acro_boolean_property_if:nnF {#1} {used} }
 
 \NewDocumentCommand \acuse {m}
   { \acro_use:n {#1} }
