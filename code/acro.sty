@@ -84,23 +84,23 @@
 \bool_new:N \g__acro_rerun_bool
 \tl_new:N \g__acro_rerun_message_tl
 
-\tl_const:Nn \l__acro_rerun_general_tl
+\tl_const:Nn \c__acro_rerun_general_tl
   { Rerun~ to~ get~ `acro'~ synchronized. }
 
-\tl_const:Nn \l__acro_rerun_property_tl
+\tl_const:Nn \c__acro_rerun_property_tl
   {
     Acronym~ properties~ may~ have~ changed.~ Rerun~ to~ get~ them~
     synchronized.
   }
 
-\tl_const:Nn \l__acro_rerun_list_tl
+\tl_const:Nn \c__acro_rerun_list_tl
   {
     Empty~ acronym~ list.~ If~ you~ have~ used~ acronyms~ then~ re-compile~
     to~ get~ the~ list~ filled.~ Otherwise~ remove~ \token_to_str:N
     \printacronyms
   }
 
-\msg_new:nnn {acro} {rerun} { \use:c {l__acro_rerun_#1_tl} }
+\msg_new:nnn {acro} {rerun} { \use:c {c__acro_rerun_#1_tl} }
 
 \prg_new_conditional:Npnn \acro_if_rerun: {p,T,F,TF}
   {
@@ -191,11 +191,11 @@
     debug       .initial:n   = false ,
     upgrade     .bool_gset:N = \g__acro_upgrade_bool ,
     upgrade     .initial:n   = true ,
-    final       .bool_set:N  = \g__acro_final_bool ,
+    final       .bool_gset:N = \g__acro_final_bool ,
     final       .initial:n   = false ,
     version     .choice: ,
-    version / 2 .code:n      = \int_set:Nn \g__acro_version_int {2} ,
-    version / 3 .code:n      = \int_set:Nn \g__acro_version_int {3} ,
+    version / 2 .code:n      = \int_gset:Nn \g__acro_version_int {2} ,
+    version / 3 .code:n      = \int_gset:Nn \g__acro_version_int {3} ,
     version     .initial:n   = 3 ,
     unknown     .code:n      = \__acro_loadtime_warning:n {unknown-option}
   }
@@ -489,7 +489,7 @@
 \cs_generate_variant:Nn \tl_put_right:Nn {Ne}
 \cs_generate_variant:Nn \clist_set:Nn {Ne}
 \cs_generate_variant:Nn \str_if_eq:nnT {x}
-\cs_generate_variant:Nn \str_fold_case:n {e}
+\cs_generate_variant:Nn \str_foldcase:n {e}
 \cs_generate_variant:Nn \str_lowercase:n {e}
 \cs_generate_variant:Nn \msg_error:nnnnn {nnnxx}
 \cs_generate_variant:Nn \msg_warning:nn {nV}
@@ -962,7 +962,7 @@
 \tl_const:Nx \c_acro_auxfile_tl { \c_sys_jobname_str .acr }
 
 \iow_new:N \l__acro_aux_file_iow
-\tl_new:N \g__acro_mdfive_hash_tl
+\tl_new:N \l__acro_mdfive_hash_tl
 
 \acro_at_begin_document:n
   {
@@ -973,7 +973,7 @@
       }
     \file_get_mdfive_hash:VN
       \c_acro_auxfile_tl
-      \g__acro_mdfive_hash_tl
+      \l__acro_mdfive_hash_tl
     \iow_open:NV \l__acro_aux_file_iow \c_acro_auxfile_tl
   }
 
@@ -983,7 +983,7 @@
     \file_get_mdfive_hash:VN
       \c_acro_auxfile_tl
       \l__acro_tmpa_tl
-    \tl_if_eq:NNF \g__acro_mdfive_hash_tl \l__acro_tmpa_tl
+    \tl_if_eq:NNF \l__acro_mdfive_hash_tl \l__acro_tmpa_tl
       { \acro_rerun:n {general} }
     \legacy_if:nT {@filesw}
       { \iow_now:Nx \@auxout { \token_to_str:N \ACRO {readaux} } }
@@ -1092,8 +1092,8 @@
 % #1: name
 \cs_new_protected:Npn \__acro_auxlist_update:n #1
   {
-    \seq_remove_duplicates:c {g__acro_auxlist_#1_seq}
-    \seq_remove_duplicates:c {g__acro_auxlist_recorded_#1_seq}
+    \seq_gremove_duplicates:c {g__acro_auxlist_#1_seq}
+    \seq_gremove_duplicates:c {g__acro_auxlist_recorded_#1_seq}
     \str_set:Nx \l__acro_tmpa_str
       { \seq_use:cn {g__acro_auxlist_#1_seq} {} }
     \str_set:Nx \l__acro_tmpb_str
@@ -1549,7 +1549,6 @@
       \__acro_parse_property:nn
       {#2}
   }
-\cs_generate_variant:Nn \acro_properties_set:nnn {nnx,nxx,nV,nVx}
 
 % ----------------------------------------------------------------------------
 % inspect properties:
@@ -2196,6 +2195,16 @@
     \__acro_set_endings:nn {#1} {long}
   }
 
+% #1: ending
+\cs_new_protected:Npn \acro_unset_ending:n #1
+  { \bool_set_false:c {l__acro_ending_#1_bool} }
+
+\cs_new_protected:Npn \acro_reset_endings:
+  {
+    \tl_map_tokens:Nn \l__acro_endings_tl { \acro_unset_ending:n }
+    \bool_set_false:N \l__acro_ending_bool
+  }
+
 % ----------------------------------------------------------------------------
 \AcroModuleEnd
 \AcroModule{tools}{tools for treating different aspects}
@@ -2618,6 +2627,7 @@
       \int_compare:nNnT \l__acro_nest_int > 0
         { \bool_gset_true:N \g__acro_nested_bool }
       \int_incr:N \l__acro_nest_int
+      \acro_reset_endings:
     \__acro_check_after_end:w
   }
 
@@ -2714,8 +2724,8 @@
         \int_compare:nNnTF
           {
             \__acro_strcmp:nn
-              { \str_fold_case:e { \acro_property_get:nn {##1} {sort} } }
-              { \str_fold_case:e { \acro_property_get:nn {##2} {sort} } }
+              { \str_foldcase:e { \acro_property_get:nn {##1} {sort} } }
+              { \str_foldcase:e { \acro_property_get:nn {##2} {sort} } }
           } = {-1}
           { \sort_return_same: }
           { \sort_return_swapped: }
@@ -2850,8 +2860,8 @@
 
 \keys_define:nn {acro}
   {
-    case-sensitive .bool_set:N = \g__acro_case_sensitive_bool ,
-    case-sensitive .initial:n  = true ,
+    case-sensitive .bool_gset:N = \g__acro_case_sensitive_bool ,
+    case-sensitive .initial:n   = true ,
   }
 
 % ----------------------------------------------------------------------------
@@ -3092,7 +3102,6 @@
       {
         \acro_use:n {#2}
         \acro_record_page:n {#2}
-        % \acro_record_barrier:n {#2}
         \acro_index:n {#2}
       }
   }
@@ -3108,6 +3117,8 @@
 
 \tl_new:N \l__acro_begin_command_hook_tl
 \tl_new:N \l__acro_end_command_hook_tl
+\tl_new:N \l_acro_id_tl
+\tl_new:N \AcronymID
 
 % #1: csname
 % #2: xparse csname
@@ -3128,8 +3139,8 @@
               \cs_set:Npn \nospace { \exp:w \exp_end_continue_f:w }
               \acro_check_definition:n {####1}
               \keys_set:nV {acro} \l__acro_options_tl
-              \tl_set:Ne \AcronymID { \acro_case_insensitive:n {####1} }
               \tl_set:Ne \l_acro_id_tl { \acro_case_insensitive:n {####1} }
+              \tl_set_eq:NN \AcronymID \l_acro_id_tl
               ##3
               \acro_finalize:ne
                 { \l__acro_star_bool }
@@ -3761,8 +3772,13 @@
   {
     \seq_set_split:Nnx \l__acro_tmpa_seq {|}
       { \acro_property_get:nn {#1} {pages} }
-    \exp_last_unbraced:Ne
-    \__acro_page_name:w { \seq_item:Nn \l__acro_tmpa_seq {1} } \q_stop
+    \use:e
+      {
+        \exp_last_unbraced:Ne
+        \__acro_page_name:w
+        { \seq_item:Nn \l__acro_tmpa_seq {1} }
+        \q_stop
+      }
   }
 
 % #1: id
@@ -4249,6 +4265,7 @@
             { \acro_package_if_loaded_p:n {hyperref} }
             { \l__acro_hyperref_use_bool }
             { !\acro_if_single_p:n {#1} }
+            % TODO: add a possibility for user conditions
           }
           {
             \bool_if:NTF \l__acro_list_bool
@@ -4319,6 +4336,7 @@
 % --------------------------------------------------------------------------
 % accessibility support
 \bool_new:N \l__acro_accsupp_bool
+\bool_new:N \l__acro_use_accsupp_bool
 \tl_new:N \l__acro_accsupp_options_tl
 \tl_new:N \l__acro_accsupp_method_tl
 

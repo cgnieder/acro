@@ -75,8 +75,13 @@
   {
     \seq_set_split:Nnx \l__acro_tmpa_seq {|}
       { \acro_property_get:nn {#1} {pages} }
-    \exp_last_unbraced:Ne
-    \__acro_page_name:w { \seq_item:Nn \l__acro_tmpa_seq {1} } \q_stop
+    \use:e
+      {
+        \exp_last_unbraced:Ne
+        \__acro_page_name:w
+        { \seq_item:Nn \l__acro_tmpa_seq {1} }
+        \q_stop
+      }
   }
 
 % #1: id

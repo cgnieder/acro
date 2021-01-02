@@ -418,6 +418,7 @@
       \int_compare:nNnT \l__acro_nest_int > 0
         { \bool_gset_true:N \g__acro_nested_bool }
       \int_incr:N \l__acro_nest_int
+      \acro_reset_endings:
     \__acro_check_after_end:w
   }
 
@@ -514,8 +515,8 @@
         \int_compare:nNnTF
           {
             \__acro_strcmp:nn
-              { \str_fold_case:e { \acro_property_get:nn {##1} {sort} } }
-              { \str_fold_case:e { \acro_property_get:nn {##2} {sort} } }
+              { \str_foldcase:e { \acro_property_get:nn {##1} {sort} } }
+              { \str_foldcase:e { \acro_property_get:nn {##2} {sort} } }
           } = {-1}
           { \sort_return_same: }
           { \sort_return_swapped: }

@@ -1883,7 +1883,7 @@ to defines own such objects:
     page ranges.
 \end{templates}
 
-\subsubsection{Header templates}
+\subsubsection{Heading templates}
 \begin{templates}
   \tmpl{addchap}
     Only defined in a \KOMAScript\ class and if \cs*{chapter} is defined. Uses
@@ -2173,6 +2173,13 @@ first the table body is built and only then the table itself is printed:
 \end{sourcecode}
 
 \subsection{New heading templates}\label{sec:new-head-templ}
+Let's take a look at the two templates \template{section} and
+\template{section*} which should give you enough information to build your
+own:
+\begin{sourcecode}
+  \NewAcroTemplate[heading]{section} {\section {\acrolistname}}
+  \NewAcroTemplate[heading]{section*}{\section*{\acrolistname}}
+\end{sourcecode}
 
 \section{Endings}\label{sec:endings}
 Referring to section~\vref{sec:other-endings} this section explains how to

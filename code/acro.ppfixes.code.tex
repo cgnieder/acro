@@ -160,5 +160,15 @@
     \__acro_set_endings:nn {#1} {long}
   }
 
+% #1: ending
+\cs_new_protected:Npn \acro_unset_ending:n #1
+  { \bool_set_false:c {l__acro_ending_#1_bool} }
+
+\cs_new_protected:Npn \acro_reset_endings:
+  {
+    \tl_map_tokens:Nn \l__acro_endings_tl { \acro_unset_ending:n }
+    \bool_set_false:N \l__acro_ending_bool
+  }
+
 % ----------------------------------------------------------------------------
 \AcroModuleEnd

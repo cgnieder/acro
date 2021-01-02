@@ -53,6 +53,7 @@
             { \acro_package_if_loaded_p:n {hyperref} }
             { \l__acro_hyperref_use_bool }
             { !\acro_if_single_p:n {#1} }
+            % TODO: add a possibility for user conditions
           }
           {
             \bool_if:NTF \l__acro_list_bool
@@ -123,6 +124,7 @@
 % --------------------------------------------------------------------------
 % accessibility support
 \bool_new:N \l__acro_accsupp_bool
+\bool_new:N \l__acro_use_accsupp_bool
 \tl_new:N \l__acro_accsupp_options_tl
 \tl_new:N \l__acro_accsupp_method_tl
 

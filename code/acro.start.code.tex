@@ -84,23 +84,23 @@
 \bool_new:N \g__acro_rerun_bool
 \tl_new:N \g__acro_rerun_message_tl
 
-\tl_const:Nn \l__acro_rerun_general_tl
+\tl_const:Nn \c__acro_rerun_general_tl
   { Rerun~ to~ get~ `acro'~ synchronized. }
 
-\tl_const:Nn \l__acro_rerun_property_tl
+\tl_const:Nn \c__acro_rerun_property_tl
   {
     Acronym~ properties~ may~ have~ changed.~ Rerun~ to~ get~ them~
     synchronized.
   }
 
-\tl_const:Nn \l__acro_rerun_list_tl
+\tl_const:Nn \c__acro_rerun_list_tl
   {
     Empty~ acronym~ list.~ If~ you~ have~ used~ acronyms~ then~ re-compile~
     to~ get~ the~ list~ filled.~ Otherwise~ remove~ \token_to_str:N
     \printacronyms
   }
 
-\msg_new:nnn {acro} {rerun} { \use:c {l__acro_rerun_#1_tl} }
+\msg_new:nnn {acro} {rerun} { \use:c {c__acro_rerun_#1_tl} }
 
 \prg_new_conditional:Npnn \acro_if_rerun: {p,T,F,TF}
   {
@@ -191,11 +191,11 @@
     debug       .initial:n   = false ,
     upgrade     .bool_gset:N = \g__acro_upgrade_bool ,
     upgrade     .initial:n   = true ,
-    final       .bool_set:N  = \g__acro_final_bool ,
+    final       .bool_gset:N = \g__acro_final_bool ,
     final       .initial:n   = false ,
     version     .choice: ,
-    version / 2 .code:n      = \int_set:Nn \g__acro_version_int {2} ,
-    version / 3 .code:n      = \int_set:Nn \g__acro_version_int {3} ,
+    version / 2 .code:n      = \int_gset:Nn \g__acro_version_int {2} ,
+    version / 3 .code:n      = \int_gset:Nn \g__acro_version_int {3} ,
     version     .initial:n   = 3 ,
     unknown     .code:n      = \__acro_loadtime_warning:n {unknown-option}
   }

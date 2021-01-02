@@ -19,8 +19,8 @@
 
 \keys_define:nn {acro}
   {
-    case-sensitive .bool_set:N = \g__acro_case_sensitive_bool ,
-    case-sensitive .initial:n  = true ,
+    case-sensitive .bool_gset:N = \g__acro_case_sensitive_bool ,
+    case-sensitive .initial:n   = true ,
   }
 
 % ----------------------------------------------------------------------------
@@ -261,7 +261,6 @@
       {
         \acro_use:n {#2}
         \acro_record_page:n {#2}
-        % \acro_record_barrier:n {#2}
         \acro_index:n {#2}
       }
   }
@@ -277,6 +276,8 @@
 
 \tl_new:N \l__acro_begin_command_hook_tl
 \tl_new:N \l__acro_end_command_hook_tl
+\tl_new:N \l_acro_id_tl
+\tl_new:N \AcronymID
 
 % #1: csname
 % #2: xparse csname
@@ -297,8 +298,8 @@
               \cs_set:Npn \nospace { \exp:w \exp_end_continue_f:w }
               \acro_check_definition:n {####1}
               \keys_set:nV {acro} \l__acro_options_tl
-              \tl_set:Ne \AcronymID { \acro_case_insensitive:n {####1} }
               \tl_set:Ne \l_acro_id_tl { \acro_case_insensitive:n {####1} }
+              \tl_set_eq:NN \AcronymID \l_acro_id_tl
               ##3
               \acro_finalize:ne
                 { \l__acro_star_bool }

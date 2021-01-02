@@ -11,7 +11,7 @@
 \tl_const:Nx \c_acro_auxfile_tl { \c_sys_jobname_str .acr }
 
 \iow_new:N \l__acro_aux_file_iow
-\tl_new:N \g__acro_mdfive_hash_tl
+\tl_new:N \l__acro_mdfive_hash_tl
 
 \acro_at_begin_document:n
   {
@@ -22,7 +22,7 @@
       }
     \file_get_mdfive_hash:VN
       \c_acro_auxfile_tl
-      \g__acro_mdfive_hash_tl
+      \l__acro_mdfive_hash_tl
     \iow_open:NV \l__acro_aux_file_iow \c_acro_auxfile_tl
   }
 
@@ -32,7 +32,7 @@
     \file_get_mdfive_hash:VN
       \c_acro_auxfile_tl
       \l__acro_tmpa_tl
-    \tl_if_eq:NNF \g__acro_mdfive_hash_tl \l__acro_tmpa_tl
+    \tl_if_eq:NNF \l__acro_mdfive_hash_tl \l__acro_tmpa_tl
       { \acro_rerun:n {general} }
     \legacy_if:nT {@filesw}
       { \iow_now:Nx \@auxout { \token_to_str:N \ACRO {readaux} } }
@@ -141,8 +141,8 @@
 % #1: name
 \cs_new_protected:Npn \__acro_auxlist_update:n #1
   {
-    \seq_remove_duplicates:c {g__acro_auxlist_#1_seq}
-    \seq_remove_duplicates:c {g__acro_auxlist_recorded_#1_seq}
+    \seq_gremove_duplicates:c {g__acro_auxlist_#1_seq}
+    \seq_gremove_duplicates:c {g__acro_auxlist_recorded_#1_seq}
     \str_set:Nx \l__acro_tmpa_str
       { \seq_use:cn {g__acro_auxlist_#1_seq} {} }
     \str_set:Nx \l__acro_tmpb_str
