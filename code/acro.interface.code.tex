@@ -110,6 +110,16 @@
 \NewDocumentCommand \MakeAcroPropertyAlias {mm}
   { \acro_property_make_alias:nn {#1} {#2} }
 
+\NewDocumentCommand \NewAcroPreset {m+m}
+  { \acro_preset_new:nn {#1} {#2} }
+
+\NewDocumentCommand \RenewAcroPreset {m+m}
+  { \acro_preset_renew:nn {#1} {#2} }
+
+\NewDocumentCommand \DeclareAcroPreset {m+m}
+  { \acro_preset_declare:nn {#1} {#2} }
+
+% --------------------------------------------------------------------------
 \NewDocumentCommand \UseAcroTemplate {O{acronym}mO{1}}
   { \acro_template_use:nnn {#3} {#1} {#2} }
 

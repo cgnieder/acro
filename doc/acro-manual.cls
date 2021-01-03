@@ -22,7 +22,7 @@
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-\ProvidesClass{acro-manual}[2020/01/24]
+\ProvidesClass{acro-manual}[2021/01/03]
 
 \LoadClass[load-preamble,add-index]{cnltx-doc}
 \RequirePackage{imakeidx}
@@ -650,5 +650,6 @@
 \acro@add@version{2020-11-08}{3.2a}
 \acro@add@version{2020-11-21}{3.3}
 \acro@add@version{2020-12-25}{3.4}
+\acro@add@version{2020-01-03}{3.5}
 
 \endinput

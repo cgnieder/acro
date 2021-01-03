@@ -175,6 +175,7 @@
       { !\acro_property_if_set_p:nn {#1} {short} }
       { \acro_property_set:nnn {#1} {short} {#1} }
     \acro_property_set:nnn {#1} {id} {#1}
+    \acro_preset_set_properties:n {#1}
     \acro_property_set_aliases:n {#1}
     % check mandatory properties:
     \acro_property_foreach_mandatory:n

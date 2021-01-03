@@ -197,9 +197,7 @@
               \acro_locale:nnn {#1} {#2}
                 {
                   \__acro_write:nn {#1} {#2}
-                  \bool_lazy_and:nnT
-                    { !\acro_if_nested_p: }
-                    { \l__acro_include_endings_bool }
+                  \bool_if:NT \l__acro_include_endings_bool
                     {
                       \acro_if_ending_form:nnF {#1} {#2}
                         { \__acro_ending:nn {#1} {#2} }
@@ -207,9 +205,7 @@
                 }
             }
         \group_end:
-        \bool_lazy_or:nnF
-          { \acro_if_nested_p: }
-          { \l__acro_include_endings_bool }
+        \bool_if:NF \l__acro_include_endings_bool
           {
             \acro_if_ending_form:nnF {#1} {#2}
               { \__acro_ending:nn {#1} {#2} }

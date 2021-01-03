@@ -401,13 +401,10 @@
   }
 
 \int_new:N \l__acro_nest_int
-\bool_new:N \g__acro_nested_bool
 
 \prg_new_conditional:Npnn \acro_if_nested: {p,T,F,TF}
   {
-    \bool_lazy_and:nnTF
-      { \int_compare_p:n { \l__acro_nest_int = 1 } }
-      { \g__acro_nested_bool }
+    \int_compare:nNnTF \l__acro_nest_int > 1
       { \prg_return_true: }
       { \prg_return_false: }
   }
@@ -415,8 +412,6 @@
 \cs_new_protected:Npn \acro_begin:
   {
     \group_begin:
-      \int_compare:nNnT \l__acro_nest_int > 0
-        { \bool_gset_true:N \g__acro_nested_bool }
       \int_incr:N \l__acro_nest_int
       \acro_reset_endings:
     \__acro_check_after_end:w
@@ -437,7 +432,6 @@
 
 \cs_new_protected:Npn \acro_end:
   {
-    \acro_if_nested:T { \bool_gset_false:N \g__acro_nested_bool }
     \bool_if:NT \g__acro_gobble_trail_bool
       {
         \bool_gset_false:N \g__acro_gobble_trail_bool

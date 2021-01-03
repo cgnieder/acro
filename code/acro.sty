@@ -741,6 +741,16 @@
 \NewDocumentCommand \MakeAcroPropertyAlias {mm}
   { \acro_property_make_alias:nn {#1} {#2} }
 
+\NewDocumentCommand \NewAcroPreset {m+m}
+  { \acro_preset_new:nn {#1} {#2} }
+
+\NewDocumentCommand \RenewAcroPreset {m+m}
+  { \acro_preset_renew:nn {#1} {#2} }
+
+\NewDocumentCommand \DeclareAcroPreset {m+m}
+  { \acro_preset_declare:nn {#1} {#2} }
+
+% --------------------------------------------------------------------------
 \NewDocumentCommand \UseAcroTemplate {O{acronym}mO{1}}
   { \acro_template_use:nnn {#3} {#1} {#2} }
 
@@ -1182,6 +1192,17 @@
     needs~ a~ (possibly~ empty)~ value!
   }
   
+\msg_new:nnn {acro} {preset-defined}
+  {
+    The~ acronym~ preset~ `#1'~ is~ already~ defined~ \msg_line_context: . \\
+    Try~ \RenewAcroPreset ~ or~ \DeclareAcroPreset ~ instead.
+  }
+
+\msg_new:nnn {acro} {preset-not-defined}
+  {
+    The~ acronym~ preset~ `#1'~ is~ not~ defined~ \msg_line_context: , yet. \\
+    Try~ \NewAcroPreset ~ or~ \DeclareAcroPreset ~ instead.
+  }
 
 % ----------------------------------------------------------------------------
 % declare properties:
@@ -1564,6 +1585,70 @@
       \__acro_parse_property:nn
       {#2}
   }
+\cs_generate_variant:Nn \acro_properties_set:nn {nV}
+
+% --------------------------------------------------------------------------
+% define a set of properties that can be assigned to acronyms
+% #1: preset name
+\acro_property_declare:nn {} {preset}
+
+\prg_new_conditional:Npnn \acro_preset_if_defined:n #1 {p,T,F,TF}
+  {
+    \tl_if_exist:cTF {l__acro_preset_#1_tl}
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+% #1: preset name
+\cs_new_protected:Npn \acro_preset_define:n #1
+  { \tl_new:c {l__acro_preset_#1_tl} }
+
+% #1: preset name
+% #2: properties
+\cs_new_protected:Npn \acro_preset_set:nn #1#2
+  { \tl_set:cn {l__acro_preset_#1_tl} {#2} }
+
+% #1: preset name
+% #2: properties
+\cs_new_protected:Npn \acro_preset_declare:nn #1#2
+  {
+    \acro_preset_if_defined:nF {#1}
+      { \acro_preset_define:n {#1} }
+    \acro_preset_set:nn {#1} {#2}
+  }
+
+% #1: preset name
+% #2: properties
+\cs_new_protected:Npn \acro_preset_new:nn #1#2
+  {
+    \acro_preset_if_defined:nTF {#1}
+      { \msg_error:nnn {acro} {preset-defined} {#1} }
+      {
+        \acro_preset_define:n {#1}
+        \acro_preset_set:nn {#1} {#2}
+      }
+  }
+
+% #1: preset name
+% #2: properties
+\cs_new_protected:Npn \acro_preset_renew:nn #1#2
+  {
+    \acro_preset_if_defined:nTF {#1}
+      { \acro_preset_set:nn {#1} {#2} }
+      { \msg_error:nnn {acro} {preset-not-defined} {#1} }
+  }
+
+% #1: ID
+\cs_new_protected:Npn \acro_preset_set_properties:n #1
+  {
+    \acro_property_if_set:nnT {#1} {preset}
+      {
+        \tl_set_eq:Nc
+          \l__acro_tmpa_tl
+          {l__acro_preset_ \acro_property_get:nn {#1} {preset} _tl}
+        \acro_properties_set:nV {#1} \l__acro_tmpa_tl
+      }
+  }
 
 % ----------------------------------------------------------------------------
 % inspect properties:
@@ -1828,6 +1913,7 @@
       { !\acro_property_if_set_p:nn {#1} {short} }
       { \acro_property_set:nnn {#1} {short} {#1} }
     \acro_property_set:nnn {#1} {id} {#1}
+    \acro_preset_set_properties:n {#1}
     \acro_property_set_aliases:n {#1}
     % check mandatory properties:
     \acro_property_foreach_mandatory:n
@@ -2625,13 +2711,10 @@
   }
 
 \int_new:N \l__acro_nest_int
-\bool_new:N \g__acro_nested_bool
 
 \prg_new_conditional:Npnn \acro_if_nested: {p,T,F,TF}
   {
-    \bool_lazy_and:nnTF
-      { \int_compare_p:n { \l__acro_nest_int = 1 } }
-      { \g__acro_nested_bool }
+    \int_compare:nNnTF \l__acro_nest_int > 1
       { \prg_return_true: }
       { \prg_return_false: }
   }
@@ -2639,8 +2722,6 @@
 \cs_new_protected:Npn \acro_begin:
   {
     \group_begin:
-      \int_compare:nNnT \l__acro_nest_int > 0
-        { \bool_gset_true:N \g__acro_nested_bool }
       \int_incr:N \l__acro_nest_int
       \acro_reset_endings:
     \__acro_check_after_end:w
@@ -2661,7 +2742,6 @@
 
 \cs_new_protected:Npn \acro_end:
   {
-    \acro_if_nested:T { \bool_gset_false:N \g__acro_nested_bool }
     \bool_if:NT \g__acro_gobble_trail_bool
       {
         \bool_gset_false:N \g__acro_gobble_trail_bool
@@ -3053,9 +3133,7 @@
               \acro_locale:nnn {#1} {#2}
                 {
                   \__acro_write:nn {#1} {#2}
-                  \bool_lazy_and:nnT
-                    { !\acro_if_nested_p: }
-                    { \l__acro_include_endings_bool }
+                  \bool_if:NT \l__acro_include_endings_bool
                     {
                       \acro_if_ending_form:nnF {#1} {#2}
                         { \__acro_ending:nn {#1} {#2} }
@@ -3063,9 +3141,7 @@
                 }
             }
         \group_end:
-        \bool_lazy_or:nnF
-          { \acro_if_nested_p: }
-          { \l__acro_include_endings_bool }
+        \bool_if:NF \l__acro_include_endings_bool
           {
             \acro_if_ending_form:nnF {#1} {#2}
               { \__acro_ending:nn {#1} {#2} }
