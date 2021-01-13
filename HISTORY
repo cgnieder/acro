@@ -336,3 +336,11 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - add property `subsequent-style'
 2021/01/?? v3.5   - new property `preset'
                   - new: \NewAcroPreset and related commands
+                  - new: \acroifstarred(TF), cf. issue #162
+                  - reset endings at start of acronym commands: resolve issue
+                    #191
+                  - new property `uselist'
+                  - add \acrodotfill and use it instead of \dotfill
+                  - new option `link-only-first'
+                  - \AcroPropertiesSet
+                  - file acro-examples.sty

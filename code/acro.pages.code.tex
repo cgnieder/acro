@@ -265,6 +265,25 @@
 
 \int_new:N \l__acro_pages_seq_threshold_int
 
+% ----------------------------------------------------------------------------
+\cs_new_protected:Npn \acro_dot_fill:
+  {
+    \leaders \hbox
+      {
+        $\m@th
+        \mkern \@dotsep mu
+        \hbox {.}
+        \mkern \@dotsep mu$
+      }
+    \hfill
+  }
+
+\hook_gput_code:nnn {begindocument} {xsim}
+  {
+    \cs_if_exist:NT \cftdotfill
+      { \cs_set_protected:Npn \acro_dot_fill: { \cftdotfill { \cftdotsep } } }
+  }
+
 \keys_define:nn {acro/pages}
   {
     display .choice: ,
@@ -286,7 +305,7 @@
         { \int_set:Nn \l__acro_pages_seq_threshold_int {#1} } ,
     seq / threshold .initial:n = 3 ,
     fill            .tl_set:N   = \l__acro_pages_fill_tl ,
-    fill            .initial:n  = \dotfill ,
+    fill            .initial:n  = \acro_dot_fill: ,
     sep             .tl_set:N   = \l__acro_pages_sep_tl ,
     sep             .initial:n  = {,~} ,
     name            .bool_set:N = \l__acro_pages_name_display_bool ,

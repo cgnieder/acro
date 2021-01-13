@@ -22,14 +22,14 @@
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-\RequirePackage{l3keys2e}
+\RequirePackage {l3keys2e}
 \ExplSyntaxOn
 
 % setup package:
 \tl_const:Nn \c_acro_package_name_tl {acro}
-\tl_const:Nn \c_acro_date_tl {2020/12/25}
+\tl_const:Nn \c_acro_date_tl {2021/01/03}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
-\tl_const:Nn \c_acro_version_minor_number_tl {4}
+\tl_const:Nn \c_acro_version_minor_number_tl {5}
 \tl_const:Nn \c_acro_version_subrelease_tl   {}
 \tl_const:Nx \c_acro_version_number_tl
   {
@@ -486,6 +486,7 @@
 \cs_generate_variant:Nn \tl_remove_all:Nn {NV}
 \cs_generate_variant:Nn \tl_remove_once:Nn {NV}
 \cs_generate_variant:Nn \tl_if_in:NnF {NV}
+\cs_generate_variant:Nn \tl_if_eq:nnTF {VV}
 \cs_generate_variant:Nn \tl_put_right:Nn {Ne}
 \cs_generate_variant:Nn \clist_set:Nn {Ne}
 \cs_generate_variant:Nn \str_if_eq:nnT {x}
@@ -648,6 +649,9 @@
 \NewDocumentCommand \AcroPropertiesMap {+m}
   { \acro_properties_map:n {#1} }
 
+\NewDocumentCommand \AcroPropertiesSet {m+m}
+  { \acro_properties_set:nn {#1} {#2} }
+  
 \NewDocumentCommand \AcroMap {m+m}
   { \acro_list_map:nn {#1} {#2} }
 
@@ -891,6 +895,15 @@
 \NewDocumentCommand \acrocite {}
   { \bool_set_true:N \l__acro_cite_always_bool }
 
+\NewExpandableDocumentCommand \acroifpropertyTF {m}
+  { \acro_property_if_exist:nTF {#1} }
+
+\NewExpandableDocumentCommand \acroifpropertyT {m}
+  { \acro_property_if_exist:nT {#1} }
+
+\NewExpandableDocumentCommand \acroifpropertyF {m}
+  { \acro_property_if_exist:nF {#1} }
+  
 \NewExpandableDocumentCommand \acroifbooleanTF {m}
   { \acro_boolean_property_if:enTF { \AcronymID } {#1} }
 
@@ -936,11 +949,11 @@
   { \acro_if_first:eTF { \AcronymID } {} {#1} }
 
 \NewDocumentCommand \acroiftagTF {m+m+m}
-  { \acro_if_tag:enTF { \AcronymID } {#1} {#2} {#3} }
+  { \acro_tag_if:enTF { \AcronymID } {#1} {#2} {#3} }
 \NewDocumentCommand \acroiftagT {m+m}
-  { \acro_if_tag:enT { \AcronymID } {#1} {#2} }
+  { \acro_tag_if:enT { \AcronymID } {#1} {#2} }
 \NewDocumentCommand \acroiftagF {m+m}
-  { \acro_if_tag:enF { \AcronymID } {#1} {#2} }
+  { \acro_tag_if:enF { \AcronymID } {#1} {#2} }
 
 \NewDocumentCommand \acropages {mm}
   { \acro_print_pages:enn { \AcronymID } {#1} {#2} }
@@ -954,6 +967,8 @@
 \NewDocumentCommand \acropagefill {}
   { \acro_if_pages:eT  { \AcronymID } { \tl_use:N \l__acro_pages_fill_tl } }
 
+\NewDocumentCommand \acrodotfill {} { \acro_dot_fill: }
+  
 \NewExpandableDocumentCommand \acroifpagesTF {}
   { \acro_if_pages:eTF { \AcronymID } }
 
@@ -1590,8 +1605,6 @@
 % --------------------------------------------------------------------------
 % define a set of properties that can be assigned to acronyms
 % #1: preset name
-\acro_property_declare:nn {} {preset}
-
 \prg_new_conditional:Npnn \acro_preset_if_defined:n #1 {p,T,F,TF}
   {
     \tl_if_exist:cTF {l__acro_preset_#1_tl}
@@ -1802,6 +1815,9 @@
 \DeclareAcroProperty  {alt}
 \DeclareAcroProperty !{long}
 
+\DeclareAcroProperty{uselist}
+\DeclareAcroProperty{preset}
+
 % sorting, indexing, ... :
 \DeclareAcroPropertyAlias {sort} {short}
 \DeclareAcroProperty {index}
@@ -1938,10 +1954,31 @@
       { \prg_return_false: }
   }
 
+\prg_new_protected_conditional:Npnn \__acro_uselist_if_used:n #1 {T,F,TF}
+  {
+    \acro_property_if_set:nnTF {#1} {uselist}
+      {
+        \clist_set:Nx \l__acro_tmpa_clist
+          { \acro_property_get:nn {#1} {uselist} }
+        \clist_clear:N \l__acro_tmpb_clist
+        \clist_map_inline:Nn \l__acro_tmpa_clist
+          {
+            \acro_boolean_property_if:nnT {##1} {used}
+              { \clist_put_right:Nn \l__acro_tmpb_clist {##1} }
+          }
+        \tl_if_eq:VVTF \l__acro_tmpa_clist \l__acro_tmpb_clist
+          { \prg_return_true: }
+          { \prg_return_false: }
+      }
+      { \prg_return_false: }
+  }
+
 \cs_new_protected:Npn \acro_check_definition:n #1
   {
     \acro_if_defined:nF {#1}
       { \msg_error:nnn {acro} {undefined} {#1} }
+    \acro_boolean_property_if:nnF {#1} {used}
+      { \__acro_uselist_if_used:nT {#1} { \acro_use:n {#1} } }
   }
 
 % --------------------------------------------------------------------------
@@ -4053,6 +4090,25 @@
 
 \int_new:N \l__acro_pages_seq_threshold_int
 
+% ----------------------------------------------------------------------------
+\cs_new_protected:Npn \acro_dot_fill:
+  {
+    \leaders \hbox
+      {
+        $\m@th
+        \mkern \@dotsep mu
+        \hbox {.}
+        \mkern \@dotsep mu$
+      }
+    \hfill
+  }
+
+\hook_gput_code:nnn {begindocument} {xsim}
+  {
+    \cs_if_exist:NT \cftdotfill
+      { \cs_set_protected:Npn \acro_dot_fill: { \cftdotfill { \cftdotsep } } }
+  }
+
 \keys_define:nn {acro/pages}
   {
     display .choice: ,
@@ -4074,7 +4130,7 @@
         { \int_set:Nn \l__acro_pages_seq_threshold_int {#1} } ,
     seq / threshold .initial:n = 3 ,
     fill            .tl_set:N   = \l__acro_pages_fill_tl ,
-    fill            .initial:n  = \dotfill ,
+    fill            .initial:n  = \acro_dot_fill: ,
     sep             .tl_set:N   = \l__acro_pages_sep_tl ,
     sep             .initial:n  = {,~} ,
     name            .bool_set:N = \l__acro_pages_name_display_bool ,
@@ -4320,6 +4376,7 @@
 % --------------------------------------------------------------------------
 % hyper linking
 \bool_new:N \l__acro_hyperref_use_bool
+\bool_new:N \l__acro_link_only_first_bool
 
 \cs_new_eq:NN \__acro_hyper_target:nn \use_ii:nn
 \cs_new_eq:NN \__acro_hyper_link:nn   \use_ii:nn
@@ -4356,7 +4413,11 @@
             { \acro_package_if_loaded_p:n {hyperref} }
             { \l__acro_hyperref_use_bool }
             { !\acro_if_single_p:n {#1} }
-            % TODO: add a possibility for user conditions
+            {
+              \bool_lazy_or_p:nn
+                { !\l__acro_link_only_first_bool }
+                { \l__acro_link_only_first_bool && \acro_if_first_p:n {#1} }
+            }
           }
           {
             \bool_if:NTF \l__acro_list_bool
@@ -4420,8 +4481,10 @@
 
 \keys_define:nn {acro}
   {
-    make-links .bool_set:N = \l__acro_hyperref_use_bool ,
-    make-links .initial:n  = false
+    make-links      .bool_set:N = \l__acro_hyperref_use_bool ,
+    make-links      .initial:n  = false ,
+    link-only-first .bool_set:N = \l__acro_link_only_first_bool ,
+    link-only-first .initial:n  = false
   }
 
 % --------------------------------------------------------------------------

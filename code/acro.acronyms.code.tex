@@ -64,6 +64,9 @@
 \DeclareAcroProperty  {alt}
 \DeclareAcroProperty !{long}
 
+\DeclareAcroProperty{uselist}
+\DeclareAcroProperty{preset}
+
 % sorting, indexing, ... :
 \DeclareAcroPropertyAlias {sort} {short}
 \DeclareAcroProperty {index}
@@ -200,10 +203,31 @@
       { \prg_return_false: }
   }
 
+\prg_new_protected_conditional:Npnn \__acro_uselist_if_used:n #1 {T,F,TF}
+  {
+    \acro_property_if_set:nnTF {#1} {uselist}
+      {
+        \clist_set:Nx \l__acro_tmpa_clist
+          { \acro_property_get:nn {#1} {uselist} }
+        \clist_clear:N \l__acro_tmpb_clist
+        \clist_map_inline:Nn \l__acro_tmpa_clist
+          {
+            \acro_boolean_property_if:nnT {##1} {used}
+              { \clist_put_right:Nn \l__acro_tmpb_clist {##1} }
+          }
+        \tl_if_eq:VVTF \l__acro_tmpa_clist \l__acro_tmpb_clist
+          { \prg_return_true: }
+          { \prg_return_false: }
+      }
+      { \prg_return_false: }
+  }
+
 \cs_new_protected:Npn \acro_check_definition:n #1
   {
     \acro_if_defined:nF {#1}
       { \msg_error:nnn {acro} {undefined} {#1} }
+    \acro_boolean_property_if:nnF {#1} {used}
+      { \__acro_uselist_if_used:nT {#1} { \acro_use:n {#1} } }
   }
 
 % --------------------------------------------------------------------------

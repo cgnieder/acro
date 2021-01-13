@@ -434,8 +434,6 @@
 % --------------------------------------------------------------------------
 % define a set of properties that can be assigned to acronyms
 % #1: preset name
-\acro_property_declare:nn {} {preset}
-
 \prg_new_conditional:Npnn \acro_preset_if_defined:n #1 {p,T,F,TF}
   {
     \tl_if_exist:cTF {l__acro_preset_#1_tl}

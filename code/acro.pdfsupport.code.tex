@@ -17,6 +17,7 @@
 % --------------------------------------------------------------------------
 % hyper linking
 \bool_new:N \l__acro_hyperref_use_bool
+\bool_new:N \l__acro_link_only_first_bool
 
 \cs_new_eq:NN \__acro_hyper_target:nn \use_ii:nn
 \cs_new_eq:NN \__acro_hyper_link:nn   \use_ii:nn
@@ -53,7 +54,11 @@
             { \acro_package_if_loaded_p:n {hyperref} }
             { \l__acro_hyperref_use_bool }
             { !\acro_if_single_p:n {#1} }
-            % TODO: add a possibility for user conditions
+            {
+              \bool_lazy_or_p:nn
+                { !\l__acro_link_only_first_bool }
+                { \l__acro_link_only_first_bool && \acro_if_first_p:n {#1} }
+            }
           }
           {
             \bool_if:NTF \l__acro_list_bool
@@ -117,8 +122,10 @@
 
 \keys_define:nn {acro}
   {
-    make-links .bool_set:N = \l__acro_hyperref_use_bool ,
-    make-links .initial:n  = false
+    make-links      .bool_set:N = \l__acro_hyperref_use_bool ,
+    make-links      .initial:n  = false ,
+    link-only-first .bool_set:N = \l__acro_link_only_first_bool ,
+    link-only-first .initial:n  = false
   }
 
 % --------------------------------------------------------------------------

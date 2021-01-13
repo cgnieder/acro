@@ -17,6 +17,9 @@
 \NewDocumentCommand \AcroPropertiesMap {+m}
   { \acro_properties_map:n {#1} }
 
+\NewDocumentCommand \AcroPropertiesSet {m+m}
+  { \acro_properties_set:nn {#1} {#2} }
+  
 \NewDocumentCommand \AcroMap {m+m}
   { \acro_list_map:nn {#1} {#2} }
 
@@ -260,6 +263,15 @@
 \NewDocumentCommand \acrocite {}
   { \bool_set_true:N \l__acro_cite_always_bool }
 
+\NewExpandableDocumentCommand \acroifpropertyTF {m}
+  { \acro_property_if_exist:nTF {#1} }
+
+\NewExpandableDocumentCommand \acroifpropertyT {m}
+  { \acro_property_if_exist:nT {#1} }
+
+\NewExpandableDocumentCommand \acroifpropertyF {m}
+  { \acro_property_if_exist:nF {#1} }
+  
 \NewExpandableDocumentCommand \acroifbooleanTF {m}
   { \acro_boolean_property_if:enTF { \AcronymID } {#1} }
 
@@ -305,11 +317,11 @@
   { \acro_if_first:eTF { \AcronymID } {} {#1} }
 
 \NewDocumentCommand \acroiftagTF {m+m+m}
-  { \acro_if_tag:enTF { \AcronymID } {#1} {#2} {#3} }
+  { \acro_tag_if:enTF { \AcronymID } {#1} {#2} {#3} }
 \NewDocumentCommand \acroiftagT {m+m}
-  { \acro_if_tag:enT { \AcronymID } {#1} {#2} }
+  { \acro_tag_if:enT { \AcronymID } {#1} {#2} }
 \NewDocumentCommand \acroiftagF {m+m}
-  { \acro_if_tag:enF { \AcronymID } {#1} {#2} }
+  { \acro_tag_if:enF { \AcronymID } {#1} {#2} }
 
 \NewDocumentCommand \acropages {mm}
   { \acro_print_pages:enn { \AcronymID } {#1} {#2} }
@@ -323,6 +335,8 @@
 \NewDocumentCommand \acropagefill {}
   { \acro_if_pages:eT  { \AcronymID } { \tl_use:N \l__acro_pages_fill_tl } }
 
+\NewDocumentCommand \acrodotfill {} { \acro_dot_fill: }
+  
 \NewExpandableDocumentCommand \acroifpagesTF {}
   { \acro_if_pages:eTF { \AcronymID } }
 
