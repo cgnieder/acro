@@ -15,10 +15,10 @@
 \cs_new_protected:Npn \acro_list_choose_set:
   {
     \bool_if:NTF \l__acro_list_display_all_bool
-      { \seq_gset_eq:NN \g__acro_list_seq \g__acro_acronyms_seq }
+      { \seq_gset_eq:NN \g__acro_list_seq \g_acro_acronyms_seq }
       {
         \seq_gclear:N \g__acro_list_seq
-        \seq_map_inline:Nn \g__acro_acronyms_seq
+        \seq_map_inline:Nn \g_acro_acronyms_seq
           {
             \acro_if_single:nTF {##1}
               {

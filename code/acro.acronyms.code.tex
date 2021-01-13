@@ -135,7 +135,7 @@
 
 % --------------------------------------------------------------------------
 % declaration of acronyms:
-\seq_new:N \g__acro_acronyms_seq
+\seq_new:N \g_acro_acronyms_seq
 
 \tl_new:N \l__acro_first_style_tl
 
@@ -165,7 +165,7 @@
           {g__acro_#1_barriers_intarray}
           { \g_acro_barrier_total_int }
       }
-    \seq_gput_right:Nn \g__acro_acronyms_seq {#1}
+    \seq_gput_right:Nn \g_acro_acronyms_seq {#1}
     \acro_attribute_set:nnn {acronyms} {#1} {}
     % set defaults:
     \__acro_set_article_defaults:n {#1}
@@ -235,6 +235,12 @@
 \bool_new:N \l__acro_use_bool
 \bool_set_true:N \l__acro_use_bool
 
+\cs_new_protected:Npn \acro_map_acronyms:n #1
+  { \seq_map_inline:Nn \g_acro_acronyms_seq {#1} }
+
+\cs_new:Npn \acro_map_break: { \seq_map_break: }
+\cs_new:Npn \acro_map_break:n { \seq_map_break:n }
+
 \cs_new_protected:Npn \acro_use_false:
   { \bool_set_false:N \l__acro_use_bool }
 
@@ -253,7 +259,7 @@
 \cs_generate_variant:Nn \acro_use:n {e}
 
 \cs_new_protected:Npn \acro_use_all:
-  { \seq_map_inline:Nn \g__acro_acronyms_seq { \__acro_use:n {##1} } }
+  { \seq_map_inline:Nn \g_acro_acronyms_seq { \__acro_use:n {##1} } }
 
 \cs_new_protected:Npn \__acro_reset:n #1
   {
@@ -268,7 +274,7 @@
   { \clist_map_inline:nn {#1} { \__acro_reset:n {##1} } }
 
 \cs_new_protected:Npn \acro_reset_all:
-  { \seq_map_inline:Nn \g__acro_acronyms_seq { \__acro_reset:n {##1} } }
+  { \seq_map_inline:Nn \g_acro_acronyms_seq { \__acro_reset:n {##1} } }
 
 \cs_new_protected:Npn \acro_switch_off:
   { \bool_set_false:N \l__acro_use_bool }
