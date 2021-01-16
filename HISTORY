@@ -334,7 +334,7 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - new: \acroneedpages
                   - add option `subsequent-style'
                   - add property `subsequent-style'
-2021/01/?? v3.5   - new property `preset'
+2021/01/16 v3.5   - new property `preset'
                   - new: \NewAcroPreset and related commands
                   - new: \acroifstarred(TF), cf. issue #162
                   - reset endings at start of acronym commands: resolve issue
@@ -349,3 +349,4 @@ The Current Maintainer of this work is Clemens Niederberger.
                     and \AcroMapBreak
                   - extend `index/use' with choice `indexed', document
                     property `index-cmd'
+                  - remove zref dependency

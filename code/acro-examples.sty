@@ -1,4 +1,6 @@
-\ProvidesPackage{acro-examples}[2021/01/13 v0.1 (CN)]
+\RequirePackage{acro}
+\ProvidesPackage{acro-examples}[\csname c_acro_date_tl\endcsname\space v0.1
+example definitions with acro (CN)]
 
 \DeclareAcronym{afaik}{
   short = AFAIK ,
@@ -115,7 +117,7 @@
 }
 \DeclareAcronym{nato}{
   short = NATO ,
-  long = North Atlantic Treaty Organization
+  long = North Atlantic Treaty Organization ,
   foreign = \acf*{otan} ,
   foreign-babel = french ,
   foreign-locale = French

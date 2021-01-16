@@ -1,8 +1,6 @@
 \AcroModule{pages}{recording and printing of pages}
 % ----------------------------------------------------------------------------
 % record page numbers:
-\RequirePackage {zref-abspage}
-
 \msg_new:nnn {acro} {no-page-range}
   {
     The~ list~ template~ `#1'~ cannot~ display~ a~ page~ range.
@@ -18,10 +16,18 @@
 \cs_new_protected:Npn \acro_record_page:n #1
   {
     \seq_if_in:ceF {g__acro_#1_pages_seq}
-      { \arabic{abspage} @ \int_use:N \g_acro_barrier_int @ \thepage }
+      {
+          \int_use:N \g_shipout_totalpages_int
+        @ \int_use:N \g_acro_barrier_int
+        @ \thepage
+      }
       {
         \seq_gput_right:ce {g__acro_#1_pages_seq}
-          { \arabic{abspage} @ \int_use:N \g_acro_barrier_int @ \thepage }
+          {
+              \int_use:N \g_shipout_totalpages_int
+            @ \int_use:N \g_acro_barrier_int
+            @ \thepage
+          }
       }
     \seq_gremove_duplicates:c {g__acro_#1_pages_seq}
     \acro_at_end_document:n
@@ -44,10 +50,8 @@
 
 \group_end:
 
-\RequirePackage {zref-totpages}
-
 \acro_at_begin_document:n
-  { \intarray_new:Nn \g__acro_pages_intarray { \ztotpages } }
+  { \intarray_new:Nn \g__acro_pages_intarray { \PreviousTotalPages } }
 
 % #1: id
 % #2: one page

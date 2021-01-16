@@ -650,6 +650,6 @@
 \acro@add@version{2020-11-08}{3.2a}
 \acro@add@version{2020-11-21}{3.3}
 \acro@add@version{2020-12-25}{3.4}
-\acro@add@version{2020-01-03}{3.5}
+\acro@add@version{2020-01-16}{3.5}
 
 \endinput

@@ -1,3 +1,5 @@
+% arara: pdflatex
+% arara: pdflatex
 % --------------------------------------------------------------------------
 % the ACRO package
 % 
@@ -590,7 +592,31 @@ the same.  In that case you can use
     set then the appropriate value might be derived from
     \property{foreign-babel}. See section~\vref{sec:fore-lang-acronyms} for
     details.
+  %% preset
+  \propval{preset}{set name}\Default
+    \sinceversion{3.5}Enables to load a set of properties that has been
+    defined earlier with \cs{NewAcroPreset}, siehe
+    section~\vref{sec:presets}.
+  %% uselist
+  \propval{uselist}{csv list of acronym ids}\Default
+    \sinceversion{3.5}If this property is given and all acronyms specified in
+    this property have been used before the first time the current acronym is
+    used it behaves as if it has been used before.
 \end{properties}
+
+\subsection{Presets}\label{sec:presets}
+\sinceversion{3.5}Sometimes it can be useful to have different kinds of
+acronyms or abbreviations or similar which share a common set of properties.
+Such sets can be defined with these commands:
+\begin{commands}
+  \command{NewAcroPreset}[\marg{set name}\marg{csv list of properties}]
+    Defines the property set \meta{set name}.  Any valid property can be set
+    in \meta{csv list of properties}.
+  \command{RenewAcroPreset}[\marg{set name}\marg{csv list of properties}]
+    Redefines the property set \meta{set name}.
+  \command{DeclareAcroPreset}[\marg{set name}\marg{csv list of properties}]
+    Defines or redefines the property set \meta{set name} without checking.
+\end{commands}
 
 \section{Using acronyms}\label{sec:using-acronyms}
 There are a number of commands to use acronyms with. Their names always follow
@@ -888,12 +914,18 @@ the list of acronym you can use these options:
     The threshold for a page range to be turned into \latin{sequentes}.  A
     page range above the threshold is still typeset as a range:
     \meta{num1}--\meta{num2}.
-  \keyval{fill}{code}\Module{pages}\Default{\cs*{dotfill}}
+  \keyval{fill}{code}\Module{pages}\Default{\cs*{acrdotfill}}
     This is the code that is placed between acronym description and actual
     page numbers.
   \keybool{name}\Module{pages}\Default{false}
     If set to true the page numbers are preceded with p.\ or pp.
 \end{options}
+\begin{commands}
+  \command{acrodotfill}
+    \sinceversion{3.5}Creates a dotted line like those in the table of
+    contents.  If the macro \cs*{cftdotfill} is defined it is equal to
+    \cs*{cftdotfill}\Marg{\cs*{cftdotsep}}.
+\end{commands}
 Additionally\sinceversion{3.3} to setting these options with \cs{acsetup} they
 can be set as options to \cs{printacronyms}:
 \begin{sourcecode}
@@ -1376,9 +1408,9 @@ desirable to let \acro\ make this automatically.  In the simplest case just
 enable it:
 \begin{options}
   \keychoice{use}{\default{true},false,indexed}\Module{index}\Default{false}
-    Enable indexing.  If \code{indexed} is chosen only the acronyms for which
-    the property \property{index} has been set are indexed.  With \code{true}
-    \emph{all} acronyms are indexed.
+    \changedversion{3.5}Enable indexing.  If \code{indexed} is chosen only the
+    acronyms for which the property \property{index} has been set are indexed.
+    With \code{true} \emph{all} acronyms are indexed.
   \keyval{cmd}{index command}\Module{index}\Default{\cs*{index}}
     Choose a command for indexing.
   \keyval{disable}{code}\Module{index}\Default{\cs*{def}\cs*{@}\{\}}
@@ -1575,6 +1607,10 @@ option:
   \keybool{make-links}\Default{false}
     If this is activated then every short or alternative appearance of an
     acronym will be linked to its description in the list of acronyms.
+  \keybool{link-only-first}\Default{false}
+    \sinceversion{3.5}If this is activated in addition to \option{make-links}
+    then \emph{only the first} short or alternative appearance of an acronym
+    will be linked to its description in the list of acronyms.
 \end{options}
 \begin{bewareofthedog}
   This will fail miserably together with local lists if an acronym appears in
@@ -1992,9 +2028,22 @@ and \cs*{acroifF} each have an argument less than \cs*{acroifTF}.
   \command{acroiftag\TF}[\marg{tag}\marg{true}\marg{false}]
     Checks if the current acronym has been given the tag \meta{tag} and either
     leaves \meta{true} or \meta{false} in the input stream.
+  \command{acroifstarred\TF}[\marg{true}\marg{false}]
+    \sinceversion{3.5}Checks if the current call of the acronym is a starred
+    command or not and either leaves \meta{true} or \meta{false} in the input
+    stream.
   \command{AcroPropertiesMap}[\marg{code}]
     Maps over all defined acronym properties.  Within \meta{code} you can
     refer to the current property with \code{\#1}.
+  \command{AcroAcronymsMap}[\marg{code}]
+    \sinceversion{3.5}Maps over all defined acronyms.  Within \meta{code} you
+    can refer to the current property with \code{\#1} or with \cs{AcronymID}.
+  \command{AcroMapBreak}
+    \sinceversion{3.5}Stops the map \cs{AcroAcronymsMap} and is usually used
+    in combination with a boolean check.
+  \command{AcroPropertiesSet}[\marg{id}\marg{csv list of properties}]
+    \sinceversion{3.5}Allows the setting of properties of acronym \meta{id}
+    outside of \cs{declareAcronym}.
 \end{commands}
 
 \subsubsection{Commands for usage in acronym templates}
