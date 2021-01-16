@@ -19,6 +19,8 @@
 
 \NewDocumentCommand \AcroAcronymsMap {+m}
   { \acro_map_acronyms:n { \tl_set:Nn \AcronymID {##1} #1 } }
+
+\NewExpandableDocumentCommand \AcroMapBreak {} { \acro_map_break: }
   
 \NewDocumentCommand \AcroPropertiesSet {m+m}
   { \acro_properties_set:nn {#1} {#2} }

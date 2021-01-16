@@ -432,6 +432,11 @@ the same.  In that case you can use
     value of the \property{sort} property.  This property allows to set an
     individual sorting option for the index.  See section~\vref{sec:indexing}
     for details.
+  %% index-cmd
+  \propval{index-cmd}{index command}\Default
+    This sets the indexing command for the acronym.  If unused then the
+    command set by the corresponding option is used.  See
+    section~\vref{sec:indexing} for details.
 \end{properties}
 
 \subsection{Properties related to plural and indefinite forms}\label{sec:prop-relat-plur}
@@ -1370,8 +1375,10 @@ Maybe you want to add your acronyms to an index. In that case it is probably
 desirable to let \acro\ make this automatically.  In the simplest case just
 enable it:
 \begin{options}
-  \keybool{use}\Module{index}\Default{false}
-    Enable indexing.
+  \keychoice{use}{\default{true},false,indexed}\Module{index}\Default{false}
+    Enable indexing.  If \code{indexed} is chosen only the acronyms for which
+    the property \property{index} has been set are indexed.  With \code{true}
+    \emph{all} acronyms are indexed.
   \keyval{cmd}{index command}\Module{index}\Default{\cs*{index}}
     Choose a command for indexing.
   \keyval{disable}{code}\Module{index}\Default{\cs*{def}\cs*{@}\{\}}

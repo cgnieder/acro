@@ -344,4 +344,8 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - new option `link-only-first'
                   - \AcroPropertiesSet
                   - file acro-examples.sty
-                  - \acro_map_acronyms:n and \AcroAcronymsMap
+                  - public \g_acro_acronyms_seq
+                  - \acro_map_acronyms:n , \acro_map_break: , \AcroAcronymsMap ,
+                    and \AcroMapBreak
+                  - extend `index/use' with choice `indexed', document
+                    property `index-cmd'

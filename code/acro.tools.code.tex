@@ -260,6 +260,7 @@
 % --------------------------------------------------------------------------
 % indexing
 \bool_new:N \l__acro_index_bool
+\bool_new:N \l__acro_index_prop_bool
 \tl_new:N \l_acro_index_disable_tl
 
 \cs_new_protected:Npn   \__acro_index:n {}
@@ -268,9 +269,16 @@
 % #1: id
 \cs_new_protected:Npn \acro_index:n #1
   {
-    \bool_lazy_and:nnT
-      { \l__acro_index_bool }
-      { !\acro_boolean_property_if_p:nn {#1} {no-index} }
+    \bool_lazy_all:nT
+      {
+        { \l__acro_index_bool }
+        { !\acro_boolean_property_if_p:nn {#1} {no-index} }
+        {
+          \bool_if:NTF \l__acro_index_prop_bool
+            { \acro_property_if_set_p:nn {#1} {index} }
+            { !\acro_property_if_set_p:nn {#1} {index} }
+        }
+      }
       {
         \group_begin:
           \acro_trailing_map:n
@@ -300,15 +308,26 @@
 
 \keys_define:nn {acro/index}
   {
-    use     .bool_set:N = \l__acro_index_bool ,
-    use     .initial:n  = false ,
-    cmd     .cs_set:Np  = \__acro_index:n ,
-    cmd     .initial:n  = \index ,
-    cmd     .value_required:n  = true ,
-    disable .code:n     = \tl_put_right:Nn \l_acro_index_disable_tl {#1} ,
-    disable .value_required:n  = true ,
-    clear   .code:n     = \tl_clear:N \l_acro_index_disable_tl ,
-    clear   .value_forbidden:n = true
+    use           .choice: ,
+    use / true    .code:n =
+      \bool_set_true:N \l__acro_index_bool
+      \bool_set_false:N \l__acro_index_prop_bool ,
+    use / false   .code:n =
+      \bool_set_false:N \l__acro_index_bool
+      \bool_set_false:N \l__acro_index_prop_bool ,
+    use / indexed .code:n =
+      \bool_set_true:N \l__acro_index_bool
+      \bool_set_true:N \l__acro_index_prop_bool ,
+    use           .initial:n = false ,
+    use           .default:n = true ,
+    use           .initial:n = false ,
+    cmd           .cs_set:Np = \__acro_index:n ,
+    cmd           .initial:n = \index ,
+    cmd           .value_required:n  = true ,
+    disable       .code:n     = \tl_put_right:Nn \l_acro_index_disable_tl {#1} ,
+    disable       .value_required:n  = true ,
+    clear         .code:n     = \tl_clear:N \l_acro_index_disable_tl ,
+    clear         .value_forbidden:n = true
   }
 
 \keys_set:nn {acro/index} { disable = \def\@{} }
