@@ -337,7 +337,8 @@ if [ "$createzip" == true ] ; then
     mkdir $pkgname/
     mkdir $pkgname/examples
     cp ${CODE_DIR}/$styname $pkgname/
-    cp ${CODE_DIR}/${pkgname}2.sty $pkgname/
+    cp ${CODE_DIR}/$styoldname $pkgname/
+    cp ${CODE_DIR}/$styexplname $pkgname/
     cp ${DOC_DIR}/$manualfile.tex $pkgname/
     cp ${DOC_DIR}/$manualfile.pdf $pkgname/
     cp ${DOC_DIR}/examples/$pkgname.example.*.tex $pkgname/examples/

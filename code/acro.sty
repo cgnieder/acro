@@ -481,6 +481,7 @@
 \cs_generate_variant:Nn \seq_set_split:Nnn {Nne}
 \cs_generate_variant:Nn \clist_if_empty:nTF {e}
 \cs_generate_variant:Nn \clist_item:nn {e}
+\cs_generate_variant:Nn \clist_count:n {e}
 \cs_generate_variant:Nn \int_set:Nn {Nx}
 \cs_generate_variant:Nn \tl_set:Nn {Ne}
 \cs_generate_variant:Nn \tl_remove_all:Nn {NV}
@@ -2936,7 +2937,8 @@
     \bool_if:NT \l__acro_barriers_bool
       {
         \int_compare:nNnTF
-          { \intarray_count:c {g__acro_#1_barriers_intarray} } > 0
+          { \intarray_count:c {g__acro_#1_barriers_intarray} } < \g_acro_barrier_int
+          { \acro_rerun:n {barriers} }
           {
             \intarray_gset:cnn {g__acro_#1_barriers_intarray}
               { \int_use:N \g_acro_barrier_int }
@@ -2946,14 +2948,16 @@
                 +1
               }
           }
-          { \acro_rerun:n {barriers} }
       }
   }
 
 % #1: id
 \cs_new:Npn \acro_barrier_usage:n #1
   {
-    \clist_if_empty:eTF { \acro_property_get:nn {#1} {barriers} }
+    \int_compare:nNnTF
+      { \clist_count:e { \acro_property_get:nn {#1} {barriers} } }
+      <
+      \g_acro_barrier_int
       {0}
       {
         \clist_item:en
