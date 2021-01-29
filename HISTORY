@@ -350,3 +350,4 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - extend `index/use' with choice `indexed', document
                     property `index-cmd'
                   - remove zref dependency
+2021/??/?? v3.??  - add option `case-insensitive'   

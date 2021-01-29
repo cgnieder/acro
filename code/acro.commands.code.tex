@@ -19,8 +19,9 @@
 
 \keys_define:nn {acro}
   {
-    case-sensitive .bool_gset:N = \g__acro_case_sensitive_bool ,
-    case-sensitive .initial:n   = true ,
+    case-sensitive   .bool_gset:N = \g__acro_case_sensitive_bool ,
+    case-insensitive .bool_gset_inverse:N = \g__acro_case_sensitive_bool ,
+    case-sensitive   .initial:n = true
   }
 
 % ----------------------------------------------------------------------------

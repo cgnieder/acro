@@ -18,12 +18,17 @@
 % hyper linking
 \bool_new:N \l__acro_hyperref_use_bool
 \bool_new:N \l__acro_link_only_first_bool
+\bool_new:N \l__acro_link_back_bool
 
 \cs_new_eq:NN \__acro_hyper_target:nn \use_ii:nn
 \cs_new_eq:NN \__acro_hyper_link:nn   \use_ii:nn
+\cs_new_eq:NN \__acro_hyper_back_target:nn \use_ii:nn
+\cs_new_eq:NN \__acro_hyper_back_link:nn   \use_ii:nn
 
 \cs_generate_variant:Nn \__acro_hyper_target:nn {e}
 \cs_generate_variant:Nn \__acro_hyper_link:nn {e}
+\cs_generate_variant:Nn \__acro_hyper_back_target:nn {e}
+\cs_generate_variant:Nn \__acro_hyper_back_link:nn {e}
 
 \cs_new_protected:Npn \__acro_activate_hyperref_support:
   {
@@ -39,6 +44,8 @@
           { \cs_set_eq:NN \__acro_hyper_link:nn \hyperlink }
         \cs_set:Npn \__acro_hyper_target:nn ##1##2
           { \raisebox {3ex} [0pt] { \hypertarget {##1} { } } ##2 }
+        \cs_set_eq:NN \__acro_hyper_back_link:nn \__acro_hyper_link:nn
+        \cs_set_eq:NN \__acro_hyper_back_target:nn \__acro_hyper_target:nn
       }
   }
 
