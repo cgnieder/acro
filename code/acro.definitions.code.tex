@@ -168,6 +168,8 @@
   {
     \NewAcroTemplate[heading] {addsec}
       { \addsec { \acrolistname } }
+    \NewAcroTemplate[heading] {addsec*}
+      { \addsec* { \acrolistname } }
   }
   
 \cs_if_exist:NT \chapter
@@ -180,6 +182,8 @@
       {
         \NewAcroTemplate[heading] {addchap}
         { \addchap { \acrolistname } }
+        \NewAcroTemplate[heading] {addchap*}
+        { \addchap* { \acrolistname } }
       }
   }
 

@@ -177,8 +177,8 @@
 \acro_if_komascript:TF
   {
     \cs_if_exist:NTF \chapter
-      { \keys_set:nn {acro/list}{ heading = addchap } }
-      { \keys_set:nn {acro/list}{ heading = addsec } }
+      { \keys_set:nn {acro/list}{ heading = addchap* } }
+      { \keys_set:nn {acro/list}{ heading = addsec* } }
   }
   {
     \cs_if_exist:NTF \chapter
