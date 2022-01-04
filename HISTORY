@@ -355,3 +355,5 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - implement issue #216
                   - implement issue #224
                   - fix typos
+                  - fix issue #229
+                  - add `addsec*' and `addchap*' as heading options

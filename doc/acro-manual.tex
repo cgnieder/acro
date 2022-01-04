@@ -358,6 +358,8 @@ sections of this manual.
     When this is set you can write the \ac{id} of the acronym upper- or lower-
     or mixed case and it is recognized by \acro\ as the same.  This might be
     useful when the acronym appears in the page header, for example.
+  \keybool{case-insensitive}\Default{false}
+    \sinceversion{3.6}The inverse of the option \option{case-sensitive}.
 \end{options}
 
 \begin{bewareofthedog}
@@ -842,7 +844,7 @@ The main idea is simple: just place
 \end{commands}
 The options controlling the list are these:
 \begin{options}
-  \keychoice{template}{description,table,longtable,lof,toc}%
+  \keychoice{template}{description,tabular,longtable,supertabular,lof,toc}%
     \Module{list}\Default{description}
     Choose the template to create the list with.  See more on this in
     sections~\vref{sec:templates} and~\vref{sec:examples}.
@@ -1932,12 +1934,13 @@ to defines own such objects:
     Only defined in a \KOMAScript\ class and if \cs*{chapter} is defined. Uses
     \cs*{addchap} for the heading.
   \tmpl{addchap*}
-    Only defined in a \KOMAScript\ class and if \cs*{chapter} is defined. Uses
-    \cs*{addchap*} for the heading.
+    \sinceversion{3.6}Only defined in a \KOMAScript\ class and if
+    \cs*{chapter} is defined. Uses \cs*{addchap*} for the heading.
   \tmpl{addsec}
     Only defined in a \KOMAScript\ class. Uses \cs*{addsec} for the heading.
   \tmpl{addsec*}
-    Only defined in a \KOMAScript\ class. Uses \cs*{addsec*} for the heading.
+    \sinceversion{3.6}Only defined in a \KOMAScript\ class. Uses \cs*{addsec*}
+    for the heading.
   \tmpl{chapter}
     Only defined if \cs*{chapter} is defined. Uses \cs*{chapter} for the heading.
   \tmpl{chapter*}
