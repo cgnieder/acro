@@ -786,7 +786,7 @@ single appearance of the acronym is printed\footnote{This usually requires at
 The single appearance of an acronym is determined by this option:
 \begin{options}
   \keychoice{single}{\default{true},false,\meta{number}}\Default{false}
-    This option determines wether a single appearance of an acronym counts as
+    This option determines whether a single appearance of an acronym counts as
     \emph{usage}. It might be desirable in such cases that an acronym is
     simply printed as long form and not added to the list of acronym.  This is
     what this option does.  With \meta{number} the minimal number of usages
@@ -848,10 +848,10 @@ The options controlling the list are these:
     Choose the template to create the list with.  See more on this in
     sections~\vref{sec:templates} and~\vref{sec:examples}.
   \keybool{sort}\Module{list}\Default{true}
-    Decide wether to sort the list of acronyms alphabetically or to print it
+    Decide whether to sort the list of acronyms alphabetically or to print it
     in order of definition.
   \keychoice{display}{all,used}\Module{list}\Default{used}
-    Decide wether to print only the acronyms actually used in the document or
+    Decide whether to print only the acronyms actually used in the document or
     all acronyms which have been declared in the preamble.
   \keyval{exclude}{csv list of tags}\Module{list}\Default
     Set a list of tags to exclude from the list.  Only acronyms not
@@ -879,7 +879,7 @@ The options controlling the list are these:
     This only has an effect if the list template supports it.  All pre-defined
     templates \emph{do} support it.
   \keybool{display}\Module{list,locale}\Default{false}
-    This options determines wether the language of the foreign form is printed
+    This options determines whether the language of the foreign form is printed
     or not.
 
     This only has an effect if the list template supports foreign forms.  All
@@ -900,9 +900,10 @@ If you want to include the page numbers where the acronyms have been used in
 the list of acronym you can use these options:
 \begin{options}
   \keychoice{display}{first,all,none}\Module{pages}\Default{none}
-    Decide wether to include page numbers in the list of acroynms and wether
-    to add the first page or every page.  When you choose \code{first} and
-    have \pkg{hyperref} loaded you will also get a backlink to that page.
+    Decide whether to include page numbers in the list of acroynms and
+    whether to add the first page or every page.  When you choose
+    \code{first} and have \pkg{hyperref} loaded you will also get a
+    backlink to that page.
   \keybool{use}\Module{pages,seq}\Default{true}
     Turns a two-page range into \meta{num}\,f.\ (\latin{sequens}) and a
     three-page range into \meta{num}\,ff.\ (\latin{sequentes}) when set to
@@ -1236,12 +1237,12 @@ properties for such cases:
 There are also some options:
 \begin{options}
   \keybool{display}\Module{foreign}\Default{true}
-    Determine wether to hide or display the foreign form.
+    Determine whether to hide or display the foreign form.
   \keybool{display}\Module{list,foreign}\Default{true}
-    \sinceversion{3.2}Determine wether to hide or display the foreign form in
+    \sinceversion{3.2}Determine whether to hide or display the foreign form in
     the list of acronyms.
   \keybool{display}\Module{locale}\Default{false}
-    This options determines wether the language of the foreign form is printed
+    This options determines whether the language of the foreign form is printed
     or not when the full form of the acronym is printed.
   \keybool{display}\Module{list,locale}\Default{false}
     The same but for the list of acronyms.
@@ -1368,11 +1369,11 @@ like these \acro\ offers a number of options:\acuse{ny}
   \keyval{cmd}{citation command}\Module{cite}\Default{\cs*{cite}}
     Choose the command with which citations ar printed.
   \keybool{group}\Module{cite}\Default{false}
-    Decide wether to group citations with the short form in the parentheses.
+    Decide whether to group citations with the short form in the parentheses.
     The template must support this.  \acro's pre-defined templates \emph{do}
     support it.
   \keychoice{display}{first,all,none}\Module{cite}\Default{first}
-    Decide wether to output the citation in the first/full usage only or
+    Decide whether to output the citation in the first/full usage only or
     always or never.
   \keyval{pre}{text}\Module{cite}\Default{\cs*{nobreakspace}}
     Arbitrary code directly output before the citation.
