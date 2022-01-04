@@ -782,7 +782,7 @@
 % declaring acronyms in the document body does not work,
 % cf. https://tex.stackexchange.com/q/568856/
 % so lets prevent people from doing so:
-\@onlypreamble \NewDocumentCommand
+\@onlypreamble \DeclareAcronym
 
 \NewDocumentCommand \DeclareAcroEnding {mmm}
   { \acro_declare_ending:nnn {#1} {#2} {#3} }
