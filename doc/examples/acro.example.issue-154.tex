@@ -1,0 +1,17 @@
+\documentclass{article}
+
+\usepackage[version=3]{acro}
+
+\RenewAcroCommand\ac{mo}{\UseAcroTemplate{first}{#1}\IfNoValueF{#2}{#2}}
+
+\DeclareAcronym{uc}{
+  short = UC ,
+  long = Universal Composability ,
+  cite = xxx
+}
+
+\begin{document}
+
+We use the \ac{uc}[ model] for\dots
+
+\end{document}

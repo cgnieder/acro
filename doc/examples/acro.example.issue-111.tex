@@ -1,0 +1,27 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage[version=3]{acro}
+
+\DeclareAcroArticle{definite}{\nospace}
+
+\NewAcroCommand\dacs{m}{\acrodefinite\UseAcroTemplate{short}{#1}}
+\NewAcroCommand\Dacs{m}{\acroupper\acrodefinite\UseAcroTemplate{short}{#1}}
+\NewAcroCommand\dacl{m}{\acrodefinite\UseAcroTemplate{long}{#1}}
+\NewAcroCommand\Dacl{m}{\acroupper\acrodefinite\UseAcroTemplate{long}{#1}}
+
+\DeclareAcronym{hadopi}{
+  short = HADOPI ,
+  long = Haute Autorit\'{e} pour la diffusion des \oe uvres et la protection des
+    droits sur l’Internet ,
+  short-definite = l'\nospace ,
+  long-definite = la ,
+}
+
+\begin{document}
+
+\dacs{hadopi}
+
+\Dacl{hadopi}
+
+\end{document}

@@ -1,0 +1,49 @@
+\documentclass{article}
+\usepackage[enable-debug]{expl3}
+
+\usepackage[version=3]{acro}
+
+\makeatletter
+\NewAcroTemplate[list]{external}{%
+  \if@filesw
+    \newwrite\acro@list
+    \immediate\openout\acro@list\jobname.ac\relax
+    \immediate\write\acro@list{\string\begin{description}}
+    \let\item\relax
+    \acronymsmapF{%
+      \immediate\write\acro@list{%
+        \space\space
+        \item[\acrofield{##1}{short}]
+        \acrofield{##1}{list}%
+        \acrofieldifTF{##1}{extra}{ (\acrofield{##1}{extra})}{}%
+      }%
+    }{\immediate\write\acro@list{\item}\AcroRerun}%
+    \immediate\write\acro@list{\string\end{description}}
+    \immediate\closeout\acro@list
+  \fi
+}
+\makeatother
+
+\DeclareAcronym{ny}{
+  short = NY ,
+  long = New York ,
+}
+
+\DeclareAcronym{la}{
+  short = LA ,
+  long = Los Angeles ,
+  extra = City of Angels
+}
+
+\DeclareAcronym{dc}{
+  short = D.C. ,
+  long = Washington D.C.
+}
+
+\begin{document}
+
+\acuseall
+\printacronyms[template=external]
+\null
+
+\end{document}

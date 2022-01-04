@@ -1,0 +1,17 @@
+\documentclass{article}
+\usepackage[ngerman]{babel}
+\usepackage{acro}
+\acsetup{format/long=\itshape}
+
+\DeclareAcronym{cd}{short = CD, long = Compact Disc}
+
+\RenewAcroCommand\acflike{mm}{%
+  \acroformat{long}{#2} (\UseAcroTemplate{short}{#1})%
+}
+
+\begin{document}
+
+\ac{cd} \par
+\acflike{cd}{Rohling}
+
+\end{document}

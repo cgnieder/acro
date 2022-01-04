@@ -10,7 +10,7 @@
 % Web:    https://github.com/cgnieder/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2011--2021 Clemens Niederberger
+% Copyright 2011--2022 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3c
@@ -295,12 +295,11 @@ argument to \cs*{usepackage}:
     The option allows you to use the last version prior to the update to
     version~3.  This may help if you don't have the time to fix issues after
     upgrading to the new version.
-  \keybool{upgrade}\Default{true}
+  \keybool{upgrade}\Default{false}
     When this option is used \acro\ tries to give as much helpful and
     meaningful warning or error messages when a deprecated or removed command,
     property, or option is used.  This is especially useful if you are
-    upgrading from version~2.  The option will initially be true for a few
-    months after the upgrade to version~3.
+    upgrading from version~2.
 \end{options}
 
 \subsection{Setup command}\label{sec:setup-command}
@@ -1959,7 +1958,7 @@ For the definition of templates these commends are available:
     which inserts \meta{code} when used.  A template of type \meta{type} with
     name \meta{name} must not exist.  The default type is \code{acronym}.
   \command{RenewAcroTemplate}[\oarg{type}\marg{name}\marg{code}]
-    This re-defines a template of type \meta{type} woth the name \meta{name}
+    This re-defines a template of type \meta{type} with the name \meta{name}
     which inserts \meta{code} when used.  A template of type \meta{type} with
     name \meta{name} must exist.  The default type is \code{acronym}.
   \command{SetupAcroTemplate}[\oarg{type}\marg{name}\marg{code}]

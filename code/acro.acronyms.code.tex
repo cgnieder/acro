@@ -222,13 +222,19 @@
       { \prg_return_false: }
   }
 
-\cs_new_protected:Npn \acro_check_definition:n #1
+\cs_new_protected:Npn \acro_check_definition:nT #1#2
   {
-    \acro_if_defined:nF {#1}
-      { \msg_error:nnn {acro} {undefined} {#1} }
-    \acro_boolean_property_if:nnF {#1} {used}
-      { \__acro_uselist_if_used:nT {#1} { \__acro_use:n {#1} } }
+    \acro_if_defined:nTF {#1}
+      {
+        \acro_boolean_property_if:nnF {#1} {used}
+          { \__acro_uselist_if_used:nT {#1} { \__acro_use:n {#1} } }
+        #2
+      }
+      { \acro_acronym_undefined:n {#1} }
   }
+
+\cs_new_protected:Npn \acro_acronym_undefined:n #1
+  { \msg_error:nnn {acro} {undefined} {#1} }
 
 % --------------------------------------------------------------------------
 % use and reset:

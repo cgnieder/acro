@@ -1,0 +1,21 @@
+\documentclass{article}
+\usepackage{acro}
+
+\newrobustcmd*\newspecies[4][]{%
+  \DeclareAcronym{#2}{
+    short = {#3} ,
+    long = {#4} ,
+    #1 ,
+    tag = species ,
+    first-style= long ,
+    format = \itshape
+  }%
+}
+\newspecies{ecoli}{E.~coli}{Escherichia coli}
+
+\begin{document}
+
+First use: \ac{ecoli}\par  
+Second use: \ac{ecoli}  
+
+\end{document} 

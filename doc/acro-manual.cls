@@ -8,7 +8,7 @@
 % Web:    https://github.com/cgnieder/acro/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2011--2021 Clemens Niederberger
+% Copyright 2011--2022 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3

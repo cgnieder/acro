@@ -1,0 +1,39 @@
+\documentclass{article}
+\usepackage{acro}
+
+\DeclareAcroArticle{definite}{the}
+\DeclareAcroEnding{possessive}{'s}{'s}
+
+\NewAcroCommand\dac{m}{\acrodefinite\UseAcroTemplate{first}{#1}}
+\NewAcroCommand\Dac{m}{\acroupper\acrodefinite\UseAcroTemplate{first}{#1}}
+
+\NewAcroCommand\Dacg{m}{%
+  \acroupper
+  \acrodefinite
+  \acropossessive
+  \UseAcroTemplate{first}{#1}%
+}
+
+\DeclareAcronym{css}{
+  short = CSS ,
+  long = Centre for Spaghetti Studies ,
+  short-definite = \nospace ,
+  long-possessive = '
+}
+
+\begin{document}
+
+Bob hails from \dac{css}. \par
+Bob hails from \dac{css}.
+
+\acreset{css}
+
+\Dacg{css} mandate is broad. \par
+\Dacg{css} mandate is broad.
+
+\acreset{css}
+
+\Dac{css} scientists eat well. \par
+\Dac{css} scientists eat well. \par
+
+\end{document}

@@ -1,0 +1,25 @@
+\documentclass{article}
+\usepackage[enable-debug]{expl3}
+\usepackage{hyperref}
+\usepackage[version=3]{acro}
+
+\acsetup{
+  pages/display=all ,
+  pages/seq=false
+}
+
+\DeclareAcronym{ny}{
+  short = NY ,
+  long = New York ,
+}
+
+\NewAcroCommand\aci{m}{}
+
+\begin{document}
+
+no\aci{ny}thing\newpage
+\ac{ny}
+
+\printacronyms
+
+\end{document}

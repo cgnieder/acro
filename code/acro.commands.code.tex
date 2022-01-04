@@ -293,15 +293,18 @@
             \acro_begin:
               \l__acro_begin_command_hook_tl
               \cs_set:Npn \nospace { \exp:w \exp_end_continue_f:w }
-              \acro_check_definition:n {####1}
-              \keys_set:nV {acro} \l__acro_options_tl
-              \tl_set:Ne \l_acro_id_tl { \acro_case_insensitive:n {####1} }
-              \tl_set_eq:NN \AcronymID \l_acro_id_tl
-              ##3
-              \acro_finalize:ne
-                { \l__acro_star_bool }
-                { \acro_case_insensitive:n {####1} }
-              \l__acro_end_command_hook_tl
+              \acro_check_definition:nT
+                {####1}
+                {
+                  \keys_set:nV {acro} \l__acro_options_tl
+                  \tl_set:Ne \l_acro_id_tl { \acro_case_insensitive:n {####1} }
+                  \tl_set_eq:NN \AcronymID \l_acro_id_tl
+                  ##3
+                  \acro_finalize:ne
+                    { \l__acro_star_bool }
+                    { \acro_case_insensitive:n {####1} }
+                  \l__acro_end_command_hook_tl
+                }
             \acro_end:
           }
         \use:x
