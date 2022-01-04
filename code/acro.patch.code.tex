@@ -31,9 +31,22 @@
 \acro_new_patch:n {tabu}
 \acro_new_patch:n {ltxtable}
 \acro_new_patch:n {caption}
+\acro_new_patch:n {maketitle}
 
 \AtEndPreamble
   {
+   % maketitle:
+    \acro_if_patch:nT {maketitle}
+      {
+        \pretocmd \maketitle
+          { \acswitchoff }
+          {}
+          { \msg_error:nnn {acro} {patch} {maketitle} }
+        \apptocmd \maketitle
+          { \acswitchon }
+          {}
+          { \msg_error:nnn {acro} {patch} {maketitle} }
+      }
     % floats:
     \acro_if_patch:nT {floats}
       {

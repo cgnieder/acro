@@ -75,7 +75,7 @@
 \msg_new:nnn {acro} {unknown-option}
   {
     Unknown~ option~ `#1' \\
-    I~ don't~ know~ the~ option~ `#1'.~ Please~ make~ sure~ there~ is~ no~
+    I~ dont'~ know~ the~ option~ `#1'.~ Please~ make~ sure~ there~ is~ no~
     typo.~ Check~ the~ manual~ for~ help.
   }
 
@@ -748,7 +748,7 @@
     \acro_property_make_alias:nn {#6} {#7}
   }
 
-\NewDocumentCommand \MakeAcroPropertyAlias {mm}
+\NewDocumentCommand \MakeAcroPropertyAlias{mm}
   { \acro_property_make_alias:nn {#1} {#2} }
 
 \NewDocumentCommand \NewAcroPreset {m+m}
@@ -3852,8 +3852,8 @@
 \acro_if_komascript:TF
   {
     \cs_if_exist:NTF \chapter
-      { \keys_set:nn {acro/list}{ heading = addchap } }
-      { \keys_set:nn {acro/list}{ heading = addsec } }
+      { \keys_set:nn {acro/list}{ heading = addchap* } }
+      { \keys_set:nn {acro/list}{ heading = addsec* } }
   }
   {
     \cs_if_exist:NTF \chapter
@@ -5067,9 +5067,22 @@
 \acro_new_patch:n {tabu}
 \acro_new_patch:n {ltxtable}
 \acro_new_patch:n {caption}
+\acro_new_patch:n {maketitle}
 
 \AtEndPreamble
   {
+   % maketitle:
+    \acro_if_patch:nT {maketitle}
+      {
+        \pretocmd \maketitle
+          { \acswitchoff }
+          {}
+          { \msg_error:nnn {acro} {patch} {maketitle} }
+        \apptocmd \maketitle
+          { \acswitchon }
+          {}
+          { \msg_error:nnn {acro} {patch} {maketitle} }
+      }
     % floats:
     \acro_if_patch:nT {floats}
       {
@@ -5295,6 +5308,8 @@
   {
     \NewAcroTemplate[heading] {addsec}
       { \addsec { \acrolistname } }
+    \NewAcroTemplate[heading] {addsec*}
+      { \addsec* { \acrolistname } }
   }
   
 \cs_if_exist:NT \chapter
@@ -5307,6 +5322,8 @@
       {
         \NewAcroTemplate[heading] {addchap}
         { \addchap { \acrolistname } }
+        \NewAcroTemplate[heading] {addchap*}
+        { \addchap* { \acrolistname } }
       }
   }
 
