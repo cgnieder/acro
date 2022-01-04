@@ -168,6 +168,8 @@
   {
     \NewAcroTemplate[heading] {addsec}
       { \addsec { \acrolistname } }
+    \NewAcroTemplate[heading] {addsec*}
+      { \addsec* { \acrolistname } }
   }
   
 \cs_if_exist:NT \chapter
@@ -180,6 +182,8 @@
       {
         \NewAcroTemplate[heading] {addchap}
         { \addchap { \acrolistname } }
+        \NewAcroTemplate[heading] {addchap*}
+        { \addchap* { \acrolistname } }
       }
   }
 
@@ -424,7 +428,7 @@
   {
     Fallback   = pp\abbrdot ,
     English    = pp\abbrdot ,
-    French     = pp\abbrdot ,
+    French     = p\abbrdot ,
     German     = S\abbrdot ,
     Italian    = pp\abbrdot ,
     Portuguese = pp\abbrdot ,
