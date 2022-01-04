@@ -75,7 +75,7 @@
 \msg_new:nnn {acro} {unknown-option}
   {
     Unknown~ option~ `#1' \\
-    I~ dont'~ know~ the~ option~ `#1'.~ Please~ make~ sure~ there~ is~ no~
+    I~ don't~ know~ the~ option~ `#1'.~ Please~ make~ sure~ there~ is~ no~
     typo.~ Check~ the~ manual~ for~ help.
   }
 
@@ -1015,27 +1015,8 @@
 \iow_new:N \l__acro_aux_file_iow
 \tl_new:N \l__acro_mdfive_hash_tl
 
-\acro_at_begin_document:n
-  {
-    \legacy_if:nT {@filesw}
-      {
-        \iow_now:Nx \@auxout
-          { \token_to_str:N \providecommand \token_to_str:N \ACRO [1] {} }
-      }
-    \file_get_mdfive_hash:VN
-      \c_acro_auxfile_tl
-      \l__acro_mdfive_hash_tl
-    \iow_open:NV \l__acro_aux_file_iow \c_acro_auxfile_tl
-  }
-
 \cs_new_protected:Npn \acro_close_aux:
   {
-    \iow_close:N \l__acro_aux_file_iow
-    \file_get_mdfive_hash:VN
-      \c_acro_auxfile_tl
-      \l__acro_tmpa_tl
-    \tl_if_eq:NNF \l__acro_mdfive_hash_tl \l__acro_tmpa_tl
-      { \acro_rerun:n {general} }
     \legacy_if:nT {@filesw}
       { \iow_now:Nx \@auxout { \token_to_str:N \ACRO {readaux} } }
   }
@@ -1043,7 +1024,7 @@
 \cs_new_protected:Npn \acro_write_to_aux:n #1
   {
     \legacy_if:nT {@filesw}
-      { \iow_now:Nn \l__acro_aux_file_iow {#1} }
+      { \iow_now:Nn \@auxout {#1} }
   }
 \cs_generate_variant:Nn \acro_write_to_aux:n {x}
 

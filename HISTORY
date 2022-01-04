@@ -353,3 +353,5 @@ The Current Maintainer of this work is Clemens Niederberger.
 2022/01/04 v3.6   - add option `case-insensitive'
                   - make \DeclareAcronym a preample-only command
                   - implement issue #216
+                  - implement issue #224
+                  - fix typos
