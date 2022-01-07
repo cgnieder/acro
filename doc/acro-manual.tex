@@ -1828,6 +1828,8 @@ All these patches can be turned off:
     En-/disable the \option{tabu} patch.
   \keybool{caption}\Module{patch}\Default{true}
     En-/disable the \option{caption} patch.
+  \keybool{maketitle}\Module{patch}\Default{true}
+    \sinceversion{3.6}En-/disable the \option{maketitle} patch.
 \end{options}
 
 \part{Extending \acro}\label{part:extending-acro}
@@ -1877,7 +1879,9 @@ to defines own such objects:
     \property{first-style}.
   \tmpl{footnote}
     A template for the first appearance where the long form is printed in a
-    footnote.
+    footnote.  This template also conatains a command
+    \cs{acroendfootnote}\sinceversion{3.7} at the end of the foornote text
+    which in its default definition does nothing.
   \tmpl{long}
     Display the long form of an acronym.
   \tmpl{long-short}
