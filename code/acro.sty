@@ -2850,27 +2850,7 @@
 
 % ----------------------------------------------------------------------------
 % sorting the list:
-% the following code is an adaption of expl3 code used for \str_if_eq:NN(TF)
-\sys_if_engine_luatex:TF
-  {
-    \cs_new_protected:Npn \__acro_strcmp:nn #1#2
-      {
-        \lua_now:e
-          {
-            l3kernel.strcmp
-              (
-                " \__acro_escape_x:n {#1} " ,
-                " \__acro_escape_x:n {#2} "
-              )
-          }
-      }
-    \cs_new:Npn \__acro_escape_x:n #1
-      {
-        \lua_escape:e
-          { \tex_detokenize:D \use:e { {#1} } }
-      }
-  }
-  { \cs_new_eq:NN \__acro_strcmp:nn \tex_strcmp:D }
+\cs_new_eq:NN \__acro_strcmp:nn \tex_strcmp:D
 
 \cs_new_protected:Npn \acro_list_sort:
   {
