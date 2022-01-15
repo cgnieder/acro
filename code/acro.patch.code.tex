@@ -33,7 +33,7 @@
 \acro_new_patch:n {caption}
 \acro_new_patch:n {maketitle}
 
-\AtEndPreamble
+\hook_gput_code:nnn {begindocument/before} {acro}
   {
    % maketitle:
     \acro_if_patch:nT {maketitle}

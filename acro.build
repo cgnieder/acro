@@ -271,7 +271,7 @@ if [ "$build" == true ] ; then
     > $styname
     # append necessary end:
     echo -e "% finish package:\n\
-\\AtEndDocument { \\\\acro_close_aux: \\\\acro_do_rerun: }\n\
+\\hook_gput_code:nnn {enddocument} {acro} { \\\\acro_close_aux: \\\\acro_do_rerun: }\n\
 %----------------------------------------------------------------------------\n\
 \\\\file_input_stop:"\
     >> $styname
@@ -349,7 +349,7 @@ if [ "$createzip" == true ] ; then
     if [ "$verbose" == true ] ; then
       echo "moving zip archive $zipname.zip ..."
     fi
-    mv $zipname.zip ${SNAPSHOT_DIR}/$pkgname
+    mv $zipname.zip ${SNAPSHOT_DIR}/$pkgname/$zipname.zip
 fi
     
 cd ${START_DIR}

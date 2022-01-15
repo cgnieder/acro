@@ -108,7 +108,7 @@
           }
         \bool_if:NT \l__acro_property_define_static_bool
           {
-            \AtEndDocument { \__acro_auxlist_update:n {#2} }
+            \hook_gput_code:nnn {enddocument} {acro} { \__acro_auxlist_update:n {#2} }
             \acro_at_begin_document:n
               { \__acro_property_set_from_auxlist:n {#2} }
           }

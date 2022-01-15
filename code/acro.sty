@@ -1271,7 +1271,7 @@
           }
         \bool_if:NT \l__acro_property_define_static_bool
           {
-            \AtEndDocument { \__acro_auxlist_update:n {#2} }
+            \hook_gput_code:nnn {enddocument} {acro} { \__acro_auxlist_update:n {#2} }
             \acro_at_begin_document:n
               { \__acro_property_set_from_auxlist:n {#2} }
           }
@@ -3367,6 +3367,12 @@
 \AcroModuleEnd
 \AcroModule{templates}{templates for typesetting exercises}
 
+\msg_new:nnn {acro} {template-exists}
+  {
+    The~ template~ `#1'~ (template~ type~ `#2')~ \msg_line_context: \
+    already~ is~ defined.
+  }
+
 \msg_new:nnn {acro} {unknown-template}
   {
     The~ template~ `#1'~ (template~ type~ `#2')~ \msg_line_context: \
@@ -3401,9 +3407,13 @@
 % #3: code
 \cs_new_protected:Npn \__acro_template_add:nnn #1#2#3
   {
-    \tl_new:c {l__acro_template_#1_#2_setup_tl}
-    \tl_new:c {l__acro_next_template_#1_#2_setup_tl}
-    \acro_attribute_set:nnn {template::#1} {#2} {#3}
+    \acro_template_if_exist:nnTF {#1} {#2}
+      { \msg_error:nnnn {acro} {template-exists} {#2} {#1} }
+      {
+        \tl_new:c {l__acro_template_#1_#2_setup_tl}
+        \tl_new:c {l__acro_next_template_#1_#2_setup_tl}
+        \acro_attribute_set:nnn {template::#1} {#2} {#3}
+      }
   }
 
 % #1: template type
@@ -5059,7 +5069,7 @@
 \acro_new_patch:n {caption}
 \acro_new_patch:n {maketitle}
 
-\AtEndPreamble
+\hook_gput_code:nnn {begindocument/before} {acro}
   {
    % maketitle:
     \acro_if_patch:nT {maketitle}
@@ -5251,10 +5261,13 @@
             \acroifT {foreign} { \acrowrite {foreign} ,~ }
             \acrowrite {long}
             \acrogroupcite
+            \acroendfootnote
           }
       }
   }
 
+\ProvideDocumentCommand \acroendfootnote {} {}
+  
 \NewAcroTemplate {long}
   { \acrowrite {long} }
 
@@ -5948,6 +5961,6 @@
 % ----------------------------------------------------------------------------
 \AcroModuleEnd
 % finish package:
-\AtEndDocument { \acro_close_aux: \acro_do_rerun: }
+\hook_gput_code:nnn {enddocument} {acro} { \acro_close_aux: \acro_do_rerun: }
 %----------------------------------------------------------------------------
 \file_input_stop:

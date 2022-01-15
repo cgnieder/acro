@@ -1,5 +1,11 @@
 \AcroModule{templates}{templates for typesetting exercises}
 
+\msg_new:nnn {acro} {template-exists}
+  {
+    The~ template~ `#1'~ (template~ type~ `#2')~ \msg_line_context: \
+    already~ is~ defined.
+  }
+
 \msg_new:nnn {acro} {unknown-template}
   {
     The~ template~ `#1'~ (template~ type~ `#2')~ \msg_line_context: \
@@ -34,9 +40,13 @@
 % #3: code
 \cs_new_protected:Npn \__acro_template_add:nnn #1#2#3
   {
-    \tl_new:c {l__acro_template_#1_#2_setup_tl}
-    \tl_new:c {l__acro_next_template_#1_#2_setup_tl}
-    \acro_attribute_set:nnn {template::#1} {#2} {#3}
+    \acro_template_if_exist:nnTF {#1} {#2}
+      { \msg_error:nnnn {acro} {template-exists} {#2} {#1} }
+      {
+        \tl_new:c {l__acro_template_#1_#2_setup_tl}
+        \tl_new:c {l__acro_next_template_#1_#2_setup_tl}
+        \acro_attribute_set:nnn {template::#1} {#2} {#3}
+      }
   }
 
 % #1: template type
