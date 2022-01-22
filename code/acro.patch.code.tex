@@ -32,6 +32,7 @@
 \acro_new_patch:n {ltxtable}
 \acro_new_patch:n {caption}
 \acro_new_patch:n {maketitle}
+\acro_new_patch:n {longtable}
 
 \hook_gput_code:nnn {begindocument/before} {acro}
   {
@@ -98,6 +99,18 @@
       {
         \cs_if_exist:NT \caption@prepareslc
           { \tl_gput_right:Nn \caption@prepareslc { \acswitchoff } }
+      }
+    % longtable pakage:
+    \acro_if_patch:nT {longtable}
+      {
+        \cs_if_exist:NT \endlongtable
+          {
+            \patchcmd \endlongtable
+              { \ifx \LT@save@row \LT@@save@row \else }
+              { \ifx \LT@save@row \LT@@save@row \else \acswitchoff }
+              {}
+              { \msg_error:nnn {acro} {patch} {longtable} }
+          }
       }
   }
 

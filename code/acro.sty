@@ -3819,14 +3819,14 @@
     exclude      .clist_set:N = \l__acro_tag_exclude_clist ,
     add          .clist_set:N = \l__acro_tag_add_clist ,
     local        .bool_set:N  = \l__acro_list_local_bool ,
-    heading      .tl_set:N  = \l__acro_heading_tl ,
-    preamble     .tl_set:N  = \l__acro_preamble_tl ,
-    preamble     .initial:n = ,
-    postamble    .tl_set:N  = \l__acro_postamble_tl ,
-    postamble    .initial:n = ,
-    name         .tl_set:N  = \l__acro_list_name_tl ,
-    name         .initial:n = \acro_translate:n {list-name} ,
-    pages        .meta:nn   = {acro/pages} {#1}
+    heading      .tl_set:N    = \l__acro_heading_tl ,
+    preamble     .tl_set:N    = \l__acro_preamble_tl ,
+    preamble     .initial:n   = ,
+    postamble    .tl_set:N    = \l__acro_postamble_tl ,
+    postamble    .initial:n   = ,
+    name         .tl_set:N    = \l__acro_list_name_tl ,
+    name         .initial:n   = \acro_translate:n {list-name} ,
+    pages        .meta:nn     = {acro/pages} {#1}
   }
 
 \acro_if_komascript:TF
@@ -5048,6 +5048,7 @@
 \acro_new_patch:n {ltxtable}
 \acro_new_patch:n {caption}
 \acro_new_patch:n {maketitle}
+\acro_new_patch:n {longtable}
 
 \hook_gput_code:nnn {begindocument/before} {acro}
   {
@@ -5114,6 +5115,17 @@
       {
         \cs_if_exist:NT \caption@prepareslc
           { \tl_gput_right:Nn \caption@prepareslc { \acswitchoff } }
+      }
+    \acro_if_patch:nT {longtable}
+      {
+        \cs_if_exist:NT \endlongtable
+          {
+            \patchcmd \endlongtable
+              { \ifx \LT@save@row \LT@@save@row \else }
+              { \ifx \LT@save@row \LT@@save@row \else \acswitchoff }
+              {}
+              { \msg_error:nnn {acro} {patch} {longtable} }
+          }
       }
   }
 

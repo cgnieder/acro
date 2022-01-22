@@ -361,3 +361,4 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - drop use of l3kernel lua table
                   - add error message of \NewAcroTemplate tries to define an
                     existing template
+                  - add `longtable' patch
