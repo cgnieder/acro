@@ -357,8 +357,8 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - fix typos
                   - fix issue #229
                   - add `addsec*' and `addchap*' as heading options
- 2022/??/?? v??   - add \acroendfootnote to the footnote `template'
-                  - drop use of l3kernel lua table
+ 2022/01/27 v3.7  - add \acroendfootnote to the footnote `template'
+                  - drop use of l3kernel lua table, fixes #235
                   - add error message of \NewAcroTemplate tries to define an
                     existing template
                   - add `longtable' patch

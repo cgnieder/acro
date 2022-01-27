@@ -27,9 +27,9 @@
 
 % setup package:
 \tl_const:Nn \c_acro_package_name_tl {acro}
-\tl_const:Nn \c_acro_date_tl {2022/01/04}
+\tl_const:Nn \c_acro_date_tl {2022/01/27}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
-\tl_const:Nn \c_acro_version_minor_number_tl {6}
+\tl_const:Nn \c_acro_version_minor_number_tl {7}
 \tl_const:Nn \c_acro_version_subrelease_tl   {}
 \tl_const:Nx \c_acro_version_number_tl
   {
@@ -5116,6 +5116,7 @@
         \cs_if_exist:NT \caption@prepareslc
           { \tl_gput_right:Nn \caption@prepareslc { \acswitchoff } }
       }
+    % longtable pakage:
     \acro_if_patch:nT {longtable}
       {
         \cs_if_exist:NT \endlongtable
