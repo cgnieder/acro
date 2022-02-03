@@ -56,6 +56,19 @@
           {}
           { \msg_error:nnn {acro} {patch} {floats} }
       }
+    % contents lists:
+    \acro_if_patch:nT {lists}
+      {
+        \addtocontents {toc} { \acswitchoff }
+        \addtocontents {lof} { \acswitchoff }
+        \addtocontents {lot} { \acswitchoff }
+      }
+    % caption package:
+    \acro_if_patch:nT {caption}
+      {
+        \cs_if_exist:NT \caption@prepareslc
+          { \tl_gput_right:Nn \caption@prepareslc { \acswitchoff } }
+      }
     % tables:
     % * tabularx
     \acro_if_patch:nT {tabularx}
@@ -87,20 +100,7 @@
         \cs_if_exist:NT \tabuDisableCommands
           { \tabuDisableCommands { \acswitchoff } }
       }
-    % contents lists:
-    \acro_if_patch:nT {lists}
-      {
-        \addtocontents {toc} { \acswitchoff }
-        \addtocontents {lof} { \acswitchoff }
-        \addtocontents {lot} { \acswitchoff }
-      }
-    % caption package:
-    \acro_if_patch:nT {caption}
-      {
-        \cs_if_exist:NT \caption@prepareslc
-          { \tl_gput_right:Nn \caption@prepareslc { \acswitchoff } }
-      }
-    % longtable pakage:
+   % * longtable
     \acro_if_patch:nT {longtable}
       {
         \cs_if_exist:NT \endlongtable

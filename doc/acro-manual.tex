@@ -1,5 +1,5 @@
 % arara: pdflatex
-% arara: biber
+% arara: biberH
 % arara: pdflatex
 % arara: pdflatex
 % --------------------------------------------------------------------------
@@ -918,7 +918,7 @@ the list of acronym you can use these options:
     The threshold for a page range to be turned into \latin{sequentes}.  A
     page range above the threshold is still typeset as a range:
     \meta{num1}--\meta{num2}.
-  \keyval{fill}{code}\Module{pages}\Default{\cs*{acrdotfill}}
+  \keyval{fill}{code}\Module{pages}\Default{\cs*{acrodotfill}}
     This is the code that is placed between acronym description and actual
     page numbers.
   \keybool{name}\Module{pages}\Default{false}
@@ -1824,6 +1824,8 @@ All these patches can be turned off:
     of figures and the list of tables.
   \keybool{tabularx}\Module{patch}\Default{true}
     En-/disable the \option{tabularx} patch.
+  \keybool{longtable}\Module{patch}\Default{true}
+    \sinceversion{3.7}En-/disable the \option{longtable} patch.
   \keybool{ltxtable}\Module{patch}\Default{true}
     En-/disable the \option{ltxtable} patch.
   \keybool{tabu}\Module{patch}\Default{true}
