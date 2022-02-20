@@ -1,5 +1,5 @@
 % arara: pdflatex
-% arara: biberH
+% arara: biber
 % arara: pdflatex
 % arara: pdflatex
 % --------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 \PassOptionsToPackage{ngerman,latin,english}{babel}
-\PassOptionsToPackage{version=3,upgrade}{acro}
+\PassOptionsToPackage{upgrade}{acro}
 \documentclass{acro-manual}
 
 \begin{filecontents}{\jobname.bib}
@@ -293,16 +293,18 @@ Then the usage is
 \acro\ knows only a small set of load-time options which can be used as
 argument to \cs*{usepackage}:
 \begin{options}
-  \keychoice{version}{2,3}\Default{3}
-    The option allows you to use the last version prior to the update to
-    version~3.  This may help if you don't have the time to fix issues after
-    upgrading to the new version.
   \keybool{upgrade}\Default{false}
     When this option is used \acro\ tries to give as much helpful and
     meaningful warning or error messages when a deprecated or removed command,
     property, or option is used.  This is especially useful if you are
     upgrading from version~2.
 \end{options}
+
+You can still use version~2 by specifying using one of the following options:
+\begin{sourcecode}
+  \usepackage{acro}[=v2]
+  \usepackage{acro}[=version2]
+\end{sourcecode}
 
 \subsection{Setup command}\label{sec:setup-command}
 All options of \acro\ that have \emph{not} been mentioned in

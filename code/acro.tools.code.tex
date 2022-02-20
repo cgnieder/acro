@@ -37,7 +37,7 @@
 
 % #1: id
 \cs_new_protected:Npn \acro_step:n #1
-  { \int_gincr:c {g__acro_ \acro_case_insensitive:n {#1} _int} }
+  { \stepcounter {g@acro@ \acro_case_insensitive:n {#1} @int} }
 \cs_generate_variant:Nn \acro_step:n {e}
 
 % #1: id
@@ -510,6 +510,21 @@
             \__acro_strcmp:nn
               { \str_foldcase:e { \acro_property_get:nn {##1} {sort} } }
               { \str_foldcase:e { \acro_property_get:nn {##2} {sort} } }
+          } = {-1}
+          { \sort_return_same: }
+          { \sort_return_swapped: }
+      }
+  }
+
+\cs_new_protected:Npn \acro_seq_sort:N #1
+  {
+    \seq_sort:Nn #1
+      {
+        \int_compare:nNnTF
+          {
+            \__acro_strcmp:nn
+              { \str_foldcase:e {##1} }
+              { \str_foldcase:e {##2} }
           } = {-1}
           { \sort_return_same: }
           { \sort_return_swapped: }

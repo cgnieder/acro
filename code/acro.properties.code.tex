@@ -108,7 +108,8 @@
           }
         \bool_if:NT \l__acro_property_define_static_bool
           {
-            \hook_gput_code:nnn {enddocument} {acro} { \__acro_auxlist_update:n {#2} }
+            \hook_gput_code:nnn {enddocument} {acro}
+              { \__acro_auxlist_update:n {#2} }
             \acro_at_begin_document:n
               { \__acro_property_set_from_auxlist:n {#2} }
           }
@@ -355,7 +356,7 @@
     \__acro_auxlist_add:nn {#2} {#1=={#3}}
     \acro_attribute_set:nnn {#2} {#1} {#3}
   }
-\cs_generate_variant:Nn \__acro_property_set:nnn {VnV,nne}
+\cs_generate_variant:Nn \__acro_property_set:nnn {VnV,nne,V}
 
 \tl_set:Nx \l__acro_tmpa_tl { \cs_to_str:N \{ }
 \tl_set:Nx \l__acro_tmpb_tl { \cs_to_str:N \} }
@@ -371,6 +372,9 @@
     \str_set:Nn #2 {#4}
   }
 
+\str_new:N \l____acro_tmpa_str
+\str_new:N \l____acro_tmpb_str
+
 % #1: id
 % #2: property
 \cs_new_protected:Npn \__acro_property_remove_from_auxlist:nn #1#2
@@ -379,22 +383,22 @@
     \__acro_auxlist_foreach_entry:nn {#2}
       {
         \__acro_property_extract_auxlist_entry:NNww
-          \l__acro_tmpa_str \l__acro_tmpb_str ##1 \q_stop
-        \str_if_eq:xnT { \l__acro_tmpa_str } {#1}
+          \l____acro_tmpa_str \l____acro_tmpb_str ##1 \q_stop
+        \str_if_eq:xnT { \l____acro_tmpa_str } {#1}
           {
             \__acro_auxlist_remove:nx {#2}
-              { #1 == {\l__acro_tmpb_str} }
+              { #1 == { \l____acro_tmpb_str } }
           }
       }
     % make sure we change the entry if it has been set during the current run:
     \__acro_auxlist_foreach_new_entry:nn {#2}
       {
         \__acro_property_extract_auxlist_entry:NNww
-          \l__acro_tmpa_str \l__acro_tmpb_str ##1 \q_stop
-        \str_if_eq:xnT { \l__acro_tmpa_str } {#1}
+          \l____acro_tmpa_str \l____acro_tmpb_str ##1 \q_stop
+        \str_if_eq:xnT { \l____acro_tmpa_str } {#1}
           {
             \__acro_auxlist_remove:nx {#2}
-              { #1 == {\l__acro_tmpb_str} }
+              { #1 == { \l____acro_tmpb_str } }
           }
       }
   }
@@ -403,13 +407,32 @@
 \cs_new_protected:Npn \__acro_property_set_from_auxlist:n #1
   {
     \__acro_auxlist_foreach_entry:nn {#1}
-      {
-        \__acro_property_extract_auxlist_entry:NNww
-          \l__acro_tmpa_str \l__acro_tmpb_str ##1 \q_stop
-        \tl_set_rescan:Nnx \l__acro_tmpa_tl {} { \l__acro_tmpb_str }
-        \__acro_property_set:VnV \l__acro_tmpa_str {#1} \l__acro_tmpa_tl
-      }
+      { \__acro_property_set_from_aux_entry:nn {#1} {##1} }
   }
+
+% #1: property
+% #2: id=={value}
+\cs_new_protected:Npn \__acro_property_set_from_aux_entry:nn #1#2
+  {
+    \__acro_property_extract_auxlist_entry:NNww
+      \l____acro_tmpa_str \l____acro_tmpb_str #2 \q_stop
+    \tl_set_rescan:Nnx \l__acro_tmpa_tl {} { \l____acro_tmpb_str }
+    \__acro_property_set:VnV \l____acro_tmpa_str {#1} \l__acro_tmpa_tl
+  }
+\cs_generate_variant:Nn \__acro_property_set_from_aux_entry:nn {ne}
+
+% #1: id=={value}
+% #2: tl var
+% #3: tl var
+\cs_new_protected:Npn \__acro_get_aux_entry:nNN #1#2#3
+  {
+    \__acro_property_extract_auxlist_entry:NNww
+      \l____acro_tmpa_str \l____acro_tmpb_str #1 \q_stop
+    \tl_set_rescan:Nnx \l__acro_tmpa_tl {} { \l____acro_tmpb_str }
+    \tl_set:NV #3 \l__acro_tmpa_tl
+    \tl_set:NV #2 \l____acro_tmpa_str
+  }
+\cs_generate_variant:Nn \__acro_property_set_from_aux_entry:nn {ne}
 
 % set properties:
 % #1: id
@@ -496,8 +519,8 @@
 % inspect properties:
 \cs_new_protected:Npn \acro_property_show:nn #1#2
   {
-    \acro_property_if_set:nnT {#1} {#2}
-      {
+    % \acro_property_if_set:nnT {#1} {#2}
+    %   {
         \iow_term:x
           {
             \c_space_tl \c_space_tl
@@ -505,7 +528,7 @@
             \c_space_tl \c_space_tl => \c_space_tl \c_space_tl
             { \acro_property_get:nn {#1} {#2} }
           }
-      }
+    %   }
   }
 \cs_generate_variant:Nn \acro_property_show:nn {e}
 

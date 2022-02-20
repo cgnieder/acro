@@ -156,7 +156,7 @@
 % #2: properties
 \cs_new_protected:Npn \__acro_declare_acronym:nn #1#2
   {
-    \int_new:c {g__acro_#1_int}
+    \newcounter {g@acro@#1@int}
     \seq_new:c {g__acro_#1_pages_seq}
     \seq_new:c {g__acro_#1_barriers_seq}
     \acro_at_begin_document:n
@@ -190,7 +190,7 @@
     \acro_set_endings:n {#1}
     \acro_at_end_document:n
       {
-        \acro_property_set:nnx {#1} {usage} { \int_use:c {g__acro_#1_int} }
+        \acro_property_set:nnx {#1} {usage} { \arabic {g@acro@#1@int} }
         \acro_set_barriers:n {#1}
       }
   }

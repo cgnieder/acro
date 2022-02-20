@@ -362,3 +362,5 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - add error message of \NewAcroTemplate tries to define an
                     existing template
                   - add `longtable' patch
+ 2022/??/?? v??   - use LaTeX's release mechanism for managing usage for
+                    version 2 or 3

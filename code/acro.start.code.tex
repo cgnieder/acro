@@ -22,6 +22,10 @@
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
+\DeclareRelease{2}{2020-03-07}{acro2.sty}
+\DeclareRelease{v2}{2020-03-07}{acro2.sty}
+\DeclareRelease{version2}{2020-03-07}{acro2.sty}
+
 \RequirePackage {l3keys2e}
 \ExplSyntaxOn
 
@@ -48,6 +52,7 @@
   {\c_acro_date_tl}
   {\c_acro_version_tl}
   {\c_acro_info_tl \c_space_tl (CN)}
+\DeclareCurrentRelease{}{\c_acro_date_tl}
 
 % --------------------------------------------------------------------------
 % document hooks:
@@ -77,6 +82,12 @@
     Unknown~ option~ `#1' \\
     I~ don't~ know~ the~ option~ `#1'.~ Please~ make~ sure~ there~ is~ no~
     typo.~ Check~ the~ manual~ for~ help.
+  }
+
+\msg_new:nnn {acro} {version}
+  {
+    Please~ specify~ version~ 2~ by~ saying~ \token_to_str:N
+    \usepackage{acro}[=v2]
   }
 
 % --------------------------------------------------------------------------
@@ -183,8 +194,6 @@
 \cs_generate_variant:Nn \msg_error:nnn {nnV}
 \cs_generate_variant:Nn \msg_warning:nnn {nnV}
 
-\int_new:N \g__acro_version_int
-
 \keys_define:nn {acro/package}
   {
     debug       .bool_gset:N = \g__acro_debug_bool ,
@@ -194,19 +203,13 @@
     final       .bool_gset:N = \g__acro_final_bool ,
     final       .initial:n   = false ,
     version     .choice: ,
-    version / 2 .code:n      = \int_gset:Nn \g__acro_version_int {2} ,
-    version / 3 .code:n      = \int_gset:Nn \g__acro_version_int {3} ,
+    version / 2 .code:n      = \msg_error:nn {acro} {version} \file_input_stop: ,
+    version / 3 .code:n      =  ,
     version     .initial:n   = 3 ,
     unknown     .code:n      = \__acro_loadtime_warning:n {unknown-option}
   }
 
 \ProcessKeysPackageOptions {acro/package}
-
-\int_compare:nNnT \g__acro_version_int = 2
-  {
-    \RequirePackage {acro2}
-    \file_input_stop:
-  }
 
 \keys_define:nn {acro/package}
   {
