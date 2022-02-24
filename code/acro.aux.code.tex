@@ -56,6 +56,11 @@
               { \tl_to_str:n {##1} }
             \seq_map_inline:cn {g__acro_auxlist_#1_seq}
               { \acro_attribute_set:nnn {#1} {####1} {} }
+            % \acro_property_if_static:nF {#1}
+            %   {
+            %     \__acro_property_set_from_aux_entry:ne
+            %       {#1} { \tl_to_str:n {##1} }
+            %   }
           }
       }
     \acro_at_begin_document:n

@@ -1061,6 +1061,11 @@
               { \tl_to_str:n {##1} }
             \seq_map_inline:cn {g__acro_auxlist_#1_seq}
               { \acro_attribute_set:nnn {#1} {####1} {} }
+            % \acro_property_if_static:nF {#1}
+            %   {
+            %     \__acro_property_set_from_aux_entry:ne
+            %       {#1} { \tl_to_str:n {##1} }
+            %   }
           }
       }
     \acro_at_begin_document:n
@@ -1397,6 +1402,13 @@
     \acro_attribute_if_set:nnTF {boolean} {#1}
       { \prg_return_true: }
       { \prg_return_false: }
+  }
+
+\prg_new_conditional:Npnn \acro_property_if_static:n #1 {p,T,F,TF}
+  {
+    \acro_attribute_if_set:nnTF {dynamic} {#1}
+      { \prg_return_false: }
+      { \prg_return_true: }
   }
 
 \prg_new_conditional:Npnn \acro_property_if_unique:n #1 {p,T,F,TF}
@@ -3160,6 +3172,8 @@
       {
         \tl_map_tokens:Nn \g__acro_articles_tl
           { \__acro_article:nnn {#1} {#2} }
+        \bool_set_false:N \l__acro_article_bool
+        \bool_set_false:N \l__acro_upper_bool
       }
   }
 

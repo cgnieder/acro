@@ -122,6 +122,8 @@
       {
         \tl_map_tokens:Nn \g__acro_articles_tl
           { \__acro_article:nnn {#1} {#2} }
+        \bool_set_false:N \l__acro_article_bool
+        \bool_set_false:N \l__acro_upper_bool
       }
   }
 

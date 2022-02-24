@@ -215,6 +215,13 @@
       { \prg_return_false: }
   }
 
+\prg_new_conditional:Npnn \acro_property_if_static:n #1 {p,T,F,TF}
+  {
+    \acro_attribute_if_set:nnTF {dynamic} {#1}
+      { \prg_return_false: }
+      { \prg_return_true: }
+  }
+
 \prg_new_conditional:Npnn \acro_property_if_unique:n #1 {p,T,F,TF}
   {
     \acro_attribute_if_set:nnTF {unique} {#1}
