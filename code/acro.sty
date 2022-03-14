@@ -22,9 +22,7 @@
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-\DeclareRelease{2}{2020-03-07}{acro2.sty}
 \DeclareRelease{v2}{2020-03-07}{acro2.sty}
-\DeclareRelease{version2}{2020-03-07}{acro2.sty}
 
 \RequirePackage {l3keys2e}
 \ExplSyntaxOn
@@ -52,7 +50,7 @@
   {\c_acro_date_tl}
   {\c_acro_version_tl}
   {\c_acro_info_tl \c_space_tl (CN)}
-\DeclareCurrentRelease{}{\c_acro_date_tl}
+\DeclareCurrentRelease{v3}{\c_acro_date_tl}
 
 % --------------------------------------------------------------------------
 % document hooks:
@@ -86,8 +84,8 @@
 
 \msg_new:nnn {acro} {version}
   {
-    Please~ specify~ version~ 2~ by~ saying~ \token_to_str:N
-    \usepackage{acro}[=v2]
+    Please~ specify~ the~ version~ by~ saying~ \token_to_str:N
+    \usepackage{acro}[=v#1],~ i.e., using~ LaTeX's~ release~ mechanism.
   }
 
 % --------------------------------------------------------------------------
@@ -203,9 +201,8 @@
     final       .bool_gset:N = \g__acro_final_bool ,
     final       .initial:n   = false ,
     version     .choice: ,
-    version / 2 .code:n      = \msg_error:nn {acro} {version} \file_input_stop: ,
-    version / 3 .code:n      =  ,
-    version     .initial:n   = 3 ,
+    version / 2 .code:n      = \msg_error:nnn {acro} {version} {#1} \file_input_stop: ,
+    version / 3 .code:n      = \msg_warning:nnn {acro} {version} {#1} ,
     unknown     .code:n      = \__acro_loadtime_warning:n {unknown-option}
   }
 
@@ -1092,7 +1089,7 @@
       { \seq_gremove_all:cV {g__acro_auxlist_#1_seq} \l__acro_tmpa_str }
     \acro_auxlist_write_entry:nn {#1} {{#2}}
     \seq_gput_right:cV {g__acro_auxlist_#1_seq} \l__acro_tmpa_str
-    \seq_remove_duplicates:c {g__acro_auxlist_#1_seq}
+    \seq_gremove_duplicates:c {g__acro_auxlist_#1_seq}
   }
 \cs_generate_variant:Nn \__acro_auxlist_add:nn {nx}
 
@@ -1612,10 +1609,11 @@
   {
     \__acro_property_extract_auxlist_entry:NNww
       \l____acro_tmpa_str \l____acro_tmpb_str #2 \q_stop
-    \tl_set_rescan:Nnx \l__acro_tmpa_tl {} { \l____acro_tmpb_str }
+    \tl_set_rescan:NnV \l__acro_tmpa_tl {} \l____acro_tmpb_str
     \__acro_property_set:VnV \l____acro_tmpa_str {#1} \l__acro_tmpa_tl
   }
 \cs_generate_variant:Nn \__acro_property_set_from_aux_entry:nn {ne}
+\cs_generate_variant:Nn \tl_set_rescan:Nnn {NnV}
 
 % #1: id=={value}
 % #2: tl var

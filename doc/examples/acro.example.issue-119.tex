@@ -1,7 +1,5 @@
 \documentclass{article}
-\usepackage[enable-debug]{expl3}
-
-\usepackage[version=3]{acro}
+\usepackage{acro}[=v3]
 
 \makeatletter
 \NewAcroTemplate[list]{external}{%
@@ -15,7 +13,7 @@
         \space\space
         \item[\acrofield{##1}{short}]
         \acrofield{##1}{list}%
-        \acrofieldifTF{##1}{extra}{ (\acrofield{##1}{extra})}{}%
+        \acroiffieldTF{##1}{extra}{ (\acrofield{##1}{extra})}{}%
       }%
     }{\immediate\write\acro@list{\item}\AcroRerun}%
     \immediate\write\acro@list{\string\end{description}}

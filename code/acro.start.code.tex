@@ -22,9 +22,7 @@
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-\DeclareRelease{2}{2020-03-07}{acro2.sty}
 \DeclareRelease{v2}{2020-03-07}{acro2.sty}
-\DeclareRelease{version2}{2020-03-07}{acro2.sty}
 
 \RequirePackage {l3keys2e}
 \ExplSyntaxOn
@@ -52,7 +50,7 @@
   {\c_acro_date_tl}
   {\c_acro_version_tl}
   {\c_acro_info_tl \c_space_tl (CN)}
-\DeclareCurrentRelease{}{\c_acro_date_tl}
+\DeclareCurrentRelease{v3}{\c_acro_date_tl}
 
 % --------------------------------------------------------------------------
 % document hooks:
@@ -86,8 +84,8 @@
 
 \msg_new:nnn {acro} {version}
   {
-    Please~ specify~ version~ 2~ by~ saying~ \token_to_str:N
-    \usepackage{acro}[=v2]
+    Please~ specify~ the~ version~ by~ saying~ \token_to_str:N
+    \usepackage{acro}[=v#1],~ i.e., using~ LaTeX's~ release~ mechanism.
   }
 
 % --------------------------------------------------------------------------
@@ -203,9 +201,8 @@
     final       .bool_gset:N = \g__acro_final_bool ,
     final       .initial:n   = false ,
     version     .choice: ,
-    version / 2 .code:n      = \msg_error:nn {acro} {version} \file_input_stop: ,
-    version / 3 .code:n      =  ,
-    version     .initial:n   = 3 ,
+    version / 2 .code:n      = \msg_error:nnn {acro} {version} {#1} \file_input_stop: ,
+    version / 3 .code:n      = \msg_warning:nnn {acro} {version} {#1} ,
     unknown     .code:n      = \__acro_loadtime_warning:n {unknown-option}
   }
 

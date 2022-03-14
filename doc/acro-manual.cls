@@ -422,7 +422,7 @@
         \acroifanyT{foreign,extra}{)}%
         \acroifpagesT{ \dotfill\acropages{}{}}%
     }%
-    { \item \AcroRerun{list} }%
+    { \item \AcroRerun }%
   \end {description}
 }
 
@@ -431,7 +431,7 @@
     \acronymsmapF{%
       \item[\sffamily\acrowrite{short}] \acrowrite{long}%
     }%
-    { \item \AcroRerun{list} }%
+    { \item \AcroRerun }%
   \end {description}
 }
 

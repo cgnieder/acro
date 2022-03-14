@@ -364,3 +364,5 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - add `longtable' patch
  2022/??/?? v??   - use LaTeX's release mechanism for managing usage for
                     version 2 or 3
+                  - fix issue #223: inner acronyms don't inherit articles any
+                    more

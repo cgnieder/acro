@@ -423,10 +423,11 @@
   {
     \__acro_property_extract_auxlist_entry:NNww
       \l____acro_tmpa_str \l____acro_tmpb_str #2 \q_stop
-    \tl_set_rescan:Nnx \l__acro_tmpa_tl {} { \l____acro_tmpb_str }
+    \tl_set_rescan:NnV \l__acro_tmpa_tl {} \l____acro_tmpb_str
     \__acro_property_set:VnV \l____acro_tmpa_str {#1} \l__acro_tmpa_tl
   }
 \cs_generate_variant:Nn \__acro_property_set_from_aux_entry:nn {ne}
+\cs_generate_variant:Nn \tl_set_rescan:Nnn {NnV}
 
 % #1: id=={value}
 % #2: tl var
