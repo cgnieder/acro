@@ -156,9 +156,11 @@
 % #2: property
 \cs_new_protected:Npn \__acro_write_acronym:nn #1#2
   {
-    \__acro_upper:n { \__acro_article:nn {#1} {#2} }
     \bool_if:NT \l__acro_article_bool
-      { \bool_set_false:N \l__acro_upper_bool }
+      {
+        \__acro_upper:n { \__acro_article:nn {#1} {#2} }
+        \bool_set_false:N \l__acro_upper_bool
+      }
     \bool_lazy_and:nnTF
       { \acro_property_if_eq_p:nn {#2} {long} }
       { \acro_if_first_p:n {#1} }

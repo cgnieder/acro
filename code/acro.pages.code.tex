@@ -15,19 +15,18 @@
 % #1: id
 \cs_new_protected:Npn \acro_record_page:n #1
   {
-    \seq_if_in:ceF {g__acro_#1_pages_seq}
+    % \hook_gput_next_code:nn {shipout/after} {
+      \__acro_record_page:n {#1}
+    % }
+  }
+
+\cs_new_protected:Npn \__acro_record_page:n #1
+  {
+    \seq_gput_right:ce {g__acro_#1_pages_seq}
       {
-          \int_use:N \g_shipout_totalpages_int
+        \int_use:N \g_shipout_totalpages_int
         @ \int_use:N \g_acro_barrier_int
         @ \thepage
-      }
-      {
-        \seq_gput_right:ce {g__acro_#1_pages_seq}
-          {
-              \int_use:N \g_shipout_totalpages_int
-            @ \int_use:N \g_acro_barrier_int
-            @ \thepage
-          }
       }
     \seq_gremove_duplicates:c {g__acro_#1_pages_seq}
     \acro_at_end_document:n

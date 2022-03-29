@@ -3,6 +3,8 @@
 \msg_new:nnn {acro} {patch}
   { Patching~ `#1'~ failed.~ Please~ contact~ the~ acro~ author. }
 
+\RequirePackage {etoolbox}
+
 \cs_new_protected:Npn \acro_new_patch:n #1
   {
     \bool_new:c {l__acro_patch_#1_bool}

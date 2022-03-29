@@ -29,10 +29,10 @@
 
 % setup package:
 \tl_const:Nn \c_acro_package_name_tl {acro}
-\tl_const:Nn \c_acro_date_tl {2022/01/27}
+\tl_const:Nn \c_acro_date_tl {2022/03/28}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
 \tl_const:Nn \c_acro_version_minor_number_tl {7}
-\tl_const:Nn \c_acro_version_subrelease_tl   {}
+\tl_const:Nn \c_acro_version_subrelease_tl   {a}
 \tl_const:Nx \c_acro_version_number_tl
   {
     \c_acro_version_major_number_tl .
@@ -1034,10 +1034,7 @@
 \tl_new:N \l__acro_mdfive_hash_tl
 
 \cs_new_protected:Npn \acro_write_to_aux:n #1
-  {
-    \legacy_if:nT {@filesw}
-      { \iow_now:Nn \@auxout {#1} }
-  }
+  { \legacy_if:nT {@filesw} { \iow_shipout_x:Nn \@auxout {#1} } }
 \cs_generate_variant:Nn \acro_write_to_aux:n {x}
 
 % ----------------------------------------------------------------------------
@@ -3204,9 +3201,11 @@
 % #2: property
 \cs_new_protected:Npn \__acro_write_acronym:nn #1#2
   {
-    \__acro_upper:n { \__acro_article:nn {#1} {#2} }
     \bool_if:NT \l__acro_article_bool
-      { \bool_set_false:N \l__acro_upper_bool }
+      {
+        \__acro_upper:n { \__acro_article:nn {#1} {#2} }
+        \bool_set_false:N \l__acro_upper_bool
+      }
     \bool_lazy_and:nnTF
       { \acro_property_if_eq_p:nn {#2} {long} }
       { \acro_if_first_p:n {#1} }
@@ -3931,19 +3930,18 @@
 % #1: id
 \cs_new_protected:Npn \acro_record_page:n #1
   {
-    \seq_if_in:ceF {g__acro_#1_pages_seq}
+    % \hook_gput_next_code:nn {shipout/after} {
+      \__acro_record_page:n {#1}
+    % }
+  }
+
+\cs_new_protected:Npn \__acro_record_page:n #1
+  {
+    \seq_gput_right:ce {g__acro_#1_pages_seq}
       {
-          \int_use:N \g_shipout_totalpages_int
+        \int_use:N \g_shipout_totalpages_int
         @ \int_use:N \g_acro_barrier_int
         @ \thepage
-      }
-      {
-        \seq_gput_right:ce {g__acro_#1_pages_seq}
-          {
-              \int_use:N \g_shipout_totalpages_int
-            @ \int_use:N \g_acro_barrier_int
-            @ \thepage
-          }
       }
     \seq_gremove_duplicates:c {g__acro_#1_pages_seq}
     \acro_at_end_document:n
@@ -4366,8 +4364,15 @@
   {
     \bool_if:NTF \l__acro_language_auto_bool
       {
-        \tl_set:Nx \l_acro_language_tl
-          { \@trnslt@language{\@trnslt@current@language} }
+        \tl_if_exist:NTF \c_trnslt_current_language_tl
+          {
+            \tl_set_eq:NN \l_acro_language_tl
+              \c_trnslt_current_language_tl
+          }
+          {
+            \tl_set:Nx \l_acro_language_tl
+              { \@trnslt@language{\@trnslt@current@language} }
+          }
       }
       {
         \tl_set_eq:NN
@@ -5090,6 +5095,8 @@
 \msg_new:nnn {acro} {patch}
   { Patching~ `#1'~ failed.~ Please~ contact~ the~ acro~ author. }
 
+\RequirePackage {etoolbox}
+
 \cs_new_protected:Npn \acro_new_patch:n #1
   {
     \bool_new:c {l__acro_patch_#1_bool}
@@ -5481,11 +5488,59 @@
     \begin {longtable} {>{\bfseries}lp{.7\linewidth}}
       \AcronymTable
     \end {longtable}
+    \addtocounter {table} {-1}
   }
   
-\NewAcroTemplate[list] {longtabu}
+% \NewAcroTemplate[list] {longtabu}
+%   {
+%     \AcroNeedPackage {array,longtable,tabu}
+%     \acronymsmapF
+%       {
+%         \AcroAddRow
+%           {
+%             \acrowrite {short}
+%             \acroifT {alt} { / } \acrowrite {alt}
+%             &
+%             \acrowrite {list}
+%             \acroifanyT {foreign,extra} {~(}
+%             \acrowrite {foreign}
+%             \acroifallT {foreign,extra} {,~}
+%             \acrowrite {extra}
+%             \acroifanyT {foreign,extra} {)}
+%             \acropagefill
+%             \acropages
+%               { \acrotranslate {page} \nobreakspace }
+%               { \acrotranslate {pages} \nobreakspace }
+%             \strut \tabularnewline
+%           }
+%       }
+%       { \AcroRerun }
+%     \acroheading
+%     \acropreamble
+%     \par \noindent
+%     \begin {longtabu} {>{\bfseries}lX[l]}
+%       \AcronymTable
+%     \end {longtabu}
+%     \addtocounter {table} {-1}
+%   }
+
+\hook_gput_code:nnn {package/tabularray/after} {acro}
   {
-    \AcroNeedPackage {array,longtable,tabu}
+    \NewTblrTheme {acro} { \DefTblrTemplate {foot} {default} {} }
+    \NewTblrEnviron {actblr}
+    \SetTblrOuter [actblr] {
+      long ,
+      expand = \AcronymTable ,
+      theme = acro ,
+      entry = none ,
+      label = none
+    }
+    \SetTblrInner [actblr] { rowsep = 0pt }
+  }
+
+\NewAcroTemplate [list] {tabularray}
+  {
+    \AcroNeedPackage {tabularray}
     \acronymsmapF
       {
         \AcroAddRow
@@ -5503,18 +5558,18 @@
             \acropages
               { \acrotranslate {page} \nobreakspace }
               { \acrotranslate {pages} \nobreakspace }
-            \strut \tabularnewline
+            \strut \\
           }
       }
       { \AcroRerun }
     \acroheading
     \acropreamble
     \par \noindent
-    \begin {longtabu} {>{\bfseries}lX[l]}
+    \begin {actblr} { colspec = {lX[l]}, column{1} = { font = \bfseries } }
       \AcronymTable
-    \end {longtabu}
+    \end {actblr}
   }
-
+  
 \NewAcroTemplate[list] {supertabular}
   {
     \AcroNeedPackage {array,supertabular}

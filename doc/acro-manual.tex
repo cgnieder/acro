@@ -848,7 +848,7 @@ The main idea is simple: just place
 \end{commands}
 The options controlling the list are these:
 \begin{options}
-  \keychoice{template}{description,tabular,longtable,supertabular,lof,toc}%
+  \keychoice{template}{description,tabular,longtable,supertabular,tabularray,lof,toc}%
     \Module{list}\Default{description}
     Choose the template to create the list with.  See more on this in
     sections~\vref{sec:templates} and~\vref{sec:examples}.
@@ -1918,17 +1918,14 @@ to defines own such objects:
   \tmpl{longtable}
     A style that uses a \env*{longtable} environment for building the list.
     This needs the \pkg{longtable} package~\cite{pkg:longtable} loaded.
-  \tmpl{longtabu}
-    A style that uses a \env*{longtabu} environment for building the
-    list. This needs the \pkg{longtable} package and the \pkg{tabu}
-    package~\cite{pkg:tabu} loaded\footnote{Please note that this package
-      currently is un-maintained and has a number of open bugs. For further
-      information refer to
-      \url{https://github.com/tabu-issues-for-future-maintainer/tabu}}.
   \tmpl{supertabular}
     A\sinceversion{3.2} style that uses a \env*{supertabular} environment for
     building the list.  This needs the \pkg{supertabular}
     package~\cite{pkg:supertabular} loaded.
+  \tmpl{tabularray}
+    A\sinceversion{3.7a} style that uses a custom table environment
+    \env*{actblr} based on \env*{longtblr}. This needs the \pkg{tabularray}
+    package~\cite{pkg:tabularray} loaded.
   \tmpl{tabular}
     A style that uses a \env*{tabular} environment for building the list.
     Since a \env*{tabular} cannot break across pages this is only suited for

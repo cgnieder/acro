@@ -32,10 +32,7 @@
 \tl_new:N \l__acro_mdfive_hash_tl
 
 \cs_new_protected:Npn \acro_write_to_aux:n #1
-  {
-    \legacy_if:nT {@filesw}
-      { \iow_now:Nn \@auxout {#1} }
-  }
+  { \legacy_if:nT {@filesw} { \iow_shipout_x:Nn \@auxout {#1} } }
 \cs_generate_variant:Nn \acro_write_to_aux:n {x}
 
 % ----------------------------------------------------------------------------

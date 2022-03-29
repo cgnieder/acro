@@ -362,7 +362,11 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - add error message of \NewAcroTemplate tries to define an
                     existing template
                   - add `longtable' patch
- 2022/??/?? v??   - use LaTeX's release mechanism for managing usage for
+ 2022/03/28 v3.8  - use LaTeX's release mechanism for managing usage for
                     version 2 or 3
-                  - fix issue #223: inner acronyms don't inherit articles any
-                    more
+                  - fix issue #223: inner acronyms don't inherit articles any more
+                  - require `etoolbox' for the patches
+                  - prepare for `translations' v2.0
+                  - reset `table' counter in `longtable' list template
+                  - drop `longtabu' list template
+                  - add `tabularray' list template

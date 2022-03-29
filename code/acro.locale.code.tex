@@ -130,8 +130,15 @@
   {
     \bool_if:NTF \l__acro_language_auto_bool
       {
-        \tl_set:Nx \l_acro_language_tl
-          { \@trnslt@language{\@trnslt@current@language} }
+        \tl_if_exist:NTF \c_trnslt_current_language_tl
+          {
+            \tl_set_eq:NN \l_acro_language_tl
+              \c_trnslt_current_language_tl
+          }
+          {
+            \tl_set:Nx \l_acro_language_tl
+              { \@trnslt@language{\@trnslt@current@language} }
+          }
       }
       {
         \tl_set_eq:NN

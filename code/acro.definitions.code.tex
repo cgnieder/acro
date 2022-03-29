@@ -277,11 +277,59 @@
     \begin {longtable} {>{\bfseries}lp{.7\linewidth}}
       \AcronymTable
     \end {longtable}
+    \addtocounter {table} {-1}
   }
   
-\NewAcroTemplate[list] {longtabu}
+% \NewAcroTemplate[list] {longtabu}
+%   {
+%     \AcroNeedPackage {array,longtable,tabu}
+%     \acronymsmapF
+%       {
+%         \AcroAddRow
+%           {
+%             \acrowrite {short}
+%             \acroifT {alt} { / } \acrowrite {alt}
+%             &
+%             \acrowrite {list}
+%             \acroifanyT {foreign,extra} {~(}
+%             \acrowrite {foreign}
+%             \acroifallT {foreign,extra} {,~}
+%             \acrowrite {extra}
+%             \acroifanyT {foreign,extra} {)}
+%             \acropagefill
+%             \acropages
+%               { \acrotranslate {page} \nobreakspace }
+%               { \acrotranslate {pages} \nobreakspace }
+%             \strut \tabularnewline
+%           }
+%       }
+%       { \AcroRerun }
+%     \acroheading
+%     \acropreamble
+%     \par \noindent
+%     \begin {longtabu} {>{\bfseries}lX[l]}
+%       \AcronymTable
+%     \end {longtabu}
+%     \addtocounter {table} {-1}
+%   }
+
+\hook_gput_code:nnn {package/tabularray/after} {acro}
   {
-    \AcroNeedPackage {array,longtable,tabu}
+    \NewTblrTheme {acro} { \DefTblrTemplate {foot} {default} {} }
+    \NewTblrEnviron {actblr}
+    \SetTblrOuter [actblr] {
+      long ,
+      expand = \AcronymTable ,
+      theme = acro ,
+      entry = none ,
+      label = none
+    }
+    \SetTblrInner [actblr] { rowsep = 0pt }
+  }
+
+\NewAcroTemplate [list] {tabularray}
+  {
+    \AcroNeedPackage {tabularray}
     \acronymsmapF
       {
         \AcroAddRow
@@ -299,18 +347,18 @@
             \acropages
               { \acrotranslate {page} \nobreakspace }
               { \acrotranslate {pages} \nobreakspace }
-            \strut \tabularnewline
+            \strut \\
           }
       }
       { \AcroRerun }
     \acroheading
     \acropreamble
     \par \noindent
-    \begin {longtabu} {>{\bfseries}lX[l]}
+    \begin {actblr} { colspec = {lX[l]}, column{1} = { font = \bfseries } }
       \AcronymTable
-    \end {longtabu}
+    \end {actblr}
   }
-
+  
 \NewAcroTemplate[list] {supertabular}
   {
     \AcroNeedPackage {array,supertabular}

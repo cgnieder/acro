@@ -438,10 +438,8 @@
 % ----------------------------------------------------------------------------
 
 \ExplSyntaxOn
-\cs_set:Npn \__acro_get_issue_number:w   issue-   #1 \q_stop: {#1}
-\cs_set:Npn \__acro_get_texsx_number:w   texsx-   #1 \q_stop: {#1}
-\cs_set:Npn \__acro_get_texwelt_number:w texwelt- #1 \q_stop: {#1}
-\cs_set:Npn \__acro_get_golatex_number:w golatex- #1 \q_stop: {#1}
+\clist_map_inline:nn {issue,texsx,texwelt,golatex}
+  { \cs_set:cpn {__acro_get_#1_number:w} #1- ##1 \q_stop: {##1} }
 
 \cs_new_protected:Npn \acro@example@links #1 {
   \href { \acro@example@texfile@path {#1} } { \color{white} [\TeX] } ~
