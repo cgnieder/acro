@@ -23,13 +23,14 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 \DeclareRelease{v2}{2020-03-07}{acro2.sty}
+\DeclareRelease{version2}{2020-03-07}{acro2.sty}
 
 \RequirePackage {l3keys2e}
 \ExplSyntaxOn
 
 % setup package:
 \tl_const:Nn \c_acro_package_name_tl {acro}
-\tl_const:Nn \c_acro_date_tl {2022/03/28}
+\tl_const:Nn \c_acro_date_tl {2022/03/31}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
 \tl_const:Nn \c_acro_version_minor_number_tl {8}
 \tl_const:Nn \c_acro_version_subrelease_tl   {}
@@ -1021,10 +1022,7 @@
     \acro_if_preamble:F
       {
         \acro_write_to_aux:x
-          {
-            \token_to_str:N \ACRO {#1} #2
-            % \c_percent_str \c_space_tl from~ line~ \msg_line_number:
-          }
+          { \token_to_str:N \ACRO {#1} #2 }
       }
   }
 
@@ -1055,11 +1053,6 @@
               { \tl_to_str:n {##1} }
             \seq_map_inline:cn {g__acro_auxlist_#1_seq}
               { \acro_attribute_set:nnn {#1} {####1} {} }
-            % \acro_property_if_static:nF {#1}
-            %   {
-            %     \__acro_property_set_from_aux_entry:ne
-            %       {#1} { \tl_to_str:n {##1} }
-            %   }
           }
       }
     \acro_at_begin_document:n
@@ -1084,7 +1077,7 @@
     \acro_attribute_set:nnn {#1} {#2} {}
     \seq_if_in:cVT {g__acro_auxlist_#1_seq} \l__acro_tmpa_str
       { \seq_gremove_all:cV {g__acro_auxlist_#1_seq} \l__acro_tmpa_str }
-    \acro_auxlist_write_entry:nn {#1} {{#2}}
+    % \acro_auxlist_write_entry:nn {#1} {{#2}}
     \seq_gput_right:cV {g__acro_auxlist_#1_seq} \l__acro_tmpa_str
     \seq_gremove_duplicates:c {g__acro_auxlist_#1_seq}
   }
@@ -1099,8 +1092,6 @@
       { \acro_attribute_unset:nn {#1} {#2} }
     \seq_if_in:cVT {g__acro_auxlist_#1_seq} \l__acro_tmpa_str
       { \seq_gremove_all:cV {g__acro_auxlist_#1_seq} \l__acro_tmpa_str }
-    % \seq_if_in:cVT {g__acro_auxlist_recorded_#1_seq} \l__acro_tmpa_str
-    %   { \seq_gremove_all:cV {g__acro_auxlist_recorded_#1_seq} \l__acro_tmpa_str }
   }
 \cs_generate_variant:Nn \__acro_auxlist_remove:nn {nx}
 
@@ -1148,8 +1139,6 @@
     \__acro_get_string_from_property_seq:cN
       {g__acro_auxlist_recorded_#1_seq}
       \l__acro_tmpb_str
-    % \str_show:N \l__acro_tmpa_str
-    % \str_show:N \l__acro_tmpb_str
     \str_if_eq:NNF \l__acro_tmpa_str \l__acro_tmpb_str
       { \acro_rerun:n {property} }
     \bool_if:NF \l__acro_auxlists_clear_bool
@@ -2062,13 +2051,7 @@
   { \seq_map_inline:Nn \g_acro_acronyms_seq { \__acro_use:n {##1} } }
 
 \cs_new_protected:Npn \__acro_reset:n #1
-  {
-    \acro_property_set:nnn {#1} {used} {false}
-    % \int_gzero:c {g__acro_ \acro_case_insensitive:n {#1} _int}
-    % \int_compare:nNnF
-    %   { \acro_property_get:nn {#1} {usage} } > 0
-    %   { \acro_property_set:nnn {#1} {usage} {0} }
-  }
+  { \acro_property_set:nnn {#1} {used} {false} }
 
 \cs_new_protected:Npn \acro_reset:n #1
   { \clist_map_inline:nn {#1} { \__acro_reset:n {##1} } }
@@ -4169,7 +4152,11 @@
       {
         \bool_lazy_and_p:nn
           { \acro_attribute_if_set_p:nn {pages} {#1} }
-          { !\acro_if_single_p:n {#1} }
+          {
+            \bool_lazy_or_p:nn
+              { \l__acro_list_display_all_bool }
+              { !\acro_if_single_p:n {#1} }
+          }
       }
       { \prg_return_true: }
       { \prg_return_false: }
@@ -4530,7 +4517,11 @@
           {
             { \acro_package_if_loaded_p:n {hyperref} }
             { \l__acro_hyperref_use_bool }
-            { !\acro_if_single_p:n {#1} }
+            {
+              \bool_lazy_or_p:nn
+                { \l__acro_list_display_all_bool }
+                { !\acro_if_single_p:n {#1} }
+            }
             {
               \bool_lazy_or_p:nn
                 { !\l__acro_link_only_first_bool }

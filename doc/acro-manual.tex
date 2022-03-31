@@ -108,11 +108,14 @@
 }
 \DeclareAcronym{lppl}{
   short = lppl ,
-  long = \unexpanded{\LaTeX} Project Public License ,
+  long = \LaTeX\ Project Public License ,
   short-format = \scshape ,
   pdfstring = LPPL ,
-  short-acc = LPPL
+  short-acc = LPPL ,
+  single-style = long-short
 }
+\def\LPPL\ (\lppl){\ac{lppl}}
+
 \DeclareAcronym{MP}{
   short = MP ,
   long  = Member of Parliament ,
@@ -155,8 +158,7 @@
 \DeclareAcronym{sw}{
   short       = SW ,
   long        = Sammelwerk ,
-  long-plural = e ,
-  tag = exclude
+  long-plural = e
 }
 \DeclareAcronym{tex.sx}{
   short = \TeX.sx ,
@@ -1512,16 +1514,13 @@ Another example: let's say you're a German scientist, you have
     long-plural = e
   }
 \end{sourcecode}
-and you use it the first time like this:
-\begin{sourcecode}
-  \ac{PU}-Hartschaum
-\end{sourcecode}
-then according to German orthography and typesetting rules this should be
-printed as
+and you use it the first time like this: \verbcode+\ac{PU}-Hartschaum+ then
+according to German orthography and typesetting rules this should be printed
+as
 \begin{center}
   \enquote{Polyurethan(PU)-Hartschaum}
 \end{center}
-\ie, with \emph{no} space between long and short form.
+\ie, with \emph{no} space between long and short form:
 \begin{example}[side-by-side]
   \acf{PU}-Hartschaum
 \end{example}
@@ -2580,8 +2579,9 @@ The command
 
 \printacronyms[
   preamble = {\label{sec:acronyms}Below all abbreviations are listed which
-    have been defined for the manual.} ,
-  exclude = {exclude,glossary}
+    have been defined for the manual. The ones without page numbers have been
+    defined but haven't been used.} ,
+  exclude = {glossary}
 ]
 
 \printbibliography

@@ -375,3 +375,4 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - use \Hy@raisedlink for raising links (even if this will
                     effectively disable raising in a longtable which sets
                     \baselineskip = 0)
+                  - fix issue #212 (record pages only during shipout)

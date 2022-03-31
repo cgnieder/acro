@@ -60,7 +60,11 @@
           {
             { \acro_package_if_loaded_p:n {hyperref} }
             { \l__acro_hyperref_use_bool }
-            { !\acro_if_single_p:n {#1} }
+            {
+              \bool_lazy_or_p:nn
+                { \l__acro_list_display_all_bool }
+                { !\acro_if_single_p:n {#1} }
+            }
             {
               \bool_lazy_or_p:nn
                 { !\l__acro_link_only_first_bool }

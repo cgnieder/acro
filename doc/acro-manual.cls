@@ -22,7 +22,7 @@
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-\ProvidesClass{acro-manual}[2021/01/03]
+\ProvidesClass{acro-manual}[2022/03/31]
 
 \LoadClass[load-preamble,add-index]{cnltx-doc}
 \RequirePackage{imakeidx}
@@ -312,24 +312,23 @@
     \endcnltxcode
   }
 
-\RenewDocumentEnvironment{example}{}
-  {%
-    \begingroup
-    \acroman@readoptions{%
-      \setlength\cnltx@sidebysidewidth
-        {\dimexpr .45\columnwidth -\lst@xleftmargin -\lst@xrightmargin\relax}%
-      \expanded{%
-        \noexpand\lstset{
-          style=cnltx,
-          \ifboolexpe{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
-            {linewidth=\cnltx@sidebysidewidth,}{}%
-          \expandonce\cnltx@local@listings@options
-        }%
-      }%
-      \XSIMgobblechars{2}%
+\RenewDocumentEnvironment{example}{!o}{%
+  \setlength\cnltx@sidebysidewidth
+    {\dimexpr .45\columnwidth -\lst@xleftmargin -\lst@xrightmargin\relax}%
+  \expanded{%
+    \noexpand\lstset{
+      style=cnltx,
+      \ifboolexpe{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
+        {linewidth=\cnltx@sidebysidewidth,}{}%
+      \expandonce\cnltx@local@listings@options
     }%
-  }
-  {%
+  }%
+  \XSIMgobblechars{2}%
+  \IfValueT{#1}{\pgfqkeys{/cnltx}{#1}}%
+    \IfNoValueTF{#1}
+      {\XSIMfilewritestart*{\jobname.tmp}}
+      {\XSIMfilewritestart{\jobname.tmp}}%
+}{%
     \XSIMfilewritestop
     \ifbool{cnltx@sidebyside}
       {%
@@ -553,6 +552,7 @@
   \def\LaTeX{LaTeX}%
   \def\TeX{TeX}%
 }
+
 % ----------------------------------------------------------------------------
 
 \acro@add@example{basic}{Basic usage}
@@ -655,6 +655,6 @@
 \acro@add@version{2021-01-16}{3.5}
 \acro@add@version{2022-01-04}{3.6}
 \acro@add@version{2022-01-27}{3.7}
-\acro@add@version{2022-03-28}{3.8}
+\acro@add@version{2022-03-31}{3.8}
 
 \endinput

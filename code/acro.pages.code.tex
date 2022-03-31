@@ -251,7 +251,11 @@
       {
         \bool_lazy_and_p:nn
           { \acro_attribute_if_set_p:nn {pages} {#1} }
-          { !\acro_if_single_p:n {#1} }
+          {
+            \bool_lazy_or_p:nn
+              { \l__acro_list_display_all_bool }
+              { !\acro_if_single_p:n {#1} }
+          }
       }
       { \prg_return_true: }
       { \prg_return_false: }
