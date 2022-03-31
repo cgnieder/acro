@@ -1,5 +1,5 @@
-% arara: pdflatex
-% arara: biber
+% !arara: pdflatex
+% !arara: biber
 % arara: pdflatex
 % arara: pdflatex
 % --------------------------------------------------------------------------
@@ -239,11 +239,11 @@ Acronyms are defined in the preamble via the command
 \end{commands}
 \begin{properties}
   %% short
-  \propval{short}{text}\Default!
+  \propval{short}{text}\Initial!
     The short form of the acronym.  \emph{This property is required}: an
     acronym must have a short form.
   %% long
-  \propval{long}{text}\Default!
+  \propval{long}{text}\Initial!
     The long form of the acronym.  \emph{This property is required}: an
     acronym must have a description.
 \end{properties}
@@ -293,7 +293,7 @@ Then the usage is
 \acro\ knows only a small set of load-time options which can be used as
 argument to \cs*{usepackage}:
 \begin{options}
-  \keybool{upgrade}\Default{false}
+  \keybool{upgrade}\Initial{false}
     When this option is used \acro\ tries to give as much helpful and
     meaningful warning or error messages when a deprecated or removed command,
     property, or option is used.  This is especially useful if you are
@@ -319,10 +319,10 @@ section~\ref{sec:load-time-options} have to be set up either with this command
 \begin{options}
   \opt*{option}
     An option without a value. Those options are very rare if there are any.
-  \keyval*{option}{value}\Default{preset}
+  \keyval*{option}{value}\Initial{preset}
     An option where a value can be given.  The pre-set value is given to the
     right.
-  \keychoice*{option}{\default{choiceA},choiceB,choiceC}\Default{choiceB}
+  \keychoice*{option}{\default{choiceA},choiceB,choiceC}\Initial{choiceB}
     An option with a determined set of choices. The underlined value is
     chosen if the option is given without value.
   \keybool*{option}
@@ -358,11 +358,11 @@ following sections.  This is a comprehensive overview over the existing
 properties. Many properties are also explained in more detail in later
 sections of this manual.
 \begin{options}
-  \keybool{case-sensitive}\Default{true}
+  \keybool{case-sensitive}\Initial{true}
     When this is set you can write the \ac{id} of the acronym upper- or lower-
     or mixed case and it is recognized by \acro\ as the same.  This might be
     useful when the acronym appears in the page header, for example.
-  \keybool{case-insensitive}\Default{false}
+  \keybool{case-insensitive}\Initial{false}
     \sinceversion{3.6}The inverse of the option \option{case-sensitive}.
 \end{options}
 
@@ -374,73 +374,73 @@ sections of this manual.
 \subsection{Basic properties}\label{sec:basic-properties}
 \begin{properties}
   %% short
-  \propval{short}{text}\Default!
+  \propval{short}{text}\Initial!
     The short form of the acronym.  \emph{This property is required}: an
     acronym must have a short form.
 \end{properties}
 Maybe you mostly have simple acronyms where the \ac{id} and short form are
 the same.  In that case you can use
 \begin{options}
-  \keybool{use-id-as-short}\Default{false}
+  \keybool{use-id-as-short}\Initial{false}
     to use the \ac{id} of the acronym as short form. For more complicated
     cases this would still allow you to set the short form.
 \end{options}
 \begin{properties}
   %% long
-  \propval{long}{text}\Default!
+  \propval{long}{text}\Initial!
     The long form of the acronym.  \emph{This property is required}: an
     acronym must have a description.
   %% alt
-  \propval{alt}{text}\Default
+  \propval{alt}{text}\Initial
     Alternative short form.
   %% extra
-  \propval{extra}{text}\Default
+  \propval{extra}{text}\Initial
     Extra information to be added in the list of acronyms.
   %% foreign
-  \propval{foreign}{long form in foreign language}\Default
+  \propval{foreign}{long form in foreign language}\Initial
     Can be useful when dealing with acronyms in foreign languages, see
     section~\vref{sec:fore-lang-acronyms} for details.
   %% long-post
-  \propval{long-post}{text}\Default
+  \propval{long-post}{text}\Initial
     \meta{text} is appended to the long form of the acronym in the text but
     not in the list of acronyms.
   %% post
-  \propval{post}{text}\Default
+  \propval{post}{text}\Initial
     \meta{text} is appended to the acronym in the text but not in the list of
     acronyms.
   %% single
-  \propval{single}{text}\Default={long}
+  \propval{single}{text}\Initial={long}
     If provided \meta{text} will be used instead of the long form if the
     acronym is only used a single time \emph{and} the option
     \option{single} has been set, see section~\vref{sec:single-appe-an}.
   %% sort
-  \propval{sort}{text}\Default={short}
+  \propval{sort}{text}\Initial={short}
     If used the acronym will be sorted according to this property instead of
     its short form.
   %% tag
-  \propval{tag}{csv list}\Default
+  \propval{tag}{csv list}\Initial
     The tag(s) of an acronym.
   %% cite
-  \proplit-{cite}{\oarg{prenote}\oarg{postnote}\marg{citation keys}}\Default
+  \proplit-{cite}{\oarg{prenote}\oarg{postnote}\marg{citation keys}}\Initial
     A citation that is printed to the acronym according to an option explained
     later.
   %% before-citation
-  \propval{before-citation}{text}\Default
+  \propval{before-citation}{text}\Initial
     \meta{text} is prepended to the citation of the acronym when and where
     the citation is printed.
   %% index
-  \propval{index}{text}\Default
+  \propval{index}{text}\Initial
     This property allows to overwrite the automatic index entry with an
     arbitrary one.  See section~\vref{sec:indexing} for details.
   %% index-sort
-  \propval{index-sort}{text}\Default={sort}
+  \propval{index-sort}{text}\Initial={sort}
     If you use the option \option{index} every occurrence of an acronym is
     recorded to the index and sorted by its short form or (if set) by the
     value of the \property{sort} property.  This property allows to set an
     individual sorting option for the index.  See section~\vref{sec:indexing}
     for details.
   %% index-cmd
-  \propval{index-cmd}{index command}\Default
+  \propval{index-cmd}{index command}\Initial
     This sets the indexing command for the acronym.  If unused then the
     command set by the corresponding option is used.  See
     section~\vref{sec:indexing} for details.
@@ -449,86 +449,86 @@ the same.  In that case you can use
 \subsection{Properties related to plural and indefinite forms}\label{sec:prop-relat-plur}
 \begin{properties}
   %% short-plural
-  \propval{short-plural}{text}\Default{s}
+  \propval{short-plural}{text}\Initial{s}
     The plural ending appended to the short form.
   %% short-plural-form
-  \propval{short-plural-form}{text}\Default
+  \propval{short-plural-form}{text}\Initial
     The plural short form of the acronym; replaces the short form when used
     instead of appending the plural ending.
   %% long-plural
-  \propval{long-plural}{text}\Default{s}
+  \propval{long-plural}{text}\Initial{s}
     The plural ending appended to the long form.
   %% long-plural-form
-  \propval{long-plural-form}{text}\Default
+  \propval{long-plural-form}{text}\Initial
     Plural long form of the acronym; replaces the long form when used
     instead of appending the plural ending.
    %% alt-plural
-  \propval{alt-plural}{text}\Default{s}
+  \propval{alt-plural}{text}\Initial{s}
     The plural ending appended to the alternative form.
   %% alt-plural-form
-  \propval{alt-plural-form}{text}\Default
+  \propval{alt-plural-form}{text}\Initial
     The plural alternative form of the acronym; replaces the alternative form
     when used instead of appending the plural ending.
   %% foreign-plural
-  \propval{foreign-plural}{text}\Default{s}
+  \propval{foreign-plural}{text}\Initial{s}
     The plural ending appended to the foreign form.
   %% foreign-plural-form
-  \propval{foreign-plural-form}{text}\Default
+  \propval{foreign-plural-form}{text}\Initial
     Plural foreign form of the acronym; replaces the foreign form when used
     instead of appending the plural ending.
   %% short-indefinite
-  \propval{short-indefinite}{text}\Default{a}
+  \propval{short-indefinite}{text}\Initial{a}
     Indefinite article for the short form.
   %% long-indefinite
-  \propval{long-indefinite}{text}\Default{a}
+  \propval{long-indefinite}{text}\Initial{a}
     Indefinite article for the long form.
   %% alt-indefinite
-  \propval{alt-indefinite}{text}\Default{a}
+  \propval{alt-indefinite}{text}\Initial{a}
     Indefinite article for the alternative form.
 \end{properties}
 
 \subsection{Properties related to formatting}\label{sec:prop-relat-form}
 \begin{properties}
-  \propval{format}{code}\Default
+  \propval{format}{code}\Initial
     The format used for both short and long form of the acronym.
   %% short-format
-  \propval{short-format}{code}\Default={format}
+  \propval{short-format}{code}\Initial={format}
     The format used for the short form of the acronym.
   %% long-format
-  \propval{long-format}{code}\Default={format}
+  \propval{long-format}{code}\Initial={format}
     The format used for the long form of the acronym.
   %% first-long-format
-  \propval{first-long-format}{code}\Default={long-format}
+  \propval{first-long-format}{code}\Initial={long-format}
     The format used for the first appearance of the long form of the acronym.
   %% alt-format
-  \propval{alt-format}{code}\Default={short-format}
+  \propval{alt-format}{code}\Initial={short-format}
     The format used for the alternative form of the acronym. If this is not
     given the short format will be used.
   %% extra-format
-  \propval{extra-format}{code}\Default
+  \propval{extra-format}{code}\Initial
     The format used for the additional information of the acronym.
   %% foreign-format
-  \propval{foreign-format}{code}\Default
+  \propval{foreign-format}{code}\Initial
     The format used for the foreign form of the acronym.
   %% single-format
-  % \propval{single-format}{code}\Default={long-format}
+  % \propval{single-format}{code}\Initial={long-format}
   %   The format used for the acronym if the acronym is only used a single
   %   time.
   %% list-format
-  \propval{list-format}{code}\Default={long-format}
+  \propval{list-format}{code}\Initial={long-format}
     The format used for the long form of the acronym in the list if the list
     template supports it. All pre-defined list templates \emph{do} support
     it.
   %% first-style
-  \propchoice{first-style}{long-short,short-long,short,long,footnote}\Default
+  \propchoice{first-style}{long-short,short-long,short,long,footnote}\Initial
     The style of the first appearance of the acronym, see also
     section~\vref{sec:first-or-full}.
   %% first-style
-  \propchoice{subsequent-style}{long-short,short-long,short,long,footnote}\Default
+  \propchoice{subsequent-style}{long-short,short-long,short,long,footnote}\Initial
     \sinceversion{3.4}The style of the appearance of the acronym after the
     first time.
   %% single-style
-  \propchoice{single-style}{long-short,short-long,short,long,footnote}\Default
+  \propchoice{single-style}{long-short,short-long,short,long,footnote}\Initial
     The style of a single appearance of the acronym, see also
     section~\vref{sec:single-appe-an}.
 \end{properties}
@@ -536,7 +536,7 @@ the same.  In that case you can use
 \subsection{Properties related to the created \acs*{pdf} file}\label{sec:prop-relat-creat}
 \begin{properties}
   %% pdfstring
-  \propval{pdfstring}{pdfstring}\Default={short}
+  \propval{pdfstring}{pdfstring}\Initial={short}
     Used as \acs{pdf} string replacement in bookmarks when used together with
     the \pkg{hyperref}~\cite{pkg:hyperref} or the \pkg{bookmark}
     package~\cite{pkg:bookmark}.
@@ -547,31 +547,31 @@ the same.  In that case you can use
     \option{pdfcomment/cmd} and \option{pdfcomment/use}, see also
     section~\vref{sec:pdf-comments}.
   %% short-acc
-  \propval{short-acc}{text}\Default={short}
+  \propval{short-acc}{text}\Initial={short}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the short form of the acronym.
   %% long-acc
-  \propval{long-acc}{text}\Default={long}
+  \propval{long-acc}{text}\Initial={long}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the long form of the acronym.
   %% alt-acc
-  \propval{alt-acc}{text}\Default={alt}
+  \propval{alt-acc}{text}\Initial={alt}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the alternative short form of the acronym.
   %% foreign-acc
-  \propval{foreign-acc}{text}\Default={foreign}
+  \propval{foreign-acc}{text}\Initial={foreign}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the foreign form of the acronym.
   %% extra-acc
-  \propval{extra-acc}{text}\Default={extra}
+  \propval{extra-acc}{text}\Initial={extra}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the extra information of the acronym.
   %% single-acc
-  \propval{single-acc}{text}\Default={long-acc}
+  \propval{single-acc}{text}\Initial={long-acc}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for a single appearance of the acronym.
   %% list-acc
-  \propval{list-acc}{text}\Default={list}
+  \propval{list-acc}{text}\Initial={list}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the appearance in the list of acronyms.
 \end{properties}
@@ -579,11 +579,11 @@ the same.  In that case you can use
 \subsection{Futher properties}\label{sec:futher-properties}
 \begin{properties}
   %% list
-  \propval{list}{text}\Default={long}
+  \propval{list}{text}\Initial={long}
     If specified this will be written in the list as description instead of
     the long form if the corresponding list template supports it.
   %% foreign-babel
-  \propval{foreign-babel}{language}\Default
+  \propval{foreign-babel}{language}\Initial
     The \pkg{babel}~\cite{pkg:babel} or
     \pkg{polyglossia}~\cite{pkg:polyglossia} language of the foreign form.
     This language is used to wrap the entry with
@@ -591,19 +591,19 @@ the same.  In that case you can use
     \pkg{polyglossia} is loaded.  You'll need to take care that the
     corresponding language is loaded by \pkg{babel} or \pkg{polyglossia}.
   %% foreign-locale
-  \propval{foreign-locale}{language}\Default
+  \propval{foreign-locale}{language}\Initial
     The language name that is output when the option
     \module{locale}\code{/}\option{display} is used.  If this property is not
     set then the appropriate value might be derived from
     \property{foreign-babel}. See section~\vref{sec:fore-lang-acronyms} for
     details.
   %% preset
-  \propval{preset}{set name}\Default
+  \propval{preset}{set name}\Initial
     \sinceversion{3.5}Enables to load a set of properties that has been
     defined earlier with \cs{NewAcroPreset}, see
     section~\vref{sec:presets}.
   %% uselist
-  \propval{uselist}{csv list of acronym ids}\Default
+  \propval{uselist}{csv list of acronym ids}\Initial
     \sinceversion{3.5}If this property is given and all acronyms specified in
     this property have been used before the first time the current acronym is
     used it behaves as if it has been used before.
@@ -632,9 +632,9 @@ All of these commands have a starred form which means \enquote{don't count
 allows to set options for that usage only.
 \begin{commands}
   \command*{acrocommand}[\sarg\oarg{options}\marg{id}]
-    This is the general syntax of all of the commands listed below.  The star
-    and the optional argument is left way for the sake of readability.
-    \emph{A command \cs*{acrocommand} does not actually exist.}
+    This is the general syntax of \emph{all} of the commands listed below.
+    The star and the optional argument is left way for the sake of
+    readability. \emph{A command \cs*{acrocommand} does not actually exist.}
   \command{ac}[\marg{id}\quad\cs{Ac}\marg{id}\quad\cs{acp}\marg{id}\quad
     \cs{Acp}\marg{id}\quad\cs{iac}\marg{id}\quad\cs{Iac}\marg{id}]
     \cs{ac} prints the acronym \meta{id}, the first time with full description
@@ -736,12 +736,12 @@ first or full appearance of the acronym is printed\footnote{This usually
 
 The first or full appearance of an acronym is determined by this option:
 \begin{options}
-  \keychoice{first-style}{long-short,short-long,short,long,footnote}\Default{long-short}
+  \keychoice{first-style}{long-short,short-long,short,long,footnote}\Initial{long-short}
     The style of the first appearance of the acronym. This options sets the
     appearance for all acronyms.  Available options in reality are the names
     of all defined templates of the type \code{acronym}. All pre-defined
     templates can be found in section~\vref{sec:pre-defin-templ}.
-  \keychoice{subsequent-style}{long-short,short-long,short,long,footnote}\Default{short}
+  \keychoice{subsequent-style}{long-short,short-long,short,long,footnote}\Initial{short}
     \sinceversion{3.4}The style of the appearance of the acronym after the
     first time. This options sets the appearance for all acronyms.  Available
     options in reality are the names of all defined templates of the type
@@ -751,7 +751,7 @@ The first or full appearance of an acronym is determined by this option:
 It might be desirable to set the first appearance of an acronym
 individually. This is possible by setting the corresponding property:
 \begin{properties}
-  \propchoice{first-style}{long-short,short-long,short,long,footnote}\Default
+  \propchoice{first-style}{long-short,short-long,short,long,footnote}\Initial
     The style of the first appearance of the acronym.
 \end{properties}
 Let's again look at an example:
@@ -790,14 +790,14 @@ single appearance of the acronym is printed\footnote{This usually requires at
 
 The single appearance of an acronym is determined by this option:
 \begin{options}
-  \keychoice{single}{\default{true},false,\meta{number}}\Default{false}
+  \keychoice{single}{\default{true},false,\meta{number}}\Initial{false}
     This option determines whether a single appearance of an acronym counts as
     \emph{usage}. It might be desirable in such cases that an acronym is
     simply printed as long form and not added to the list of acronym.  This is
     what this option does.  With \meta{number} the minimal number of usages
     can be given that needs to be exceeded.  \keyis{single}{1} is the same as
     \keyis{single}{true}.
-  \keychoice{single-style}{long-short,short-long,short,long,footnote}\Default{long}
+  \keychoice{single-style}{long-short,short-long,short,long,footnote}\Initial{long}
     The style of the single appearance of an acronym.  Can be used to
     determine how a single appearance is printed if the option \option{single}
     has been set. This option sets the appearance for all acronyms.
@@ -808,16 +808,16 @@ The single appearance of an acronym is determined by this option:
 
 If you like you can also set the single appearance of an acronym individually:
 \begin{properties}
-  \propval{single}{text}\Default
+  \propval{single}{text}\Initial
     If provided \meta{text} will be used instead of whatever template
     (\enquote{style}) has been set for the single appearance if the acronym is
     only used a single time \emph{and} the option \option{single} has been
     set\footnote{Actually the template \template{single} is used which
       typesets the \property{single} property.}.
-  % \propval{single-format}{code}\Default={long-format}
+  % \propval{single-format}{code}\Initial={long-format}
   %   The format used for the acronym if the acronym is only used a single
   %   time.
-  \propchoice{single-style}{long-short,short-long,short,long,footnote}\Default
+  \propchoice{single-style}{long-short,short-long,short,long,footnote}\Initial
     The style of the single appearance of the acronym.
 \end{properties}
 Let's again look at an example. The acronym \acs*{png} is defined as follows:
@@ -849,22 +849,22 @@ The main idea is simple: just place
 The options controlling the list are these:
 \begin{options}
   \keychoice{template}{description,tabular,longtable,supertabular,tabularray,lof,toc}%
-    \Module{list}\Default{description}
+    \Module{list}\Initial{description}
     Choose the template to create the list with.  See more on this in
     sections~\vref{sec:templates} and~\vref{sec:examples}.
-  \keybool{sort}\Module{list}\Default{true}
+  \keybool{sort}\Module{list}\Initial{true}
     Decide whether to sort the list of acronyms alphabetically or to print it
     in order of definition.
-  \keychoice{display}{all,used}\Module{list}\Default{used}
+  \keychoice{display}{all,used}\Module{list}\Initial{used}
     Decide whether to print only the acronyms actually used in the document or
     all acronyms which have been declared in the preamble.
-  \keyval{exclude}{csv list of tags}\Module{list}\Default
+  \keyval{exclude}{csv list of tags}\Module{list}\Initial
     Set a list of tags to exclude from the list.  Only acronyms not
     belonging to one of these tags will be included.
-  \keyval{include}{csv list of tags}\Module{list}\Default
+  \keyval{include}{csv list of tags}\Module{list}\Initial
     Set a list of tags to include in the list.  Only acronyms belonging to
     one of these tags will be included.
-  \keybool{add}\Module{list}\Default
+  \keybool{add}\Module{list}\Initial
     \sinceversion{3.4}Set a list of tags to include in the list.  These
     acronyms will be included in any case.
   \keychoice{heading}{none,section,section*,chapter,chapter*}\Module{list}
@@ -872,18 +872,18 @@ The options controlling the list are these:
 
     This only has an effect if the list template supports it.  All pre-defined
     templates \emph{do} support it.
-  \keyval{name}{text}\Module{list}\Default{\cs{acrotranslate}\Marg{list-name}}
+  \keyval{name}{text}\Module{list}\Initial{\cs{acrotranslate}\Marg{list-name}}
     Overwrites the text which is used in the heading.
 
     This only has an effect if the list template supports heading templates
     \emph{and} the heading templates support it.  All pre-defined heading
     templates \emph{do} support this.
-  \keyval{preamble}{text}\Module{list}\Default
+  \keyval{preamble}{text}\Module{list}\Initial
     Set a preamble to be placed between heading and actual list.
 
     This only has an effect if the list template supports it.  All pre-defined
     templates \emph{do} support it.
-  \keybool{display}\Module{list,locale}\Default{false}
+  \keybool{display}\Module{list,locale}\Initial{false}
     This options determines whether the language of the foreign form is printed
     or not.
 
@@ -904,26 +904,26 @@ to \cs{printacronyms}. In the latter case omit the leading
 If you want to include the page numbers where the acronyms have been used in
 the list of acronym you can use these options:
 \begin{options}
-  \keychoice{display}{first,all,none}\Module{pages}\Default{none}
+  \keychoice{display}{first,all,none}\Module{pages}\Initial{none}
     Decide whether to include page numbers in the list of acroynms and
     whether to add the first page or every page.  When you choose
     \code{first} and have \pkg{hyperref} loaded you will also get a
     backlink to that page.
-  \keybool{use}\Module{pages,seq}\Default{true}
+  \keybool{use}\Module{pages,seq}\Initial{true}
     Turns a two-page range into \meta{num}\,f.\ (\latin{sequens}) and a
     three-page range into \meta{num}\,ff.\ (\latin{sequentes}) when set to
     \code{true}.
-  \keyval{pre}{code}\Module{pages,seq}\Default{\cs*{,}}
+  \keyval{pre}{code}\Module{pages,seq}\Initial{\cs*{,}}
     \meta{code} is inserted between the page number and the sequens or
     sequentes symbol.
-  \keyval{threshold}{num}\Module{pages,seq}\Default{3}
+  \keyval{threshold}{num}\Module{pages,seq}\Initial{3}
     The threshold for a page range to be turned into \latin{sequentes}.  A
     page range above the threshold is still typeset as a range:
     \meta{num1}--\meta{num2}.
-  \keyval{fill}{code}\Module{pages}\Default{\cs*{acrodotfill}}
+  \keyval{fill}{code}\Module{pages}\Initial{\cs*{acrodotfill}}
     This is the code that is placed between acronym description and actual
     page numbers.
-  \keybool{name}\Module{pages}\Default{false}
+  \keybool{name}\Module{pages}\Initial{false}
     If set to true the page numbers are preceded with p.\ or pp.
 \end{options}
 \begin{commands}
@@ -943,14 +943,14 @@ With the property \property{tag} you can assign one or more tags to an
 acronym.  These tags can be used to filter the list of acronyms.
 \begin{properties}
   %% tag
-  \propval{tag}{csv list}\Default
+  \propval{tag}{csv list}\Initial
     The tag(s) of an acronym.
 \end{properties}
 \begin{options}
-  \keyval{exclude}{csv list of tags}\Module{list}\Default
+  \keyval{exclude}{csv list of tags}\Module{list}\Initial
     Set a list of tags to exclude from the list.  Only acronyms not
     belonging to one of these tags will be included.
-  \keyval{include}{csv list of tags}\Module{list}\Default
+  \keyval{include}{csv list of tags}\Module{list}\Initial
     Set a list of tags to include in  the list.  Only acronyms belonging to
     one of these tags will be included.
 \end{options}
@@ -993,7 +993,7 @@ or print a list \emph{with only} these acronyms with
 Maybe you like a list of acronyms for each chapter in a book which only lists
 the acronyms used within this chapter.  You need to do three things: set
 \begin{options}
-  \keybool{use}\Module{barriers}\Default{false}
+  \keybool{use}\Module{barriers}\Initial{false}
     this option to \code{true}, place
 \end{options}
 \begin{commands}
@@ -1002,7 +1002,7 @@ the acronyms used within this chapter.  You need to do three things: set
     and use \cs{printacronyms} with the option
 \end{commands}
 \begin{options}
-  \keybool{local}\Module{list}\Default{false}
+  \keybool{local}\Module{list}\Initial{false}
     or set this option once in the preamble with \cs{acsetup} so it is applied
     to every list.
 \end{options}
@@ -1022,69 +1022,69 @@ Please read more on barriers in section~\vref{sec:barriers}.
 \acro\ has a number of options and parameters which can be used to influence
 the formatting of acronyms.
 \begin{options}
-  \keyval{format}{code}\Default
+  \keyval{format}{code}\Initial
     Sets the format for both the short and the long form.
-  \keyval{short}{code}\Module{format}\Default
+  \keyval{short}{code}\Module{format}\Initial
     Sets the format for the short form.
-  \keyval{long}{code}\Module{format}\Default
+  \keyval{long}{code}\Module{format}\Initial
     Sets the format for the long form.
-  \keyval{first-long}{code}\Module{format}\Default
+  \keyval{first-long}{code}\Module{format}\Initial
     Sets the format for the first appearance of the long form.
-  \keyval{alt}{code}\Module{format}\Default
+  \keyval{alt}{code}\Module{format}\Initial
     Sets the format for the alternative form.
-  \keyval{extra}{code}\Module{format}\Default
+  \keyval{extra}{code}\Module{format}\Initial
     Sets the format for the extra information.
-  \keyval{foreign}{code}\Module{format}\Default
+  \keyval{foreign}{code}\Module{format}\Initial
     Sets the format for the foreign form.
-  \keyval{list}{code}\Module{format}\Default
+  \keyval{list}{code}\Module{format}\Initial
     Sets the format for the long form in the list form.
 \end{options}
 While this options influence the formatting of the acronyms globally you can
 also give each acronym its own formatting individually:
 \begin{properties}
-  \propval{format}{code}\Default
+  \propval{format}{code}\Initial
     The format used for both short and long form of the acronym.
   %% short-format
-  \propval{short-format}{code}\Default={format}
+  \propval{short-format}{code}\Initial={format}
     The format used for the short form of the acronym.
   %% long-format
-  \propval{long-format}{code}\Default={format}
+  \propval{long-format}{code}\Initial={format}
     The format used for the long form of the acronym.
   %% first-long-format
-  \propval{first-long-format}{code}\Default={long-format}
+  \propval{first-long-format}{code}\Initial={long-format}
     The format used for the first appearance of the long form of the acronym.
   %% alt-format
-  \propval{alt-format}{code}\Default={short-format}
+  \propval{alt-format}{code}\Initial={short-format}
     The format used for the alternative form of the acronym. If this is not
     given the short format will be used.
   %% extra-format
-  \propval{extra-format}{code}\Default
+  \propval{extra-format}{code}\Initial
     The format used for the additional information of the acronym.
   %% foreign-format
-  \propval{foreign-format}{code}\Default
+  \propval{foreign-format}{code}\Initial
     The format used for the foreign form of the acronym.
   %% single-format
-  \propval{single-format}{code}\Default={long-format}
+  \propval{single-format}{code}\Initial={long-format}
     The format used for the acronym if the acronym is only used a single
     time.
   %% list-format
-  \propval{list-format}{code}\Default={long-format}
+  \propval{list-format}{code}\Initial={long-format}
     The format used for the long form of the acronym in the list if the list
     template supports it. All pre-defined list templates \emph{do} support
     it.
   %% first-style
-  \propchoice{first-style}{long-short,short-long,short,long,footnote}\Default
+  \propchoice{first-style}{long-short,short-long,short,long,footnote}\Initial
     The style of the first appearance of the acronym, see also
     section~\vref{sec:first-or-full}.
   %% single-style
-  \propchoice{single-style}{long-short,short-long,short,long,footnote}\Default
+  \propchoice{single-style}{long-short,short-long,short,long,footnote}\Initial
     The style of a single appearance of the acronym, see also
     section~\vref{sec:single-appe-an}.
 \end{properties}
 Per\changedversion{3.3} default the individual formatting instructions
 \emph{replace} the global ones. This can be changed through the option
 \begin{options}
-  \keybool{replace}\Module{format}\Default{true}
+  \keybool{replace}\Module{format}\Initial{true}
     With this option active local options will \emph{replace} the global
     ones.
 \end{options}
@@ -1112,40 +1112,40 @@ instead\footnote{German is full of such examples.}.  This is why \acro\ has
 quite a number of different properties related to plural forms or endings:
 \begin{properties}
   %% short-plural
-  \propval{short-plural}{text}\Default{s}
+  \propval{short-plural}{text}\Initial{s}
     The plural ending appended to the short form.
   %% short-plural-form
-  \propval{short-plural-form}{text}\Default
+  \propval{short-plural-form}{text}\Initial
     The plural short form of the acronym; replaces the short form when used
     instead of appending the plural ending.
   %% long-plural
-  \propval{long-plural}{text}\Default{s}
+  \propval{long-plural}{text}\Initial{s}
     The plural ending appended to the long form.
   %% long-plural-form
-  \propval{long-plural-form}{text}\Default
+  \propval{long-plural-form}{text}\Initial
     Plural long form of the acronym; replaces the long form when used
     instead of appending the plural ending.
    %% alt-plural
-  \propval{alt-plural}{text}\Default{s}
+  \propval{alt-plural}{text}\Initial{s}
     The plural ending appended to the alternative form.
   %% alt-plural-form
-  \propval{alt-plural-form}{text}\Default
+  \propval{alt-plural-form}{text}\Initial
     The plural alternative form of the acronym; replaces the alternative form
     when used instead of appending the plural ending.
   %% foreign-plural
-  \propval{foreign-plural}{text}\Default{s}
+  \propval{foreign-plural}{text}\Initial{s}
     The plural ending appended to the foreign form.
   %% foreign-plural-form
-  \propval{foreign-plural-form}{text}\Default
+  \propval{foreign-plural-form}{text}\Initial
     Plural foreign form of the acronym; replaces the foreign form when used
     instead of appending the plural ending.  
 \end{properties}
 There are two options which allow to change the default values for the whole
 document:
 \begin{options}
-  \keyval{short-plural-ending}{text}\Default{s}
+  \keyval{short-plural-ending}{text}\Initial{s}
     Defines the plural ending for the short forms to be \meta{text}.
-  \keyval{long-plural-ending}{text}\Default{s}
+  \keyval{long-plural-ending}{text}\Initial{s}
     Defines the plural ending for the long forms to be \meta{text}.
 \end{options}
 Now let's see two simple examples demonstrating the two different kinds of plural
@@ -1212,28 +1212,28 @@ that are derived from another language.  \acro\ provides a number of
 properties for such cases:
 \begin{properties}
   %% foreign
-  \propval{foreign}{long form in foreign language}\Default
+  \propval{foreign}{long form in foreign language}\Initial
     Can be useful when dealing with acronyms in foreign languages, see
     section~\vref{sec:fore-lang-acronyms} for details.
   %% foreign-plural
-  \propval{foreign-plural}{text}\Default{s}
+  \propval{foreign-plural}{text}\Initial{s}
     The plural ending appended to the foreign form.
   %% foreign-plural-form
-  \propval{foreign-plural-form}{text}\Default
+  \propval{foreign-plural-form}{text}\Initial
     Plural foreign form of the acronym; replaces the foreign form when used
     instead of appending the plural ending.
   %% foreign-format
-  \propval{foreign-format}{code}\Default
+  \propval{foreign-format}{code}\Initial
     The format used for the foreign form of the acronym.
   %% foreign-babel
-  \propval{foreign-babel}{language}\Default
+  \propval{foreign-babel}{language}\Initial
     The \pkg{babel} or \pkg{polyglossia} language of the foreign form. This
     language is used to wrap the entry with
     \cs*{foreignlanguage}\marg{language} if either \pkg{babel} or
     \pkg{polyglossia} is loaded.  You'll need to take care that the
     corresponding language is loaded by \pkg{babel} or \pkg{polyglossia}.
   %% foreign-locale
-  \propval{foreign-locale}{language}\Default
+  \propval{foreign-locale}{language}\Initial
     The language name that is output when the option
     \module{locale}\code{/}\option{display} is used.  If this property is not
     set then the appropriate value might be derived from
@@ -1241,17 +1241,17 @@ properties for such cases:
 \end{properties}
 There are also some options:
 \begin{options}
-  \keybool{display}\Module{foreign}\Default{true}
+  \keybool{display}\Module{foreign}\Initial{true}
     Determine whether to hide or display the foreign form.
-  \keybool{display}\Module{list,foreign}\Default{true}
+  \keybool{display}\Module{list,foreign}\Initial{true}
     \sinceversion{3.2}Determine whether to hide or display the foreign form in
     the list of acronyms.
-  \keybool{display}\Module{locale}\Default{false}
+  \keybool{display}\Module{locale}\Initial{false}
     This options determines whether the language of the foreign form is printed
     or not when the full form of the acronym is printed.
-  \keybool{display}\Module{list,locale}\Default{false}
+  \keybool{display}\Module{list,locale}\Initial{false}
     The same but for the list of acronyms.
-  \keyval{format}{code}\Module{locale}\Default{\cs*{em}\cs*{text\_titlecase\_first:n}}
+  \keyval{format}{code}\Module{locale}\Initial{\cs*{em}\cs*{text\_titlecase\_first:n}}
     Determines how said language is formatted when printed.  The last command
     in \meta{code} may take a mandatory argument.
 \end{options}
@@ -1341,7 +1341,7 @@ There are a number of options to control the uppercasing behavior:
 There may be reasons to exclude short forms from being uppercased.  This can
 be controlled by this option:
 \begin{options}
-  \keybool{short}\Module{uppercase}\Default{true}
+  \keybool{short}\Module{uppercase}\Initial{true}
     It allows you to disable the mechanism for the \property{short} and
     \property{alt} properties.
 \end{options}
@@ -1371,20 +1371,20 @@ desirable to add the citation rather inside the parentheses together with the
 short form of the acronym and even cited with a different command.  For cases
 like these \acro\ offers a number of options:\acuse{ny}
 \begin{options}
-  \keyval{cmd}{citation command}\Module{cite}\Default{\cs*{cite}}
+  \keyval{cmd}{citation command}\Module{cite}\Initial{\cs*{cite}}
     Choose the command with which citations ar printed.
-  \keybool{group}\Module{cite}\Default{false}
+  \keybool{group}\Module{cite}\Initial{false}
     Decide whether to group citations with the short form in the parentheses.
     The template must support this.  \acro's pre-defined templates \emph{do}
     support it.
-  \keychoice{display}{first,all,none}\Module{cite}\Default{first}
+  \keychoice{display}{first,all,none}\Module{cite}\Initial{first}
     Decide whether to output the citation in the first/full usage only or
     always or never.
-  \keyval{pre}{text}\Module{cite}\Default{\cs*{nobreakspace}}
+  \keyval{pre}{text}\Module{cite}\Initial{\cs*{nobreakspace}}
     Arbitrary code directly output before the citation.
-  \keyval{cmd}{citation command}\Module{cite,group}\Default{\cs*{cite}}
+  \keyval{cmd}{citation command}\Module{cite,group}\Initial{\cs*{cite}}
     Choose the command with which grouped citations are printed.
-  \keyval{pre}{text}\Module{cite,group}\Default{,\textvisiblespace}
+  \keyval{pre}{text}\Module{cite,group}\Initial{,\textvisiblespace}
     Arbitrary code directly output before the citation in the grouped case.
 \end{options}
 
@@ -1413,13 +1413,13 @@ Maybe you want to add your acronyms to an index. In that case it is probably
 desirable to let \acro\ make this automatically.  In the simplest case just
 enable it:
 \begin{options}
-  \keychoice{use}{\default{true},false,indexed}\Module{index}\Default{false}
+  \keychoice{use}{\default{true},false,indexed}\Module{index}\Initial{false}
     \changedversion{3.5}Enable indexing.  If \code{indexed} is chosen only the
     acronyms for which the property \property{index} has been set are indexed.
     With \code{true} \emph{all} acronyms are indexed.
-  \keyval{cmd}{index command}\Module{index}\Default{\cs*{index}}
+  \keyval{cmd}{index command}\Module{index}\Initial{\cs*{index}}
     Choose a command for indexing.
-  \keyval{disable}{code}\Module{index}\Default{\cs*{def}\cs*{@}\{\}}
+  \keyval{disable}{code}\Module{index}\Initial{\cs*{def}\cs*{@}\{\}}
     Sometimes it is desirable to change the meaning of a command inside an
     index entry.  For the entries created by \acro\ this can be achieved with
     this option.
@@ -1430,17 +1430,17 @@ While these options set global behavior there are also properties to set them
 for an acronym individually.
 \begin{properties}
   %% index
-  \propval{index}{text}\Default
+  \propval{index}{text}\Initial
     This property allows to overwrite the automatic index entry with an
     arbitrary one.
   %% index-sort
-  \propval{index-sort}{text}\Default={sort}
+  \propval{index-sort}{text}\Initial={sort}
     If you use the option \option{index} every occurrence of an acronym is
     recorded to the index and sorted by its short form or (if set) by the
     value of the \property{sort} property.  This property allows to set an
     individual sorting option for the index.
   %% no-index
-  \propbool{no-index}\Default{true}
+  \propbool{no-index}\Initial{true}
     This property allows to exclude an acronym from being indexed.
 \end{properties}
 This manual is an example for the indexing feature.  Each acronym from
@@ -1454,14 +1454,14 @@ The main purpose of the concept of barriers is to be able to have \emph{local}
 lists of acronyms.  This concept does a little bit more than that, though,
 which should become clear from the following options:
 \begin{options}
-  \keybool{use}\Module{barriers}\Default{false}
+  \keybool{use}\Module{barriers}\Initial{false}
     Activate usage of barriers.  Otherwise the command \cs{acbarrier} just
     does nothing except writing a warning in the log.
-  \keybool{reset}\Module{barriers}\Default{false}
+  \keybool{reset}\Module{barriers}\Initial{false}
     When set to \code{true} the acronym usage is reset for all acronyms at a
     barrier.  The first use of \cs{ac} after a barrier will again look like
     the \cs{acf}.
-  \keybool{single}\Module{barriers}\Default{false}
+  \keybool{single}\Module{barriers}\Initial{false}
     When set to \code{true} a single usage of an acronym between two barriers
     with \cs{ac} will look according to the chosen style as explained in
     section~\vref{sec:single-appe-an}.  This option only has an effect when
@@ -1610,10 +1610,10 @@ When \acro\ is used together with the package
 \pkg{hyperref}~\cite{pkg:hyperref} then you can make use of the following
 option:
 \begin{options}
-  \keybool{make-links}\Default{false}
+  \keybool{make-links}\Initial{false}
     If this is activated then every short or alternative appearance of an
     acronym will be linked to its description in the list of acronyms.
-  \keybool{link-only-first}\Default{false}
+  \keybool{link-only-first}\Initial{false}
     \sinceversion{3.5}If this is activated in addition to \option{make-links}
     then \emph{only the first} short or alternative appearance of an acronym
     will be linked to its description in the list of acronyms.
@@ -1633,7 +1633,7 @@ user interface at the moment.  Contact me at \issues\ if you need it.
 Acronyms have the property \property{pdfstring}:
 \begin{properties}
   %% pdfstring
-  \propval{pdfstring}{pdfstring}\Default={short}
+  \propval{pdfstring}{pdfstring}\Initial={short}
     Used as \acs{pdf} string replacement for the short form in bookmarks when
     used together with the \pkg{hyperref}~\cite{pkg:hyperref} or the
     \pkg{bookmark} package~\cite{pkg:bookmark}.
@@ -1655,9 +1655,9 @@ if the property where not set.
 Some people like see comments in the \ac{pdf} when they're hovering with the
 mouse over the short form of an acronym.  This can be achieved.
 \begin{options}
-  \keybool{use}\Module{pdfcomments}\Default{false}
+  \keybool{use}\Module{pdfcomments}\Initial{false}
     This enables the creation of \ac{pdf} comments.
-  \keyval{cmd}{code}\Module{pdfcomments}\Default{\cs*{pdftooltip}\Marg{\#1}\Marg{\#2}}
+  \keyval{cmd}{code}\Module{pdfcomments}\Initial{\cs*{pdftooltip}\Marg{\#1}\Marg{\#2}}
     Chooses the command for actually creating the comment.  You must refer to
     the printed output in the \ac{pdf} with \code{\#1} and to the comment with
     \code{\#2}.  The default command \cs*{pdftooltip} is provided by the
@@ -1696,13 +1696,13 @@ about that simply don't load \pkg{accsupp} and ignore this section.
 You have a few options to be able to manipulate what \acro\ does here but I
 recommend to stay with the default settings:
 \begin{options}
-  \keybool{use}\Module{accsupp}\Default{true}
+  \keybool{use}\Module{accsupp}\Initial{true}
     When this is true and the package \pkg{accsupp} is loaded then
     accessibility support is used.
-   \keyval{options}{text}\Module{accsupp}\Default
+   \keyval{options}{text}\Module{accsupp}\Initial
     Additional option to be passed to \cs{BeginAccSupp}.  See the
     \pkg{accsupp} manual for possible settings.
-  \keyval{method}{method}\Module{accsupp}\Default{pdfstringdef}
+  \keyval{method}{method}\Module{accsupp}\Initial{pdfstringdef}
     The method used by \cs{BeginAccSupp}.  See the
     \pkg{accsupp} manual for possible values.
 \end{options}
@@ -1712,31 +1712,31 @@ of the acronym properties themselves.  You can choose these values
 individually by setting the corresponding properties:
 \begin{properties}
   %% short-acc
-  \propval{short-acc}{text}\Default={short}
+  \propval{short-acc}{text}\Initial={short}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the short form of the acronym.
   %% long-acc
-  \propval{long-acc}{text}\Default={long}
+  \propval{long-acc}{text}\Initial={long}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the long form of the acronym.
   %% alt-acc
-  \propval{alt-acc}{text}\Default={alt}
+  \propval{alt-acc}{text}\Initial={alt}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the alternative short form of the acronym.
   %% foreign-acc
-  \propval{foreign-acc}{text}\Default={foreign}
+  \propval{foreign-acc}{text}\Initial={foreign}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the foreign form of the acronym.
   %% extra-acc
-  \propval{extra-acc}{text}\Default={extra}
+  \propval{extra-acc}{text}\Initial={extra}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the extra information of the acronym.
   %% single-acc
-  \propval{single-acc}{text}\Default={long-acc}
+  \propval{single-acc}{text}\Initial={long-acc}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for a single appearance of the acronym.
   %% list-acc
-  \propval{list-acc}{text}\Default={list}
+  \propval{list-acc}{text}\Initial={list}
     Sets the \code{ActualText} property as presented by the \pkg{accsupp}
     package for the appearance in the list of acronyms.
 \end{properties}
@@ -1756,6 +1756,11 @@ accessibility support, too:
   }
 \end{sourcecode}
 
+\begin{bewareofthedog}
+  Please note that this mechanism is disabled for inner acronyms if you have
+  nested definitions.
+\end{bewareofthedog}
+
 \section{Localisation}\label{sec:localisation}
 There are places when \acro\ uses text strings which depend on the language of
 the document.  In order to recognize the language from \pkg{babel} of
@@ -1765,7 +1770,7 @@ the \pkg{translations}~\cite{pkg:translations}.
 If the language is detected incorrectly or you want \acro\ to use another
 language than it detects you can use the following option:
 \begin{options}
-  \keychoice{language}{auto,\meta{language}}\Default{auto}
+  \keychoice{language}{auto,\meta{language}}\Initial{auto}
     The default setting \code{auto} lets \acro\ detect the language setting
     automatically. Valid choices are all language names known to the package
     \pkg{translations}. Mostly just type your language and it should work.
@@ -1819,22 +1824,22 @@ The same is true for single line captions from the \pkg{caption} package.
 
 All these patches can be turned off:
 \begin{options}
-  \keybool{floats}\Module{patch}\Default{true}
+  \keybool{floats}\Module{patch}\Initial{true}
     En-/disable the \option{floats} patch.
-  \keybool{lists}\Module{patch}\Default{true}
+  \keybool{lists}\Module{patch}\Initial{true}
     En-/disable the \option{lists} patch for the table of contents, the list
     of figures and the list of tables.
-  \keybool{tabularx}\Module{patch}\Default{true}
+  \keybool{tabularx}\Module{patch}\Initial{true}
     En-/disable the \option{tabularx} patch.
-  \keybool{longtable}\Module{patch}\Default{true}
+  \keybool{longtable}\Module{patch}\Initial{true}
     \sinceversion{3.7}En-/disable the \option{longtable} patch.
-  \keybool{ltxtable}\Module{patch}\Default{true}
+  \keybool{ltxtable}\Module{patch}\Initial{true}
     En-/disable the \option{ltxtable} patch.
-  \keybool{tabu}\Module{patch}\Default{true}
+  \keybool{tabu}\Module{patch}\Initial{true}
     En-/disable the \option{tabu} patch.
-  \keybool{caption}\Module{patch}\Default{true}
+  \keybool{caption}\Module{patch}\Initial{true}
     En-/disable the \option{caption} patch.
-  \keybool{maketitle}\Module{patch}\Default{true}
+  \keybool{maketitle}\Module{patch}\Initial{true}
     \sinceversion{3.6}En-/disable the \option{maketitle} patch.
 \end{options}
 
@@ -1885,8 +1890,8 @@ to defines own such objects:
     \property{first-style}.
   \tmpl{footnote}
     A template for the first appearance where the long form is printed in a
-    footnote.  This template also conatains a command
-    \cs{acroendfootnote}\sinceversion{3.7} at the end of the foornote text
+    footnote.  This template also contains a command
+    \cs{acroendfootnote}\sinceversion{3.7} at the end of the footnote text
     which in its default definition does nothing.
   \tmpl{long}
     Display the long form of an acronym.
@@ -1923,7 +1928,7 @@ to defines own such objects:
     building the list.  This needs the \pkg{supertabular}
     package~\cite{pkg:supertabular} loaded.
   \tmpl{tabularray}
-    A\sinceversion{3.7a} style that uses a custom table environment
+    A\sinceversion{3.8} style that uses a custom table environment
     \env*{actblr} based on \env*{longtblr}. This needs the \pkg{tabularray}
     package~\cite{pkg:tabularray} loaded.
   \tmpl{tabular}
@@ -1934,6 +1939,16 @@ to defines own such objects:
     A style which mimicks the table of contents.  This style does not support
     page ranges.
 \end{templates}
+
+The templates \template{tabular}, \template{longtable}, and
+\template{supertabular} support the following option:
+\begin{options}
+  \keyval{colspec}{value}\Module{templates}%
+    \Initial{\code{>\{\cs*{bfseries}\}lp\{.7\cs*{linewidth}\}}}
+    \sinceversion{3.8}It enables you to easily adjust the column specification
+    of the standard table templates to your needs.  \emph{Please be aware that
+      you need \emph{exactly} two columns}.
+\end{options}
 
 \subsubsection{Heading templates}
 \begin{templates}
@@ -2266,23 +2281,23 @@ define and use additional endings.
 In general \cs{DeclareAcroEnding}\marg{foo}\marg{x}\marg{y} defines these
 options
 \begin{options}
-  \keyval*{short-\meta{foo}-ending}{value}\Default*{\meta{x}}
-  \keyval*{long-\meta{foo}-ending}{value}\Default*{\meta{y}}
+  \keyval*{short-\meta{foo}-ending}{value}\Initial*{\meta{x}}
+  \keyval*{long-\meta{foo}-ending}{value}\Initial*{\meta{y}}
 \end{options}
 and these properties
 \begin{properties}
-  \propval*{short-\meta{foo}}{value}\Default*{\meta{x}}
-  \propval*{short-\meta{foo}-form}{value}\Default*
-  \propval*{alt-\meta{foo}}{value}\Default*{\meta{x}}
-  \propval*{alt-\meta{foo}-form}{value}\Default*
-  \propval*{long-\meta{foo}}{value}\Default*{\meta{y}}
-  \propval*{long-\meta{foo}-form}{value}\Default*
-  \propval*{foreign-\meta{foo}}{value}\Default*{\meta{y}}
-  \propval*{foreign-\meta{foo}-form}{value}\Default*
-  \propval*{single-\meta{foo}}{value}\Default*{\meta{y}}
-  \propval*{single-\meta{foo}-form}{value}\Default*
-  \propval*{extra-\meta{foo}}{value}\Default*{\meta{y}}
-  \propval*{extra-\meta{foo}-form}{value}\Default*
+  \propval*{short-\meta{foo}}{value}\Initial*{\meta{x}}
+  \propval*{short-\meta{foo}-form}{value}\Initial*
+  \propval*{alt-\meta{foo}}{value}\Initial*{\meta{x}}
+  \propval*{alt-\meta{foo}-form}{value}\Initial*
+  \propval*{long-\meta{foo}}{value}\Initial*{\meta{y}}
+  \propval*{long-\meta{foo}-form}{value}\Initial*
+  \propval*{foreign-\meta{foo}}{value}\Initial*{\meta{y}}
+  \propval*{foreign-\meta{foo}-form}{value}\Initial*
+  \propval*{single-\meta{foo}}{value}\Initial*{\meta{y}}
+  \propval*{single-\meta{foo}-form}{value}\Initial*
+  \propval*{extra-\meta{foo}}{value}\Initial*{\meta{y}}
+  \propval*{extra-\meta{foo}-form}{value}\Initial*
 \end{properties}
 In addition another command is defined which is meant to be used in
 template definitions.
@@ -2311,16 +2326,16 @@ define and use additional articles.
 In general \cs{DeclareAcroArticle}\marg{foo}\marg{x} defines the
 option
 \begin{options}
-  \keyval*{\meta{foo}}{value}\Default*{\meta{x}}
+  \keyval*{\meta{foo}}{value}\Initial*{\meta{x}}
 \end{options}
 and these properties
 \begin{properties}
-  \propval*{short-\meta{foo}}{value}\Default*{\meta{x}}
-  \propval*{alt-\meta{foo}}{value}\Default*{\meta{x}}
-  \propval*{long-\meta{foo}}{value}\Default*{\meta{x}}
-  \propval*{foreign-\meta{foo}}{value}\Default*{\meta{x}}
-  \propval*{single-\meta{foo}}{value}\Default*{\meta{x}}
-  \propval*{extra-\meta{foo}}{value}\Default*{\meta{x}}
+  \propval*{short-\meta{foo}}{value}\Initial*{\meta{x}}
+  \propval*{alt-\meta{foo}}{value}\Initial*{\meta{x}}
+  \propval*{long-\meta{foo}}{value}\Initial*{\meta{x}}
+  \propval*{foreign-\meta{foo}}{value}\Initial*{\meta{x}}
+  \propval*{single-\meta{foo}}{value}\Initial*{\meta{x}}
+  \propval*{extra-\meta{foo}}{value}\Initial*{\meta{x}}
 \end{properties}
 In addition another command is defined which is meant to be used in
 template definitions.

@@ -199,7 +199,7 @@
     \begin {description}
       \acronymsmapF
         {
-          \item [ \acrowrite {short} \acroifT {alt} { / } \acrowrite {alt} ]
+          \item [ \acrowrite {short} \acroifT {alt} {/} \acrowrite {alt} ]
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
             \acrowrite {foreign}
@@ -215,6 +215,13 @@
     \end {description}
   }
 
+\tl_new:N \l_acro_table_colspec_tl
+\keys_define:nn {acro/templates}
+  {
+    colspec .tl_set:N  = \l_acro_table_colspec_tl ,
+    colspec .initial:n = {>{\bfseries}lp{.7\linewidth}}
+  }
+
 \NewAcroTemplate[list] {tabular}
   {
     \AcroNeedPackage {array}
@@ -223,7 +230,7 @@
         \AcroAddRow
           {
             \acrowrite {short}
-            \acroifT {alt} { / } \acrowrite {alt}
+            \acroifT {alt} {/} \acrowrite {alt}
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -242,7 +249,8 @@
     \acroheading
     \acropreamble
     \par \noindent
-    \begin {tabular} {>{\bfseries}lp{.7\linewidth}}
+    \exp_args:NnV
+    \begin {tabular} \l_acro_table_colspec_tl
       \AcronymTable
     \end {tabular}
   }
@@ -255,7 +263,7 @@
         \AcroAddRow
           {
             \acrowrite {short}
-            \acroifT {alt} { / } \acrowrite {alt}
+            \acroifT {alt} {/} \acrowrite {alt}
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -274,44 +282,77 @@
     \acroheading
     \acropreamble
     \par \noindent
-    \begin {longtable} {>{\bfseries}lp{.7\linewidth}}
+    \exp_args:NnV
+    \begin {longtable} \l_acro_table_colspec_tl
       \AcronymTable
     \end {longtable}
     \addtocounter {table} {-1}
   }
-  
-% \NewAcroTemplate[list] {longtabu}
-%   {
-%     \AcroNeedPackage {array,longtable,tabu}
-%     \acronymsmapF
-%       {
-%         \AcroAddRow
-%           {
-%             \acrowrite {short}
-%             \acroifT {alt} { / } \acrowrite {alt}
-%             &
-%             \acrowrite {list}
-%             \acroifanyT {foreign,extra} {~(}
-%             \acrowrite {foreign}
-%             \acroifallT {foreign,extra} {,~}
-%             \acrowrite {extra}
-%             \acroifanyT {foreign,extra} {)}
-%             \acropagefill
-%             \acropages
-%               { \acrotranslate {page} \nobreakspace }
-%               { \acrotranslate {pages} \nobreakspace }
-%             \strut \tabularnewline
-%           }
-%       }
-%       { \AcroRerun }
-%     \acroheading
-%     \acropreamble
-%     \par \noindent
-%     \begin {longtabu} {>{\bfseries}lX[l]}
-%       \AcronymTable
-%     \end {longtabu}
-%     \addtocounter {table} {-1}
-%   }
+
+\NewAcroTemplate[list] {supertabular}
+  {
+    \AcroNeedPackage {array,supertabular}
+    \acronymsmapF
+      {
+        \AcroAddRow
+          {
+            \acrowrite {short}
+            \acroifT {alt} {/} \acrowrite {alt}
+            &
+            \acrowrite {list}
+            \acroifanyT {foreign,extra} {~(}
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
+            \acroifanyT {foreign,extra} {)}
+            \acropagefill
+            \acropages
+              { \acrotranslate {page} \nobreakspace }
+              { \acrotranslate {pages} \nobreakspace }
+            \tabularnewline
+          }
+      }
+      { \AcroRerun }  
+    \acroheading
+    \acropreamble
+    \par \noindent
+    \exp_args:NnV
+    \begin {supertabular} \l_acro_table_colspec_tl
+      \AcronymTable
+    \end {supertabular}
+  }
+
+\NewAcroTemplate[list] {xltabular}
+  {
+    \AcroNeedPackage {xltabular}
+    \acronymsmapF
+      {
+        \AcroAddRow
+          {
+            \acrowrite {short}
+            \acroifT {alt} {/} \acrowrite {alt}
+            &
+            \acrowrite {list}
+            \acroifanyT {foreign,extra} {~(}
+            \acrowrite {foreign}
+            \acroifallT {foreign,extra} {,~}
+            \acrowrite {extra}
+            \acroifanyT {foreign,extra} {)}
+            \acropagefill
+            \acropages
+              { \acrotranslate {page} \nobreakspace }
+              { \acrotranslate {pages} \nobreakspace }
+            \tabularnewline
+          }
+      }
+      { \AcroRerun }  
+    \acroheading
+    \acropreamble
+    \par \noindent
+    \begin {xltabular} {\linewidth} {>{\bfseries}lX}
+      \AcronymTable
+    \end {xltabular}
+  }
 
 \hook_gput_code:nnn {package/tabularray/after} {acro}
   {
@@ -335,7 +376,7 @@
         \AcroAddRow
           {
             \acrowrite {short}
-            \acroifT {alt} { / } \acrowrite {alt}
+            \acroifT {alt} {/} \acrowrite {alt}
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -358,38 +399,6 @@
       \AcronymTable
     \end {actblr}
   }
-  
-\NewAcroTemplate[list] {supertabular}
-  {
-    \AcroNeedPackage {array,supertabular}
-    \acronymsmapF
-      {
-        \AcroAddRow
-          {
-            \acrowrite {short}
-            \acroifT {alt} { / } \acrowrite {alt}
-            &
-            \acrowrite {list}
-            \acroifanyT {foreign,extra} {~(}
-            \acrowrite {foreign}
-            \acroifallT {foreign,extra} {,~}
-            \acrowrite {extra}
-            \acroifanyT {foreign,extra} {)}
-            \acropagefill
-            \acropages
-              { \acrotranslate {page} \nobreakspace }
-              { \acrotranslate {pages} \nobreakspace }
-            \tabularnewline
-          }
-      }
-      { \AcroRerun }  
-    \acroheading
-    \acropreamble
-    \par \noindent
-    \begin {supertabular} {>{\bfseries}lp{.7\linewidth}}
-      \AcronymTable
-    \end {supertabular}
-  }
 
 \let\l@acro\l@figure
   
@@ -404,7 +413,7 @@
         \contentsline {acro}
           {
             \numberline
-              { \acrowrite {short} \acroifT {alt} { / } \acrowrite {alt} }
+              { \acrowrite {short} \acroifT {alt} {/} \acrowrite {alt} }
               {
                 \acrowrite {list}
                 \acroifanyT {foreign,extra} {~(}
@@ -429,7 +438,7 @@
     \acronymsmapF
       {
         \contentsline { \acroifchapterTF {chapter} {section} }
-          { \acrowrite {short} \acroifT {alt} { / } \acrowrite {alt} }
+          { \acrowrite {short} \acroifT {alt} {/} \acrowrite {alt} }
           {}{}
         \contentsline { \acroifchapterF {sub} section }
           {

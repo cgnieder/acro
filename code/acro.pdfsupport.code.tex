@@ -42,8 +42,8 @@
               { \hyperlink {##1} { \XeTeXLinkBox {##2} } }
           }
           { \cs_set_eq:NN \__acro_hyper_link:nn \hyperlink }
-        \cs_set:Npn \__acro_hyper_target:nn ##1##2
-          { \raisebox {3ex} [0pt] { \hypertarget {##1} { } } ##2 }
+        \cs_set_protected:Npn \__acro_hyper_target:nn ##1##2
+          { \Hy@raisedlink { \hypertarget {##1} { } } ##2 }
         \cs_set_eq:NN \__acro_hyper_back_link:nn \__acro_hyper_link:nn
         \cs_set_eq:NN \__acro_hyper_back_target:nn \__acro_hyper_target:nn
       }
@@ -68,7 +68,9 @@
             }
           }
           {
-            \bool_if:NTF \l__acro_list_bool
+            \bool_lazy_and:nnTF
+              { \l__acro_list_bool }
+              { \int_compare_p:nNn { \l_acro_nest_level_int } = 0 }
               {
                 \__acro_hyper_target:en
                   {
@@ -148,10 +150,14 @@
   {
     \bool_if:NTF \l__acro_accsupp_bool
       {
-        \__acro_do_accsupp:Vnn
-          \l__acro_acc_supp_options_tl
-          {#1}
+        \int_compare:nNnTF { \l_acro_nest_level_int } > 1
           {#2}
+          {
+            \__acro_do_accsupp:Vnn
+              \l__acro_acc_supp_options_tl
+              {#1}
+              {#2}
+          }
       }
       {#2}
   }

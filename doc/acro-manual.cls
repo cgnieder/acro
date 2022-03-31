@@ -69,7 +69,7 @@
     acroifanyF, acroifanyT, acroifanyTF, acroifchapterF, acroifchapterT,
     acroifchapterTF, acroiffirstF, acroiffirstT, acroiffirstTF,
     acropagefill, acropages, acroplural, acropreamble, acrotranslate,
-    acrowrite,
+    acrowrite,acrofield,
     AcroAddRow, AcroNeedPackage, AcronymTable, AcroRerun, AcroStyle,
     NewAcroTemplate, RenewAcroTemplate, UseAcroTemplate,
     % declaring stuff:
@@ -100,9 +100,13 @@
 }
 
 \DeclareTranslation{English}{cnltx-toc}{Table of contents}
+\DeclareTranslation{English}{cnltx-introduced}{since}
+\DeclareTranslation{english}{cnltx-default}{Initial}
 
 \renewcommand*\arg[1]{\textcolor{argument}{\code{#1}}}
-
+\renewcommand*\meta[1]{%
+  $\langle$\textcolor{meta}{{\argumentformat#1\/}}$\rangle$%
+}
 \newidxcmd\sym{\code{#1}}[ (symbol)]
 
 \renewcommand*\cnltx@module@text[2]{%
@@ -200,7 +204,7 @@
   }
   {\endcnltxlist}
 
-\DeclareTranslation{english}{cnltx-default}{Initial}
+\NewCommandCopy\Initial\Default
 
 \protected\def\@versionstar{\raisebox{-.25em}{*}}
 \newcommand\versionstar{\texorpdfstring{\@versionstar}{*}}
@@ -651,5 +655,6 @@
 \acro@add@version{2021-01-16}{3.5}
 \acro@add@version{2022-01-04}{3.6}
 \acro@add@version{2022-01-27}{3.7}
+\acro@add@version{2022-03-28}{3.8}
 
 \endinput

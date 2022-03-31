@@ -369,4 +369,9 @@ The Current Maintainer of this work is Clemens Niederberger.
                   - prepare for `translations' v2.0
                   - reset `table' counter in `longtable' list template
                   - drop `longtabu' list template
-                  - add `tabularray' list template
+                  - add `tabularray' and `xltabular' list templates
+                  - add \l_acro_nest_level_int
+                  - new option `acro/templates/colspec'
+                  - use \Hy@raisedlink for raising links (even if this will
+                    effectively disable raising in a longtable which sets
+                    \baselineskip = 0)

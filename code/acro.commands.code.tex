@@ -279,6 +279,8 @@
 \tl_new:N \l_acro_id_tl
 \tl_new:N \AcronymID
 
+\int_new:N \l_acro_nest_level_int
+
 % #1: csname
 % #2: xparse csname
 % #3: action
@@ -294,6 +296,7 @@
           { base \__acro_remove_bs:N ##1  } {##2}
           {
             \acro_begin:
+              \int_incr:N \l_acro_nest_level_int
               \l__acro_begin_command_hook_tl
               \cs_set:Npn \nospace { \exp:w \exp_end_continue_f:w }
               \acro_check_definition:nT
@@ -307,6 +310,7 @@
                     { \l__acro_star_bool }
                     { \acro_case_insensitive:n {####1} }
                   \l__acro_end_command_hook_tl
+                  \int_decr:N \l_acro_nest_level_int
                 }
             \acro_end:
           }

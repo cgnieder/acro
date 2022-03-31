@@ -9,32 +9,35 @@
 \msg_new:nnn {acro} {threshold}
   { The~ sequentes~ threshold~ needs~ to~ be~ at~ least~ 3. }
 
-\group_begin:
-\char_set_catcode_other:N \@
-
 % #1: id
 \cs_new_protected:Npn \acro_record_page:n #1
   {
-    % \hook_gput_next_code:nn {shipout/after} {
-      \__acro_record_page:n {#1}
-    % }
-  }
-
-\cs_new_protected:Npn \__acro_record_page:n #1
-  {
-    \seq_gput_right:ce {g__acro_#1_pages_seq}
+    \__acro_record_page:n {#1}
+    \hook_gput_code:nnn {enddocument} {acro}
       {
-        \int_use:N \g_shipout_totalpages_int
-        @ \int_use:N \g_acro_barrier_int
-        @ \thepage
-      }
-    \seq_gremove_duplicates:c {g__acro_#1_pages_seq}
-    \acro_at_end_document:n
-      {
+        \seq_gremove_duplicates:c {g__acro_#1_pages_seq}
         \acro_property_set:nnx {#1} {pages}
           { \seq_use:cn {g__acro_#1_pages_seq} {|} }
       }
   }
+
+\cs_new_protected:Npn \__acro_record_page:n #1
+  {
+    \iow_shipout_x:Nn \@auxout
+      {
+        \token_to_str:N \ACRO {recordpage}
+          {#1}
+          { \int_use:N \g_shipout_totalpages_int }
+          { \int_use:N \g_acro_barrier_int }
+          { \thepage }
+      }
+  }
+
+\group_begin:
+\char_set_catcode_other:N \@
+
+\__acro_auxlist_field_new:cpn {recordpage} #1#2#3#4
+  { \seq_gput_right:ce {g__acro_#1_pages_seq} {#2@#3@#4} }
 
 \cs_new:Npn \__acro_page_name:w #1@#2@#3 \q_stop
   {
@@ -78,12 +81,16 @@
   {
     \seq_set_split:Nnx \l__acro_tmpa_seq {|}
       { \acro_property_get:nn {#1} {pages} }
-    \use:e
+    \seq_remove_all:Nn \l__acro_tmpa_seq {}
+    \seq_if_empty:NF \l__acro_tmpa_seq
       {
-        \exp_last_unbraced:Ne
-        \__acro_page_name:w
-        { \seq_item:Nn \l__acro_tmpa_seq {1} }
-        \q_stop
+        \use:e
+          {
+            \exp_last_unbraced:Ne
+            \__acro_page_name:w
+            { \seq_item:Nn \l__acro_tmpa_seq {1} }
+            \q_stop
+          }
       }
   }
 
@@ -94,11 +101,12 @@
   {
     \seq_set_split:Nnx \l__acro_tmpa_seq {|}
       { \acro_property_get:nn {#1} {pages} }
+    \seq_remove_all:Nn \l__acro_tmpa_seq {}
     \intarray_gzero:N \g__acro_pages_intarray
     \seq_map_inline:Nn \l__acro_tmpa_seq
       {
         \intarray_gset:Nnn \g__acro_pages_intarray
-          { \__acro_absolute_page:w ##1 \q_stop + 1 }
+          { \__acro_absolute_page:w ##1 \q_stop }
           {
             \bool_if:NTF \l__acro_list_local_bool
               {
@@ -131,7 +139,7 @@
       {
         % the current page
         \int_set:Nn \l__acro_tmpa_int
-          { \__acro_absolute_page:w ##1 \q_stop + 1 }
+          { \__acro_absolute_page:w ##1 \q_stop }
         \int_compare:nNnTF \l__acro_tmpa_int = 1
           { % first page, start range
             \seq_put_right:Ne \l__acro_tmpb_seq
