@@ -70,7 +70,7 @@
   foreign = exempli gratia ,
   foreign-babel  = latin ,
   short-format = \textit ,
-  foreign-format = \textit
+  foreign-format = \latin
 }
 \DeclareAcronym{etc}{
   short = etc\acdot ,
@@ -189,6 +189,15 @@
     friends.} ,
   tag = glossary , no-index
 }
+\DeclareAcronym{module}{
+  long = {A \module*{module} is something like a superordinate category for
+    options.  There are several such modules like \module{list} or
+    \module{pages} for example.  Options belonging to a module typically
+    influence certain objects.  For instance options belonging to the
+    \module{pages} influence how page numbers in the list of acronyms are
+    handled.} ,
+  tag = glossary , no-index
+}
 \DeclareAcronym{load-time option}{
   long = {A load-time \option*{option} is a package option of \acro\ which
     \emph{must} be set as option to
@@ -196,9 +205,9 @@
   tag = glossary , no-index
 }
 \DeclareAcronym{template}{
-  long = {A template determines how different objects of \acro\ are printed.
-    This includes the acronyms themselves but also for example the list of
-    acronyms as a whole.} ,
+  long = {A \template*{template} determines how different objects of \acro\
+    are printed.  This includes the acronyms themselves but also for example
+    the list of acronyms as a whole.} ,
   tag = glossary , no-index
 }
 \DeclareAcronym{articles}{
@@ -228,7 +237,31 @@
 \license
 
 \section{Glossary}
-\printacronyms[include=glossary,template=glossary]
+\printacronyms[include=glossary,template=glossary,preamble=This manual
+repeatedly uses a number of terms which are explained in this section.]
+
+\section{Reading the manual}
+This manual uses a certain color code in order to be able to distinguish
+options, properties and templates visually from each other.
+\begin{options}
+  \keyval*{option}{value}
+    Options are displayed in \textcolor{option}{yellow}. For the description
+    of options a certain nomenclature is used which is explained in
+    section~\ref{sec:setting-options}.  Some options belong to module which are
+    displayed in \textcolor{module}{red}.
+\end{options}
+\begin{properties}
+  \propval*{property}{value}
+    In order to distinguish them visually from options properties are
+    displayed in \textcolor{property}{blue}.  The nomenclature of properties
+    is quite similar to the one of the options so it is not explained
+    explicilty but should be clear by analogy.
+\end{properties}
+\begin{templates}
+  \tmpl*{template}
+    In order to distinguish them visually from options and properties
+    templates are displayed in \textcolor{template}{green}.
+\end{templates}
 
 \section{\acro\ for the impatient}\label{sec:acro-impatient}
 
@@ -328,7 +361,7 @@ section~\ref{sec:load-time-options} have to be set up either with this command
     An option with a determined set of choices. The underlined value is
     chosen if the option is given without value.
   \keybool*{option}
-    A boolean option with only the choices \code{true} and \code{false}.
+    A boolean option with the only choices \code{true} and \code{false}.
   \opt*{option}\Module{module}
     An option at a deeper level belonging to the module \module*{module}.
 \end{options}

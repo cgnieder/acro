@@ -30,7 +30,7 @@
 
 % setup package:
 \tl_const:Nn \c_acro_package_name_tl {acro}
-\tl_const:Nn \c_acro_date_tl {2022/03/31}
+\tl_const:Nn \c_acro_date_tl {2022/04/01}
 \tl_const:Nn \c_acro_version_major_number_tl {3}
 \tl_const:Nn \c_acro_version_minor_number_tl {8}
 \tl_const:Nn \c_acro_version_subrelease_tl   {}
@@ -5321,8 +5321,8 @@
       {
         \space
           (
-            \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} ~ }
-            \acroifT {foreign} { \acrowrite {foreign} :~ }
+            \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} ,~ }
+            \acroifT {foreign} { \acrowrite {foreign} ,~ }
             \acrowrite {long}
             \acrogroupcite
           )
@@ -5336,7 +5336,7 @@
       {
         \acfootnote
           {
-            \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} :~ }
+            \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} ,~ }
             \acroifT {foreign} { \acrowrite {foreign} ,~ }
             \acrowrite {long}
             \acrogroupcite
@@ -5620,7 +5620,7 @@
   }
 
 \let\l@acro\l@figure
-  
+
 \NewAcroTemplate [list] {lof}
   {
     \acroheading

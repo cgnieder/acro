@@ -102,8 +102,8 @@
       {
         \space
           (
-            \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} ~ }
-            \acroifT {foreign} { \acrowrite {foreign} :~ }
+            \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} ,~ }
+            \acroifT {foreign} { \acrowrite {foreign} ,~ }
             \acrowrite {long}
             \acrogroupcite
           )
@@ -117,7 +117,7 @@
       {
         \acfootnote
           {
-            \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} :~ }
+            \acroifT {alt} { \acrotranslate {or} ~ \acrowrite {alt} ,~ }
             \acroifT {foreign} { \acrowrite {foreign} ,~ }
             \acrowrite {long}
             \acrogroupcite
@@ -401,7 +401,7 @@
   }
 
 \let\l@acro\l@figure
-  
+
 \NewAcroTemplate [list] {lof}
   {
     \acroheading

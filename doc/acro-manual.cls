@@ -103,6 +103,8 @@
 \DeclareTranslation{English}{cnltx-introduced}{since}
 \DeclareTranslation{english}{cnltx-default}{Initial}
 
+\patchcmd\cnltx@tableofcontents{\RaggedRight}{\raggedright}{}{}
+
 \renewcommand*\arg[1]{\textcolor{argument}{\code{#1}}}
 \renewcommand*\meta[1]{%
   $\langle$\textcolor{meta}{{\argumentformat#1\/}}$\rangle$%
@@ -119,6 +121,7 @@
   \endgroup
 }
 
+\colorlet{module}{cnltxred}
 \colorlet{property}{cnltxblue}
 \newidxcmd\property{\code{\textcolor{property}{#1}}}[ (property)]
 \newrobustcmd*\prop{\@ifstar{\cnltx@prop@star}{\cnltx@prop@nostar}}
@@ -272,45 +275,28 @@
   #1%
 }
 
-\newcommand*\acroman@readoptions[1]{%
-  \catcode`\^^M=13
-  \acroman@read@options{#1}%
-}
-
-\begingroup
-\catcode`\^^M=13
-\gdef\acroman@read@options#1#2^^M{%
-  \endgroup
-  \ifblank{#2}{}{\acroman@read@options@#2}%
-  #1%
-  \XSIMfilewritestart*{\jobname.tmp}%
-}%
-\endgroup
-\def\acroman@read@options@[#1]{\pgfqkeys{/cnltx}{#1}}
-
-\RenewDocumentEnvironment{sourcecode}{}
-  {%
-    \begingroup
-    \acroman@readoptions{%
-      \setlength\cnltx@sidebysidewidth
-        {\dimexpr .45\columnwidth -\lst@xleftmargin -\lst@xrightmargin\relax}%
-      \expanded{%
-        \noexpand\lstset{
-          style=cnltx,
-          \ifboolexpe{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
-            {linewidth=\cnltx@sidebysidewidth,}{}%
-          \expandonce\cnltx@local@listings@options
-        }%
-      }%
-      \XSIMgobblechars{2}%
+\RenewDocumentEnvironment{sourcecode}{!o}{%
+  \setlength\cnltx@sidebysidewidth
+    {\dimexpr .45\columnwidth -\lst@xleftmargin -\lst@xrightmargin\relax}%
+  \expanded{%
+    \noexpand\lstset{
+      style=cnltx,
+      \ifboolexpe{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
+        {linewidth=\cnltx@sidebysidewidth,}{}%
+      \expandonce\cnltx@local@listings@options
     }%
-  }
-  {%
-    \XSIMfilewritestop
-    \cnltxcode[breakable]%
-    \lstinputlisting[style=cnltx]{\jobname.tmp}%
-    \endcnltxcode
-  }
+  }%
+  \XSIMgobblechars{2}%
+  \IfValueT{#1}{\pgfqkeys{/cnltx}{#1}}%
+    \IfNoValueTF{#1}
+      {\XSIMfilewritestart*{\jobname.tmp}}
+      {\XSIMfilewritestart{\jobname.tmp}}%
+}{%
+  \XSIMfilewritestop
+  \cnltxcode[breakable]%
+  \lstinputlisting[style=cnltx]{\jobname.tmp}%
+  \endcnltxcode
+}
 
 \RenewDocumentEnvironment{example}{!o}{%
   \setlength\cnltx@sidebysidewidth
@@ -329,34 +315,32 @@
       {\XSIMfilewritestart*{\jobname.tmp}}
       {\XSIMfilewritestart{\jobname.tmp}}%
 }{%
-    \XSIMfilewritestop
-    \ifbool{cnltx@sidebyside}
-      {%
-        \cnltxcode
-        \noindent
-        \minipage[c]{\cnltx@sidebysidewidth}%
-          \cnltx@pre@source@hook
-          \lstinputlisting[style=cnltx] {\jobname.tmp}%
-          \cnltx@after@source@hook
-        \endminipage\hfill
-        \minipage[c]{\cnltx@sidebysidewidth}%
-          \cnltx@pre@example@hook
-          \input {\jobname.tmp}%
-          \cnltx@after@example@hook
-        \endminipage
-      }
-      {%
-        \cnltxcode[breakable]%
-        \cnltx@pre@source@hook
-        \lstinputlisting{\jobname.tmp}%
-        \cnltx@after@source@hook
-        \tcblower
-        \cnltx@pre@example@hook
-        \input {\jobname.tmp}%
-        \cnltx@after@example@hook
-      }%
-    \endcnltxcode
-  }
+  \XSIMfilewritestop
+  \ifbool{cnltx@sidebyside}{%
+    \cnltxcode
+    \noindent
+    \minipage[c]{\cnltx@sidebysidewidth}%
+      \cnltx@pre@source@hook
+      \lstinputlisting[style=cnltx] {\jobname.tmp}%
+      \cnltx@after@source@hook
+    \endminipage\hfill
+    \minipage[c]{\cnltx@sidebysidewidth}%
+      \cnltx@pre@example@hook
+      \input {\jobname.tmp}%
+      \cnltx@after@example@hook
+    \endminipage
+  }{%
+    \cnltxcode[breakable]%
+    \cnltx@pre@source@hook
+    \lstinputlisting{\jobname.tmp}%
+    \cnltx@after@source@hook
+    \tcblower
+    \cnltx@pre@example@hook
+    \input {\jobname.tmp}%
+    \cnltx@after@example@hook
+  }%
+  \endcnltxcode
+}
 
 \RequirePackage[
   backend=biber,
@@ -430,12 +414,13 @@
 }
 
 \NewAcroTemplate[list]{glossary}{%
+  \acropreamble
   \begin{description}
     \acronymsmapF{%
       \item[\sffamily\acrowrite{short}] \acrowrite{long}%
     }%
     { \item \AcroRerun }%
-  \end {description}
+  \end{description}
 }
 
 % ----------------------------------------------------------------------------
@@ -540,7 +525,8 @@
 
 \pdfstringdefDisableCommands{%
   \pdfdisable\template{#1}%
-  \pdfdisable\property{#1}
+  \pdfdisable\property{#1}%
+  \pdfdisable\module{#1}%
   \pdfdisable\cs{\string\\#1}%
   \pdfdisable\cmd{\string\\#1}%
   \pdfdisable\option{#1}%
