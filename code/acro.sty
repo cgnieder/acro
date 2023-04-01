@@ -3866,11 +3866,11 @@
 
 \tl_new:N \l__acro_list_name_tl
 
+\tl_new:N \l__acro_list_label_tl
+
 \cs_new_protected:Npn \acro_list_label:
   {
-    \acroformat {list-label} {
-      \acrowrite {short} \acroifT {alt} {/} \acrowrite {alt}
-    }
+    \acroformat {list-label} { \tl_use:N \l__acro_list_label_tl }
   }
 
 % --------------------------------------------------------------------------
@@ -3895,9 +3895,12 @@
     postamble    .initial:n   = ,
     name         .tl_set:N    = \l__acro_list_name_tl ,
     name         .initial:n   = \acro_translate:n {list-name} ,
+    label        .tl_set:N    = \l__acro_list_label_tl ,
+    label        .initial:n   = 
+      \acrowrite {short} \acroifT {alt} {/} \acrowrite {alt} ,
     pages        .meta:nn     = {acro/pages} {#1} ,
     format       .code:n      = 
-      \keys_precompile:nnN {acro/format} {#1} \l__acro_list_format_keys_tl
+      \keys_precompile:nnN {acro/format} {#1} \l__acro_list_format_keys_tl 
   }
 
 \acro_if_komascript:TF
