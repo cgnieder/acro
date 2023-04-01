@@ -835,6 +835,8 @@
 \NewExpandableDocumentCommand \acrolistname {}
   { \tl_use:N \l__acro_list_name_tl }
 
+\NewDocumentCommand \acrolistlabel {} { \acro_list_label: }
+
 % --------------------------------------------------------------------------
 % cmmands for use in templates:
 \NewDocumentCommand \acronymsmapTF {+m+m+m}
@@ -3721,6 +3723,7 @@
 \seq_new:N \g__acro_list_seq
 
 \tl_new:N \l__acro_list_tl
+\tl_new:N \l__acro_list_format_keys_tl
 
 \clist_new:N \l__acro_tag_include_clist
 \clist_new:N \l__acro_tag_exclude_clist
@@ -3862,7 +3865,13 @@
   { \tl_use:N \l__acro_postamble_tl }
 
 \tl_new:N \l__acro_list_name_tl
-\tl_new:N \l__acro_list_format_keys_tl
+
+\cs_new_protected:Npn \acro_list_label:
+  {
+    \acroformat {list-label} {
+      \acrowrite {short} \acroifT {alt} {/} \acrowrite {alt}
+    }
+  }
 
 % --------------------------------------------------------------------------
 \keys_define:nn {acro/list}
@@ -5424,12 +5433,7 @@
     \begin {description}
       \acronymsmapF
         {
-          \item [
-            \acroformat{list-label} {
-              \acrowrite {short}
-              \acroifT {alt} {/} \acrowrite {alt}
-            }
-          ]
+          \item [ \acrolistlabel ]
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
             \acrowrite {foreign}
@@ -5459,10 +5463,7 @@
       {
         \AcroAddRow
           {
-            \acroformat{list-label} {
-              \acrowrite {short}
-              \acroifT {alt} {/} \acrowrite {alt}
-            }
+            \acrolistlabel
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -5494,10 +5495,7 @@
       {
         \AcroAddRow
           {
-            \acroformat{list-label} {
-              \acrowrite {short}
-              \acroifT {alt} {/} \acrowrite {alt}
-            }
+            \acrolistlabel
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -5530,10 +5528,7 @@
       {
         \AcroAddRow
           {
-            \acroformat{list-label} {
-              \acrowrite {short}
-              \acroifT {alt} {/} \acrowrite {alt}
-            }
+            \acrolistlabel
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -5565,10 +5560,7 @@
       {
         \AcroAddRow
           {
-            \acroformat{list-label} {
-              \acrowrite {short}
-              \acroifT {alt} {/} \acrowrite {alt}
-            }
+            \acrolistlabel
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -5613,10 +5605,7 @@
       {
         \AcroAddRow
           {
-            \acroformat{list-label} {
-              \acrowrite {short}
-              \acroifT {alt} {/} \acrowrite {alt}
-            }
+            \acrolistlabel
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -5654,10 +5643,7 @@
           {
             \numberline
               {
-                \acroformat {list-label} {
-                  \acrowrite {short}
-                  \acroifT {alt} {/} \acrowrite {alt}
-                }
+                \acrolistlabel
               }
               {
                 \acrowrite {list}
@@ -5683,12 +5669,7 @@
     \acronymsmapF
       {
         \contentsline { \acroifchapterTF {chapter} {section} }
-          { 
-            \acroformat{list-label} {
-              \acrowrite {short}
-              \acroifT {alt} {/} \acrowrite {alt}
-            }
-          } 
+          { \acrolistlabel } 
           {}{}
         \contentsline { \acroifchapterF {sub} section }
           {

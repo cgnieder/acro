@@ -7,6 +7,7 @@
 \seq_new:N \g__acro_list_seq
 
 \tl_new:N \l__acro_list_tl
+\tl_new:N \l__acro_list_format_keys_tl
 
 \clist_new:N \l__acro_tag_include_clist
 \clist_new:N \l__acro_tag_exclude_clist
@@ -148,7 +149,13 @@
   { \tl_use:N \l__acro_postamble_tl }
 
 \tl_new:N \l__acro_list_name_tl
-\tl_new:N \l__acro_list_format_keys_tl
+
+\cs_new_protected:Npn \acro_list_label:
+  {
+    \acroformat {list-label} {
+      \acrowrite {short} \acroifT {alt} {/} \acrowrite {alt}
+    }
+  }
 
 % --------------------------------------------------------------------------
 \keys_define:nn {acro/list}
