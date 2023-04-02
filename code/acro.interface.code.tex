@@ -187,6 +187,7 @@
     \group_begin:
       \IfNoValueF {#1}
         { \keys_set:nn {acro/list} {#1} }
+      \tl_use:N \l__acro_list_format_keys_tl
       \acro_list:
     \group_end:
   }
@@ -199,6 +200,8 @@
 
 \NewExpandableDocumentCommand \acrolistname {}
   { \tl_use:N \l__acro_list_name_tl }
+
+\NewDocumentCommand \acrolistlabel {} { \acro_list_label: }
 
 % --------------------------------------------------------------------------
 % cmmands for use in templates:

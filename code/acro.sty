@@ -821,6 +821,7 @@
     \group_begin:
       \IfNoValueF {#1}
         { \keys_set:nn {acro/list} {#1} }
+      \tl_use:N \l__acro_list_format_keys_tl
       \acro_list:
     \group_end:
   }
@@ -833,6 +834,8 @@
 
 \NewExpandableDocumentCommand \acrolistname {}
   { \tl_use:N \l__acro_list_name_tl }
+
+\NewDocumentCommand \acrolistlabel {} { \acro_list_label: }
 
 % --------------------------------------------------------------------------
 % cmmands for use in templates:
@@ -1887,6 +1890,7 @@
 \DeclareAcroProperty {foreign-format}
 % \DeclareAcroProperty {single-format}
 \DeclareAcroProperty {list-format}
+\DeclareAcroProperty {list-label-format}
 \DeclareAcroProperty {extra-format}
 
 % Accessibility:
@@ -2198,6 +2202,7 @@
 \acro_new_format:n {extra}
 \acro_new_format:n {foreign}
 \acro_new_format:n {list}
+\acro_new_format:n {list-label}
 \acro_new_format:n {first-long}
 
 \keys_define:nn {acro}
@@ -3718,6 +3723,7 @@
 \seq_new:N \g__acro_list_seq
 
 \tl_new:N \l__acro_list_tl
+\tl_new:N \l__acro_list_format_keys_tl
 
 \clist_new:N \l__acro_tag_include_clist
 \clist_new:N \l__acro_tag_exclude_clist
@@ -3860,6 +3866,13 @@
 
 \tl_new:N \l__acro_list_name_tl
 
+\tl_new:N \l__acro_list_label_tl
+
+\cs_new_protected:Npn \acro_list_label:
+  {
+    \acroformat {list-label} { \tl_use:N \l__acro_list_label_tl }
+  }
+
 % --------------------------------------------------------------------------
 \keys_define:nn {acro/list}
   {
@@ -3882,7 +3895,12 @@
     postamble    .initial:n   = ,
     name         .tl_set:N    = \l__acro_list_name_tl ,
     name         .initial:n   = \acro_translate:n {list-name} ,
-    pages        .meta:nn     = {acro/pages} {#1}
+    label        .tl_set:N    = \l__acro_list_label_tl ,
+    label        .initial:n   = 
+      \acrowrite {short} \acroifT {alt} {/} \acrowrite {alt} ,
+    pages        .meta:nn     = {acro/pages} {#1} ,
+    format       .code:n      = 
+      \keys_precompile:nnN {acro/format} {#1} \l__acro_list_format_keys_tl 
   }
 
 \acro_if_komascript:TF
@@ -5418,7 +5436,7 @@
     \begin {description}
       \acronymsmapF
         {
-          \item [ \acrowrite {short} \acroifT {alt} {/} \acrowrite {alt} ]
+          \item [ \acrolistlabel ]
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
             \acrowrite {foreign}
@@ -5448,8 +5466,7 @@
       {
         \AcroAddRow
           {
-            \acrowrite {short}
-            \acroifT {alt} {/} \acrowrite {alt}
+            \acrolistlabel
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -5481,8 +5498,7 @@
       {
         \AcroAddRow
           {
-            \acrowrite {short}
-            \acroifT {alt} {/} \acrowrite {alt}
+            \acrolistlabel
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -5515,8 +5531,7 @@
       {
         \AcroAddRow
           {
-            \acrowrite {short}
-            \acroifT {alt} {/} \acrowrite {alt}
+            \acrolistlabel
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -5548,8 +5563,7 @@
       {
         \AcroAddRow
           {
-            \acrowrite {short}
-            \acroifT {alt} {/} \acrowrite {alt}
+            \acrolistlabel
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -5594,8 +5608,7 @@
       {
         \AcroAddRow
           {
-            \acrowrite {short}
-            \acroifT {alt} {/} \acrowrite {alt}
+            \acrolistlabel
             &
             \acrowrite {list}
             \acroifanyT {foreign,extra} {~(}
@@ -5632,7 +5645,9 @@
         \contentsline {acro}
           {
             \numberline
-              { \acrowrite {short} \acroifT {alt} {/} \acrowrite {alt} }
+              {
+                \acrolistlabel
+              }
               {
                 \acrowrite {list}
                 \acroifanyT {foreign,extra} {~(}
@@ -5657,7 +5672,7 @@
     \acronymsmapF
       {
         \contentsline { \acroifchapterTF {chapter} {section} }
-          { \acrowrite {short} \acroifT {alt} {/} \acrowrite {alt} }
+          { \acrolistlabel } 
           {}{}
         \contentsline { \acroifchapterF {sub} section }
           {
