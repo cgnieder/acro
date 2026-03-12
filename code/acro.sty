@@ -4509,7 +4509,7 @@
 % #1: id
 % #2: property
 % #3: text
-\cs_new_protected:Npn \__acro_make_link:nnn #1#2#3
+\cs_set_protected:Npn \__acro_make_link:nnn #1#2#3
   {
     \acro_if_short:nTF {#2}
       {
@@ -4533,25 +4533,14 @@
               { \l__acro_list_bool }
               { \int_compare_p:nNn { \l_acro_nest_level_int } = 0 }
               {
+                % Standard target for the list
                 \__acro_hyper_target:en
-                  {
-                    acro : #1
-                    \bool_lazy_and:nnT
-                      { \l__acro_list_local_bool }
-                      { \l__acro_usage_local_bool }
-                      { : \int_use:N \g_acro_barrier_int }
-                  }
+                  { acro : #1 \bool_lazy_and:nnT { \l__acro_list_local_bool } { \l__acro_usage_local_bool } { : \int_use:N \g_acro_barrier_int } }
                   {#3}
               }
               {
-                \__acro_hyper_link:en
-                  {
-                    acro : #1
-                    \bool_if:NT \l__acro_usage_local_bool
-                      { : \int_use:N \g_acro_barrier_int }
-                  }
-                  { \phantom {#3} }
-                \__acro_color_link:n { \hbox_overlap_left:n {#3} }
+                % Requires HYPERREF instead of the phantom/hbox.
+                \hyperlink { acro : #1 \bool_if:NT \l__acro_usage_local_bool { : \int_use:N \g_acro_barrier_int } } {#3}
               }
           }
           {#3}
