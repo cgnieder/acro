@@ -492,7 +492,7 @@
 \cs_generate_variant:Nn \tl_put_right:Nn {Ne}
 \cs_generate_variant:Nn \clist_set:Nn {Ne}
 \cs_generate_variant:Nn \str_if_eq:nnT {x}
-\cs_generate_variant:Nn \str_foldcase:n {e}
+\cs_generate_variant:Nn \str_casefold:n {e}
 \cs_generate_variant:Nn \str_lowercase:n {e}
 \cs_generate_variant:Nn \msg_error:nnnnn {nnnxx}
 \cs_generate_variant:Nn \msg_warning:nn {nV}
@@ -2893,8 +2893,8 @@
         \int_compare:nNnTF
           {
             \__acro_strcmp:nn
-              { \str_foldcase:e { \acro_property_get:nn {##1} {sort} } }
-              { \str_foldcase:e { \acro_property_get:nn {##2} {sort} } }
+              { \str_casefold:e { \acro_property_get:nn {##1} {sort} } }
+              { \str_casefold:e { \acro_property_get:nn {##2} {sort} } }
           } = {-1}
           { \sort_return_same: }
           { \sort_return_swapped: }
@@ -2908,8 +2908,8 @@
         \int_compare:nNnTF
           {
             \__acro_strcmp:nn
-              { \str_foldcase:e {##1} }
-              { \str_foldcase:e {##2} }
+              { \str_casefold:e {##1} }
+              { \str_casefold:e {##2} }
           } = {-1}
           { \sort_return_same: }
           { \sort_return_swapped: }
