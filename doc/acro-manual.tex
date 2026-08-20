@@ -940,7 +940,7 @@ If you want to include the page numbers where the acronyms have been used in
 the list of acronym you can use these options:
 \begin{options}
   \keychoice{display}{first,all,none}\Module{pages}\Initial{none}
-    Decide whether to include page numbers in the list of acroynms and
+    Decide whether to include page numbers in the list of acronyms and
     whether to add the first page or every page.  When you choose
     \code{first} and have \pkg{hyperref} loaded you will also get a
     backlink to that page.
@@ -2493,8 +2493,8 @@ Let's see an example. This is the definition of \cs{ac}:
 \end{sourcecode}
 Equivalent definitions would be:
 \begin{sourcecode}
-  \NewAcroCommand\ac{m}{\UseAcroTemplate[acroynm]{first}{#1}}
-  \NewAcroCommand\ac{m}{\UseAcroTemplate[acroynm]{first}[1]{#1}}
+  \NewAcroCommand\ac{m}{\UseAcroTemplate[acronym]{first}{#1}}
+  \NewAcroCommand\ac{m}{\UseAcroTemplate[acronym]{first}[1]{#1}}
   \NewAcroCommand\ac{m}{\UseAcroTemplate{first}[1]{#1}}
   \NewAcroCommand\ac{m}{\UseAcroTemplate{first}[2]{#1}{}}
 \end{sourcecode}
